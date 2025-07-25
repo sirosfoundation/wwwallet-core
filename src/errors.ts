@@ -1,6 +1,7 @@
 export class OauthError extends Error {
   error: string
   error_description: string
+  status: number
 
   constructor (status: number, error: string, error_description: string) {
     super(error_description)

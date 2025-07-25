@@ -1,16 +1,18 @@
 {
   "scripts": {
     "start": "ts-node ./app.ts",
-    "build": "ts-node --transpileOnly --files",
+    "build": "ts-node --typeCheck --project ./tsconfig.json ./app.ts",
     "test": "vitest"
   },
   "devDependencies": {
+    "@tsconfig/node22": "^22.0.2",
     "supertest": "^7.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@types/express": "^5.0.3",
     "express": "^5.1.0",
     "inversify": "^7.6.1",
     "jose": "^6.0.12"

@@ -1,8 +1,15 @@
+import { Config } from '..'
 import { OauthError } from '../errors'
+import { Request } from 'express'
 import { checkClientCredentials, generateAccessToken } from '../statements'
 
-export function clientCredentialsFactory(config) {
-  return async function clientCredentials(expressRequest) {
+type ClientCredentialsRequest = {
+  client_id: string
+  client_secret: string
+}
+
+export function clientCredentialsFactory(config: Config) {
+  return async function clientCredentials(expressRequest: Request) {
     try {
       const {
         client_id,
@@ -30,9 +37,9 @@ export function clientCredentialsFactory(config) {
   }
 }
 
-async function validateRequest(expressRequest) {
+async function validateRequest(expressRequest: Request): Promise<ClientCredentialsRequest> {
   if (!expressRequest.body) {
-    throw new OauthError(400, 'bad_request', 'client credentials requests must have a body')
+    throw new OauthError(400, 'bad_request', 'client credentials requests requires a body')
   }
 
   const {

@@ -11,7 +11,7 @@ describe('client credentials flow', () => {
     expect(response.status).toBe(400)
     expect(response.body).to.deep.eq({
       "error": "bad_request",
-      "error_description": "client credentials requests must have a body",
+      "error_description": "client credentials requests requires a body",
     })
   })
 

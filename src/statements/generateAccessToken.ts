@@ -1,6 +1,12 @@
 import { SignJWT } from 'jose'
+import { Config } from '..'
+import { OauthClient } from '../resources'
 
-export async function generateAccessToken({ client }, config) {
+export type generateAccessTokenParams = {
+  client: OauthClient
+}
+
+export async function generateAccessToken({ client }: generateAccessTokenParams, config: Config) {
   const now = Date.now() / 1000
 
   const secret = new TextEncoder().encode(config.secret)

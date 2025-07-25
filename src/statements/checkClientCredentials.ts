@@ -1,7 +1,14 @@
 import { OauthError } from '../errors'
+import { OauthClient } from '../resources'
+import { Config } from '..'
 
-export async function checkClientCredentials({ client_id, client_secret }, config) {
-  const client = config.clients.find(client => {
+type checkClientCredentialsParams = {
+  client_id: string
+  client_secret: string
+}
+
+export async function checkClientCredentials({ client_id, client_secret }: checkClientCredentialsParams, config: Config): Promise<{ client: OauthClient }> {
+  const client = config.clients.find((client: { id: string, secret: string }) => {
     return client.id == client_id &&
       client.secret == client_secret
   })
