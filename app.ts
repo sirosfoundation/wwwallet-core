@@ -1,14 +1,11 @@
 import express from 'express'
 import { config } from './config'
 
-import { container } from './container'
-import { Core } from './src'
+import { core } from './container'
 
 const app = express()
 
 app.use(express.json())
-
-const core = new Core(config)
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
@@ -26,7 +23,7 @@ app.post('/token', async (req, res) => {
   }
   reqPerSecond++
 
-  const response = await container.get<Core>('Core').clientCredentials(req)
+  const response = await core.clientCredentials(req)
 
   return res.status(response.status).send(response.body)
 })
