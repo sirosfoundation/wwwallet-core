@@ -3,11 +3,13 @@
 		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts",
 		"format": "biome format --write",
 		"biome:ci": "biome ci",
-		"test": "vitest"
+		"test": "vitest",
+		"prepare": "husky"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@tsconfig/node22": "^22.0.2",
+		"husky": "^9.1.7",
 		"supertest": "^7.1.4",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3",
