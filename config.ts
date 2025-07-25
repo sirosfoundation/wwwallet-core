@@ -2,6 +2,7 @@ export const config = {
   clients: [{
     id: 'id',
     secret: 'secret',
+    scopes: ['client:scope']
   }],
   secret: 'secret',
   access_token_signature_alg: 'HS256',

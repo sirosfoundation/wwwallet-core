@@ -44,6 +44,22 @@ describe('client credentials flow', () => {
     })
   })
 
+  it('returns an error with bad scope', async () => {
+    const client_id = 'id'
+    const client_secret = 'secret'
+    const scope = "bad:scope"
+
+    const response = await request(app)
+      .post('/token')
+      .send({ client_id, client_secret, scope })
+
+    expect(response.status).toBe(400)
+    expect(response.body).to.deep.eq({
+      "error": "bad_request",
+      "error_description": "Invalid scope",
+    })
+  })
+
   it('returns a token with valid client', async () => {
     const client_id = 'id'
     const client_secret = 'secret'
@@ -51,6 +67,21 @@ describe('client credentials flow', () => {
     const response = await request(app)
       .post('/token')
       .send({ client_id, client_secret })
+
+    expect(response.status).toBe(200)
+    assert(response.body.access_token)
+    assert(response.body.expires_in)
+    expect(response.body.token_type).to.eq('bearer')
+  })
+
+  it('returns a token with scope', async () => {
+    const client_id = 'id'
+    const client_secret = 'secret'
+    const scope = "client:scope"
+
+    const response = await request(app)
+      .post('/token')
+      .send({ client_id, client_secret, scope })
 
     expect(response.status).toBe(200)
     assert(response.body.access_token)

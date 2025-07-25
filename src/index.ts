@@ -1,7 +1,7 @@
 import { clientCredentialsFactory } from './handlers'
 
 export type Config = {
-  clients: Array<{ id: string, secret: string }>
+  clients: Array<{ id: string, secret: string, scopes: Array<string> }>
   access_token_ttl: number
   access_token_signature_alg: string
   secret: string

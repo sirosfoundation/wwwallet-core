@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "start": "ts-node ./app.ts",
-    "build": "ts-node --typeCheck --project ./tsconfig.json ./app.ts",
+    "start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts",
     "test": "vitest"
   },
   "devDependencies": {

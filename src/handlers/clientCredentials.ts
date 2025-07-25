@@ -1,22 +1,25 @@
 import { Config } from '..'
 import { OauthError } from '../errors'
 import { Request } from 'express'
-import { checkClientCredentials, generateAccessToken } from '../statements'
+import { checkClientCredentials, checkScope, generateAccessToken } from '../statements'
 
 type ClientCredentialsRequest = {
   client_id: string
-  client_secret: string
+  client_secret: string,
+  scope?: string
 }
 
 export function clientCredentialsFactory(config: Config) {
   return async function clientCredentials(expressRequest: Request) {
     try {
-      const {
-        client_id,
-        client_secret
-      } = await validateRequest(expressRequest)
+      const request = await validateRequest(expressRequest)
 
-      const { client } = await checkClientCredentials({ client_id, client_secret }, config)
+      const { client } = await checkClientCredentials({
+        client_id: request.client_id,
+        client_secret: request.client_secret
+      }, config)
+
+      const { scope } = await checkScope(request.scope, { client }, config)
 
       const { access_token, expires_in } = await generateAccessToken({ client }, config)
       return {
@@ -44,7 +47,8 @@ async function validateRequest(expressRequest: Request): Promise<ClientCredentia
 
   const {
     client_id,
-    client_secret
+    client_secret,
+    scope
   } = expressRequest.body
 
   if (!client_id) {
@@ -57,6 +61,7 @@ async function validateRequest(expressRequest: Request): Promise<ClientCredentia
 
   return {
     client_id,
-    client_secret
+    client_secret,
+    scope
   }
 }
