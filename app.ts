@@ -1,6 +1,7 @@
 import express from 'express'
 import { config } from './config'
 
+import { container } from './container'
 import { Core } from './src'
 
 const app = express()
@@ -25,7 +26,7 @@ app.post('/token', async (req, res) => {
   }
   reqPerSecond++
 
-  const response = await core.clientCredentials(req)
+  const response = await container.get<Core>('Core').clientCredentials(req)
 
   return res.status(response.status).send(response.body)
 })

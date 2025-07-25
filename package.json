@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "express": "^5.1.0",
+    "inversify": "^7.6.1",
     "jose": "^6.0.12"
   }
 }
