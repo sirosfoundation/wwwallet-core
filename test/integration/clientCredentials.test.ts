@@ -30,7 +30,7 @@ describe('client credentials flow', () => {
   })
 
   it('returns an error with invalid client_secret', async () => {
-    const client_id = 'client_id'
+    const client_id = 'id'
     const client_secret = 'client_secret'
 
     const response = await request(app)
