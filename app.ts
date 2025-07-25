@@ -1,4 +1,5 @@
 import express from "express";
+import expressListRoutes from "express-list-routes";
 
 import { core } from "./container";
 
@@ -12,10 +13,9 @@ app.get("/", (_req, res) => {
 
 let reqPerSecond = 0;
 let now = Date.now();
-
 app.post("/token", async (req, res) => {
 	if (Date.now() - now > 1000) {
-		console.log(reqPerSecond);
+		console.log("request per second", reqPerSecond);
 
 		reqPerSecond = 0;
 		now = Date.now();
@@ -29,8 +29,11 @@ app.post("/token", async (req, res) => {
 
 app.listen(5000, () => {
 	console.log(
-		"wwwallet client credentials Proof of Concept listening to port 5000",
+		"========== wwwallet client credentials Proof of Concept listening to port 5000",
 	);
+
+	expressListRoutes(app);
+	console.log("==========");
 });
 
 export { app };

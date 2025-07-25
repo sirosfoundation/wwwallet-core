@@ -1,5 +1,4 @@
 import { Container } from "inversify";
-
 import { config } from "./config";
 import { Core } from "./src";
 
