@@ -1,7 +1,7 @@
 import { Container } from 'inversify'
 
-import { Core } from 'src'
-import { config } from 'config'
+import { Core } from './src'
+import { config } from './config'
 
 const container = new Container()
 
