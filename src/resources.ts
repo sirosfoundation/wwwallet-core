@@ -1,5 +1,5 @@
 export type OauthClient = {
-  id: string
-  secret: string,
-  scopes: Array<string>
-}
+	id: string;
+	secret: string;
+	scopes: Array<string>;
+};

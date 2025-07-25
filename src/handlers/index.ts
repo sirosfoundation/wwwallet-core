@@ -1,1 +1,1 @@
-export * from './clientCredentials'
+export * from "./clientCredentials";

@@ -1,20 +1,20 @@
-import { clientCredentialsFactory } from './handlers'
+import { clientCredentialsFactory } from "./handlers";
 
 export type Config = {
-  clients: Array<{ id: string, secret: string, scopes: Array<string> }>
-  access_token_ttl: number
-  access_token_signature_alg: string
-  secret: string
-}
+	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	access_token_ttl: number;
+	access_token_signature_alg: string;
+	secret: string;
+};
 
 export class Core {
-  config: Config
+	config: Config;
 
-  constructor(config: Config) {
-    this.config = config
-  }
+	constructor(config: Config) {
+		this.config = config;
+	}
 
-  get clientCredentials() {
-    return clientCredentialsFactory(this.config)
-  }
+	get clientCredentials() {
+		return clientCredentialsFactory(this.config);
+	}
 }
