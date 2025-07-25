@@ -1,0 +1,17 @@
+{
+  "extends": "ts-node/node16/tsconfig.json",
+
+  "ts-node": {
+    "transpileOnly": true,
+
+    "files": true,
+
+    "compilerOptions": {
+      "strict": true,
+      "moduleResolution": "nodenext",
+      "rootDir": "./src",
+      "outDir": "./.dist"
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", "app.ts", "config.ts"]
+}
