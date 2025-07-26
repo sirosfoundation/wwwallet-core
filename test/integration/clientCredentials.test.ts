@@ -71,6 +71,21 @@ describe("client credentials flow", () => {
 		expect(response.body.token_type).to.eq("bearer");
 	});
 
+	it("returns a token with www-form-urlencoded", async () => {
+		const client_id = "id";
+		const client_secret = "secret";
+
+		const response = await request(app)
+			.post("/token")
+			.type("form")
+			.send({ client_id, client_secret });
+
+		expect(response.status).toBe(200);
+		assert(response.body.access_token);
+		assert(response.body.expires_in);
+		expect(response.body.token_type).to.eq("bearer");
+	});
+
 	it("returns a token with scope", async () => {
 		const client_id = "id";
 		const client_secret = "secret";

@@ -5,6 +5,7 @@ export function server(core: Core) {
 	const app = express();
 
 	app.use(express.json());
+	app.use(express.urlencoded());
 
 	app.get("/", (_req, res) => {
 		res.send("Hello World!");
