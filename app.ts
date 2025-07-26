@@ -10,7 +10,7 @@ app.get("/", (_req, res) => {
 	res.send("Hello World!");
 });
 
-let reqPerSecond = 0;
+let reqPerSecond = 1;
 let now = Date.now();
 app.post("/token", async (req, res) => {
 	if (Date.now() - now > 1000) {
