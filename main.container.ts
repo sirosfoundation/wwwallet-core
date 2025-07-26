@@ -1,5 +1,5 @@
 import { Container } from "inversify";
-import { config } from "./app.config";
+import { config } from "./main.config";
 import { Core } from "./src";
 
 const container = new Container();

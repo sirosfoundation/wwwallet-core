@@ -1,8 +1,7 @@
 import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { assert, describe, expect, it } from "vitest";
-import { app } from "../../app";
-import { config } from "../../app.config";
+import { app, config } from "../support/app";
 
 describe("client credentials flow", () => {
 	it("returns an error with no body", async () => {

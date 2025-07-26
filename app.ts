@@ -1,38 +1,30 @@
 import express from "express";
-import expressListRoutes from "express-list-routes";
-import { core } from "./app.container";
+import type { Core } from "./src";
 
-const app = express();
+export function server(core: Core) {
+	const app = express();
 
-app.use(express.json());
+	app.use(express.json());
 
-app.get("/", (_req, res) => {
-	res.send("Hello World!");
-});
+	app.get("/", (_req, res) => {
+		res.send("Hello World!");
+	});
 
-let reqPerSecond = 1;
-let now = Date.now();
-app.post("/token", async (req, res) => {
-	if (Date.now() - now > 1000) {
-		console.log("request per second", reqPerSecond);
+	let reqPerSecond = 1;
+	let now = Date.now();
+	app.post("/token", async (req, res) => {
+		if (Date.now() - now > 1000) {
+			console.log("request per second", reqPerSecond);
 
-		reqPerSecond = 0;
-		now = Date.now();
-	}
-	reqPerSecond++;
+			reqPerSecond = 0;
+			now = Date.now();
+		}
+		reqPerSecond++;
 
-	const response = await core.clientCredentials(req);
+		const response = await core.clientCredentials(req);
 
-	return res.status(response.status).send(response.body);
-});
+		return res.status(response.status).send(response.body);
+	});
 
-app.listen(5000, () => {
-	console.log(
-		"========== wwwallet client credentials Proof of Concept listening to port 5000",
-	);
-
-	expressListRoutes(app);
-	console.log("==========");
-});
-
-export { app };
+	return app;
+}

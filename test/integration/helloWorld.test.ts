@@ -1,7 +1,7 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import { app } from "../../app";
+import { app } from "../support/app";
 
 describe("hello world", () => {
 	it("renders", async () => {

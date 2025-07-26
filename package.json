@@ -1,6 +1,6 @@
 {
 	"scripts": {
-		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts",
+		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts",
 		"format": "biome format --write",
 		"biome:ci": "biome ci",
 		"test": "vitest",
