@@ -1,7 +1,6 @@
 import express from "express";
 import expressListRoutes from "express-list-routes";
-
-import { core } from "./container";
+import { core } from "./app.container";
 
 const app = express();
 

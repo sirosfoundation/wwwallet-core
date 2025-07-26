@@ -8,6 +8,8 @@ npm ci
 
 ### Configuration
 
+Server static configuration can be edited, quoting the following example values:
+
 ```js
 // ./config.ts
 
