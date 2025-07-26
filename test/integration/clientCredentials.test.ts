@@ -91,6 +91,7 @@ describe("client credentials flow", () => {
 			new TextEncoder().encode(config.secret),
 		);
 
+		expect(payload.scope).to.eq(scope);
 		assert(config.clients.find(({ id }) => id === payload.sub));
 	});
 });

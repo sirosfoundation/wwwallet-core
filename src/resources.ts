@@ -3,3 +3,5 @@ export type OauthClient = {
 	secret: string;
 	scopes: Array<string>;
 };
+
+export type OauthScope = string;

@@ -1,20 +1,21 @@
 import { EncryptJWT } from "jose";
 import type { Config } from "..";
-import type { OauthClient } from "../resources";
+import type { OauthClient, OauthScope } from "../resources";
 
 export type generateAccessTokenParams = {
 	client: OauthClient;
+	scope: OauthScope;
 };
 
 export async function generateAccessToken(
-	{ client }: generateAccessTokenParams,
+	{ client, scope }: generateAccessTokenParams,
 	config: Config,
 ) {
 	const now = Date.now() / 1000;
 
 	const secret = new TextEncoder().encode(config.secret);
 
-	const access_token = await new EncryptJWT({ sub: client.id })
+	const access_token = await new EncryptJWT({ sub: client.id, scope })
 		.setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
 		.setIssuedAt()
 		.setExpirationTime(now + config.access_token_ttl)

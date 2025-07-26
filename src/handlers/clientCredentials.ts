@@ -26,11 +26,10 @@ export function clientCredentialsFactory(config: Config) {
 				config,
 			);
 
-			// TODO add scope in access tokens
-			await checkScope(request.scope, { client }, config);
+			const { scope } = await checkScope(request.scope, { client }, config);
 
 			const { access_token, expires_in } = await generateAccessToken(
-				{ client },
+				{ client, scope },
 				config,
 			);
 			return {
