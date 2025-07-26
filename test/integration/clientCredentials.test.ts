@@ -1,7 +1,8 @@
+import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { assert, describe, expect, it } from "vitest";
-
 import { app } from "../../app";
+import { config } from "../../app.config";
 
 describe("client credentials flow", () => {
 	it("returns an error with no body", async () => {
@@ -84,5 +85,12 @@ describe("client credentials flow", () => {
 		assert(response.body.access_token);
 		assert(response.body.expires_in);
 		expect(response.body.token_type).to.eq("bearer");
+
+		const { payload } = await jwtDecrypt(
+			response.body.access_token,
+			new TextEncoder().encode(config.secret),
+		);
+
+		assert(config.clients.find(({ id }) => id === payload.sub));
 	});
 });

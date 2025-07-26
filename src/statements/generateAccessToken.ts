@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { EncryptJWT } from "jose";
 import type { Config } from "..";
 import type { OauthClient } from "../resources";
 
@@ -14,11 +14,11 @@ export async function generateAccessToken(
 
 	const secret = new TextEncoder().encode(config.secret);
 
-	const access_token = await new SignJWT({ sub: client.id })
-		.setProtectedHeader({ alg: config.access_token_signature_alg })
+	const access_token = await new EncryptJWT({ sub: client.id })
+		.setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
 		.setIssuedAt()
 		.setExpirationTime(now + config.access_token_ttl)
-		.sign(secret);
+		.encrypt(secret);
 
 	const expires_in = config.access_token_ttl;
 
