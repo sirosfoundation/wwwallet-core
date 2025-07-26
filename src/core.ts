@@ -3,7 +3,7 @@ import { clientCredentialsFactory } from "./handlers";
 export type Config = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
-	access_token_signature_alg: string;
+	access_token_encryption: string;
 	secret: string;
 };
 

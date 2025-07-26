@@ -16,7 +16,7 @@ export async function generateAccessToken(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const access_token = await new EncryptJWT({ sub: client.id, scope })
-		.setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
+		.setProtectedHeader({ alg: "dir", enc: config.access_token_encryption })
 		.setIssuedAt()
 		.setExpirationTime(now + config.access_token_ttl)
 		.encrypt(secret);
