@@ -56,4 +56,20 @@ $ curl -X POST http://localhost:5000/token \
 
 ```sh
 npm test
+
+> test
+> vitest
+
+
+ DEV  v3.2.4 [...]
+
+ ✓ test/integration/clientCredentials.monadic.test.ts (7 tests) 46ms
+ ✓ test/integration/clientCredentials.functional.test.ts (7 tests) 46ms
+
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+   Start at  11:31:24
+   Duration  445ms (transform 157ms, setup 0ms, collect 440ms, tests 92ms, environment 0ms, prepare 98ms)
+
+ PASS  Waiting for file changes...
 ```
