@@ -55,7 +55,7 @@ $ curl -X POST http://localhost:5000/token \
 ## Run tests
 
 ```sh
-npm test
+npm run test
 
 > test
 > vitest
@@ -63,13 +63,13 @@ npm test
 
  DEV  v3.2.4 [...]
 
- ✓ test/integration/clientCredentials.monadic.test.ts (7 tests) 46ms
- ✓ test/integration/clientCredentials.functional.test.ts (7 tests) 46ms
+ ✓ test/integration/helloWorld.test.ts (1 test) 14ms
+ ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
 
  Test Files  2 passed (2)
-      Tests  14 passed (14)
-   Start at  11:31:24
-   Duration  445ms (transform 157ms, setup 0ms, collect 440ms, tests 92ms, environment 0ms, prepare 98ms)
+      Tests  8 passed (8)
+   Start at  18:33:14
+   Duration  349ms (transform 69ms, setup 0ms, collect 279ms, tests 56ms, environment 0ms, prepare 102ms)
 
  PASS  Waiting for file changes...
 ```
