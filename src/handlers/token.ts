@@ -13,8 +13,8 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
-export function clientCredentialsFactory(config: Config) {
-	return async function clientCredentials(expressRequest: Request) {
+export function tokenFactory(config: Config) {
+	return async function token(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -61,6 +61,16 @@ async function validateRequest(
 		);
 	}
 
+	if (expressRequest.body.grant_type === "client_credentials") {
+		return validateClientCredentialsRequest(expressRequest);
+	}
+
+	throw new OauthError(400, "bad_request", "grant_type is not supported");
+}
+
+async function validateClientCredentialsRequest(
+	expressRequest: Request,
+): Promise<ClientCredentialsRequest> {
 	const { client_id, client_secret, scope } = expressRequest.body;
 
 	if (!client_id) {

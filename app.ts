@@ -22,7 +22,7 @@ export function server(core: Core) {
 		}
 		reqPerSecond++;
 
-		const response = await core.clientCredentials(req);
+		const response = await core.token(req);
 
 		return res.status(response.status).send(response.body);
 	});

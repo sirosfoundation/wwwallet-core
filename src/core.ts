@@ -1,4 +1,4 @@
-import { clientCredentialsFactory } from "./handlers";
+import { tokenFactory } from "./handlers";
 
 export type Config = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
@@ -14,7 +14,7 @@ export class Core {
 		this.config = config;
 	}
 
-	get clientCredentials() {
-		return clientCredentialsFactory(this.config);
+	get token() {
+		return tokenFactory(this.config);
 	}
 }
