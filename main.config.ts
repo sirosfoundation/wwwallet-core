@@ -11,15 +11,15 @@ export const config = {
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
 		scopes: [
-			"urn:eudi:ehic:1",
-			"urn:credential:diploma",
-			"urn:eudi:pid:1:dc:jpt",
 			"eu.europa.ec.eudi.pid.1",
-			"urn:eudi:pid:1:dc",
+			"urn:credential:diploma",
 			"urn:eu.europa.ec.eudi:pid:1:dc",
 			"urn:eu.europa.ec.eudi:pid:1:vc",
-			"urn:eudi:pid:1:vc",
 			"urn:eu.europa.ec.eudi:por:1",
+			"urn:eudi:ehic:1",
+			"urn:eudi:pid:1:dc",
+			"urn:eudi:pid:1:dc:jpt",
+			"urn:eudi:pid:1:vc",
 		],
 	},
 };
