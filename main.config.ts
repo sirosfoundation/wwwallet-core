@@ -7,7 +7,7 @@ export const config = {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
 		) {
-			console.log("insertFlowState to be implemented");
+			console.log("insertFlowState not implemented");
 			return authorizationServerState;
 		},
 	},

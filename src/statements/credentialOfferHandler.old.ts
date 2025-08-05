@@ -56,7 +56,15 @@ function getAllRegisteredCredentialConfigurations(): Array<{
 	exportCredentialSupportedObject: () => unknown;
 	getId: () => string;
 }> {
-	return [];
+	return [
+		{
+			getScope: () => "test:scope",
+			exportCredentialSupportedObject: () => {
+				return {};
+			},
+			getId: () => "test",
+		},
+	];
 }
 
 async function generateCredentialOfferURL(
