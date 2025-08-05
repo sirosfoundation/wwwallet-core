@@ -1,4 +1,4 @@
-import { tokenFactory } from "./handlers";
+import { tokenHandlerFactory } from "./handlers";
 
 export type Config = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
@@ -15,6 +15,6 @@ export class Core {
 	}
 
 	get token() {
-		return tokenFactory(this.config);
+		return tokenHandlerFactory(this.config);
 	}
 }

@@ -13,8 +13,8 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
-export function tokenFactory(config: Config) {
-	return async function token(expressRequest: Request) {
+export function tokenHandlerFactory(config: Config) {
+	return async function tokenHandler(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
 
