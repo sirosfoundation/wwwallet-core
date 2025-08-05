@@ -38,6 +38,7 @@ $ npm start
 ========== wwwallet client credentials Proof of Concept listening to port 5000
 GET      /
 POST     /token
+GET      /offer/:scope
 ==========
 ```
 
@@ -65,6 +66,7 @@ npm run test
 
  ✓ test/integration/helloWorld.test.ts (1 test) 14ms
  ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
+ ✓ test/integration/credentialOffer.test.ts (10 tests) 35ms
 
  Test Files  2 passed (2)
       Tests  8 passed (8)
