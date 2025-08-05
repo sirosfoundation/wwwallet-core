@@ -13,8 +13,6 @@ export const config = {
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
-		id: "id",
-		secret: "secret",
 		scopes: [
 			"urn:eudi:ehic:1",
 			"urn:credential:diploma",
