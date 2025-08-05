@@ -1,4 +1,16 @@
+import type { AuthorizationServerState } from "./src/resources";
+
 export const config = {
+	issuer_url: "http://localhost:5000",
+	wallet_url: "http://localhost:3000",
+	databaseOperations: {
+		async insertAuthorizationServerState(
+			authorizationServerState: AuthorizationServerState,
+		) {
+			console.log("insertFlowState to be implemented");
+			return authorizationServerState;
+		},
+	},
 	clients: [
 		{
 			id: "id",

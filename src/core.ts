@@ -1,6 +1,14 @@
 import { clientCredentialsFactory, credentialOfferFactory } from "./handlers";
+import type { AuthorizationServerState } from "./resources";
 
 export type Config = {
+	databaseOperations: {
+		insertAuthorizationServerState: (
+			authorizationServerState: AuthorizationServerState,
+		) => Promise<AuthorizationServerState>;
+	};
+	issuer_url: string;
+	wallet_url: string;
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	access_token_encryption: string;

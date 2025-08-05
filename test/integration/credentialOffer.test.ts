@@ -28,8 +28,11 @@ describe("credential offer endpoint", () => {
 		it("returns", async () => {
 			const response = await request(app).get(`/offer/${scope}`);
 
-			expect(response.status).toBe(200);
-			expect(response.body).to.deep.eq({});
+			expect(response.status).toBe(404);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "credential not found",
+			});
 		});
 	});
 });

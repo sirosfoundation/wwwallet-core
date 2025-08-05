@@ -1,26 +1,34 @@
-import type { Request, Response } from "express";
+import type { Request } from "express";
+import * as qrcode from "qrcode";
+import type { Config } from "../core";
+import { OauthError } from "../errors";
+import type { AuthorizationServerState } from "../resources";
 
-export async function credentialOfferHandler(expressRequest: Request) {
-	const scope = req.params.scope;
-	const supportedCredentialConfig = credentialConfigurationRegistryService
-		.getAllRegisteredCredentialConfigurations()
-		.filter((sc) => sc.getScope() == scope)[0];
+export async function credentialOfferHandler(
+	expressRequest: Request,
+	config: Config,
+) {
+	const scope = expressRequest.params.scope;
+	const supportedCredentialConfig =
+		getAllRegisteredCredentialConfigurations().filter(
+			(sc) => sc.getScope() === scope,
+		)[0];
 	if (supportedCredentialConfig) {
 		const supportedCredentialType =
 			supportedCredentialConfig.exportCredentialSupportedObject();
 
-		req.session.authenticationChain = {};
-		const result =
-			await openidForCredentialIssuingAuthorizationServerService.generateCredentialOfferURL(
-				{ req, res },
-				[supportedCredentialConfig.getId()],
-			);
+		// expressRequest.session.authenticationChain = {};
+		const result = await generateCredentialOfferURL(
+			{ req: expressRequest },
+			[supportedCredentialConfig.getId()],
+			config,
+		);
 
-		let credentialOfferQR = (await new Promise((resolve) => {
+		const credentialOfferQR = (await new Promise((resolve) => {
 			qrcode.toDataURL(
 				result.url
 					.toString()
-					.replace(config.wwwalletURL, "openid-credential-offer://"),
+					.replace(config.wallet_url, "openid-credential-offer://"),
 				{
 					margin: 1,
 					errorCorrectionLevel: "L",
@@ -34,24 +42,36 @@ export async function credentialOfferHandler(expressRequest: Request) {
 		})) as string;
 
 		return {
-			credentialOfferURL: result.url,
-			credentialOfferQR,
+			credentialOfferUrl: result.url,
+			credentialOfferQrCode: credentialOfferQR,
 			supportedCredentialType,
 		};
 	}
+
+	throw new OauthError(404, "invalid_request", "credential not found");
+}
+
+function getAllRegisteredCredentialConfigurations(): Array<{
+	getScope: () => string;
+	exportCredentialSupportedObject: () => unknown;
+	getId: () => string;
+}> {
+	return [];
 }
 
 async function generateCredentialOfferURL(
-	ctx: { req: Request; res: Response },
+	ctx: { req: Request },
 	credentialConfigurationIds: string[],
-	issuerState?: string,
+	config: Config,
 ): Promise<{
 	url: URL;
 	user_pin_required?: boolean;
 	user_pin?: string | undefined;
 }> {
+	const issuerState = "issuer_state";
 	// force creation of new state with a separate pre-authorized_code which has specific scope
-	let newAuthorizationServerState: AuthorizationServerState = {
+	const newAuthorizationServerState: AuthorizationServerState = {
+		// @ts-ignore
 		...ctx.req.authorizationServerState,
 		id: 0,
 	} as AuthorizationServerState;
@@ -62,13 +82,14 @@ async function generateCredentialOfferURL(
 		newAuthorizationServerState.issuer_state = issuerState;
 	}
 
-	const insertRes = await this.authorizationServerStateRepository.insert(
-		newAuthorizationServerState,
-	);
+	const insertRes =
+		await config.databaseOperations.insertAuthorizationServerState(
+			newAuthorizationServerState,
+		);
 	console.log("Insertion result = ", insertRes);
 
 	const credentialOffer = {
-		credential_issuer: config.url,
+		credential_issuer: config.issuer_url,
 		credential_configuration_ids: credentialConfigurationIds,
 		grants: {},
 	};
@@ -87,7 +108,8 @@ async function generateCredentialOfferURL(
 	}
 
 	const redirect_uri =
-		ctx.req?.authorizationServerState?.redirect_uri ?? config.wwwalletURL;
+		// @ts-ignore
+		ctx.req?.authorizationServerState?.redirect_uri ?? config.wallet_url;
 	const credentialOfferURL = new URL(redirect_uri);
 	credentialOfferURL.searchParams.append(
 		"credential_offer",

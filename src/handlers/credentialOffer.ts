@@ -1,7 +1,11 @@
 import type { Request } from "express";
 import type { Config } from "..";
 import { OauthError } from "../errors";
-import { checkScope, issuerClient } from "../statements";
+import {
+	checkScope,
+	credentialOfferHandler,
+	issuerClient,
+} from "../statements";
 
 type CredentialOfferRequest = {
 	scope: string;
@@ -20,9 +24,19 @@ export function credentialOfferFactory(config: Config) {
 				config,
 			);
 
+			const {
+				credentialOfferUrl,
+				credentialOfferQrCode,
+				supportedCredentialType,
+			} = await credentialOfferHandler(expressRequest, config);
+
 			return {
 				status: 200,
-				body: {},
+				body: {
+					credentialOfferUrl,
+					credentialOfferQrCode,
+					supportedCredentialType,
+				},
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
