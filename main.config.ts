@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { AuthorizationServerState } from "./src/resources";
 
 export const config = {
@@ -7,7 +9,7 @@ export const config = {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
 		) {
-			console.log("insertFlowState not implemented");
+			console.log("insertAuthorizationServerState not implemented");
 			return authorizationServerState;
 		},
 	},
@@ -23,15 +25,32 @@ export const config = {
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
 		scopes: [
-			"eu.europa.ec.eudi.pid.1",
-			"urn:credential:diploma",
-			"urn:eu.europa.ec.eudi:pid:1:dc",
-			"urn:eu.europa.ec.eudi:pid:1:vc",
-			"urn:eu.europa.ec.eudi:por:1",
-			"urn:eudi:ehic:1",
-			"urn:eudi:pid:1:dc",
-			"urn:eudi:pid:1:dc:jpt",
-			"urn:eudi:pid:1:vc",
+			"ehic",
+			"diploma",
+			"pid:jpt_dc",
+			"pid:mso_mdoc",
+			"pid:sd_jwt_dc",
+			"pid:sd_jwt_dc:arf_1_5",
+			"pid:sd_jwt_vc:arf_1_5",
+			"pid:sd_jwt_vc",
+			"por:sd_jwt_vc",
 		],
 	},
+	supported_credential_configurations: [
+		// "./credentials/eu.europa.ec.eudi.pid.1.json",
+		// "./credentials/urn:credential:diploma.json",
+		// "./credentials/urn:eu.europa.ec.eudi:pid:1:dc.json",
+		// "./credentials/urn:eu.europa.ec.eudi:pid:1:vc.json",
+		// "./credentials/urn:eu.europa.ec.eudi:por:1.json",
+		// "./credentials/urn:eudi:ehic:1.json",
+		// "./credentials/urn:eudi:pid:1:dc.json",
+		// "./credentials/urn:eudi:pid:1:dc:jpt.json",
+		// "./credentials/urn:eudi:pid:1:vc.json",
+	].map((credentialConfigurationPath) => {
+		const credential = fs
+			.readFileSync(path.join(__dirname, credentialConfigurationPath))
+			.toString();
+
+		return JSON.parse(credential);
+	}),
 };

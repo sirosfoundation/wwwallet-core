@@ -16,6 +16,12 @@ export type Config = {
 	issuer_client: {
 		scopes: Array<string>;
 	};
+	supported_credential_configurations: Array<{
+		credential_configuration_id: string;
+		scope: string;
+		format: string;
+		vct?: string;
+	}>;
 };
 
 export class Core {

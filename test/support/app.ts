@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { server } from "../../app";
 import { Core } from "../../src";
 
@@ -8,7 +10,7 @@ export const config = {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
 		) {
-			console.log("insertFlowState not implemented");
+			console.log("insertAuthorizationServerState not implemented");
 			return authorizationServerState;
 		},
 	},
@@ -24,18 +26,28 @@ export const config = {
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
 		scopes: [
-			"test:scope",
-			"eu.europa.ec.eudi.pid.1",
-			"urn:credential:diploma",
-			"urn:eu.europa.ec.eudi:pid:1:dc",
-			"urn:eu.europa.ec.eudi:pid:1:vc",
-			"urn:eu.europa.ec.eudi:por:1",
-			"urn:eudi:ehic:1",
-			"urn:eudi:pid:1:dc",
-			"urn:eudi:pid:1:dc:jpt",
-			"urn:eudi:pid:1:vc",
+			"not_found:scope",
+			"minimal:scope",
+			"ehic",
+			"diploma",
+			"pid:jpt_dc",
+			"pid:mso_mdoc",
+			"pid:sd_jwt_dc",
+			"pid:sd_jwt_dc:arf_1_5",
+			"pid:sd_jwt_vc:arf_1_5",
+			"pid:sd_jwt_vc",
+			"por:sd_jwt_vc",
 		],
 	},
+	supported_credential_configurations: [
+		"./credential_configurations/minimal.json",
+	].map((credentialConfigurationPath) => {
+		const credential = fs
+			.readFileSync(path.join(__dirname, credentialConfigurationPath))
+			.toString();
+
+		return JSON.parse(credential);
+	}),
 };
 
 const app = server(new Core(config));

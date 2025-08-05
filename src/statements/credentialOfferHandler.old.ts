@@ -2,7 +2,10 @@ import type { Request } from "express";
 import * as qrcode from "qrcode";
 import type { Config } from "../core";
 import { OauthError } from "../errors";
-import type { AuthorizationServerState } from "../resources";
+import type {
+	AuthorizationServerState,
+	CredentialConfiguration,
+} from "../resources";
 
 export async function credentialOfferHandler(
 	expressRequest: Request,
@@ -10,17 +13,18 @@ export async function credentialOfferHandler(
 ) {
 	const scope = expressRequest.params.scope;
 	const supportedCredentialConfig =
-		getAllRegisteredCredentialConfigurations().filter(
-			(sc) => sc.getScope() === scope,
+		config.supported_credential_configurations.filter(
+			(sc) => sc.scope === scope,
 		)[0];
 	if (supportedCredentialConfig) {
-		const supportedCredentialType =
-			supportedCredentialConfig.exportCredentialSupportedObject();
+		const supportedCredentialType = credentialConfigurationSupported(
+			supportedCredentialConfig,
+		);
 
 		// expressRequest.session.authenticationChain = {};
 		const result = await generateCredentialOfferURL(
 			{ req: expressRequest },
-			[supportedCredentialConfig.getId()],
+			supportedCredentialConfig.credential_configuration_id,
 			config,
 		);
 
@@ -48,28 +52,36 @@ export async function credentialOfferHandler(
 		};
 	}
 
-	throw new OauthError(404, "invalid_request", "credential not found");
+	throw new OauthError(
+		404,
+		"invalid_request",
+		"credential not supported by the issuer",
+	);
 }
 
-function getAllRegisteredCredentialConfigurations(): Array<{
-	getScope: () => string;
-	exportCredentialSupportedObject: () => unknown;
-	getId: () => string;
-}> {
-	return [
-		{
-			getScope: () => "test:scope",
-			exportCredentialSupportedObject: () => {
-				return {};
+function credentialConfigurationSupported(
+	credentialConfiguration: CredentialConfiguration,
+) {
+	const { scope, vct, format } = credentialConfiguration;
+
+	return {
+		scope,
+		vct,
+		format,
+		display: [],
+		cryptographic_binding_methods_supported: ["jwk"],
+		credential_signing_alg_values_supported: ["ES256"],
+		proof_types_supported: {
+			jwt: {
+				proof_signing_alg_values_supported: ["ES256"],
 			},
-			getId: () => "test",
 		},
-	];
+	};
 }
 
 async function generateCredentialOfferURL(
 	ctx: { req: Request },
-	credentialConfigurationIds: string[],
+	credentialConfigurationId: string,
 	config: Config,
 ): Promise<{
 	url: URL;
@@ -83,8 +95,9 @@ async function generateCredentialOfferURL(
 		...ctx.req.authorizationServerState,
 		id: 0,
 	} as AuthorizationServerState;
-	newAuthorizationServerState.credential_configuration_ids =
-		credentialConfigurationIds;
+	newAuthorizationServerState.credential_configuration_ids = [
+		credentialConfigurationId,
+	];
 
 	if (issuerState) {
 		newAuthorizationServerState.issuer_state = issuerState;
@@ -98,7 +111,7 @@ async function generateCredentialOfferURL(
 
 	const credentialOffer = {
 		credential_issuer: config.issuer_url,
-		credential_configuration_ids: credentialConfigurationIds,
+		credential_configuration_ids: [credentialConfigurationId],
 		grants: {},
 	};
 

@@ -8,11 +8,18 @@ export type OauthClient = {
 	scopes: Array<string>;
 };
 
+export type CredentialConfiguration = {
+	credential_configuration_id: string;
+	scope: string;
+	format: string;
+	vct?: string;
+};
+
 export type OauthScope = string;
 
 export type AuthorizationServerState = {
+	credential_configuration_ids: Array<string>;
+	issuer_state: string;
 	user_pin: string;
 	user_pin_required: boolean;
-	issuer_state: string;
-	credential_configuration_ids: Array<string>;
 };
