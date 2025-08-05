@@ -27,5 +27,11 @@ export function server(core: Core) {
 		return res.status(response.status).send(response.body);
 	});
 
+	app.get("/offer/:scope", async (req, res) => {
+		const response = await core.credentialOffer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	return app;
 }

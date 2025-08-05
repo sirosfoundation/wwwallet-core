@@ -1,9 +1,9 @@
 import type { Config } from "..";
 import { OauthError } from "../errors";
-import type { OauthClient } from "../resources";
+import type { IssuerClient, OauthClient } from "../resources";
 
 type checkScopeParams = {
-	client: OauthClient;
+	client: OauthClient | IssuerClient;
 };
 
 export async function checkScope(

@@ -1,10 +1,13 @@
-import { clientCredentialsFactory } from "./handlers";
+import { clientCredentialsFactory, credentialOfferFactory } from "./handlers";
 
 export type Config = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	access_token_encryption: string;
 	secret: string;
+	issuer_client: {
+		scopes: Array<string>;
+	};
 };
 
 export class Core {
@@ -16,5 +19,9 @@ export class Core {
 
 	get clientCredentials() {
 		return clientCredentialsFactory(this.config);
+	}
+
+	get credentialOffer() {
+		return credentialOfferFactory(this.config);
 	}
 }

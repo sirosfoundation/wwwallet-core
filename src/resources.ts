@@ -1,3 +1,7 @@
+export type IssuerClient = {
+	scopes: Array<string>;
+};
+
 export type OauthClient = {
 	id: string;
 	secret: string;
