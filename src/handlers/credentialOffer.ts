@@ -4,6 +4,7 @@ import { OauthError } from "../errors";
 import {
 	checkScope,
 	credentialOfferHandler,
+	generateIssuerGrants,
 	issuerClient,
 } from "../statements";
 
@@ -24,11 +25,13 @@ export function credentialOfferFactory(config: Config) {
 				config,
 			);
 
+			const { grants } = await generateIssuerGrants(config);
+
 			const {
 				credentialOfferUrl,
 				credentialOfferQrCode,
 				supportedCredentialType,
-			} = await credentialOfferHandler(expressRequest, config);
+			} = await credentialOfferHandler({ grants }, expressRequest, config);
 
 			return {
 				status: 200,

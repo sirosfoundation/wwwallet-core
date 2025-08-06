@@ -5,9 +5,11 @@ import { OauthError } from "../errors";
 import type {
 	AuthorizationServerState,
 	CredentialConfiguration,
+	IssuerGrants,
 } from "../resources";
 
 export async function credentialOfferHandler(
+	{ grants }: { grants: IssuerGrants },
 	expressRequest: Request,
 	config: Config,
 ) {
@@ -25,6 +27,7 @@ export async function credentialOfferHandler(
 		const result = await generateCredentialOfferURL(
 			{ req: expressRequest },
 			supportedCredentialConfig.credential_configuration_id,
+			grants,
 			config,
 		);
 
@@ -82,13 +85,14 @@ function credentialConfigurationSupported(
 async function generateCredentialOfferURL(
 	ctx: { req: Request },
 	credentialConfigurationId: string,
+	grants: IssuerGrants,
 	config: Config,
 ): Promise<{
 	url: URL;
 	user_pin_required?: boolean;
 	user_pin?: string | undefined;
 }> {
-	const issuerState = config.tokenGenerators.issuerState();
+	const issuerState = grants.authorization_code.issuer_state;
 	// force creation of new state with a separate pre-authorized_code which has specific scope
 	const newAuthorizationServerState: AuthorizationServerState = {
 		// @ts-ignore
@@ -112,21 +116,8 @@ async function generateCredentialOfferURL(
 	const credentialOffer = {
 		credential_issuer: config.issuer_url,
 		credential_configuration_ids: [credentialConfigurationId],
-		grants: {},
+		grants,
 	};
-
-	if (issuerState) {
-		// if issuer state was provided
-		credentialOffer.grants = {
-			authorization_code: {
-				issuer_state: issuerState,
-			},
-		};
-	} else {
-		credentialOffer.grants = {
-			authorization_code: {},
-		};
-	}
 
 	const redirect_uri =
 		// @ts-ignore

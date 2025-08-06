@@ -23,3 +23,9 @@ export type AuthorizationServerState = {
 	user_pin: string;
 	user_pin_required: boolean;
 };
+
+export type IssuerGrants = {
+	authorization_code: {
+		issuer_state: string;
+	};
+};
