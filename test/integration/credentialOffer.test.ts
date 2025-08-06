@@ -8,14 +8,27 @@ const credentialOfferUrl =
 	"http://localhost:3000/?credential_offer=%7B%22credential_issuer%22%3A%22http%3A%2F%2Flocalhost%3A5000%22%2C%22credential_configuration_ids%22%3A%5B%22minimal%22%5D%2C%22grants%22%3A%7B%22authorization_code%22%3A%7B%22issuer_state%22%3A%22issuerStateGeneratedToken%22%7D%7D%7D";
 
 describe("credential offer endpoint", () => {
-	it("returns an error with a bad scope", async () => {
+	it("returns an error with no accept header", async () => {
 		const scope = "bad:scope";
 		const response = await request(app).get(`/offer/${scope}`);
 
+		expect(response.status).toBe(415);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "unsupported media type",
+		});
+	});
+
+	it("returns an error with a bad scope", async () => {
+		const scope = "bad:scope";
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
+
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
-			error_description: "Invalid scope",
+			error: "invalid_request",
+			error_description: "invalid scope",
 		});
 	});
 
@@ -31,7 +44,9 @@ describe("credential offer endpoint", () => {
 		"por:sd_jwt_vc",
 	].forEach((scope) => {
 		it("WIP returns", async () => {
-			const response = await request(app).get(`/offer/${scope}`);
+			const response = await request(app)
+				.get(`/offer/${scope}`)
+				.set("Accept", "application/json");
 
 			expect(response.status).toBe(404);
 			expect(response.body).to.deep.eq({
@@ -43,7 +58,9 @@ describe("credential offer endpoint", () => {
 
 	it("returns an error when credential not found", async () => {
 		const scope = "not_found:scope";
-		const response = await request(app).get(`/offer/${scope}`);
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
 
 		expect(response.status).toBe(404);
 		expect(response.body).to.deep.eq({
@@ -54,7 +71,29 @@ describe("credential offer endpoint", () => {
 
 	it("returns a credential offer", async () => {
 		const scope = "minimal:scope";
-		const response = await request(app).get(`/offer/${scope}`);
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
+
+		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
+			scope: "",
+			format: "",
+			issuer_state: "issuerStateGeneratedToken",
+			id: 0,
+			credential_configuration_ids: ["minimal"],
+		});
+		expect(response.status).toBe(200);
+		expect(response.body).to.deep.eq({
+			credentialOfferQrCode,
+			credentialOfferUrl,
+		});
+	});
+
+	it("returns a credential offer", async () => {
+		const scope = "minimal:scope";
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
 
 		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
 			scope: "",

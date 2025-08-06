@@ -30,7 +30,18 @@ export function server(core: Core) {
 	app.get("/offer/:scope", async (req, res) => {
 		const response = await core.credentialOffer(req);
 
-		return res.status(response.status).send(response.body);
+		if (req.get("accept") === "application/json") {
+			return res.status(response.status).send(response.body);
+		}
+
+		if (req.get("accept") === "text/html") {
+			return res.status(response.status).send(response.body);
+		}
+
+		return res.status(415).send({
+			error: "invalid_request",
+			error_description: "unsupported media type",
+		});
 	});
 
 	return app;

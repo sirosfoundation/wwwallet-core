@@ -61,7 +61,7 @@ async function validateRequest(
 	if (!expressRequest.params) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"credential offer requests need path params",
 		);
 	}
@@ -73,7 +73,7 @@ async function validateRequest(
 	if (!scope) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"credential offer requests need a scope param",
 		);
 	}

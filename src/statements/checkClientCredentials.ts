@@ -21,7 +21,7 @@ export async function checkClientCredentials(
 		throw new OauthError(
 			401,
 			"invalid_client",
-			"Invalid client_id or client_secret",
+			"invalid client_id or client_secret",
 		);
 	}
 
