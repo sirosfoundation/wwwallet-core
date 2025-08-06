@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { v6 as uuidv6 } from "uuid";
 import type { AuthorizationServerState } from "./src/resources";
 
 export const config = {
@@ -12,6 +13,9 @@ export const config = {
 			console.log("insertAuthorizationServerState not implemented");
 			return authorizationServerState;
 		},
+	},
+	tokenGenerators: {
+		issuerState: uuidv6,
 	},
 	clients: [
 		{

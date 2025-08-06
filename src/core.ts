@@ -7,6 +7,9 @@ export type Config = {
 			authorizationServerState: AuthorizationServerState,
 		) => Promise<AuthorizationServerState>;
 	};
+	tokenGenerators: {
+		issuerState: () => string;
+	};
 	issuer_url: string;
 	wallet_url: string;
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;

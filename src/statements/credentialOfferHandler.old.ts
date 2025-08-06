@@ -88,7 +88,7 @@ async function generateCredentialOfferURL(
 	user_pin_required?: boolean;
 	user_pin?: string | undefined;
 }> {
-	const issuerState = "issuer_state";
+	const issuerState = config.tokenGenerators.issuerState();
 	// force creation of new state with a separate pre-authorized_code which has specific scope
 	const newAuthorizationServerState: AuthorizationServerState = {
 		// @ts-ignore

@@ -14,6 +14,9 @@ export const config = {
 			return authorizationServerState;
 		},
 	},
+	tokenGenerators: {
+		issuerState: () => "issuerStateGeneratedToken",
+	},
 	clients: [
 		{
 			id: "id",
