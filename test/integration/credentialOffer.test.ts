@@ -67,19 +67,6 @@ describe("credential offer endpoint", () => {
 		expect(response.body).to.deep.eq({
 			credentialOfferQrCode,
 			credentialOfferUrl,
-			supportedCredentialType: {
-				credential_signing_alg_values_supported: ["ES256"],
-				cryptographic_binding_methods_supported: ["jwk"],
-				display: [],
-				format: "dc+sd-jwt",
-				proof_types_supported: {
-					jwt: {
-						proof_signing_alg_values_supported: ["ES256"],
-					},
-				},
-				scope: "minimal:scope",
-				vct: "urn:test:minimal",
-			},
 		});
 	});
 });

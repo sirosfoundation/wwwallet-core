@@ -4,7 +4,7 @@ import { OauthError } from "../errors";
 import type { AuthorizationServerState } from "../resources";
 import {
 	checkScope,
-	credentialOfferHandler,
+	generateCredentialOffer,
 	generateIssuerGrants,
 	issuerClient,
 } from "../statements";
@@ -21,11 +21,7 @@ export function credentialOfferFactory(config: Config) {
 
 			const { client } = await issuerClient(config);
 
-			const { scope: _scope } = await checkScope(
-				request.scope,
-				{ client },
-				config,
-			);
+			const { scope } = await checkScope(request.scope, { client }, config);
 
 			const { authorizationServerState, grants } = await generateIssuerGrants(
 				{
@@ -36,18 +32,17 @@ export function credentialOfferFactory(config: Config) {
 			// @ts-ignore
 			expressRequest.authorizationServerState = authorizationServerState;
 
-			const {
-				credentialOfferUrl,
-				credentialOfferQrCode,
-				supportedCredentialType,
-			} = await credentialOfferHandler({ grants }, expressRequest, config);
+			const { credentialOfferUrl, credentialOfferQrCode } =
+				await generateCredentialOffer(
+					{ authorizationServerState, grants, scope },
+					config,
+				);
 
 			return {
 				status: 200,
 				body: {
 					credentialOfferUrl,
 					credentialOfferQrCode,
-					supportedCredentialType,
 				},
 			};
 		} catch (error) {
@@ -85,6 +80,7 @@ async function validateRequest(
 
 	if (!authorizationServerState) {
 		authorizationServerState = {
+			id: 0,
 			credential_configuration_ids: [],
 			scope: "",
 			format: "",
