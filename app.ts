@@ -1,4 +1,5 @@
 import express from "express";
+import { engine } from "express-handlebars";
 import type { Core } from "./src";
 
 export function server(core: Core) {
@@ -6,6 +7,10 @@ export function server(core: Core) {
 
 	app.use(express.json());
 	app.use(express.urlencoded());
+
+	app.engine("handlebars", engine());
+	app.set("view engine", "handlebars");
+	app.set("views", "./views");
 
 	app.get("/", (_req, res) => {
 		res.send("Hello World!");
@@ -30,12 +35,14 @@ export function server(core: Core) {
 	app.get("/offer/:scope", async (req, res) => {
 		const response = await core.credentialOffer(req);
 
-		if (req.get("accept") === "application/json") {
+		if (req.get("accept")?.match("application/json")) {
 			return res.status(response.status).send(response.body);
 		}
 
-		if (req.get("accept") === "text/html") {
-			return res.status(response.status).send(response.body);
+		if (req.get("accept")?.match("text/html")) {
+			return res
+				.status(response.status)
+				.render("issuance/credential_offer", { data: response.body });
 		}
 
 		return res.status(415).send({
