@@ -58,8 +58,9 @@ export async function generateCredentialOffer(
 	);
 
 	return {
-		credentialOfferUrl,
 		credentialOfferQrCode,
+		credentialOfferUrl,
+		credentialConfigurations,
 	};
 }
 

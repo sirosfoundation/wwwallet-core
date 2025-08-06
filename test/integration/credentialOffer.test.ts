@@ -69,7 +69,7 @@ describe("credential offer endpoint", () => {
 		});
 	});
 
-	it("returns a credential offer", async () => {
+	it("returns a credential offer (application/json)", async () => {
 		const scope = "minimal:scope";
 		const response = await request(app)
 			.get(`/offer/${scope}`)
@@ -84,16 +84,25 @@ describe("credential offer endpoint", () => {
 		});
 		expect(response.status).toBe(200);
 		expect(response.body).to.deep.eq({
+			credentialConfigurations: [
+				{
+					credential_configuration_id: "minimal",
+					format: "dc+sd-jwt",
+					label: "Minimal (dc+sd-jwt)",
+					scope: "minimal:scope",
+					vct: "urn:test:minimal",
+				},
+			],
 			credentialOfferQrCode,
 			credentialOfferUrl,
 		});
 	});
 
-	it("returns a credential offer", async () => {
+	it("returns a credential offer (text/html)", async () => {
 		const scope = "minimal:scope";
 		const response = await request(app)
 			.get(`/offer/${scope}`)
-			.set("Accept", "application/json");
+			.set("Accept", "text/html");
 
 		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
 			scope: "",
@@ -103,9 +112,7 @@ describe("credential offer endpoint", () => {
 			credential_configuration_ids: ["minimal"],
 		});
 		expect(response.status).toBe(200);
-		expect(response.body).to.deep.eq({
-			credentialOfferQrCode,
-			credentialOfferUrl,
-		});
+		expect(response.text).toMatch("Minimal (dc+sd-jwt)");
+		expect(response.text).toMatch(credentialOfferUrl);
 	});
 });

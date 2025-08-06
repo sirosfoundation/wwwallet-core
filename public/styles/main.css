@@ -1,0 +1,48 @@
+html,
+body {
+	height: 100%;
+	font-family: "Roboto Slab", sans-serif;
+	margin: 0;
+}
+
+header {
+	position: fixed;
+	top: 0;
+	right: 0;
+	left: 0;
+	border-bottom: 1px solid #eee;
+	display: flex;
+	align-items: center;
+}
+
+header .logo {
+	height: 50px;
+	margin: 5px;
+}
+
+.credential-offer {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.qrcode {
+	margin: 1em;
+	padding: 0.5em;
+	border: 1px solid #eee;
+	border-radius: 3px;
+}
+
+.button {
+	padding: 1em 2em;
+	background: #00246b;
+	border-radius: 3px;
+	color: white;
+	text-decoration: none;
+}
+
+.button:hover {
+	opacity: 0.9;
+}

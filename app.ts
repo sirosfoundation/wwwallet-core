@@ -12,6 +12,8 @@ export function server(core: Core) {
 	app.set("view engine", "handlebars");
 	app.set("views", "./views");
 
+	app.use(express.static("public"));
+
 	app.get("/", (_req, res) => {
 		res.send("Hello World!");
 	});

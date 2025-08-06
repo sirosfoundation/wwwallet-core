@@ -32,17 +32,21 @@ export function credentialOfferFactory(config: Config) {
 			// @ts-ignore
 			expressRequest.authorizationServerState = authorizationServerState;
 
-			const { credentialOfferUrl, credentialOfferQrCode } =
-				await generateCredentialOffer(
-					{ authorizationServerState, grants, scope },
-					config,
-				);
+			const {
+				credentialOfferUrl,
+				credentialOfferQrCode,
+				credentialConfigurations,
+			} = await generateCredentialOffer(
+				{ authorizationServerState, grants, scope },
+				config,
+			);
 
 			return {
 				status: 200,
 				body: {
 					credentialOfferUrl,
 					credentialOfferQrCode,
+					credentialConfigurations,
 				},
 			};
 		} catch (error) {

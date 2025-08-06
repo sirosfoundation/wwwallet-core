@@ -4,7 +4,7 @@ import { v6 as uuidv6 } from "uuid";
 import type { AuthorizationServerState } from "./src/resources";
 
 export const config = {
-	issuer_url: "http://localhost:5000",
+	issuer_url: "http://localhost:8003",
 	wallet_url: "http://localhost:3000",
 	databaseOperations: {
 		async insertAuthorizationServerState(
