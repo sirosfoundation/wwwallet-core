@@ -90,5 +90,6 @@ describe("credential offer endpoint", () => {
 		expect(response.status).toBe(200);
 		expect(response.text).toMatch("Minimal (dc+sd-jwt)");
 		expect(response.text).toMatch(credentialOfferUrl);
+		expect(response.text).toMatch(credentialOfferQrCode);
 	});
 });
