@@ -42,9 +42,13 @@ export function server(core: Core) {
 		}
 
 		if (req.get("accept")?.match("text/html")) {
-			return res
-				.status(response.status)
-				.render("issuance/credential_offer", { data: response.body });
+			return res.status(response.status).render("issuance/credential_offer", {
+				data: {
+					supportedCredentialConfigurations:
+						core.config.supported_credential_configurations,
+					...response.body,
+				},
+			});
 		}
 
 		return res.status(415).send({

@@ -32,30 +32,6 @@ describe("credential offer endpoint", () => {
 		});
 	});
 
-	[
-		"ehic",
-		"diploma",
-		"pid:jpt_dc",
-		"pid:mso_mdoc",
-		"pid:sd_jwt_dc",
-		"pid:sd_jwt_dc:arf_1_5",
-		"pid:sd_jwt_vc:arf_1_5",
-		"pid:sd_jwt_vc",
-		"por:sd_jwt_vc",
-	].forEach((scope) => {
-		it("WIP returns", async () => {
-			const response = await request(app)
-				.get(`/offer/${scope}`)
-				.set("Accept", "application/json");
-
-			expect(response.status).toBe(404);
-			expect(response.body).to.deep.eq({
-				error: "invalid_request",
-				error_description: "credential not supported by the issuer",
-			});
-		});
-	});
-
 	it("returns an error when credential not found", async () => {
 		const scope = "not_found:scope";
 		const response = await request(app)

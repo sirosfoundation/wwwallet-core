@@ -20,12 +20,39 @@ header .logo {
 	margin: 5px;
 }
 
+.supported-credential-configurations {
+	position: fixed;
+	top: 60px;
+	width: 350px;
+	background: white;
+}
+
+@media (max-width: 768px) {
+	.supported-credential-configurations {
+		display: none;
+	}
+}
+
+.supported-credential-configurations .credential-configuration {
+	border-bottom: 1px solid #eee;
+	padding: 1em;
+	display: block;
+	color: inherit;
+	text-decoration: none;
+}
+
+.supported-credential-configurations .credential-configuration:hover {
+	background: #eee;
+}
+
 .credential-offer {
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	padding: 1em;
+	text-align: center;
 }
 
 .qrcode {
@@ -33,6 +60,19 @@ header .logo {
 	padding: 0.5em;
 	border: 1px solid #eee;
 	border-radius: 3px;
+}
+
+.error {
+	position: fixed;
+	z-index: 1000;
+	bottom: 1em;
+	right: 1em;
+	left: 1em;
+	text-align: center;
+	background: rgba(225, 70, 70, 0.2);
+	border: 1px solid rgba(225, 70, 70, 1);
+	color: rgba(225, 70, 70, 1);
+	padding: 1em 2em;
 }
 
 .button {

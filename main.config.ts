@@ -41,15 +41,15 @@ export const config = {
 		],
 	},
 	supported_credential_configurations: [
-		// "./credentials/eu.europa.ec.eudi.pid.1.json",
-		// "./credentials/urn:credential:diploma.json",
-		// "./credentials/urn:eu.europa.ec.eudi:pid:1:dc.json",
-		// "./credentials/urn:eu.europa.ec.eudi:pid:1:vc.json",
-		// "./credentials/urn:eu.europa.ec.eudi:por:1.json",
-		// "./credentials/urn:eudi:ehic:1.json",
-		// "./credentials/urn:eudi:pid:1:dc.json",
-		// "./credentials/urn:eudi:pid:1:dc:jpt.json",
-		// "./credentials/urn:eudi:pid:1:vc.json",
+		"./credential_configurations/pid:jpt_dc.json",
+		"./credential_configurations/pid:sd_jwt_dc.json",
+		"./credential_configurations/pid:sd_jwt_vc.json",
+		"./credential_configurations/pid:sd_jwt_dc:arf_1_5.json",
+		"./credential_configurations/pid:sd_jwt_vc:arf_1_5.json",
+		"./credential_configurations/pid:mso_mdoc.json",
+		"./credential_configurations/diploma.json",
+		"./credential_configurations/ehic.json",
+		"./credential_configurations/por:sd_jwt_vc.json",
 	].map((credentialConfigurationPath) => {
 		const credential = fs
 			.readFileSync(path.join(__dirname, credentialConfigurationPath))
