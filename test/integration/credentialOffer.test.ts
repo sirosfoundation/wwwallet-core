@@ -57,7 +57,6 @@ describe("credential offer endpoint", () => {
 		const response = await request(app).get(`/offer/${scope}`);
 
 		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
-			credential_configuration_id: [],
 			scope: "",
 			format: "",
 			issuer_state: "issuerStateGeneratedToken",

@@ -85,7 +85,7 @@ async function validateRequest(
 
 	if (!authorizationServerState) {
 		authorizationServerState = {
-			credential_configuration_id: [],
+			credential_configuration_ids: [],
 			scope: "",
 			format: "",
 		};
