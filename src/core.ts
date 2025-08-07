@@ -1,4 +1,4 @@
-import { clientCredentialsFactory, credentialOfferFactory } from "./handlers";
+import { credentialOfferHandlerFactory, tokenHandlerFactory } from "./handlers";
 import type { AuthorizationServerState } from "./resources";
 
 export type Config = {
@@ -35,11 +35,11 @@ export class Core {
 		this.config = config;
 	}
 
-	get clientCredentials() {
-		return clientCredentialsFactory(this.config);
+	get token() {
+		return tokenHandlerFactory(this.config);
 	}
 
 	get credentialOffer() {
-		return credentialOfferFactory(this.config);
+		return credentialOfferHandlerFactory(this.config);
 	}
 }

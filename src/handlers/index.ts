@@ -1,2 +1,2 @@
-export * from "./clientCredentials";
-export * from "./credentialOffer";
+export * from "./credentialOffer.handler";
+export * from "./token.handler";

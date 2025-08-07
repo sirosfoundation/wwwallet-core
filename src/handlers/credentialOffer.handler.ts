@@ -14,8 +14,8 @@ type CredentialOfferRequest = {
 	authorizationServerState: AuthorizationServerState;
 };
 
-export function credentialOfferFactory(config: Config) {
-	return async function credentialOffer(expressRequest: Request) {
+export function credentialOfferHandlerFactory(config: Config) {
+	return async function credentialOfferHandler(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
 
