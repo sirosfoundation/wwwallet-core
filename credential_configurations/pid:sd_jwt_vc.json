@@ -1,0 +1,7 @@
+{
+	"label": "PID ARF 1.8 (vc+sd-jwt)",
+	"credential_configuration_id": "urn:eudi:pid:1:vc",
+	"scope": "pid:sd_jwt_vc",
+	"format": "vc+sd-jwt",
+	"vct": "urn:eudi:pid:1:vc"
+}

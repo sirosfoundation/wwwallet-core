@@ -2,25 +2,32 @@ import type { Request } from "express";
 import * as qrcode from "qrcode";
 import type { Config } from "../core";
 import { OauthError } from "../errors";
-import type { AuthorizationServerState } from "../resources";
+import type {
+	AuthorizationServerState,
+	CredentialConfiguration,
+	IssuerGrants,
+} from "../resources";
 
 export async function credentialOfferHandler(
+	{ grants }: { grants: IssuerGrants },
 	expressRequest: Request,
 	config: Config,
 ) {
 	const scope = expressRequest.params.scope;
 	const supportedCredentialConfig =
-		getAllRegisteredCredentialConfigurations().filter(
-			(sc) => sc.getScope() === scope,
+		config.supported_credential_configurations.filter(
+			(sc) => sc.scope === scope,
 		)[0];
 	if (supportedCredentialConfig) {
-		const supportedCredentialType =
-			supportedCredentialConfig.exportCredentialSupportedObject();
+		const supportedCredentialType = credentialConfigurationSupported(
+			supportedCredentialConfig,
+		);
 
 		// expressRequest.session.authenticationChain = {};
 		const result = await generateCredentialOfferURL(
 			{ req: expressRequest },
-			[supportedCredentialConfig.getId()],
+			supportedCredentialConfig.credential_configuration_id,
+			grants,
 			config,
 		);
 
@@ -48,43 +55,53 @@ export async function credentialOfferHandler(
 		};
 	}
 
-	throw new OauthError(404, "invalid_request", "credential not found");
+	throw new OauthError(
+		404,
+		"invalid_request",
+		"credential not supported by the issuer",
+	);
 }
 
-function getAllRegisteredCredentialConfigurations(): Array<{
-	getScope: () => string;
-	exportCredentialSupportedObject: () => unknown;
-	getId: () => string;
-}> {
-	return [
-		{
-			getScope: () => "test:scope",
-			exportCredentialSupportedObject: () => {
-				return {};
+function credentialConfigurationSupported(
+	credentialConfiguration: CredentialConfiguration,
+) {
+	const { scope, vct, format } = credentialConfiguration;
+
+	return {
+		scope,
+		vct,
+		format,
+		display: [],
+		cryptographic_binding_methods_supported: ["jwk"],
+		credential_signing_alg_values_supported: ["ES256"],
+		proof_types_supported: {
+			jwt: {
+				proof_signing_alg_values_supported: ["ES256"],
 			},
-			getId: () => "test",
 		},
-	];
+	};
 }
 
 async function generateCredentialOfferURL(
 	ctx: { req: Request },
-	credentialConfigurationIds: string[],
+	credentialConfigurationId: string,
+	grants: IssuerGrants,
 	config: Config,
 ): Promise<{
 	url: URL;
 	user_pin_required?: boolean;
 	user_pin?: string | undefined;
 }> {
-	const issuerState = "issuer_state";
+	const issuerState = grants.authorization_code.issuer_state;
 	// force creation of new state with a separate pre-authorized_code which has specific scope
 	const newAuthorizationServerState: AuthorizationServerState = {
 		// @ts-ignore
 		...ctx.req.authorizationServerState,
 		id: 0,
 	} as AuthorizationServerState;
-	newAuthorizationServerState.credential_configuration_ids =
-		credentialConfigurationIds;
+	newAuthorizationServerState.credential_configuration_ids = [
+		credentialConfigurationId,
+	];
 
 	if (issuerState) {
 		newAuthorizationServerState.issuer_state = issuerState;
@@ -98,22 +115,9 @@ async function generateCredentialOfferURL(
 
 	const credentialOffer = {
 		credential_issuer: config.issuer_url,
-		credential_configuration_ids: credentialConfigurationIds,
-		grants: {},
+		credential_configuration_ids: [credentialConfigurationId],
+		grants,
 	};
-
-	if (issuerState) {
-		// if issuer state was provided
-		credentialOffer.grants = {
-			authorization_code: {
-				issuer_state: issuerState,
-			},
-		};
-	} else {
-		credentialOffer.grants = {
-			authorization_code: {},
-		};
-	}
 
 	const redirect_uri =
 		// @ts-ignore
