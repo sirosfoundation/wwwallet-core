@@ -16,7 +16,7 @@ export async function checkScope(
 	const scopes = scope.split(" ");
 
 	if (scopes.filter((scope) => !client.scopes.includes(scope)).length) {
-		throw new OauthError(400, "bad_request", "Invalid scope");
+		throw new OauthError(400, "invalid_request", "invalid scope");
 	}
 
 	return { scope };
