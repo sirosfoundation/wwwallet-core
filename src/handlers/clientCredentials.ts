@@ -1,3 +1,4 @@
+import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "..";
 import { OauthError } from "../errors";
@@ -6,6 +7,16 @@ import {
 	checkScope,
 	generateAccessToken,
 } from "../statements";
+import { clientCredentialsConfigSchema } from "./clientCredentials.schema";
+
+const ajv = new Ajv();
+
+export type ClientCredentialsConfig = {
+	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	access_token_ttl: number;
+	access_token_encryption: string;
+	secret: string;
+};
 
 type ClientCredentialsRequest = {
 	client_id: string;
@@ -13,7 +24,7 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
-export function clientCredentialsFactory(config: Config) {
+export function clientCredentialsFactory(config: ClientCredentialsConfig) {
 	return async function clientCredentials(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
@@ -48,6 +59,17 @@ export function clientCredentialsFactory(config: Config) {
 			throw error;
 		}
 	};
+}
+
+export function validateClientCredentialsConfig(config: Config) {
+	const validate = ajv.compile(clientCredentialsConfigSchema);
+	if (!validate(config)) {
+		const errorText = ajv.errorsText(validate.errors);
+
+		throw new Error(
+			`Could not validate clientCredentials configuration - ${errorText}`,
+		);
+	}
 }
 
 async function validateRequest(
