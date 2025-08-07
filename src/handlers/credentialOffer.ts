@@ -23,21 +23,18 @@ export function credentialOfferFactory(config: Config) {
 
 			const { scope } = await checkScope(request.scope, { client }, config);
 
-			const { authorizationServerState, grants } = await generateIssuerGrants(
-				{
-					authorizationServerState: request.authorizationServerState,
-				},
-				config,
-			);
-			// @ts-ignore
-			expressRequest.authorizationServerState = authorizationServerState;
+			const { grants } = await generateIssuerGrants(config);
 
 			const {
 				credentialOfferUrl,
 				credentialOfferQrCode,
 				credentialConfigurations,
 			} = await generateCredentialOffer(
-				{ authorizationServerState, grants, scope },
+				{
+					authorizationServerState: request.authorizationServerState,
+					grants,
+					scope,
+				},
 				config,
 			);
 

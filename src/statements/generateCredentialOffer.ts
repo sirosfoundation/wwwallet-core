@@ -38,6 +38,9 @@ export async function generateCredentialOffer(
 
 	authorizationServerState.credential_configuration_ids =
 		credential_configuration_ids;
+	authorizationServerState.issuer_state =
+		grants.authorization_code.issuer_state;
+
 	const credentialOffer = {
 		credential_issuer: config.issuer_url,
 		credential_configuration_ids,

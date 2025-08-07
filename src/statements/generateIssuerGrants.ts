@@ -1,14 +1,6 @@
 import type { Config } from "..";
-import type { AuthorizationServerState } from "../resources";
 
-type GenerateIssuerGrantsParams = {
-	authorizationServerState: AuthorizationServerState;
-};
-
-export async function generateIssuerGrants(
-	{ authorizationServerState }: GenerateIssuerGrantsParams,
-	config: Config,
-) {
+export async function generateIssuerGrants(config: Config) {
 	const issuerState = config.tokenGenerators.issuerState();
 
 	const grants = {
@@ -17,7 +9,5 @@ export async function generateIssuerGrants(
 		},
 	};
 
-	authorizationServerState.issuer_state = issuerState;
-
-	return { authorizationServerState, grants };
+	return { grants };
 }
