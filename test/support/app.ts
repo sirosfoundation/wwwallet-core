@@ -11,8 +11,13 @@ export const config = {
 			authorizationServerState: AuthorizationServerState,
 		) {
 			console.log("insertAuthorizationServerState not implemented");
+			this.__authorizationServerState = authorizationServerState;
 			return authorizationServerState;
 		},
+		__authorizationServerState: null,
+	},
+	tokenGenerators: {
+		issuerState: () => "issuerStateGeneratedToken",
 	},
 	clients: [
 		{

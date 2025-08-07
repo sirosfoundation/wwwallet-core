@@ -1,0 +1,7 @@
+{
+	"label": "PID ARF 1.5 (vc+sd-jwt)",
+	"credential_configuration_id": "urn:eu.europa.ec.eudi:pid:1:vc",
+	"scope": "pid:sd_jwt_vc:arf_1_5",
+	"format": "vc+sd-jwt",
+	"vct": "urn:eu.europa.ec.eudi:pid:1:vc"
+}

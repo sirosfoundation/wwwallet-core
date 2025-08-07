@@ -1,0 +1,206 @@
+html,
+body {
+	height: 100%;
+	font-family: "Roboto Slab", sans-serif;
+	margin: 0;
+}
+
+@media (max-width: 768px) {
+	body {
+		font-size: 0.9em;
+	}
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+	margin: 0;
+}
+
+hr {
+	border: 1px solid #dfdfdf;
+	margin: 2em 0;
+}
+
+header {
+	position: fixed;
+	z-index: 1000;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+}
+
+@media (max-width: 768px) {
+	header {
+		justify-content: center;
+		border-bottom: 1px solid #dfdfdf;
+	}
+}
+
+header .logo {
+	height: 75px;
+	margin: 12.5px 25px;
+	cursor: pointer;
+}
+
+.supported-credential-configurations {
+	display: none;
+	position: fixed;
+	z-index: 900;
+	top: 70px;
+	left: 10px;
+	width: 400px;
+	background: white;
+	border-top: 1px solid #c2d8ff;
+}
+
+@media (max-width: 768px) {
+	.supported-credential-configurations {
+		top: 100px;
+		text-align: center;
+		width: 100%;
+		right: 0;
+		left: 0;
+	}
+}
+
+.supported-credential-configurations .credential-configuration {
+	border-bottom: 1px solid #c2d8ff;
+	border-right: 1px solid #c2d8ff;
+	border-left: 1px solid #c2d8ff;
+	padding: 1em;
+	display: block;
+	color: inherit;
+	text-decoration: none;
+	transition: all 0.3s ease-in-out;
+}
+
+.supported-credential-configurations .credential-configuration:hover {
+	background: #c2d8ff;
+	padding-left: 1.5em;
+	font-weight: bold;
+}
+
+.main {
+	height: 100%;
+	display: flex;
+}
+
+.heading {
+	flex: 0.5;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	border-right: 1px solid #dfdfdf;
+	background: #fafafa;
+}
+
+.heading p {
+	max-width: 450px;
+	color: #87898a;
+	text-align: justify;
+}
+
+.credential-offer-overlay {
+	height: 100%;
+	flex: 0.5;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+@media (max-width: 768px) {
+	.heading {
+		display: none;
+	}
+
+	.credential-offer-overlay {
+		flex: 1;
+	}
+}
+
+.credential-offer {
+	position: relative;
+	text-align: center;
+	padding: 2em;
+	border-radius: 10px;
+	background: white;
+	border: 1px solid #dfdfdf;
+}
+
+@media (max-width: 768px) {
+	.credential-offer {
+		padding-top: 4em;
+	}
+}
+
+.credential-offer .title {
+	position: absolute;
+	top: -2em;
+	right: 0;
+	left: -35%;
+	text-align: left;
+}
+
+@media (max-width: 768px) {
+	.credential-offer .title {
+		left: 0;
+		text-align: center;
+	}
+}
+
+.credential-offer .title h2 {
+	display: inline-block;
+	padding: 0.5em 1em;
+	margin: 0;
+	background: white;
+	border-radius: 10px;
+	color: #676c6f;
+}
+
+.qrcode {
+	margin: 0 1em;
+	margin-bottom: 2em;
+	border-radius: 3px;
+}
+
+.error {
+	position: fixed;
+	z-index: 1000;
+	bottom: 1em;
+	right: 1em;
+	left: calc(50% + 1em);
+	text-align: center;
+	background: rgba(205, 90, 90, 0.2);
+	border: 1px solid rgba(205, 90, 90, 1);
+	color: rgba(205, 90, 90, 1);
+	padding: 1em 2em;
+}
+
+@media (max-width: 768px) {
+	.error {
+		left: 1em;
+	}
+}
+
+.button {
+	display: inline-block;
+	padding: 1em 2em;
+	background: #00246b;
+	border-radius: 3px;
+	color: white;
+	text-decoration: none;
+}
+
+.button.fluid {
+	display: block;
+}
+
+.button:hover {
+	opacity: 0.9;
+}

@@ -1,4 +1,5 @@
 {
+	"label": "Minimal (dc+sd-jwt)",
 	"credential_configuration_id": "minimal",
 	"scope": "minimal:scope",
 	"format": "dc+sd-jwt",
