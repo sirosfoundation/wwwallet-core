@@ -56,7 +56,7 @@ async function validateRequest(
 	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client credentials requests requires a body",
 		);
 	}
@@ -66,7 +66,7 @@ async function validateRequest(
 	if (!client_id) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client_id is missing from body params",
 		);
 	}
@@ -74,7 +74,7 @@ async function validateRequest(
 	if (!client_secret) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client_secret is missing from body params",
 		);
 	}
