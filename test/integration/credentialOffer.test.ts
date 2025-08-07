@@ -1,6 +1,6 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { app } from "../support/app";
+import { app, config } from "../support/app";
 
 const credentialOfferQrCode =
 	"data:image/png;base64,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";
@@ -8,42 +8,35 @@ const credentialOfferUrl =
 	"http://localhost:3000/?credential_offer=%7B%22credential_issuer%22%3A%22http%3A%2F%2Flocalhost%3A5000%22%2C%22credential_configuration_ids%22%3A%5B%22minimal%22%5D%2C%22grants%22%3A%7B%22authorization_code%22%3A%7B%22issuer_state%22%3A%22issuerStateGeneratedToken%22%7D%7D%7D";
 
 describe("credential offer endpoint", () => {
-	it("returns an error with a bad scope", async () => {
+	it("returns an error with no accept header", async () => {
 		const scope = "bad:scope";
 		const response = await request(app).get(`/offer/${scope}`);
 
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(415);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
-			error_description: "Invalid scope",
+			error: "invalid_request",
+			error_description: "unsupported media type",
 		});
 	});
 
-	[
-		"ehic",
-		"diploma",
-		"pid:jpt_dc",
-		"pid:mso_mdoc",
-		"pid:sd_jwt_dc",
-		"pid:sd_jwt_dc:arf_1_5",
-		"pid:sd_jwt_vc:arf_1_5",
-		"pid:sd_jwt_vc",
-		"por:sd_jwt_vc",
-	].forEach((scope) => {
-		it("WIP returns", async () => {
-			const response = await request(app).get(`/offer/${scope}`);
+	it("returns an error with a bad scope", async () => {
+		const scope = "bad:scope";
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
 
-			expect(response.status).toBe(404);
-			expect(response.body).to.deep.eq({
-				error: "invalid_request",
-				error_description: "credential not supported by the issuer",
-			});
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "invalid scope",
 		});
 	});
 
 	it("returns an error when credential not found", async () => {
 		const scope = "not_found:scope";
-		const response = await request(app).get(`/offer/${scope}`);
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
 
 		expect(response.status).toBe(404);
 		expect(response.body).to.deep.eq({
@@ -52,27 +45,51 @@ describe("credential offer endpoint", () => {
 		});
 	});
 
-	it("returns a credential offer", async () => {
+	it("returns a credential offer (application/json)", async () => {
 		const scope = "minimal:scope";
-		const response = await request(app).get(`/offer/${scope}`);
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
 
+		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
+			scope: "",
+			format: "",
+			issuer_state: "issuerStateGeneratedToken",
+			id: 0,
+			credential_configuration_ids: ["minimal"],
+		});
 		expect(response.status).toBe(200);
 		expect(response.body).to.deep.eq({
+			credentialConfigurations: [
+				{
+					credential_configuration_id: "minimal",
+					format: "dc+sd-jwt",
+					label: "Minimal (dc+sd-jwt)",
+					scope: "minimal:scope",
+					vct: "urn:test:minimal",
+				},
+			],
 			credentialOfferQrCode,
 			credentialOfferUrl,
-			supportedCredentialType: {
-				credential_signing_alg_values_supported: ["ES256"],
-				cryptographic_binding_methods_supported: ["jwk"],
-				display: [],
-				format: "dc+sd-jwt",
-				proof_types_supported: {
-					jwt: {
-						proof_signing_alg_values_supported: ["ES256"],
-					},
-				},
-				scope: "minimal:scope",
-				vct: "urn:test:minimal",
-			},
 		});
+	});
+
+	it("returns a credential offer (text/html)", async () => {
+		const scope = "minimal:scope";
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "text/html");
+
+		expect(config.databaseOperations.__authorizationServerState).to.deep.eq({
+			scope: "",
+			format: "",
+			issuer_state: "issuerStateGeneratedToken",
+			id: 0,
+			credential_configuration_ids: ["minimal"],
+		});
+		expect(response.status).toBe(200);
+		expect(response.text).toMatch("Minimal (dc+sd-jwt)");
+		expect(response.text).toMatch(credentialOfferUrl);
+		expect(response.text).toMatch(credentialOfferQrCode);
 	});
 });
