@@ -1,22 +1,23 @@
+import type { Config } from "../core";
 import { OauthError } from "../errors";
-import type { ClientCredentialsConfig } from "../handlers";
-import type { OauthClient } from "../resources";
+import type { TokenHandlerConfig } from "../handlers";
+import type { IssuerClient, OauthClient } from "../resources";
 
 type checkScopeParams = {
-	client: OauthClient;
+	client: OauthClient | IssuerClient;
 };
 
 export async function checkScope(
 	scope: string | undefined,
 	{ client }: checkScopeParams,
-	_config: ClientCredentialsConfig,
+	_config: TokenHandlerConfig | Config,
 ) {
 	if (!scope) return { scope: "" };
 
 	const scopes = scope.split(" ");
 
 	if (scopes.filter((scope) => !client.scopes.includes(scope)).length) {
-		throw new OauthError(400, "bad_request", "Invalid scope");
+		throw new OauthError(400, "invalid_request", "invalid scope");
 	}
 
 	return { scope };

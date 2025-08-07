@@ -1,5 +1,5 @@
 import { OauthError } from "../errors";
-import type { ClientCredentialsConfig } from "../handlers";
+import type { TokenHandlerConfig } from "../handlers";
 import type { OauthClient } from "../resources";
 
 type checkClientCredentialsParams = {
@@ -9,7 +9,7 @@ type checkClientCredentialsParams = {
 
 export async function checkClientCredentials(
 	{ client_id, client_secret }: checkClientCredentialsParams,
-	config: ClientCredentialsConfig,
+	config: TokenHandlerConfig,
 ): Promise<{ client: OauthClient }> {
 	const client = config.clients.find(
 		(client: { id: string; secret: string }) => {
@@ -21,7 +21,7 @@ export async function checkClientCredentials(
 		throw new OauthError(
 			401,
 			"invalid_client",
-			"Invalid client_id or client_secret",
+			"invalid client_id or client_secret",
 		);
 	}
 

@@ -7,11 +7,11 @@ import {
 	checkScope,
 	generateAccessToken,
 } from "../statements";
-import { clientCredentialsConfigSchema } from "./clientCredentials.schema";
+import { tokenHandlerConfigSchema } from "./tokenHandler.schema";
 
 const ajv = new Ajv();
 
-export type ClientCredentialsConfig = {
+export type TokenHandlerConfig = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	access_token_encryption: string;
@@ -24,8 +24,8 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
-export function clientCredentialsFactory(config: ClientCredentialsConfig) {
-	return async function clientCredentials(expressRequest: Request) {
+export function tokenHandlerFactory(config: TokenHandlerConfig) {
+	return async function tokenHandler(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -61,8 +61,8 @@ export function clientCredentialsFactory(config: ClientCredentialsConfig) {
 	};
 }
 
-export function validateClientCredentialsConfig(config: Config) {
-	const validate = ajv.compile(clientCredentialsConfigSchema);
+export function validateTokenHandlerConfig(config: Config) {
+	const validate = ajv.compile(tokenHandlerConfigSchema);
 	if (!validate(config)) {
 		const errorText = ajv.errorsText(validate.errors);
 
@@ -78,17 +78,27 @@ async function validateRequest(
 	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client credentials requests requires a body",
 		);
 	}
 
+	if (expressRequest.body.grant_type === "client_credentials") {
+		return validateClientCredentialsRequest(expressRequest);
+	}
+
+	throw new OauthError(400, "bad_request", "grant_type is not supported");
+}
+
+async function validateClientCredentialsRequest(
+	expressRequest: Request,
+): Promise<ClientCredentialsRequest> {
 	const { client_id, client_secret, scope } = expressRequest.body;
 
 	if (!client_id) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client_id is missing from body params",
 		);
 	}
@@ -96,7 +106,7 @@ async function validateRequest(
 	if (!client_secret) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"client_secret is missing from body params",
 		);
 	}

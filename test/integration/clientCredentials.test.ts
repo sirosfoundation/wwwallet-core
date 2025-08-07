@@ -9,61 +9,79 @@ describe("client credentials flow", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
+			error: "invalid_request",
 			error_description: "client credentials requests requires a body",
 		});
 	});
 
-	it("returns an error with client_id", async () => {
-		const client_id = "client_id";
+	it("returns an error with invalid grant_type", async () => {
+		const grant_type = "invalid_grant_type";
 
-		const response = await request(app).post("/token").send({ client_id });
+		const response = await request(app).post("/token").send({ grant_type });
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "bad_request",
+			error_description: "grant_type is not supported",
+		});
+	});
+
+	it("returns an error with client_id", async () => {
+		const grant_type = "client_credentials";
+		const client_id = "client_id";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ client_id, grant_type });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
 			error_description: "client_secret is missing from body params",
 		});
 	});
 
 	it("returns an error with invalid client_secret", async () => {
+		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "client_secret";
 
 		const response = await request(app)
 			.post("/token")
-			.send({ client_id, client_secret });
+			.send({ client_id, grant_type, client_secret });
 
 		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
 			error: "invalid_client",
-			error_description: "Invalid client_id or client_secret",
+			error_description: "invalid client_id or client_secret",
 		});
 	});
 
 	it("returns an error with bad scope", async () => {
+		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "secret";
 		const scope = "bad:scope";
 
 		const response = await request(app)
 			.post("/token")
-			.send({ client_id, client_secret, scope });
+			.send({ client_id, grant_type, client_secret, scope });
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
-			error_description: "Invalid scope",
+			error: "invalid_request",
+			error_description: "invalid scope",
 		});
 	});
 
 	it("returns a token with valid client", async () => {
+		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "secret";
 
 		const response = await request(app)
 			.post("/token")
-			.send({ client_id, client_secret });
+			.send({ client_id, grant_type, client_secret });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);
@@ -72,13 +90,14 @@ describe("client credentials flow", () => {
 	});
 
 	it("returns a token with www-form-urlencoded", async () => {
+		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "secret";
 
 		const response = await request(app)
 			.post("/token")
 			.type("form")
-			.send({ client_id, client_secret });
+			.send({ client_id, grant_type, client_secret });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);
@@ -87,13 +106,14 @@ describe("client credentials flow", () => {
 	});
 
 	it("returns a token with scope", async () => {
+		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "secret";
 		const scope = "client:scope";
 
 		const response = await request(app)
 			.post("/token")
-			.send({ client_id, client_secret, scope });
+			.send({ client_id, grant_type, client_secret, scope });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);

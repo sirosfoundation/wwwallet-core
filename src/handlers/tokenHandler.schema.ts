@@ -1,4 +1,4 @@
-export const clientCredentialsConfigSchema = {
+export const tokenHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		clients: {

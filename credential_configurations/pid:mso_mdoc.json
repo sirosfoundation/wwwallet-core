@@ -1,0 +1,7 @@
+{
+	"label": "PID ARF 1.8 (mso_mdoc)",
+	"credential_configuration_id": "pid:mso_mdoc",
+	"scope": "pid:mso_mdoc",
+	"format": "mso_mdoc",
+	"vct": "pid:mso_mdoc"
+}

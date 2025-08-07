@@ -1,0 +1,7 @@
+{
+	"label": "Bachelor Diploma (dc+sd-jwt)",
+	"credential_configuration_id": "urn:credential:diploma",
+	"scope": "diploma",
+	"format": "dc+sd-jwt",
+	"vct": "urn:credential:diploma"
+}
