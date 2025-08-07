@@ -18,6 +18,7 @@ export type CredentialConfiguration = {
 export type OauthScope = string;
 
 export type AuthorizationServerState = {
+	id: number;
 	credential_configuration_ids: Array<string>;
 	issuer_state: string;
 	user_pin: string;
@@ -28,4 +29,10 @@ export type IssuerGrants = {
 	authorization_code: {
 		issuer_state: string;
 	};
+};
+
+export type CredentialOffer = {
+	credential_issuer: string;
+	credential_configuration_ids: Array<string>;
+	grants: IssuerGrants;
 };

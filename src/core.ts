@@ -21,6 +21,7 @@ export type Config = {
 	};
 	supported_credential_configurations: Array<{
 		credential_configuration_id: string;
+		label?: string;
 		scope: string;
 		format: string;
 		vct?: string;

@@ -4,7 +4,7 @@ import { OauthError } from "../errors";
 import type { AuthorizationServerState } from "../resources";
 import {
 	checkScope,
-	credentialOfferHandler,
+	generateCredentialOffer,
 	generateIssuerGrants,
 	issuerClient,
 } from "../statements";
@@ -21,33 +21,29 @@ export function credentialOfferFactory(config: Config) {
 
 			const { client } = await issuerClient(config);
 
-			const { scope: _scope } = await checkScope(
-				request.scope,
-				{ client },
-				config,
-			);
+			const { scope } = await checkScope(request.scope, { client }, config);
 
-			const { authorizationServerState, grants } = await generateIssuerGrants(
-				{
-					authorizationServerState: request.authorizationServerState,
-				},
-				config,
-			);
-			// @ts-ignore
-			expressRequest.authorizationServerState = authorizationServerState;
+			const { grants } = await generateIssuerGrants(config);
 
 			const {
 				credentialOfferUrl,
 				credentialOfferQrCode,
-				supportedCredentialType,
-			} = await credentialOfferHandler({ grants }, expressRequest, config);
+				credentialConfigurations,
+			} = await generateCredentialOffer(
+				{
+					authorizationServerState: request.authorizationServerState,
+					grants,
+					scope,
+				},
+				config,
+			);
 
 			return {
 				status: 200,
 				body: {
 					credentialOfferUrl,
 					credentialOfferQrCode,
-					supportedCredentialType,
+					credentialConfigurations,
 				},
 			};
 		} catch (error) {
@@ -66,7 +62,7 @@ async function validateRequest(
 	if (!expressRequest.params) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"credential offer requests need path params",
 		);
 	}
@@ -78,13 +74,14 @@ async function validateRequest(
 	if (!scope) {
 		throw new OauthError(
 			400,
-			"bad_request",
+			"invalid_request",
 			"credential offer requests need a scope param",
 		);
 	}
 
 	if (!authorizationServerState) {
 		authorizationServerState = {
+			id: 0,
 			credential_configuration_ids: [],
 			scope: "",
 			format: "",
