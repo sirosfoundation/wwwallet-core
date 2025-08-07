@@ -9,7 +9,7 @@ describe("client credentials flow", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
+			error: "invalid_request",
 			error_description: "client credentials requests requires a body",
 		});
 	});
@@ -36,7 +36,7 @@ describe("client credentials flow", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
+			error: "invalid_request",
 			error_description: "client_secret is missing from body params",
 		});
 	});
@@ -53,7 +53,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
 			error: "invalid_client",
-			error_description: "Invalid client_id or client_secret",
+			error_description: "invalid client_id or client_secret",
 		});
 	});
 
@@ -69,8 +69,8 @@ describe("client credentials flow", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
-			error_description: "Invalid scope",
+			error: "invalid_request",
+			error_description: "invalid scope",
 		});
 	});
 

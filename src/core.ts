@@ -1,10 +1,31 @@
-import { tokenHandlerFactory } from "./handlers";
+import { credentialOfferHandlerFactory, tokenHandlerFactory } from "./handlers";
+import type { AuthorizationServerState } from "./resources";
 
 export type Config = {
+	databaseOperations: {
+		insertAuthorizationServerState: (
+			authorizationServerState: AuthorizationServerState,
+		) => Promise<AuthorizationServerState>;
+	};
+	tokenGenerators: {
+		issuerState: () => string;
+	};
+	issuer_url: string;
+	wallet_url: string;
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	access_token_encryption: string;
 	secret: string;
+	issuer_client: {
+		scopes: Array<string>;
+	};
+	supported_credential_configurations: Array<{
+		credential_configuration_id: string;
+		label?: string;
+		scope: string;
+		format: string;
+		vct?: string;
+	}>;
 };
 
 export class Core {
@@ -16,5 +37,9 @@ export class Core {
 
 	get token() {
 		return tokenHandlerFactory(this.config);
+	}
+
+	get credentialOffer() {
+		return credentialOfferHandlerFactory(this.config);
 	}
 }

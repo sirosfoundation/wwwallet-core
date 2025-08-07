@@ -1,9 +1,9 @@
 import type { Config } from "..";
 import { OauthError } from "../errors";
-import type { OauthClient } from "../resources";
+import type { IssuerClient, OauthClient } from "../resources";
 
 type checkScopeParams = {
-	client: OauthClient;
+	client: OauthClient | IssuerClient;
 };
 
 export async function checkScope(
@@ -16,7 +16,7 @@ export async function checkScope(
 	const scopes = scope.split(" ");
 
 	if (scopes.filter((scope) => !client.scopes.includes(scope)).length) {
-		throw new OauthError(400, "bad_request", "Invalid scope");
+		throw new OauthError(400, "invalid_request", "invalid scope");
 	}
 
 	return { scope };
