@@ -1,3 +1,4 @@
+import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "..";
 import { OauthError } from "../errors";
@@ -8,13 +9,41 @@ import {
 	generateIssuerGrants,
 	issuerClient,
 } from "../statements";
+import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHandlerConfig.schema";
+
+const ajv = new Ajv();
 
 type CredentialOfferRequest = {
 	scope: string;
 	authorizationServerState: AuthorizationServerState;
 };
 
-export function credentialOfferHandlerFactory(config: Config) {
+export type CredentialOfferHandlerConfig = {
+	databaseOperations: {
+		insertAuthorizationServerState: (
+			authorizationServerState: AuthorizationServerState,
+		) => Promise<AuthorizationServerState>;
+	};
+	tokenGenerators: {
+		generateIssuerState: () => string;
+	};
+	issuer_url: string;
+	wallet_url: string;
+	issuer_client: {
+		scopes: Array<string>;
+	};
+	supported_credential_configurations: Array<{
+		credential_configuration_id: string;
+		label?: string;
+		scope: string;
+		format: string;
+		vct?: string;
+	}>;
+};
+
+export function credentialOfferHandlerFactory(
+	config: CredentialOfferHandlerConfig,
+) {
 	return async function credentialOfferHandler(expressRequest: Request) {
 		try {
 			const request = await validateRequest(expressRequest);
@@ -54,6 +83,17 @@ export function credentialOfferHandlerFactory(config: Config) {
 			throw error;
 		}
 	};
+}
+
+export function validateCredentialOfferHandlerConfig(config: Config) {
+	const validate = ajv.compile(credentialOfferHandlerConfigSchema);
+	if (!validate(config)) {
+		const errorText = ajv.errorsText(validate.errors);
+
+		throw new Error(
+			`Could not validate credentialOffer handler configuration - ${errorText}`,
+		);
+	}
 }
 
 async function validateRequest(

@@ -1,6 +1,6 @@
 import qrcode from "qrcode";
-import type { Config } from "..";
 import { OauthError } from "../errors";
+import type { CredentialOfferHandlerConfig } from "../handlers";
 import type {
 	AuthorizationServerState,
 	CredentialOffer,
@@ -15,7 +15,7 @@ type GenerateCredentialOfferParams = {
 
 export async function generateCredentialOffer(
 	{ authorizationServerState, grants, scope }: GenerateCredentialOfferParams,
-	config: Config,
+	config: CredentialOfferHandlerConfig,
 ) {
 	const credentialConfigurations =
 		config.supported_credential_configurations.filter((configuration) => {
@@ -69,7 +69,7 @@ export async function generateCredentialOffer(
 
 function generateCredentialOfferUrl(
 	credentialOffer: CredentialOffer,
-	config: Config,
+	config: CredentialOfferHandlerConfig,
 ) {
 	const redirect_uri = config.wallet_url;
 
@@ -84,7 +84,7 @@ function generateCredentialOfferUrl(
 
 async function generateCredentialOfferQrCode(
 	credentialOfferUrl: string,
-	config: Config,
+	config: CredentialOfferHandlerConfig,
 ) {
 	return new Promise((resolve, reject) => {
 		qrcode.toDataURL(

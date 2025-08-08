@@ -7,7 +7,7 @@ import {
 	checkScope,
 	generateAccessToken,
 } from "../statements";
-import { tokenHandlerConfigSchema } from "./tokenHandler.schema";
+import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 
 const ajv = new Ajv();
 
@@ -67,7 +67,7 @@ export function validateTokenHandlerConfig(config: Config) {
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate clientCredentials configuration - ${errorText}`,
+			`Could not validate token handler configuration - ${errorText}`,
 		);
 	}
 }

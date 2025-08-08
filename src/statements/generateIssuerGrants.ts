@@ -1,7 +1,9 @@
-import type { Config } from "..";
+import type { CredentialOfferHandlerConfig } from "../handlers";
 
-export async function generateIssuerGrants(config: Config) {
-	const issuerState = config.tokenGenerators.issuerState();
+export async function generateIssuerGrants(
+	config: CredentialOfferHandlerConfig,
+) {
+	const issuerState = config.tokenGenerators.generateIssuerState();
 
 	const grants = {
 		authorization_code: {
