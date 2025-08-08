@@ -1,7 +1,15 @@
 import { credentialOfferHandlerFactory, tokenHandlerFactory } from "./handlers";
 import type { AuthorizationServerState } from "./resources";
 
+type Logger = {
+	error: (message: string) => void;
+	info: (message: string) => void;
+	warn: (message: string) => void;
+	debug: (message: string) => void;
+};
+
 export type Config = {
+	logger: Logger;
 	databaseOperations: {
 		insertAuthorizationServerState: (
 			authorizationServerState: AuthorizationServerState,
