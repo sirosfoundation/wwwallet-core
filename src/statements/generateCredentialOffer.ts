@@ -72,7 +72,7 @@ export async function generateCredentialOffer(
 		config,
 	);
 
-	config.databaseOperations.insertAuthorizationServerState(
+	await config.databaseOperations.insertAuthorizationServerState(
 		authorizationServerState,
 	);
 

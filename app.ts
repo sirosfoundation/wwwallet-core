@@ -15,7 +15,7 @@ export function server(core: Core) {
 	app.use(express.static("public"));
 
 	app.get("/", (_req, res) => {
-		res.send("Hello World!");
+		res.redirect("/offer/select-a-credential");
 	});
 
 	let reqPerSecond = 1;

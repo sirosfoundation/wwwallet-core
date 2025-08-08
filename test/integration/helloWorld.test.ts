@@ -7,7 +7,7 @@ describe("hello world", () => {
 	it("renders", async () => {
 		const response = await request(app).get("/");
 
-		expect(response.status).toBe(200);
-		expect(response.text).toBe("Hello World!");
+		expect(response.status).toBe(302);
+		expect(response.headers.location).to.eq("/offer/select-a-credential");
 	});
 });

@@ -13,8 +13,7 @@ app.listen(port, (error) => {
 	}
 
 	console.log(
-		"========== wwwallet client credentials Proof of Concept listening to port " +
-			port,
+		`========== wwwallet issuer Proof of Concept listening to port ${port}`,
 	);
 
 	expressListRoutes(app);

@@ -3,6 +3,7 @@ body {
 	height: 100%;
 	font-family: "Roboto Slab", sans-serif;
 	margin: 0;
+	-webkit-tap-highlight-color: transparent;
 }
 
 @media (max-width: 768px) {
@@ -35,6 +36,7 @@ header {
 
 @media (max-width: 768px) {
 	header {
+		right: 0;
 		justify-content: center;
 		border-bottom: 1px solid #dfdfdf;
 	}
@@ -51,10 +53,13 @@ header .logo {
 	position: fixed;
 	z-index: 900;
 	top: 70px;
-	left: 10px;
+	left: 50px;
 	width: 400px;
 	background: white;
 	border-top: 1px solid #c2d8ff;
+	border-right: 1px solid #c2d8ff;
+	border-bottom: 1px solid #c2d8ff;
+	border-radius: 7px;
 }
 
 @media (max-width: 768px) {
@@ -69,13 +74,16 @@ header .logo {
 
 .supported-credential-configurations .credential-configuration {
 	border-bottom: 1px solid #c2d8ff;
-	border-right: 1px solid #c2d8ff;
 	border-left: 1px solid #c2d8ff;
 	padding: 1em;
 	display: block;
 	color: inherit;
 	text-decoration: none;
 	transition: all 0.3s ease-in-out;
+}
+
+.supported-credential-configurations .credential-configuration:last-child {
+	border-bottom: none;
 }
 
 .supported-credential-configurations .credential-configuration:hover {
@@ -128,15 +136,10 @@ header .logo {
 	position: relative;
 	text-align: center;
 	padding: 2em;
+	padding-top: 3em;
 	border-radius: 10px;
 	background: white;
 	border: 1px solid #dfdfdf;
-}
-
-@media (max-width: 768px) {
-	.credential-offer {
-		padding-top: 4em;
-	}
 }
 
 .credential-offer .title {
@@ -155,6 +158,7 @@ header .logo {
 }
 
 .credential-offer .title h2 {
+	line-height: 1.05em;
 	display: inline-block;
 	padding: 0.5em 1em;
 	margin: 0;
@@ -165,7 +169,7 @@ header .logo {
 
 .qrcode {
 	margin: 0 1em;
-	margin-bottom: 2em;
+	margin-bottom: 3em;
 	border-radius: 3px;
 }
 

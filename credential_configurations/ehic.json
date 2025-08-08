@@ -1,5 +1,5 @@
 {
-	"label": "EHIC (dc+sd-jwt)",
+	"label": "[demo] EHIC (dc+sd-jwt)",
 	"credential_configuration_id": "urn:eudi:ehic:1",
 	"scope": "ehic",
 	"format": "dc+sd-jwt",
