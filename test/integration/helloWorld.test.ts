@@ -11,3 +11,12 @@ describe("hello world", () => {
 		expect(response.text).toBe("Hello World!");
 	});
 });
+
+describe("healthz", () => {
+	it("renders", async () => {
+		const response = await request(app).get("/healthz");
+
+		expect(response.status).toBe(200);
+		expect(response.text).toBe("ok");
+	});
+});

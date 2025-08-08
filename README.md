@@ -37,6 +37,7 @@ $ npm start
 
 ========== wwwallet client credentials Proof of Concept listening to port 5000
 GET      /
+GET      /healthz
 POST     /token
 GET      /offer/:scope
 ==========
@@ -65,7 +66,7 @@ npm run test
  DEV  v3.2.4 [...]
 
  ✓ test/core.test.ts (2 tests) 50ms
- ✓ test/integration/helloWorld.test.ts (1 test) 14ms
+ ✓ test/integration/helloWorld.test.ts (2 tests) 60ms
  ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
  ✓ test/integration/credentialOffer.test.ts (10 tests) 35ms
 
