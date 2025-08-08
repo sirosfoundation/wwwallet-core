@@ -1,18 +1,16 @@
 import { OauthError } from "../errors";
-import type {
-	CredentialOfferHandlerConfig,
-	TokenHandlerConfig,
-} from "../handlers";
 import type { IssuerClient, OauthClient } from "../resources";
 
 type checkScopeParams = {
 	client: OauthClient | IssuerClient;
 };
 
+export type CheckScopeConfig = unknown;
+
 export async function checkScope(
 	scope: string | undefined,
 	{ client }: checkScopeParams,
-	_config: TokenHandlerConfig | CredentialOfferHandlerConfig,
+	_config: CheckScopeConfig,
 ) {
 	if (!scope) return { scope: "" };
 

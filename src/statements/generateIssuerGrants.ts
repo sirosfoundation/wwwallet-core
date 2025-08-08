@@ -1,5 +1,11 @@
 import type { CredentialOfferHandlerConfig } from "../handlers";
 
+export type GenerateIssuerGrantsConfig = {
+	tokenGenerators: {
+		generateIssuerState?: () => string;
+	};
+};
+
 export async function generateIssuerGrants(
 	config: CredentialOfferHandlerConfig,
 ) {
