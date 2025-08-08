@@ -21,17 +21,7 @@ export function server(core: Core) {
 		res.redirect("/offer/select-a-credential");
 	});
 
-	let reqPerSecond = 1;
-	let now = Date.now();
 	app.post("/token", async (req, res) => {
-		if (Date.now() - now > 1000) {
-			console.log("request per second", reqPerSecond);
-
-			reqPerSecond = 0;
-			now = Date.now();
-		}
-		reqPerSecond++;
-
 		const response = await core.token(req);
 
 		return res.status(response.status).send(response.body);
