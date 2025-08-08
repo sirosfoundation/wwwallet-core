@@ -135,15 +135,10 @@ header .logo {
 	position: relative;
 	text-align: center;
 	padding: 2em;
+	padding-top: 3em;
 	border-radius: 10px;
 	background: white;
 	border: 1px solid #dfdfdf;
-}
-
-@media (max-width: 768px) {
-	.credential-offer {
-		padding-top: 4em;
-	}
 }
 
 .credential-offer .title {
@@ -162,6 +157,7 @@ header .logo {
 }
 
 .credential-offer .title h2 {
+	line-height: 1.05em;
 	display: inline-block;
 	padding: 0.5em 1em;
 	margin: 0;
@@ -172,7 +168,7 @@ header .logo {
 
 .qrcode {
 	margin: 0 1em;
-	margin-bottom: 2em;
+	margin-bottom: 3em;
 	border-radius: 3px;
 }
 
