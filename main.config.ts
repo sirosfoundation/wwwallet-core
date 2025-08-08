@@ -1,9 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { v6 as uuidv6 } from "uuid";
+import { Logger } from "./main.logger";
 import type { AuthorizationServerState } from "./src/resources";
 
 export const config = {
+	logger: new Logger("debug"),
 	issuer_url: "https://demo-issuer.wwwallet.org",
 	wallet_url: "https://demo.wwwallet.org/",
 	databaseOperations: {
