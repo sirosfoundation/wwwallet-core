@@ -35,7 +35,7 @@ $ npm start
 > start
 > ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts
 
-========== wwwallet client credentials Proof of Concept listening to port 5000
+========== wwwallet issuer Proof of Concept listening to port 5000
 GET      /
 POST     /token
 GET      /offer/:scope

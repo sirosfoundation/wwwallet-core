@@ -8,8 +8,7 @@ const port = process.env.PORT || 5000;
 // starts the server
 app.listen(port, () => {
 	console.log(
-		"========== wwwallet client credentials Proof of Concept listening to port " +
-			port,
+		`========== wwwallet issuer Proof of Concept listening to port ${port}`,
 	);
 
 	expressListRoutes(app);
