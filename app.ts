@@ -18,6 +18,18 @@ export function server(core: Core) {
 		res.send("Hello World!");
 	});
 
+	app.get("/healthz", (_req, res) => {
+		try {
+			// trigger handlers configuration validation
+			core.token;
+			core.credentialOffer;
+
+			res.status(200).send("ok");
+		} catch (error) {
+			res.status(500).send((error as Error).message);
+		}
+	});
+
 	let reqPerSecond = 1;
 	let now = Date.now();
 	app.post("/token", async (req, res) => {
