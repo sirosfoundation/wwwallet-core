@@ -10,7 +10,15 @@ import {
 } from "./handlers";
 import type { AuthorizationServerState } from "./resources";
 
+type Logger = {
+	error: (message: string) => void;
+	info: (message: string) => void;
+	warn: (message: string) => void;
+	debug: (message: string) => void;
+};
+
 export type Config = {
+	logger: Logger;
 	databaseOperations?: {
 		insertAuthorizationServerState?: (
 			authorizationServerState: AuthorizationServerState,
@@ -60,6 +68,7 @@ export class Core {
 }
 
 export const defaultConfig = {
+	logger: console,
 	clients: [],
 	access_token_ttl: 3600 * 2,
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
