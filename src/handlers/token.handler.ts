@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "..";
+import type { Config } from "../config";
 import { OauthError } from "../errors";
 import {
 	checkClientCredentials,

@@ -4,13 +4,15 @@
 		"format": "biome format --write",
 		"biome:ci": "biome ci",
 		"test": "vitest",
-		"prepare": "husky"
+		"prepare": "husky",
+		"dependency-tree": "madge --image ./graph.svg ./app.ts && open ./graph.svg"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
 		"@tsconfig/node22": "^22.0.2",
 		"@types/qrcode": "^1.5.5",
 		"husky": "^9.1.7",
+		"madge": "^8.0.0",
 		"supertest": "^7.1.4",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3",
