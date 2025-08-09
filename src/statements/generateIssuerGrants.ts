@@ -1,14 +1,10 @@
-import type { CredentialOfferHandlerConfig } from "../handlers";
-
 export type GenerateIssuerGrantsConfig = {
 	tokenGenerators: {
-		generateIssuerState?: () => string;
+		generateIssuerState: () => string;
 	};
 };
 
-export async function generateIssuerGrants(
-	config: CredentialOfferHandlerConfig,
-) {
+export async function generateIssuerGrants(config: GenerateIssuerGrantsConfig) {
 	const issuerState = config.tokenGenerators.generateIssuerState();
 
 	const grants = {

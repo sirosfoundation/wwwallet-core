@@ -1,4 +1,3 @@
-import type { CredentialOfferHandlerConfig } from "../handlers";
 import type { IssuerClient } from "../resources";
 
 export type IssuerClientConfig = {
@@ -8,7 +7,7 @@ export type IssuerClientConfig = {
 };
 
 export async function issuerClient(
-	config: CredentialOfferHandlerConfig,
+	config: IssuerClientConfig,
 ): Promise<{ client: IssuerClient }> {
 	return { client: config.issuer_client };
 }
