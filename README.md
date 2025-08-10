@@ -94,3 +94,7 @@ npm run test
 
  PASS  Waiting for file changes...
 ```
+
+## Dependency tree
+
+![dependency tree](graph.svg)
