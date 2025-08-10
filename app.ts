@@ -44,9 +44,9 @@ export function server(core: Core) {
 			});
 		}
 
-		return res.status(415).send({
+		return res.status(400).send({
 			error: "invalid_request",
-			error_description: "unsupported media type",
+			error_description: "accept header is missing from request",
 		});
 	});
 
