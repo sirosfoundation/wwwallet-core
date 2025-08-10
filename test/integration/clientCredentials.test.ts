@@ -26,6 +26,18 @@ describe("client credentials flow", () => {
 		});
 	});
 
+	it("returns an error with a grant type", async () => {
+		const grant_type = "client_credentials";
+
+		const response = await request(app).post("/token").send({ grant_type });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "client_id is missing from body params",
+		});
+	});
+
 	it("returns an error with client_id", async () => {
 		const grant_type = "client_credentials";
 		const client_id = "client_id";
