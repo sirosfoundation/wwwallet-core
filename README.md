@@ -66,7 +66,7 @@ npm run test
  DEV  v3.2.4 [...]
 
  ✓ test/core.test.ts (2 tests) 50ms
- ✓ test/integration/helloWorld.test.ts (2 tests) 60ms
+ ✓ test/integration/helloWorld.test.ts (3 tests) 72ms
  ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
  ✓ test/integration/credentialOffer.test.ts (10 tests) 35ms
 
