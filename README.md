@@ -97,4 +97,4 @@ npm run test
 
 ## Dependency tree
 
-![dependency tree](graph.svg)
+![dependency tree](images/dependency-tree.svg)

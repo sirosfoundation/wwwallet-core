@@ -5,7 +5,7 @@
 		"biome:ci": "biome ci",
 		"test": "vitest",
 		"prepare": "husky",
-		"dependency-tree": "madge --image ./graph.svg ./app.ts && open ./graph.svg"
+		"dependency-tree": "madge --image ./images/dependency-tree.svg ./app.ts && open ./images/dependency-tree.svg"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
