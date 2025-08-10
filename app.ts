@@ -1,6 +1,10 @@
 import express from "express";
 import { engine } from "express-handlebars";
-import type { Core } from "./src";
+import {
+	type Core,
+	validateCredentialOfferHandlerConfig,
+	validateTokenHandlerConfig,
+} from "./src";
 
 export function server(core: Core) {
 	const app = express();
@@ -21,8 +25,8 @@ export function server(core: Core) {
 	app.get("/healthz", (_req, res) => {
 		try {
 			// trigger handlers configuration validation
-			core.token;
-			core.credentialOffer;
+			validateCredentialOfferHandlerConfig(core.config);
+			validateTokenHandlerConfig(core.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
