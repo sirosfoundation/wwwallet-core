@@ -19,7 +19,7 @@ export const config = {
 		},
 	},
 	tokenGenerators: {
-		issuerState: uuidv6,
+		generateIssuerState: uuidv6,
 	},
 	clients: [
 		{

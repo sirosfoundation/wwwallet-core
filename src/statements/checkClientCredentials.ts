@@ -1,4 +1,3 @@
-import type { Config } from "..";
 import { OauthError } from "../errors";
 import type { OauthClient } from "../resources";
 
@@ -7,9 +6,13 @@ type checkClientCredentialsParams = {
 	client_secret: string;
 };
 
+export type CheckClientCredentialsConfig = {
+	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
+};
+
 export async function checkClientCredentials(
 	{ client_id, client_secret }: checkClientCredentialsParams,
-	config: Config,
+	config: CheckClientCredentialsConfig,
 ): Promise<{ client: OauthClient }> {
 	const client = config.clients.find(
 		(client: { id: string; secret: string }) => {

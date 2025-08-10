@@ -39,7 +39,7 @@ export function server(core: Core) {
 				data: {
 					supportedCredentialConfigurations:
 						core.config.supported_credential_configurations,
-					...response.body,
+					...response.data,
 				},
 			});
 		}

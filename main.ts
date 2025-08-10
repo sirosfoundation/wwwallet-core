@@ -6,7 +6,12 @@ const app = server(core);
 const port = process.env.PORT || 5000;
 
 // starts the server
-app.listen(port, () => {
+app.listen(port, (error) => {
+	if (error) {
+		console.error(error);
+		return;
+	}
+
 	console.log(
 		`========== wwwallet issuer Proof of Concept listening to port ${port}`,
 	);

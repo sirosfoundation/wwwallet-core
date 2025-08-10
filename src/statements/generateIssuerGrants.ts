@@ -1,7 +1,11 @@
-import type { Config } from "..";
+export type GenerateIssuerGrantsConfig = {
+	tokenGenerators: {
+		generateIssuerState: () => string;
+	};
+};
 
-export async function generateIssuerGrants(config: Config) {
-	const issuerState = config.tokenGenerators.issuerState();
+export async function generateIssuerGrants(config: GenerateIssuerGrantsConfig) {
+	const issuerState = config.tokenGenerators.generateIssuerState();
 
 	const grants = {
 		authorization_code: {

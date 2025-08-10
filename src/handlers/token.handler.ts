@@ -1,11 +1,22 @@
+import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "..";
-import { OauthError } from "../errors";
+import type { Config } from "../config";
+import { OauthError, type OauthErrorResponse } from "../errors";
 import {
 	checkClientCredentials,
 	checkScope,
 	generateAccessToken,
 } from "../statements";
+import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
+
+const ajv = new Ajv();
+
+export type TokenHandlerConfig = {
+	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	access_token_ttl: number;
+	access_token_encryption: string;
+	secret: string;
+};
 
 type ClientCredentialsRequest = {
 	client_id: string;
@@ -13,8 +24,19 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
-export function tokenHandlerFactory(config: Config) {
-	return async function tokenHandler(expressRequest: Request) {
+type TokenResponse = {
+	status: 200;
+	body: {
+		access_token: string;
+		expires_in: number;
+		token_type: "bearer";
+	};
+};
+
+export function tokenHandlerFactory(config: TokenHandlerConfig) {
+	return async function tokenHandler(
+		expressRequest: Request,
+	): Promise<TokenResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -32,6 +54,7 @@ export function tokenHandlerFactory(config: Config) {
 				{ client, scope },
 				config,
 			);
+
 			return {
 				status: 200,
 				body: {
@@ -48,6 +71,17 @@ export function tokenHandlerFactory(config: Config) {
 			throw error;
 		}
 	};
+}
+
+export function validateTokenHandlerConfig(config: Config) {
+	const validate = ajv.compile(tokenHandlerConfigSchema);
+	if (!validate(config)) {
+		const errorText = ajv.errorsText(validate.errors);
+
+		throw new Error(
+			`Could not validate token handler configuration - ${errorText}`,
+		);
+	}
 }
 
 async function validateRequest(

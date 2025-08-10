@@ -17,7 +17,7 @@ export const config = {
 		__authorizationServerState: null,
 	},
 	tokenGenerators: {
-		issuerState: () => "issuerStateGeneratedToken",
+		generateIssuerState: () => "issuerStateGeneratedToken",
 	},
 	clients: [
 		{
@@ -55,6 +55,6 @@ export const config = {
 	}),
 };
 
-const app = server(new Core(config));
+export const core = new Core(config);
 
-export { app };
+export const app = server(core);

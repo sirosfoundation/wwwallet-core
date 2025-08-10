@@ -1,5 +1,4 @@
 import qrcode from "qrcode";
-import type { Config } from "..";
 import { OauthError } from "../errors";
 import type {
 	AuthorizationServerState,
@@ -13,9 +12,26 @@ type GenerateCredentialOfferParams = {
 	scope: string;
 };
 
+export type GenerateCredentialOfferConfig = {
+	databaseOperations: {
+		insertAuthorizationServerState: (
+			authorizationServerState: AuthorizationServerState,
+		) => Promise<AuthorizationServerState>;
+	};
+	issuer_url: string;
+	wallet_url: string;
+	supported_credential_configurations: Array<{
+		credential_configuration_id: string;
+		label?: string;
+		scope: string;
+		format: string;
+		vct?: string;
+	}>;
+};
+
 export async function generateCredentialOffer(
 	{ authorizationServerState, grants, scope }: GenerateCredentialOfferParams,
-	config: Config,
+	config: GenerateCredentialOfferConfig,
 ) {
 	const credentialConfigurations =
 		config.supported_credential_configurations.filter((configuration) => {
@@ -69,7 +85,7 @@ export async function generateCredentialOffer(
 
 function generateCredentialOfferUrl(
 	credentialOffer: CredentialOffer,
-	config: Config,
+	config: GenerateCredentialOfferConfig,
 ) {
 	const redirect_uri = config.wallet_url;
 
@@ -84,8 +100,8 @@ function generateCredentialOfferUrl(
 
 async function generateCredentialOfferQrCode(
 	credentialOfferUrl: string,
-	config: Config,
-) {
+	config: GenerateCredentialOfferConfig,
+): Promise<string> {
 	return new Promise((resolve, reject) => {
 		qrcode.toDataURL(
 			credentialOfferUrl.replace(

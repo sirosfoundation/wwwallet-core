@@ -1,4 +1,4 @@
-# wwWallet issuer
+# wwWallet issuer proof of concept
 
 ## Installation
 
@@ -8,24 +8,7 @@ npm ci
 
 ### Configuration
 
-Server static configuration can be edited, quoting the following example values:
-
-```js
-// ./config.ts
-
-export const config = {
-	clients: [
-		{
-			id: "id",
-			secret: "secret",
-			scopes: ["client:scope"],
-		},
-	],
-	secret: "secret",
-	access_token_signature_alg: "HS256",
-	access_token_ttl: 3600 * 2,
-};
-```
+Server static configuration can be edited given the example `main.config.ts` [file](main.config.ts).
 
 ## Run a development server
 
@@ -82,6 +65,7 @@ npm run test
 
  DEV  v3.2.4 [...]
 
+ ✓ test/core.test.ts (2 tests) 50ms
  ✓ test/integration/helloWorld.test.ts (1 test) 14ms
  ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
  ✓ test/integration/credentialOffer.test.ts (10 tests) 35ms
@@ -93,3 +77,7 @@ npm run test
 
  PASS  Waiting for file changes...
 ```
+
+## Dependency tree
+
+![dependency tree](images/dependency-tree.svg)

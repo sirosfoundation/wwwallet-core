@@ -1,5 +1,4 @@
 import { EncryptJWT } from "jose";
-import type { Config } from "..";
 import type { OauthClient, OauthScope } from "../resources";
 
 export type generateAccessTokenParams = {
@@ -7,9 +6,15 @@ export type generateAccessTokenParams = {
 	scope: OauthScope;
 };
 
+export type GenerateAccessTokenConfig = {
+	access_token_ttl: number;
+	access_token_encryption: string;
+	secret: string;
+};
+
 export async function generateAccessToken(
 	{ client, scope }: generateAccessTokenParams,
-	config: Config,
+	config: GenerateAccessTokenConfig,
 ) {
 	const now = Date.now() / 1000;
 

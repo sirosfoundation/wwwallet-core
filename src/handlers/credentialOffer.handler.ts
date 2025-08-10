@@ -1,21 +1,68 @@
+import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "..";
-import { OauthError } from "../errors";
-import type { AuthorizationServerState } from "../resources";
+import type { Config } from "../config";
+import { OauthError, type OauthErrorResponse } from "../errors";
+import type {
+	AuthorizationServerState,
+	CredentialConfiguration,
+} from "../resources";
 import {
 	checkScope,
 	generateCredentialOffer,
 	generateIssuerGrants,
 	issuerClient,
 } from "../statements";
+import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHandlerConfig.schema";
+
+const ajv = new Ajv();
+
+export type CredentialOfferHandlerConfig = {
+	databaseOperations: {
+		insertAuthorizationServerState: (
+			authorizationServerState: AuthorizationServerState,
+		) => Promise<AuthorizationServerState>;
+	};
+	tokenGenerators: {
+		generateIssuerState: () => string;
+	};
+	issuer_url: string;
+	wallet_url: string;
+	issuer_client: {
+		scopes: Array<string>;
+	};
+	supported_credential_configurations: Array<{
+		credential_configuration_id: string;
+		label?: string;
+		scope: string;
+		format: string;
+		vct?: string;
+	}>;
+};
 
 type CredentialOfferRequest = {
 	scope: string;
 	authorizationServerState: AuthorizationServerState;
 };
 
-export function credentialOfferHandlerFactory(config: Config) {
-	return async function credentialOfferHandler(expressRequest: Request) {
+type CredentialOfferResponse = {
+	status: 200;
+	data: {
+		credentialOfferUrl: string;
+		credentialOfferQrCode: string;
+		credentialConfigurations: Array<CredentialConfiguration>;
+	};
+	body: {
+		credential_offer_url: string;
+		credential_offer_qrcode: string;
+	};
+};
+
+export function credentialOfferHandlerFactory(
+	config: CredentialOfferHandlerConfig,
+) {
+	return async function credentialOfferHandler(
+		expressRequest: Request,
+	): Promise<CredentialOfferResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -40,10 +87,14 @@ export function credentialOfferHandlerFactory(config: Config) {
 
 			return {
 				status: 200,
-				body: {
+				data: {
 					credentialOfferUrl,
 					credentialOfferQrCode,
 					credentialConfigurations,
+				},
+				body: {
+					credential_offer_url: credentialOfferUrl,
+					credential_offer_qrcode: credentialOfferQrCode,
 				},
 			};
 		} catch (error) {
@@ -54,6 +105,17 @@ export function credentialOfferHandlerFactory(config: Config) {
 			throw error;
 		}
 	};
+}
+
+export function validateCredentialOfferHandlerConfig(config: Config) {
+	const validate = ajv.compile(credentialOfferHandlerConfigSchema);
+	if (!validate(config)) {
+		const errorText = ajv.errorsText(validate.errors);
+
+		throw new Error(
+			`Could not validate credentialOffer handler configuration - ${errorText}`,
+		);
+	}
 }
 
 async function validateRequest(
