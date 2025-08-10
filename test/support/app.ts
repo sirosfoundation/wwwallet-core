@@ -10,7 +10,6 @@ export const config = {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
 		) {
-			console.log("insertAuthorizationServerState not implemented");
 			this.__authorizationServerState = authorizationServerState;
 			return authorizationServerState;
 		},

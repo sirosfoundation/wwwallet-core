@@ -1,7 +1,11 @@
 import express from "express";
 import { engine } from "express-handlebars";
 import morgan from "morgan";
-import type { Core } from "./src";
+import {
+	type Core,
+	validateCredentialOfferHandlerConfig,
+	validateTokenHandlerConfig,
+} from "./src";
 
 export function server(core: Core) {
 	const app = express();
@@ -19,6 +23,18 @@ export function server(core: Core) {
 
 	app.get("/", (_req, res) => {
 		res.redirect("/offer/select-a-credential");
+	});
+
+	app.get("/healthz", (_req, res) => {
+		try {
+			// trigger handlers configuration validation
+			validateCredentialOfferHandlerConfig(core.config);
+			validateTokenHandlerConfig(core.config);
+
+			res.status(200).send("ok");
+		} catch (error) {
+			res.status(500).send((error as Error).message);
+		}
 	});
 
 	app.post("/token", async (req, res) => {
