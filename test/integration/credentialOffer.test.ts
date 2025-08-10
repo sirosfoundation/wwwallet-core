@@ -12,10 +12,10 @@ describe("credential offer endpoint", () => {
 		const scope = "bad:scope";
 		const response = await request(app).get(`/offer/${scope}`);
 
-		expect(response.status).toBe(415);
+		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "unsupported media type",
+			error_description: "accept header is missing from request",
 		});
 	});
 
