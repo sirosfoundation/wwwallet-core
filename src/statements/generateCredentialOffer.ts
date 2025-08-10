@@ -101,7 +101,7 @@ function generateCredentialOfferUrl(
 async function generateCredentialOfferQrCode(
 	credentialOfferUrl: string,
 	config: GenerateCredentialOfferConfig,
-) {
+): Promise<string> {
 	return new Promise((resolve, reject) => {
 		qrcode.toDataURL(
 			credentialOfferUrl.replace(

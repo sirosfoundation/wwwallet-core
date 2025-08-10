@@ -62,17 +62,8 @@ describe("credential offer endpoint", () => {
 		});
 		expect(response.status).toBe(200);
 		expect(response.body).to.deep.eq({
-			credentialConfigurations: [
-				{
-					credential_configuration_id: "minimal",
-					format: "dc+sd-jwt",
-					label: "Minimal (dc+sd-jwt)",
-					scope: "minimal:scope",
-					vct: "urn:test:minimal",
-				},
-			],
-			credentialOfferQrCode,
-			credentialOfferUrl,
+			credential_offer_url: credentialOfferUrl,
+			credential_offer_qrcode: credentialOfferQrCode,
 		});
 	});
 

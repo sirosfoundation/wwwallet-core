@@ -1,3 +1,14 @@
+export type OauthErrorResponse = {
+	status: number;
+	data: {
+		error: OauthError;
+	};
+	body: {
+		error: string;
+		error_description: string;
+	};
+};
+
 export class OauthError extends Error {
 	error: string;
 	error_description: string;
@@ -14,6 +25,9 @@ export class OauthError extends Error {
 	toResponse() {
 		return {
 			status: this.status,
+			data: {
+				error: this,
+			},
 			body: {
 				error: this.error,
 				error_description: this.error_description,
