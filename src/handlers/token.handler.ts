@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "..";
-import { OauthError } from "../errors";
+import type { Config } from "../config";
+import { OauthError, type OauthErrorResponse } from "../errors";
 import {
 	checkClientCredentials,
 	checkScope,
@@ -24,8 +24,19 @@ type ClientCredentialsRequest = {
 	scope?: string;
 };
 
+type TokenResponse = {
+	status: 200;
+	body: {
+		access_token: string;
+		expires_in: number;
+		token_type: "bearer";
+	};
+};
+
 export function tokenHandlerFactory(config: TokenHandlerConfig) {
-	return async function tokenHandler(expressRequest: Request) {
+	return async function tokenHandler(
+		expressRequest: Request,
+	): Promise<TokenResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -43,6 +54,7 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 				{ client, scope },
 				config,
 			);
+
 			return {
 				status: 200,
 				body: {

@@ -1,5 +1,6 @@
 import express from "express";
 import { engine } from "express-handlebars";
+import morgan from "morgan";
 import {
 	type Core,
 	validateCredentialOfferHandlerConfig,
@@ -8,6 +9,8 @@ import {
 
 export function server(core: Core) {
 	const app = express();
+
+	app.use(morgan("combined"));
 
 	app.use(express.json());
 	app.use(express.urlencoded());
@@ -19,7 +22,7 @@ export function server(core: Core) {
 	app.use(express.static("public"));
 
 	app.get("/", (_req, res) => {
-		res.send("Hello World!");
+		res.redirect("/offer/select-a-credential");
 	});
 
 	app.get("/healthz", (_req, res) => {
@@ -34,17 +37,7 @@ export function server(core: Core) {
 		}
 	});
 
-	let reqPerSecond = 1;
-	let now = Date.now();
 	app.post("/token", async (req, res) => {
-		if (Date.now() - now > 1000) {
-			console.log("request per second", reqPerSecond);
-
-			reqPerSecond = 0;
-			now = Date.now();
-		}
-		reqPerSecond++;
-
 		const response = await core.token(req);
 
 		return res.status(response.status).send(response.body);
@@ -62,14 +55,14 @@ export function server(core: Core) {
 				data: {
 					supportedCredentialConfigurations:
 						core.config.supported_credential_configurations,
-					...response.body,
+					...response.data,
 				},
 			});
 		}
 
-		return res.status(415).send({
+		return res.status(400).send({
 			error: "invalid_request",
-			error_description: "unsupported media type",
+			error_description: "accept header is missing from request",
 		});
 	});
 

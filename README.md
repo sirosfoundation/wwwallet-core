@@ -1,4 +1,4 @@
-# wwWallet issuer
+# wwWallet issuer proof of concept
 
 ## Installation
 
@@ -8,24 +8,7 @@ npm ci
 
 ### Configuration
 
-Server static configuration can be edited, quoting the following example values:
-
-```js
-// ./config.ts
-
-export const config = {
-	clients: [
-		{
-			id: "id",
-			secret: "secret",
-			scopes: ["client:scope"],
-		},
-	],
-	secret: "secret",
-	access_token_signature_alg: "HS256",
-	access_token_ttl: 3600 * 2,
-};
-```
+Server static configuration can be edited given the example `main.config.ts` [file](main.config.ts).
 
 ## Run a development server
 
@@ -35,12 +18,30 @@ $ npm start
 > start
 > ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts
 
-========== wwwallet client credentials Proof of Concept listening to port 5000
+========== wwwallet issuer Proof of Concept listening to port 5000
 GET      /
 GET      /healthz
 POST     /token
 GET      /offer/:scope
 ==========
+```
+
+OR
+
+```sh
+$ docker compose up
+[+] Running 1/0
+ ✔ Container wwwallet-issuer-poc-wwwallet-issuer-poc-1  Created                                    0.0s
+Attaching to wwwallet-issuer-poc-1
+wwwallet-issuer-poc-1  |
+wwwallet-issuer-poc-1  | > start
+wwwallet-issuer-poc-1  | > ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts
+wwwallet-issuer-poc-1  |
+wwwallet-issuer-poc-1  | ========== wwwallet issuer Proof of Concept listening to port 5000
+wwwallet-issuer-poc-1  | GET      /
+wwwallet-issuer-poc-1  | POST     /token
+wwwallet-issuer-poc-1  | GET      /offer/:scope
+wwwallet-issuer-poc-1  | ==========
 ```
 
 ### client credentials implementation
@@ -77,3 +78,7 @@ npm run test
 
  PASS  Waiting for file changes...
 ```
+
+## Dependency tree
+
+![dependency tree](images/dependency-tree.svg)

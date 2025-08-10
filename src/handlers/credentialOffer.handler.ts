@@ -1,8 +1,11 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "..";
-import { OauthError } from "../errors";
-import type { AuthorizationServerState } from "../resources";
+import type { Config } from "../config";
+import { OauthError, type OauthErrorResponse } from "../errors";
+import type {
+	AuthorizationServerState,
+	CredentialConfiguration,
+} from "../resources";
 import {
 	checkScope,
 	generateCredentialOffer,
@@ -12,11 +15,6 @@ import {
 import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHandlerConfig.schema";
 
 const ajv = new Ajv();
-
-type CredentialOfferRequest = {
-	scope: string;
-	authorizationServerState: AuthorizationServerState;
-};
 
 export type CredentialOfferHandlerConfig = {
 	databaseOperations: {
@@ -41,10 +39,30 @@ export type CredentialOfferHandlerConfig = {
 	}>;
 };
 
+type CredentialOfferRequest = {
+	scope: string;
+	authorizationServerState: AuthorizationServerState;
+};
+
+type CredentialOfferResponse = {
+	status: 200;
+	data: {
+		credentialOfferUrl: string;
+		credentialOfferQrCode: string;
+		credentialConfigurations: Array<CredentialConfiguration>;
+	};
+	body: {
+		credential_offer_url: string;
+		credential_offer_qrcode: string;
+	};
+};
+
 export function credentialOfferHandlerFactory(
 	config: CredentialOfferHandlerConfig,
 ) {
-	return async function credentialOfferHandler(expressRequest: Request) {
+	return async function credentialOfferHandler(
+		expressRequest: Request,
+	): Promise<CredentialOfferResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
 
@@ -69,10 +87,14 @@ export function credentialOfferHandlerFactory(
 
 			return {
 				status: 200,
-				body: {
+				data: {
 					credentialOfferUrl,
 					credentialOfferQrCode,
 					credentialConfigurations,
+				},
+				body: {
+					credential_offer_url: credentialOfferUrl,
+					credential_offer_qrcode: credentialOfferQrCode,
 				},
 			};
 		} catch (error) {

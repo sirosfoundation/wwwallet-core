@@ -1,5 +1,5 @@
 {
-	"label": "PID ARF 1.8 (dc+sd-jwt)",
+	"label": "[demo] PID ARF 1.8 (dc+sd-jwt)",
 	"credential_configuration_id": "urn:eudi:pid:1:dc",
 	"scope": "pid:sd_jwt_dc",
 	"format": "dc+sd-jwt",

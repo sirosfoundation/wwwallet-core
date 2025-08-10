@@ -72,7 +72,7 @@ export async function generateCredentialOffer(
 		config,
 	);
 
-	config.databaseOperations.insertAuthorizationServerState(
+	await config.databaseOperations.insertAuthorizationServerState(
 		authorizationServerState,
 	);
 
@@ -101,7 +101,7 @@ function generateCredentialOfferUrl(
 async function generateCredentialOfferQrCode(
 	credentialOfferUrl: string,
 	config: GenerateCredentialOfferConfig,
-) {
+): Promise<string> {
 	return new Promise((resolve, reject) => {
 		qrcode.toDataURL(
 			credentialOfferUrl.replace(

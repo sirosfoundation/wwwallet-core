@@ -12,10 +12,10 @@ describe("credential offer endpoint", () => {
 		const scope = "bad:scope";
 		const response = await request(app).get(`/offer/${scope}`);
 
-		expect(response.status).toBe(415);
+		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "unsupported media type",
+			error_description: "accept header is missing from request",
 		});
 	});
 
@@ -62,17 +62,8 @@ describe("credential offer endpoint", () => {
 		});
 		expect(response.status).toBe(200);
 		expect(response.body).to.deep.eq({
-			credentialConfigurations: [
-				{
-					credential_configuration_id: "minimal",
-					format: "dc+sd-jwt",
-					label: "Minimal (dc+sd-jwt)",
-					scope: "minimal:scope",
-					vct: "urn:test:minimal",
-				},
-			],
-			credentialOfferQrCode,
-			credentialOfferUrl,
+			credential_offer_url: credentialOfferUrl,
+			credential_offer_qrcode: credentialOfferQrCode,
 		});
 	});
 
