@@ -1,4 +1,4 @@
-# wwWallet issuer
+# wwWallet issuer proof of concept
 
 ## Installation
 
