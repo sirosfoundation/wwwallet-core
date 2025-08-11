@@ -32,18 +32,6 @@ OR
 
 ```sh
 $ docker compose up
-[+] Running 1/0
- ✔ Container wwwallet-issuer-poc-wwwallet-issuer-poc-1  Created                                    0.0s
-Attaching to wwwallet-issuer-poc-1
-wwwallet-issuer-poc-1  |
-wwwallet-issuer-poc-1  | > start
-wwwallet-issuer-poc-1  | > ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts
-wwwallet-issuer-poc-1  |
-wwwallet-issuer-poc-1  | ========== wwwallet issuer Proof of Concept listening to port 5000
-wwwallet-issuer-poc-1  | GET      /
-wwwallet-issuer-poc-1  | POST     /token
-wwwallet-issuer-poc-1  | GET      /offer/:scope
-wwwallet-issuer-poc-1  | ==========
 ```
 
 ### client credentials implementation
