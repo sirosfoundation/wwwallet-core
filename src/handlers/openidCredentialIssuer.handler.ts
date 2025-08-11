@@ -27,34 +27,37 @@ export type OpenidCredentialIssuerHandlerConfig = {
 	}>;
 };
 
-type CredentialConfigurationsSupported = {
-	[key: string]: {
-		format: string;
-		vct?: string;
-		scope: string;
+type CredentialConfigurationSupported = {
+	format: string;
+	vct?: string;
+	doctype?: string;
+	scope: string;
+	description?: string;
+	display: Array<{
+		name: string;
 		description?: string;
-		display: Array<{
-			name: string;
-			description?: string;
-			background_image?: {
-				uri: string;
-			};
-			background_color?: string;
-			text_color?: string;
-			locale: string;
-		}>;
-		cryptographic_binding_methods_supported: Array<string>;
-		credential_signing_alg_values_supported: Array<string>;
-		proof_types_supported: {
-			jwt: {
-				proof_signing_alg_values_supported: Array<string>;
-			};
-			attestation: {
-				proof_signing_alg_values_supported: Array<string>;
-				key_attestations_required: {};
-			};
+		background_image?: {
+			uri: string;
+		};
+		background_color?: string;
+		text_color?: string;
+		locale: string;
+	}>;
+	cryptographic_binding_methods_supported: Array<string>;
+	credential_signing_alg_values_supported: Array<string>;
+	proof_types_supported: {
+		jwt: {
+			proof_signing_alg_values_supported: Array<string>;
+		};
+		attestation: {
+			proof_signing_alg_values_supported: Array<string>;
+			key_attestations_required: {};
 		};
 	};
+};
+
+type CredentialConfigurationsSupported = {
+	[credential_configuration_id: string]: CredentialConfigurationSupported;
 };
 
 type OpenidCredentialIssuerResponse = {
@@ -84,11 +87,8 @@ export function openidCredentialIssuerHandlerFactory(
 
 		config.supported_credential_configurations.forEach(
 			(configuration: CredentialConfiguration) => {
-				credential_configurations_supported[
-					configuration.credential_configuration_id
-				] = {
+				const credential_configuration: CredentialConfigurationSupported = {
 					format: configuration.format,
-					vct: configuration.vct,
 					scope: configuration.scope,
 					display: configuration.display,
 					cryptographic_binding_methods_supported: ["jwk"],
@@ -103,6 +103,18 @@ export function openidCredentialIssuerHandlerFactory(
 						},
 					},
 				};
+
+				if (configuration.format.match("sd-jwt")) {
+					credential_configuration.vct = configuration.vct;
+				}
+
+				if (configuration.format.match("mso_mdoc")) {
+					credential_configuration.doctype = configuration.doctype;
+				}
+
+				credential_configurations_supported[
+					configuration.credential_configuration_id
+				] = credential_configuration;
 			},
 		);
 

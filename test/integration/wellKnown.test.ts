@@ -22,7 +22,12 @@ describe("well-known endpoints", () => {
 				"http://localhost:5000/pushed-authorization-request",
 			require_pushed_authorization_requests: true,
 			response_types_supported: ["code"],
-			scopes_supported: ["not_found:scope", "minimal:scope", "client:scope"],
+			scopes_supported: [
+				"not_found:scope",
+				"full:scope",
+				"full:scope:mso_mdoc",
+				"client:scope",
+			],
 			token_endpoint: "http://localhost:5000/token",
 			token_endpoint_auth_methods_supported: ["none"],
 		});
@@ -39,19 +44,19 @@ describe("well-known endpoints", () => {
 			credential_issuer: "http://localhost:5000",
 			nonce_endpoint: "http://localhost:5000/nonce",
 			credential_configurations_supported: {
-				minimal: {
+				full: {
 					format: "dc+sd-jwt",
-					vct: "urn:test:minimal",
-					scope: "minimal:scope",
+					vct: "urn:test:full",
+					scope: "full:scope",
 					display: [
 						{
 							background_color: "#00246b",
 							background_image: {
 								uri: "http://background.uri",
 							},
-							description: "A minimal credential for testing purposes",
+							description: "A full credential for testing purposes",
 							locale: "en-US",
-							name: "Minimal",
+							name: "Full",
 							text_color: "#ffffff",
 						},
 					],
@@ -66,6 +71,34 @@ describe("well-known endpoints", () => {
 							proof_signing_alg_values_supported: ["ES256"],
 						},
 					},
+				},
+				"test.mso_mdoc.full": {
+					credential_signing_alg_values_supported: ["ES256"],
+					cryptographic_binding_methods_supported: ["jwk"],
+					display: [
+						{
+							background_color: "#00246b",
+							background_image: {
+								uri: "http://background.uri",
+							},
+							description: "A full credential for testing purposes",
+							locale: "en-US",
+							name: "Full",
+							text_color: "#ffffff",
+						},
+					],
+					doctype: "test.full",
+					format: "mso_mdoc",
+					proof_types_supported: {
+						attestation: {
+							key_attestations_required: {},
+							proof_signing_alg_values_supported: ["ES256"],
+						},
+						jwt: {
+							proof_signing_alg_values_supported: ["ES256"],
+						},
+					},
+					scope: "full:scope:mso_mdoc",
 				},
 			},
 		});

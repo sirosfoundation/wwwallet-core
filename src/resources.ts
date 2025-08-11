@@ -13,6 +13,7 @@ export type CredentialConfiguration = {
 	scope: string;
 	format: string;
 	vct?: string;
+	doctype?: string;
 	display: Array<{
 		name: string;
 		description?: string;

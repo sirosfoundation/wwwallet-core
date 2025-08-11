@@ -1,9 +1,9 @@
 {
 	"label": "[demo] PID ARF 1.8 (mso_mdoc)",
-	"credential_configuration_id": "pid:mso_mdoc",
+	"credential_configuration_id": "eu.europa.ec.eudi.pid.1",
 	"scope": "pid:mso_mdoc",
 	"format": "mso_mdoc",
-	"vct": "pid:mso_mdoc",
+	"doctype": "eu.europa.ec.eudi.pid.1",
 	"display": [
 		{
 			"name": "PID mDoc",

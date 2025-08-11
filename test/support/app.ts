@@ -35,10 +35,11 @@ export const config = {
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
-		scopes: ["not_found:scope", "minimal:scope"],
+		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
 	},
 	supported_credential_configurations: [
-		"./credential_configurations/minimal.json",
+		"./credential_configurations/full.sd-jwt.json",
+		"./credential_configurations/full.mso_mdoc.json",
 	].map((credentialConfigurationPath) => {
 		const credential = fs
 			.readFileSync(path.join(__dirname, credentialConfigurationPath))

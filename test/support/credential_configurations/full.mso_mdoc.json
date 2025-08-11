@@ -1,0 +1,19 @@
+{
+	"label": "Full (mso_mdoc)",
+	"credential_configuration_id": "test.mso_mdoc.full",
+	"scope": "full:scope:mso_mdoc",
+	"format": "mso_mdoc",
+	"doctype": "test.full",
+	"display": [
+		{
+			"name": "Full",
+			"description": "A full credential for testing purposes",
+			"background_image": {
+				"uri": "http://background.uri"
+			},
+			"background_color": "#00246b",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
+}
