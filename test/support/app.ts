@@ -4,6 +4,12 @@ import { server } from "../../app";
 import { Core } from "../../src";
 
 export const config = {
+	logger: {
+		error: (_message: string) => {},
+		info: (_message: string) => {},
+		warn: (_message: string) => {},
+		debug: (_message: string) => {},
+	},
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
 	databaseOperations: {
@@ -25,26 +31,16 @@ export const config = {
 			scopes: ["client:scope"],
 		},
 	],
+	issuer_display: [{ name: "Test issuer" }],
 	secret: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
-		scopes: [
-			"not_found:scope",
-			"minimal:scope",
-			"ehic",
-			"diploma",
-			"pid:jpt_dc",
-			"pid:mso_mdoc",
-			"pid:sd_jwt_dc",
-			"pid:sd_jwt_dc:arf_1_5",
-			"pid:sd_jwt_vc:arf_1_5",
-			"pid:sd_jwt_vc",
-			"por:sd_jwt_vc",
-		],
+		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
 	},
 	supported_credential_configurations: [
-		"./credential_configurations/minimal.json",
+		"./credential_configurations/full.sd-jwt.json",
+		"./credential_configurations/full.mso_mdoc.json",
 	].map((credentialConfigurationPath) => {
 		const credential = fs
 			.readFileSync(path.join(__dirname, credentialConfigurationPath))

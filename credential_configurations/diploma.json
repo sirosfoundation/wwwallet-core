@@ -3,5 +3,19 @@
 	"credential_configuration_id": "urn:credential:diploma",
 	"scope": "diploma",
 	"format": "dc+sd-jwt",
-	"vct": "urn:credential:diploma"
+	"vct": "urn:credential:diploma",
+	"display": [
+		{
+			"name": "Bachelor Diploma (dc+sd-jwt)",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"logo": {
+				"uri": "https://demo-issuer.wwwallet.org/images/diploma-logo.png"
+			},
+			"background_color": "#b1d3ff",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
 }

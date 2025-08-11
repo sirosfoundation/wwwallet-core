@@ -4,6 +4,8 @@ import morgan from "morgan";
 import {
 	type Core,
 	validateCredentialOfferHandlerConfig,
+	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidCredentialIssuerHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -30,11 +32,25 @@ export function server(core: Core) {
 			// trigger handlers configuration validation
 			validateCredentialOfferHandlerConfig(core.config);
 			validateTokenHandlerConfig(core.config);
+			validateOauthAuthorizationServerHandlerConfig(core.config);
+			validateOpenidCredentialIssuerHandlerConfig(core.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
 			res.status(500).send((error as Error).message);
 		}
+	});
+
+	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
+		const response = await core.oauthAuthorizationServer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
+		const response = await core.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
 	});
 
 	app.post("/token", async (req, res) => {

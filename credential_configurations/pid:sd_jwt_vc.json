@@ -3,5 +3,17 @@
 	"credential_configuration_id": "urn:eudi:pid:1:vc",
 	"scope": "pid:sd_jwt_vc",
 	"format": "vc+sd-jwt",
-	"vct": "urn:eudi:pid:1:vc"
+	"vct": "urn:eudi:pid:1:vc",
+	"display": [
+		{
+			"name": "PID ARF 1.8 (vc+sd-jwt)",
+			"description": "Person Identification Data",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#1b263b",
+			"text_color": "#FFFFFF",
+			"locale": "en-US"
+		}
+	]
 }

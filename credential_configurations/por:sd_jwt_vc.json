@@ -3,5 +3,17 @@
 	"credential_configuration_id": "urn:eu.europa.ec.eudi:por:1",
 	"scope": "por:sd_jwt_vc",
 	"format": "vc+sd-jwt",
-	"vct": "urn:eu.europa.ec.eudi:por:1"
+	"vct": "urn:eu.europa.ec.eudi:por:1",
+	"display": [
+		{
+			"name": "Power of Representation (dc+sd-jwt)",
+			"description": "Power of Representation - SD-JWT VC",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#c3b25d",
+			"text_color": "#363531",
+			"locale": "en-US"
+		}
+	]
 }

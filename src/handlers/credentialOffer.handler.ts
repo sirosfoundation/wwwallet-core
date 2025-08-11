@@ -30,13 +30,7 @@ export type CredentialOfferHandlerConfig = {
 	issuer_client: {
 		scopes: Array<string>;
 	};
-	supported_credential_configurations: Array<{
-		credential_configuration_id: string;
-		label?: string;
-		scope: string;
-		format: string;
-		vct?: string;
-	}>;
+	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
 type CredentialOfferRequest = {

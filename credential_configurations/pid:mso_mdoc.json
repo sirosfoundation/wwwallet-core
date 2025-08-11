@@ -1,7 +1,19 @@
 {
 	"label": "[demo] PID ARF 1.8 (mso_mdoc)",
-	"credential_configuration_id": "pid:mso_mdoc",
+	"credential_configuration_id": "eu.europa.ec.eudi.pid.1",
 	"scope": "pid:mso_mdoc",
 	"format": "mso_mdoc",
-	"vct": "pid:mso_mdoc"
+	"doctype": "eu.europa.ec.eudi.pid.1",
+	"display": [
+		{
+			"name": "PID mDoc",
+			"description": "Person Identification Data",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#4CC3DD",
+			"text_color": "#000000",
+			"locale": "en-US"
+		}
+	]
 }

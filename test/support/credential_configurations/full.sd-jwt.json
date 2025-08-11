@@ -1,0 +1,19 @@
+{
+	"label": "Full (dc+sd-jwt)",
+	"credential_configuration_id": "full",
+	"scope": "full:scope",
+	"format": "dc+sd-jwt",
+	"vct": "urn:test:full",
+	"display": [
+		{
+			"name": "Full",
+			"description": "A full credential for testing purposes",
+			"background_image": {
+				"uri": "http://background.uri"
+			},
+			"background_color": "#00246b",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
+}

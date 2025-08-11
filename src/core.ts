@@ -4,9 +4,14 @@ import type { Config } from "./config";
 import {
 	type CredentialOfferHandlerConfig,
 	credentialOfferHandlerFactory,
+	type OauthAuthorizationServerHandlerConfig,
+	type OpenidCredentialIssuerHandlerConfig,
+	oauthAuthorizationServerHandlerFactory,
+	openidCredentialIssuerHandlerFactory,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
 	validateCredentialOfferHandlerConfig,
+	validateOauthAuthorizationServerHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
 
@@ -15,6 +20,22 @@ export class Core {
 
 	constructor(config: Config) {
 		this.config = merge(defaultConfig, config);
+	}
+
+	get oauthAuthorizationServer() {
+		validateOauthAuthorizationServerHandlerConfig(this.config);
+
+		return oauthAuthorizationServerHandlerFactory(
+			this.config as OauthAuthorizationServerHandlerConfig,
+		);
+	}
+
+	get openidCredentialIssuer() {
+		validateOauthAuthorizationServerHandlerConfig(this.config);
+
+		return openidCredentialIssuerHandlerFactory(
+			this.config as OpenidCredentialIssuerHandlerConfig,
+		);
 	}
 
 	get token() {
@@ -44,5 +65,6 @@ export const defaultConfig = {
 	issuer_client: {
 		scopes: [],
 	},
+	issuer_display: [],
 	supported_credential_configurations: [],
 };
