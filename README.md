@@ -21,6 +21,8 @@ $ npm start
 ========== wwwallet issuer Proof of Concept listening to port 5000
 GET      /
 GET      /healthz
+GET      /.well-known/oauth-authorization-server
+GET      /.well-known/openid-credential-issuer
 POST     /token
 GET      /offer/:scope
 ==========
@@ -66,17 +68,12 @@ npm run test
 
  DEV  v3.2.4 [...]
 
- ✓ test/core.test.ts (2 tests) 50ms
- ✓ test/integration/helloWorld.test.ts (3 tests) 72ms
- ✓ test/integration/clientCredentials.test.ts (7 tests) 42ms
- ✓ test/integration/credentialOffer.test.ts (10 tests) 35ms
+ [...]
 
- Test Files  2 passed (2)
-      Tests  8 passed (8)
-   Start at  18:33:14
-   Duration  349ms (transform 69ms, setup 0ms, collect 279ms, tests 56ms, environment 0ms, prepare 102ms)
-
- PASS  Waiting for file changes...
+ Test Files  5 passed (5)
+      Tests  22 passed (22)
+   Start at  17:33:43
+   Duration  753ms (transform 217ms, setup 0ms, collect 1.62s, tests 499ms, environment 1ms, prepare 392ms)
 ```
 
 ## Dependency tree
