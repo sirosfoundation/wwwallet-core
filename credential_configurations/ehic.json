@@ -4,5 +4,16 @@
 	"scope": "ehic",
 	"format": "dc+sd-jwt",
 	"vct": "urn:eudi:ehic:1",
-	"display": []
+	"display": [
+		{
+			"name": "EHIC (dc+sd-jwt)",
+			"description": "European Health Insurance Card",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#1b263b",
+			"text_color": "#FFFFFF",
+			"locale": "en-US"
+		}
+	]
 }

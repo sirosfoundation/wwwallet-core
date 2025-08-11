@@ -4,5 +4,16 @@
 	"scope": "pid:sd_jwt_dc",
 	"format": "dc+sd-jwt",
 	"vct": "urn:eudi:pid:1:dc",
-	"display": []
+	"display": [
+		{
+			"name": "PID ARF 1.8 (dc+sd-jwt)",
+			"description": "Person Identification Data",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#1b263b",
+			"text_color": "#FFFFFF",
+			"locale": "en-US"
+		}
+	]
 }

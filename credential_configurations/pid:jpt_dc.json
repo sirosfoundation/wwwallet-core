@@ -4,5 +4,16 @@
 	"scope": "pid:jpt_dc",
 	"format": "dc+jpt",
 	"vct": "urn:eudi:pid:1:dc:jpt",
-	"display": []
+	"display": [
+		{
+			"name": "PID ARF 1.8 (dc+jpt)",
+			"description": "Person Identification Data",
+			"background_image": {
+				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+			},
+			"background_color": "#1b263b",
+			"text_color": "#FFFFFF",
+			"locale": "en-US"
+		}
+	]
 }
