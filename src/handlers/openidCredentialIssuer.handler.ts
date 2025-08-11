@@ -8,6 +8,13 @@ const ajv = new Ajv();
 
 export type OpenidCredentialIssuerHandlerConfig = {
 	issuer_url: string;
+	issuer_display: Array<{
+		locale: string;
+		logo?: {
+			uri: string;
+		};
+		name?: string;
+	}>;
 	supported_credential_configurations: Array<{
 		credential_configuration_id: string;
 		label?: string;
@@ -66,6 +73,13 @@ type OpenidCredentialIssuerResponse = {
 		credential_issuer: string;
 		nonce_endpoint: string;
 		credential_endpoint: string;
+		display: Array<{
+			locale: string;
+			logo?: {
+				uri: string;
+			};
+			name?: string;
+		}>;
 		credential_configurations_supported: CredentialConfigurationsSupported;
 	};
 };
@@ -120,6 +134,7 @@ export function openidCredentialIssuerHandlerFactory(
 
 		const well_known = {
 			credential_issuer: config.issuer_url,
+			display: config.issuer_display,
 			nonce_endpoint,
 			credential_endpoint,
 			credential_configurations_supported,

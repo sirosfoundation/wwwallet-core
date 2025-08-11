@@ -65,5 +65,6 @@ export const defaultConfig = {
 	issuer_client: {
 		scopes: [],
 	},
+	issuer_display: [],
 	supported_credential_configurations: [],
 };

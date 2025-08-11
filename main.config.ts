@@ -21,6 +21,15 @@ export const config = {
 	tokenGenerators: {
 		generateIssuerState: uuidv6,
 	},
+	issuer_display: [
+		{
+			name: "wwWallet Issuer",
+			logo: {
+				uri: "https://demo-issuer.wwwallet.org/images/logo.png",
+			},
+			locale: "en-US",
+		},
+	],
 	clients: [
 		{
 			id: "id",

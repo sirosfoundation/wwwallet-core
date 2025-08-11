@@ -43,6 +43,11 @@ describe("well-known endpoints", () => {
 			credential_endpoint: "http://localhost:5000/credential",
 			credential_issuer: "http://localhost:5000",
 			nonce_endpoint: "http://localhost:5000/nonce",
+			display: [
+				{
+					name: "Test issuer",
+				},
+			],
 			credential_configurations_supported: {
 				full: {
 					format: "dc+sd-jwt",

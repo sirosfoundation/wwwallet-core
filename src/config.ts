@@ -19,6 +19,13 @@ export type Config = {
 	};
 	issuer_url?: string;
 	wallet_url?: string;
+	issuer_display?: Array<{
+		locale?: string;
+		logo?: {
+			uri: string;
+		};
+		name: string;
+	}>;
 	clients?: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	issuer_client?: {
 		scopes: Array<string>;

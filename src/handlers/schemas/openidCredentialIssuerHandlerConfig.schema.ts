@@ -1,6 +1,24 @@
 export const openidCredentialIssuerHandlerConfigSchema = {
 	type: "object",
 	properties: {
+		issuer_display: {
+			type: "array",
+			items: {
+				type: "object",
+				properties: {
+					locale: { type: "string" },
+					name: { type: "string" },
+					logo: {
+						type: "object",
+						properties: {
+							uri: { type: "string" },
+						},
+						required: ["uri"],
+					},
+				},
+				required: ["name"],
+			},
+		},
 		issuer_url: { type: "string" },
 		supported_credential_configurations: {
 			type: "array",
