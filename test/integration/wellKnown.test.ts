@@ -6,7 +6,6 @@ describe("healthz", () => {
 	it("renders", async () => {
 		const response = await request(app).get("/.well-known/oauth-authorization-server");
 
-    console.log(response)
 		expect(response.status).toBe(200);
     expect(response.body).to.deep.eq({
       "authorization_challenge_endpoint": "http://localhost:5000/authorization-challenge",

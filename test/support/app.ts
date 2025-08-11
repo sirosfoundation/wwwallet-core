@@ -4,6 +4,12 @@ import { server } from "../../app";
 import { Core } from "../../src";
 
 export const config = {
+	logger: {
+		error: (message: string) => {},
+		info: (message: string) => {},
+		warn: (message: string) => {},
+		debug: (message: string) => {},
+	},
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
 	databaseOperations: {
