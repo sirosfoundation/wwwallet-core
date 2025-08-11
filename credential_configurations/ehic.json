@@ -3,5 +3,6 @@
 	"credential_configuration_id": "urn:eudi:ehic:1",
 	"scope": "ehic",
 	"format": "dc+sd-jwt",
-	"vct": "urn:eudi:ehic:1"
+	"vct": "urn:eudi:ehic:1",
+	"display": []
 }

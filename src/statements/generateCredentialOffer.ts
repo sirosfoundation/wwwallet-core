@@ -2,6 +2,7 @@ import qrcode from "qrcode";
 import { OauthError } from "../errors";
 import type {
 	AuthorizationServerState,
+	CredentialConfiguration,
 	CredentialOffer,
 	IssuerGrants,
 } from "../resources";
@@ -20,13 +21,7 @@ export type GenerateCredentialOfferConfig = {
 	};
 	issuer_url: string;
 	wallet_url: string;
-	supported_credential_configurations: Array<{
-		credential_configuration_id: string;
-		label?: string;
-		scope: string;
-		format: string;
-		vct?: string;
-	}>;
+	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
 export async function generateCredentialOffer(

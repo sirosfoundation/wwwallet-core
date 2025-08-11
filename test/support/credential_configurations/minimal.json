@@ -3,5 +3,17 @@
 	"credential_configuration_id": "minimal",
 	"scope": "minimal:scope",
 	"format": "dc+sd-jwt",
-	"vct": "urn:test:minimal"
+	"vct": "urn:test:minimal",
+	"display": [
+		{
+			"name": "Minimal",
+			"description": "A minimal credential for testing purposes",
+			"background_image": {
+				"uri": "http://background.uri"
+			},
+			"background_color": "#00246b",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
 }

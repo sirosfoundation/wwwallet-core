@@ -29,6 +29,16 @@ export type Config = {
 		scope: string;
 		format: string;
 		vct?: string;
+		display: Array<{
+			name: string;
+			description?: string;
+			background_image?: {
+				uri: string;
+			};
+			background_color?: string;
+			text_color?: string;
+			locale: string;
+		}>;
 	}>;
 	access_token_ttl?: number;
 	access_token_encryption?: string;

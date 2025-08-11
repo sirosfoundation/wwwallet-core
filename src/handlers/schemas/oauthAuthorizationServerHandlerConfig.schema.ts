@@ -9,7 +9,7 @@ export const oauthAuthorizationServerHandlerConfigSchema = {
 				properties: {
 					scopes: { type: "array", items: { type: "string" } },
 				},
-        required: ["scopes"],
+				required: ["scopes"],
 			},
 		},
 		issuer_client: {
@@ -20,9 +20,5 @@ export const oauthAuthorizationServerHandlerConfigSchema = {
 			required: ["scopes"],
 		},
 	},
-	required: [
-		"issuer_url",
-		"clients",
-		"issuer_client",
-	],
+	required: ["issuer_url", "clients", "issuer_client"],
 };

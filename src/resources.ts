@@ -13,6 +13,16 @@ export type CredentialConfiguration = {
 	scope: string;
 	format: string;
 	vct?: string;
+	display: Array<{
+		name: string;
+		description?: string;
+		background_image?: {
+			uri: string;
+		};
+		background_color?: string;
+		text_color?: string;
+		locale: string;
+	}>;
 };
 
 export type OauthScope = string;

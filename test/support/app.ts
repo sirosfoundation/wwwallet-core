@@ -5,10 +5,10 @@ import { Core } from "../../src";
 
 export const config = {
 	logger: {
-		error: (message: string) => {},
-		info: (message: string) => {},
-		warn: (message: string) => {},
-		debug: (message: string) => {},
+		error: (_message: string) => {},
+		info: (_message: string) => {},
+		warn: (_message: string) => {},
+		debug: (_message: string) => {},
 	},
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
@@ -35,10 +35,7 @@ export const config = {
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
-		scopes: [
-			"not_found:scope",
-			"minimal:scope",
-		],
+		scopes: ["not_found:scope", "minimal:scope"],
 	},
 	supported_credential_configurations: [
 		"./credential_configurations/minimal.json",

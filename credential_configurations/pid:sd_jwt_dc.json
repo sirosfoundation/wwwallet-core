@@ -3,5 +3,6 @@
 	"credential_configuration_id": "urn:eudi:pid:1:dc",
 	"scope": "pid:sd_jwt_dc",
 	"format": "dc+sd-jwt",
-	"vct": "urn:eudi:pid:1:dc"
+	"vct": "urn:eudi:pid:1:dc",
+	"display": []
 }

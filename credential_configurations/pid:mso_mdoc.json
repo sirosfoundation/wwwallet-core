@@ -3,5 +3,6 @@
 	"credential_configuration_id": "pid:mso_mdoc",
 	"scope": "pid:mso_mdoc",
 	"format": "mso_mdoc",
-	"vct": "pid:mso_mdoc"
+	"vct": "pid:mso_mdoc",
+	"display": []
 }

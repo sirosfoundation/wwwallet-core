@@ -4,6 +4,8 @@ import morgan from "morgan";
 import {
 	type Core,
 	validateCredentialOfferHandlerConfig,
+	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidCredentialIssuerHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -30,6 +32,8 @@ export function server(core: Core) {
 			// trigger handlers configuration validation
 			validateCredentialOfferHandlerConfig(core.config);
 			validateTokenHandlerConfig(core.config);
+			validateOauthAuthorizationServerHandlerConfig(core.config);
+			validateOpenidCredentialIssuerHandlerConfig(core.config);
 
 			res.status(200).send("ok");
 		} catch (error) {

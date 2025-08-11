@@ -3,5 +3,6 @@
 	"credential_configuration_id": "urn:eu.europa.ec.eudi:pid:1:vc",
 	"scope": "pid:sd_jwt_vc:arf_1_5",
 	"format": "vc+sd-jwt",
-	"vct": "urn:eu.europa.ec.eudi:pid:1:vc"
+	"vct": "urn:eu.europa.ec.eudi:pid:1:vc",
+	"display": []
 }
