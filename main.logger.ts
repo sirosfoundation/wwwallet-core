@@ -1,6 +1,7 @@
+import type { Logger as CoreLogger } from "./src";
 export type LogLevel = "error" | "info" | "warn" | "debug";
 
-export class Logger {
+export class Logger implements CoreLogger {
 	level: LogLevel;
 	logLevels: Array<LogLevel> = ["error", "info", "warn", "debug"];
 
