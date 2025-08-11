@@ -7,10 +7,10 @@ import type {
 	CredentialConfiguration,
 } from "../resources";
 import {
-	checkScope,
 	generateCredentialOffer,
 	generateIssuerGrants,
 	issuerClient,
+	validateScope,
 } from "../statements";
 import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHandlerConfig.schema";
 
@@ -62,7 +62,7 @@ export function credentialOfferHandlerFactory(
 
 			const { client } = await issuerClient(config);
 
-			const { scope } = await checkScope(request.scope, { client }, config);
+			const { scope } = await validateScope(request.scope, { client }, config);
 
 			const { grants } = await generateIssuerGrants(config);
 

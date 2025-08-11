@@ -1,18 +1,18 @@
 import { OauthError } from "../errors";
 import type { OauthClient } from "../resources";
 
-type checkClientCredentialsParams = {
+type validateClientCredentialsParams = {
 	client_id: string;
 	client_secret: string;
 };
 
-export type CheckClientCredentialsConfig = {
+export type ValidateClientCredentialsConfig = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 };
 
-export async function checkClientCredentials(
-	{ client_id, client_secret }: checkClientCredentialsParams,
-	config: CheckClientCredentialsConfig,
+export async function validateClientCredentials(
+	{ client_id, client_secret }: validateClientCredentialsParams,
+	config: ValidateClientCredentialsConfig,
 ): Promise<{ client: OauthClient }> {
 	const client = config.clients.find(
 		(client: { id: string; secret: string }) => {

@@ -1,16 +1,16 @@
 import { OauthError } from "../errors";
 import type { IssuerClient, OauthClient } from "../resources";
 
-type checkScopeParams = {
+type validateScopeParams = {
 	client: OauthClient | IssuerClient;
 };
 
-export type CheckScopeConfig = unknown;
+export type ValidateScopeConfig = unknown;
 
-export async function checkScope(
+export async function validateScope(
 	scope: string | undefined,
-	{ client }: checkScopeParams,
-	_config: CheckScopeConfig,
+	{ client }: validateScopeParams,
+	_config: ValidateScopeConfig,
 ) {
 	if (!scope) return { scope: "" };
 

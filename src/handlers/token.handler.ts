@@ -3,9 +3,9 @@ import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import {
-	checkClientCredentials,
-	checkScope,
 	generateAccessToken,
+	validateClientCredentials,
+	validateScope,
 } from "../statements";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 
@@ -40,7 +40,7 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
-			const { client } = await checkClientCredentials(
+			const { client } = await validateClientCredentials(
 				{
 					client_id: request.client_id,
 					client_secret: request.client_secret,
@@ -48,7 +48,7 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 				config,
 			);
 
-			const { scope } = await checkScope(request.scope, { client }, config);
+			const { scope } = await validateScope(request.scope, { client }, config);
 
 			const { access_token, expires_in } = await generateAccessToken(
 				{ client, scope },
