@@ -2,6 +2,7 @@
 	"scripts": {
 		"prepare": "husky",
 		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts",
+		"config:validate": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.validateConfig.ts",
 		"format": "biome format --write",
 		"biome:ci": "biome ci",
 		"test": "vitest run",
