@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
+import { Config } from "../config"
 import { oauthAuthorizationServerHandlerConfigSchema } from "./schemas/oauthAuthorizationServerHandlerConfig.schema";
 
 const ajv = new Ajv()
@@ -7,7 +8,7 @@ const ajv = new Ajv()
 export type OauthAuthorizationServerHandlerConfig = {
   issuer_url: string;
   clients: Array<{ scopes: Array<string> }>;
-  issuer_client: Array<{ scopes: Array<string> }>;
+  issuer_client: { scopes: Array<string> };
 };
 
 type OauthAuthorizationServerResponse = {
@@ -25,7 +26,7 @@ type OauthAuthorizationServerResponse = {
     dpop_signing_alg_values_supported: Array<string>;
     grant_types_supported: Array<string>;
     jwks_uri: string;
-    scopes_supported: string;
+    scopes_supported: Array<string>;
   };
 };
 
@@ -39,7 +40,7 @@ export function oauthAuthorizationServerHandlerFactory(config: OauthAuthorizatio
     const pushed_authorization_request_endpoint = new URL('/pushed-authorization-request', config.issuer_url).toString();
     const jwks_uri = new URL('/jwks', config.issuer_url).toString();
 
-    let scopes_supported = config.issuer_client.scopes.concat(config.clients.map(({ scopes }) => scopes).flatten)
+    let scopes_supported = config.issuer_client.scopes.concat(config.clients.flatMap(({ scopes }) => scopes))
     scopes_supported = scopes_supported
       .filter((e, index) => scopes_supported.indexOf(e) === index)
       .filter(e => e)

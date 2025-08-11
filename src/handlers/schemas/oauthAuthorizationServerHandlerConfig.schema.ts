@@ -22,6 +22,7 @@ export const oauthAuthorizationServerHandlerConfigSchema = {
 	},
 	required: [
 		"issuer_url",
+		"clients",
 		"issuer_client",
 	],
 };

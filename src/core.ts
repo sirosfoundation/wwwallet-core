@@ -6,6 +6,8 @@ import {
 	credentialOfferHandlerFactory,
 	oauthAuthorizationServerHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
+	openidCredentialIssuerHandlerFactory,
+	type OpenidCredentialIssuerHandlerConfig,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
 	validateCredentialOfferHandlerConfig,
@@ -23,7 +25,13 @@ export class Core {
 	get oauthAuthorizationServer() {
 		validateOauthAuthorizationServerHandlerConfig(this.config);
 
-		return oauthAuthorizationServerHandlerFactory(this.config as TokenHandlerConfig);
+		return oauthAuthorizationServerHandlerFactory(this.config as OauthAuthorizationServerHandlerConfig);
+	}
+
+	get openidCredentialIssuer() {
+		validateOauthAuthorizationServerHandlerConfig(this.config);
+
+		return openidCredentialIssuerHandlerFactory(this.config as OpenidCredentialIssuerHandlerConfig);
 	}
 
 	get token() {

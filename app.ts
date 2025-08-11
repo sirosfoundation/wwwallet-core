@@ -43,6 +43,12 @@ export function server(core: Core) {
 		return res.status(response.status).send(response.body);
 	});
 
+	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
+		const response = await core.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	app.post("/token", async (req, res) => {
 		const response = await core.token(req);
 
