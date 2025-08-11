@@ -7,7 +7,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:cover": "vitest run --coverage",
-		"dependency-tree": "madge --image ./images/dependency-tree.svg ./app.ts && open ./images/dependency-tree.svg"
+		"dependency-tree": "madge --image ./images/dependency-tree.svg ./main.ts && open ./images/dependency-tree.svg"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
