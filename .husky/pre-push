@@ -1,2 +1,3 @@
 npm run biome:ci
+npm run config:validate
 npm test
