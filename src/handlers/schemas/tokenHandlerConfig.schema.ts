@@ -10,6 +10,7 @@ export const tokenHandlerConfigSchema = {
 					secret: { type: "string" },
 					scopes: { type: "array", items: { type: "string" } },
 				},
+				required: ["id", "secret", "scopes"],
 			},
 		},
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },

@@ -32,15 +32,6 @@ export const config = {
 		scopes: [
 			"not_found:scope",
 			"minimal:scope",
-			"ehic",
-			"diploma",
-			"pid:jpt_dc",
-			"pid:mso_mdoc",
-			"pid:sd_jwt_dc",
-			"pid:sd_jwt_dc:arf_1_5",
-			"pid:sd_jwt_vc:arf_1_5",
-			"pid:sd_jwt_vc",
-			"por:sd_jwt_vc",
 		],
 	},
 	supported_credential_configurations: [

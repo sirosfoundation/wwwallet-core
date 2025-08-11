@@ -4,9 +4,12 @@ import type { Config } from "./config";
 import {
 	type CredentialOfferHandlerConfig,
 	credentialOfferHandlerFactory,
+	oauthAuthorizationServerHandlerFactory,
+	type OauthAuthorizationServerHandlerConfig,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
 	validateCredentialOfferHandlerConfig,
+	validateOauthAuthorizationServerHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
 
@@ -15,6 +18,12 @@ export class Core {
 
 	constructor(config: Config) {
 		this.config = merge(defaultConfig, config);
+	}
+
+	get oauthAuthorizationServer() {
+		validateOauthAuthorizationServerHandlerConfig(this.config);
+
+		return oauthAuthorizationServerHandlerFactory(this.config as TokenHandlerConfig);
 	}
 
 	get token() {

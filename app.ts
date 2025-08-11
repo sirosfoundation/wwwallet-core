@@ -37,6 +37,12 @@ export function server(core: Core) {
 		}
 	});
 
+	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
+		const response = await core.oauthAuthorizationServer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	app.post("/token", async (req, res) => {
 		const response = await core.token(req);
 
