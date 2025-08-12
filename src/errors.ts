@@ -2,6 +2,7 @@ export type OauthErrorResponse = {
 	status: number;
 	data: {
 		error: OauthError;
+		errorMessage: string;
 	};
 	body: {
 		error: string;
@@ -27,6 +28,7 @@ export class OauthError extends Error {
 			status: this.status,
 			data: {
 				error: this,
+				errorMessage: this.error_description,
 			},
 			body: {
 				error: this.error,

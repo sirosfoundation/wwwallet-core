@@ -1,3 +1,4 @@
+export * from "./authorize.handler";
 export * from "./credentialOffer.handler";
 export * from "./oauthAuthorizationServer.handler";
 export * from "./openidCredentialIssuer.handler";

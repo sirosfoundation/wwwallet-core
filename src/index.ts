@@ -4,6 +4,6 @@ export {
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
-	validatePushedAuthorizationRequestConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";

@@ -4,7 +4,7 @@ import {
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
-	validatePushedAuthorizationRequestConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -13,7 +13,7 @@ try {
 	validateTokenHandlerConfig(core.config);
 	validateOauthAuthorizationServerHandlerConfig(core.config);
 	validateOpenidCredentialIssuerHandlerConfig(core.config);
-	validatePushedAuthorizationRequestConfig(core.config);
+	validatePushedAuthorizationRequestHandlerConfig(core.config);
 
 	console.info("    \x1b[32m%s\x1b[0m", "========== configuration validation");
 	console.info("        \x1b[32m[OK]\x1b[32m");

@@ -6,7 +6,7 @@ import {
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
-	validatePushedAuthorizationRequestConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -34,7 +34,7 @@ export function server(core: Core) {
 			validateCredentialOfferHandlerConfig(core.config);
 			validateOauthAuthorizationServerHandlerConfig(core.config);
 			validateOpenidCredentialIssuerHandlerConfig(core.config);
-			validatePushedAuthorizationRequestConfig(core.config);
+			validatePushedAuthorizationRequestHandlerConfig(core.config);
 			validateTokenHandlerConfig(core.config);
 
 			res.status(200).send("ok");
@@ -59,6 +59,16 @@ export function server(core: Core) {
 		const response = await core.pushedAuthorizationRequest(req);
 
 		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/authorize", async (req, res) => {
+		const response = await core.authorize(req);
+
+		return res.status(response.status).render("issuance/authorize", {
+			data: {
+				...response.data,
+			},
+		});
 	});
 
 	app.post("/token", async (req, res) => {

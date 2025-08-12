@@ -2,6 +2,7 @@ import { merge } from "ts-deepmerge";
 import { v6 as uuidv6 } from "uuid";
 import type { Config } from "./config";
 import {
+	authorizeHandlerFactory,
 	type CredentialOfferHandlerConfig,
 	credentialOfferHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
@@ -12,9 +13,10 @@ import {
 	pushedAuthorizationRequestHandlerFactory,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
+	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
-	validatePushedAuthorizationRequestConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
 
@@ -42,9 +44,17 @@ export class Core {
 	}
 
 	get pushedAuthorizationRequest() {
-		validatePushedAuthorizationRequestConfig(this.config);
+		validatePushedAuthorizationRequestHandlerConfig(this.config);
 
 		return pushedAuthorizationRequestHandlerFactory(
+			this.config as PushedAuthorizationRequestConfig,
+		);
+	}
+
+	get authorize() {
+		validateAuthorizeHandlerConfig(this.config);
+
+		return authorizeHandlerFactory(
 			this.config as PushedAuthorizationRequestConfig,
 		);
 	}

@@ -1,0 +1,30 @@
+<header><a href="/"><img class="logo" src="/img/wwwallet-logo.png" /></a></header>
+
+<main class="main">
+  <div class="heading">
+    <h1>Get your identity information</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sodales accumsan cursus. Aenean elementum id ipsum sit amet consectetur. Donec purus tortor, viverra at iaculis vel, volutpat in ipsum. Nunc dapibus dolor mi, vel porta arcu eleifend in. Praesent non nisi lorem. Vestibulum malesuada sollicitudin porttitor.</p>
+    <p>Donec a tincidunt quam. Sed eget augue sit amet dolor pharetra rutrum ac id arcu. Curabitur vestibulum sem ex, sed porttitor orci lacinia et. Etiam aliquam quam id rutrum consequat. Duis id diam velit. Quisque malesuada massa magna, in rhoncus orci varius quis. Sed quis tortor neque.</p>
+  </div>
+  <div class="content">
+    {{#if @error}}
+    <div class="error">{{@errorMessage}}</div>
+    {{else}}
+    <div class="login-wrapper">
+      <div class="title">
+        <h2>[demo] Login</h2>
+      </div>
+      <form action="/login" method="POST">
+        <input type="hidden" name="request_uri" value="{{@requestUri}}"/>
+        <div class="field">
+          <input id="username" type="text" name="username" placeholder="Username" />
+        </div>
+        <div class="field">
+          <input id="password" type="password" name="password" placeholder="Password" />
+        </div>
+        <button type="submit" class="button fluid">Submit</button>
+      </form>
+    </div>
+    {{/if}}
+  </div>
+</main>

@@ -34,6 +34,25 @@ header {
 	align-items: center;
 }
 
+.field label {
+	display: block;
+}
+
+.field input[type="text"],
+.field input[type="password"] {
+	display: block;
+	padding: 1em 1em 0.5em 0.5em;
+	border-radius: 5px;
+	border: 1px solid #30549b;
+	margin-bottom: 1em;
+}
+
+.field input[type="text"]::placeholder,
+.field input[type="password"]::placeholder {
+	font-size: 0.8em;
+	color: #87898a;
+}
+
 @media (max-width: 768px) {
 	header {
 		right: 0;
@@ -113,7 +132,7 @@ header .logo {
 	text-align: justify;
 }
 
-.credential-offer-overlay {
+.content {
 	height: 100%;
 	flex: 0.5;
 	display: flex;
@@ -127,12 +146,23 @@ header .logo {
 		display: none;
 	}
 
-	.credential-offer-overlay {
+	.content {
 		flex: 1;
 	}
 }
 
-.credential-offer {
+.login-wrapper {
+	position: relative;
+	font-size: 1.2em;
+}
+
+.login-wrapper input {
+	font-size: 1.1em;
+	min-width: 350px;
+}
+
+.credential-offer,
+.login-wrapper {
 	position: relative;
 	text-align: center;
 	padding: 2em;
@@ -142,7 +172,8 @@ header .logo {
 	border: 1px solid #dfdfdf;
 }
 
-.credential-offer .title {
+.credential-offer .title,
+.login-wrapper .title {
 	position: absolute;
 	top: -2em;
 	right: 0;
@@ -151,13 +182,15 @@ header .logo {
 }
 
 @media (max-width: 768px) {
-	.credential-offer .title {
+	.credential-offer .title,
+	.login-wrapper .title {
 		left: 0;
 		text-align: center;
 	}
 }
 
-.credential-offer .title h2 {
+.credential-offer .title h2,
+.login-wrapper .title h2 {
 	line-height: 1.05em;
 	display: inline-block;
 	padding: 0.5em 1em;
@@ -199,10 +232,15 @@ header .logo {
 	border-radius: 3px;
 	color: white;
 	text-decoration: none;
+	font-size: 1em;
 }
 
 .button.fluid {
 	display: block;
+}
+
+form .button.fluid {
+	width: 100%;
 }
 
 .button:hover {

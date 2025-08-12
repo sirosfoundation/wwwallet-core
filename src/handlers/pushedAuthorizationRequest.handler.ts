@@ -83,7 +83,9 @@ export function pushedAuthorizationRequestHandlerFactory(
 	};
 }
 
-export function validatePushedAuthorizationRequestConfig(config: Config) {
+export function validatePushedAuthorizationRequestHandlerConfig(
+	config: Config,
+) {
 	const validate = ajv.compile(pushedAuthorizationRequestHandlerConfigSchema);
 	if (!validate(config)) {
 		const errorText = ajv.errorsText(validate.errors);
