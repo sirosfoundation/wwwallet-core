@@ -2,12 +2,19 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import { validateClientCredentials, validateScope } from "../statements";
+import {
+	generateAuthorizationRequestUri,
+	validateClientCredentials,
+	validateScope,
+} from "../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedAuthorizationRequestHandlerConfig.schema";
 
 const ajv = new Ajv();
 
 export type PushedAuthorizationRequestConfig = {
+	pushed_authorization_request_ttl: number;
+	access_token_encryption: string;
+	secret: string;
 	clients: Array<{
 		id: string;
 		redirect_uris: Array<string>;
@@ -27,7 +34,10 @@ type PushedAuthorizationRequest = {
 
 type PushedAuthorizationRequestResponse = {
 	status: 200;
-	body: {};
+	body: {
+		request_uri: string;
+		expires_in: number;
+	};
 };
 
 export function pushedAuthorizationRequestHandlerFactory(
@@ -54,9 +64,14 @@ export function pushedAuthorizationRequestHandlerFactory(
 				config,
 			);
 
+			const { request_uri, expires_in } = await generateAuthorizationRequestUri(
+				request,
+				config,
+			);
+
 			return {
 				status: 200,
-				body: {},
+				body: { request_uri, expires_in },
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {

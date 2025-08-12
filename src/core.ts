@@ -68,6 +68,7 @@ export const defaultConfig = {
 	logger: console,
 	clients: [],
 	access_token_ttl: 3600 * 2,
+	pushed_authorization_request_ttl: 60,
 	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	databaseOperations: {},
 	tokenGenerators: {

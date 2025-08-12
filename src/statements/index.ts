@@ -1,4 +1,5 @@
 export * from "./generateAccessToken";
+export * from "./generateAuthorizationRequestUri";
 export * from "./generateCredentialOffer";
 export * from "./generateIssuerGrants";
 export * from "./issuerClient";

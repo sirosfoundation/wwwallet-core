@@ -1,6 +1,7 @@
+import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { app } from "../support/app";
+import { app, core } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
 	it("returns an error without body", async () => {
@@ -105,7 +106,24 @@ describe("pushshed authorization request endpoint", () => {
 			.send({ response_type, client_id, redirect_uri });
 
 		expect(response.status).toBe(200);
-		expect(response.body).to.deep.eq({});
+		expect(response.body.expires_in).to.eq(
+			core.config.pushed_authorization_request_ttl,
+		);
+		expect(response.body.request_uri).toMatch(
+			"urn:wwwallet:authorization_request:ey",
+		);
+
+		const { payload } = await jwtDecrypt(
+			response.body.request_uri.replace(
+				"urn:wwwallet:authorization_request:",
+				"",
+			),
+			new TextEncoder().encode(core.config.secret),
+		);
+
+		expect(payload.client_id).to.eq(client_id);
+		expect(payload.redirect_uri).to.eq(redirect_uri);
+		expect(payload.response_type).to.eq(response_type);
 	});
 
 	it("returns with valid scope", async () => {
@@ -118,6 +136,23 @@ describe("pushshed authorization request endpoint", () => {
 			.send({ response_type, client_id, redirect_uri, scope });
 
 		expect(response.status).toBe(200);
-		expect(response.body).to.deep.eq({});
+		expect(response.body.expires_in).to.eq(
+			core.config.pushed_authorization_request_ttl,
+		);
+		expect(response.body.request_uri).toMatch(
+			"urn:wwwallet:authorization_request:ey",
+		);
+
+		const { payload } = await jwtDecrypt(
+			response.body.request_uri.replace(
+				"urn:wwwallet:authorization_request:",
+				"",
+			),
+			new TextEncoder().encode(core.config.secret),
+		);
+
+		expect(payload.client_id).to.eq(client_id);
+		expect(payload.redirect_uri).to.eq(redirect_uri);
+		expect(payload.response_type).to.eq(response_type);
 	});
 });
