@@ -1,6 +1,6 @@
 import { jwtDecrypt } from "jose";
-import { OauthError } from "../errors";
-import type { OauthClient } from "../resources";
+import { OauthError } from "../../errors";
+import type { OauthClient } from "../../resources";
 
 type validateClientCredentialsParams = {
 	client_id: string;

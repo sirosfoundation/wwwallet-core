@@ -1,6 +1,6 @@
 import { EncryptJWT } from "jose";
-import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../constants";
-import type { AuthorizationRequest } from "../resources";
+import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../constants";
+import type { AuthorizationRequest } from "../../resources";
 
 export type GenerateAuthorizationRequestUriParams = AuthorizationRequest;
 

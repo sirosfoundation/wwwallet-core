@@ -3,7 +3,11 @@ import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { AuthorizationRequest } from "../resources";
-import { validateClientCredentials, validateRequestUri } from "../statements";
+import {
+	validateClientCredentials,
+	validateRequestUri,
+	validateScope,
+} from "../statements";
 import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -40,12 +44,18 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				config,
 			);
 
-			const { client: _client } = await validateClientCredentials(
+			const { client } = await validateClientCredentials(
 				{
 					client_id: request.client_id,
 					request_uri,
 					confidential: false,
 				},
+				config,
+			);
+
+			const { scope: _scope } = await validateScope(
+				authorization_request.scope,
+				{ client },
 				config,
 			);
 

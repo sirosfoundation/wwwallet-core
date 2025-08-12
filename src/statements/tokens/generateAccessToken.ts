@@ -1,5 +1,5 @@
 import { EncryptJWT } from "jose";
-import type { OauthClient, OauthScope } from "../resources";
+import type { OauthClient, OauthScope } from "../../resources";
 
 export type GenerateAccessTokenParams = {
 	client: OauthClient;

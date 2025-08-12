@@ -1,4 +1,4 @@
-import type { IssuerClient } from "../resources";
+import type { IssuerClient } from "../../resources";
 
 export type IssuerClientConfig = {
 	issuer_client: {
