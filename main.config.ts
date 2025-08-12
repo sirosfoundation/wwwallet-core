@@ -36,6 +36,7 @@ export const config: Config = {
 			id: "id",
 			secret: "secret",
 			scopes: ["client:scope"],
+			redirect_uris: ["http://redirect.uri"],
 		},
 	],
 	secret: "12345678901234567890123456789012", // 32 characters long secret

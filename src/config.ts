@@ -26,7 +26,12 @@ export type Config = {
 		};
 		name: string;
 	}>;
-	clients?: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	clients?: Array<{
+		id: string;
+		secret?: string;
+		redirect_uris?: Array<string>;
+		scopes: Array<string>;
+	}>;
 	issuer_client?: {
 		scopes: Array<string>;
 	};

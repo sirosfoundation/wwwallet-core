@@ -99,7 +99,7 @@ async function validateRequest(
 		return validateClientCredentialsRequest(expressRequest);
 	}
 
-	throw new OauthError(400, "bad_request", "grant_type is not supported");
+	throw new OauthError(400, "invalid_request", "grant_type is not supported");
 }
 
 async function validateClientCredentialsRequest(

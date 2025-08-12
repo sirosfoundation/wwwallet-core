@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { server } from "../../app";
 import { Core } from "../../src";
+import type { AuthorizationServerState } from "../../src/resources";
 
 export const config = {
 	logger: {
@@ -29,6 +30,7 @@ export const config = {
 			id: "id",
 			secret: "secret",
 			scopes: ["client:scope"],
+			redirect_uris: ["http://redirect.uri"],
 		},
 	],
 	issuer_display: [{ name: "Test issuer" }],

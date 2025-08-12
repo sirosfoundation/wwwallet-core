@@ -4,7 +4,8 @@ export type IssuerClient = {
 
 export type OauthClient = {
 	id: string;
-	secret: string;
+	secret?: string;
+	redirect_uris?: Array<string>;
 	scopes: Array<string>;
 };
 

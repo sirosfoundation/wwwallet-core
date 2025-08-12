@@ -8,10 +8,13 @@ import {
 	type OpenidCredentialIssuerHandlerConfig,
 	oauthAuthorizationServerHandlerFactory,
 	openidCredentialIssuerHandlerFactory,
+	type PushedAuthorizationRequestConfig,
+	pushedAuthorizationRequestHandlerFactory,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
+	validatePushedAuthorizationRequestConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
 
@@ -35,6 +38,14 @@ export class Core {
 
 		return openidCredentialIssuerHandlerFactory(
 			this.config as OpenidCredentialIssuerHandlerConfig,
+		);
+	}
+
+	get pushedAuthorizationRequest() {
+		validatePushedAuthorizationRequestConfig(this.config);
+
+		return pushedAuthorizationRequestHandlerFactory(
+			this.config as PushedAuthorizationRequestConfig,
 		);
 	}
 

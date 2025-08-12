@@ -6,6 +6,7 @@ import {
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
+	validatePushedAuthorizationRequestConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -31,9 +32,10 @@ export function server(core: Core) {
 		try {
 			// trigger handlers configuration validation
 			validateCredentialOfferHandlerConfig(core.config);
-			validateTokenHandlerConfig(core.config);
 			validateOauthAuthorizationServerHandlerConfig(core.config);
 			validateOpenidCredentialIssuerHandlerConfig(core.config);
+			validatePushedAuthorizationRequestConfig(core.config);
+			validateTokenHandlerConfig(core.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
@@ -49,6 +51,12 @@ export function server(core: Core) {
 
 	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
 		const response = await core.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/pushed-authorization-request", async (req, res) => {
+		const response = await core.pushedAuthorizationRequest(req);
 
 		return res.status(response.status).send(response.body);
 	});
