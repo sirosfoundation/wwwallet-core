@@ -126,7 +126,7 @@ export function validateAuthorizeHandlerConfig(config: Config) {
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<AuthorizeRequest> {
-	if (!(expressRequest.query || expressRequest.body)) {
+	if (!expressRequest.query) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -134,10 +134,7 @@ async function validateRequest(
 		);
 	}
 
-	const client_id =
-		expressRequest.query?.client_id || expressRequest.body?.client_id;
-	const request_uri =
-		expressRequest.query?.request_uri || expressRequest.body?.request_uri;
+	const { client_id, request_uri } = expressRequest.query;
 
 	if (!client_id) {
 		throw new OauthError(

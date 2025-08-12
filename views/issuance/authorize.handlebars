@@ -16,7 +16,7 @@
           <h2>{{this.label}}</h2>
         {{/each}}
       </div>
-      <form action="/authorize" method="POST">
+      <form action="/authorize?client_id={{@clientId}}&request_uri={{@requestUri}}" method="POST">
         <input type="hidden" name="client_id" value="{{@clientId}}"/>
         <input type="hidden" name="request_uri" value="{{@requestUri}}"/>
         <div class="field">
