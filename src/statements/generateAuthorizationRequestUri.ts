@@ -1,14 +1,8 @@
 import { EncryptJWT } from "jose";
+import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../constants";
+import type { AuthorizationRequest } from "../resources";
 
-export type GenerateAuthorizationRequestUriParams = {
-	response_type: string;
-	client_id: string;
-	redirect_uri: string;
-	scope?: string;
-	state?: string;
-	code_challenge?: string;
-	code_challenge_method?: string;
-};
+export type GenerateAuthorizationRequestUriParams = AuthorizationRequest;
 
 export type GenerateAuthorizationRequestUriConfig = {
 	pushed_authorization_request_ttl: number;
@@ -49,7 +43,7 @@ export async function generateAuthorizationRequestUri(
 	const expires_in = config.pushed_authorization_request_ttl;
 
 	return {
-		request_uri: `urn:wwwallet:authorization_request:${request_token}`,
+		request_uri: `${AUTHORIZATION_REQUEST_URI_PREFIX}${request_token}`,
 		expires_in,
 	};
 }

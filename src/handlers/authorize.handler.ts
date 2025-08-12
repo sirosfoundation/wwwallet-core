@@ -2,7 +2,8 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import { validateClientCredentials } from "../statements";
+import type { AuthorizationRequest } from "../resources";
+import { validateClientCredentials, validateRequestUri } from "../statements";
 import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -21,6 +22,7 @@ type AuthorizeResponse = {
 	status: 200;
 	data: {
 		requestUri: string;
+		authorizationRequest: AuthorizationRequest;
 	};
 };
 
@@ -31,10 +33,17 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
+			const { request_uri, authorization_request } = await validateRequestUri(
+				{
+					request_uri: request.request_uri,
+				},
+				config,
+			);
+
 			const { client: _client } = await validateClientCredentials(
 				{
 					client_id: request.client_id,
-					request_uri: request.request_uri,
+					request_uri,
 					confidential: false,
 				},
 				config,
@@ -44,6 +53,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				status: 200,
 				data: {
 					requestUri: request.request_uri,
+					authorizationRequest: authorization_request,
 				},
 			};
 		} catch (error) {

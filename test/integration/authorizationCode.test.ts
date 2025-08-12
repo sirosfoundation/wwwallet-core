@@ -26,7 +26,7 @@ describe("authorization code - authorize", () => {
 			.query({ client_id, request_uri });
 
 		expect(response.status).toBe(401);
-		expect(response.text).toMatch("invalid client credentials");
+		expect(response.text).toMatch("could not parse request_uri");
 	});
 
 	it("returns with a valid request_uri", async () => {
