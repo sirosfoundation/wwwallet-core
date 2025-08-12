@@ -2,10 +2,13 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import type { AuthorizationRequest } from "../resources";
+import type { AuthorizationRequest, ResourceOwner } from "../resources";
 import {
+	authorizationCodeRedirection,
+	generateAuthorizationCode,
 	validateClientCredentials,
 	validateRequestUri,
+	validateResourceOwner,
 	validateScope,
 } from "../statements";
 import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.schema";
@@ -14,6 +17,8 @@ const ajv = new Ajv();
 
 export type AuthorizeHandlerConfig = {
 	clients: Array<{ id: string; scopes: Array<string> }>;
+	authorization_code_ttl: number;
+	token_encryption: string;
 	secret: string;
 };
 
@@ -22,17 +27,24 @@ type AuthorizeRequest = {
 	request_uri: string;
 };
 
-type AuthorizeResponse = {
-	status: 200;
-	data: {
-		requestUri: string;
-		authorizationRequest: AuthorizationRequest;
-	};
-};
+type AuthorizeResponse =
+	| {
+			status: 200;
+			data: {
+				requestUri: string;
+				clientId: string;
+				authorizationRequest: AuthorizationRequest;
+			};
+	  }
+	| {
+			status: 302;
+			location: string;
+	  };
 
 export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 	return async function authorizeHandler(
 		expressRequest: Request,
+		resourceOwner: ResourceOwner | null = null,
 	): Promise<AuthorizeResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
@@ -53,16 +65,40 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				config,
 			);
 
-			const { scope: _scope } = await validateScope(
+			const { scope } = await validateScope(
 				authorization_request.scope,
 				{ client },
 				config,
 			);
 
+			if (resourceOwner) {
+				const { resource_owner } = await validateResourceOwner(
+					{
+						resource_owner: resourceOwner,
+					},
+					config,
+				);
+
+				const { authorization_code } = await generateAuthorizationCode(
+					{ resource_owner, scope },
+					config,
+				);
+
+				const { location } = await authorizationCodeRedirection(
+					{ authorization_request, authorization_code },
+					config,
+				);
+				return {
+					status: 302,
+					location,
+				};
+			}
+
 			return {
 				status: 200,
 				data: {
 					requestUri: request.request_uri,
+					clientId: client.id,
 					authorizationRequest: authorization_request,
 				},
 			};
@@ -82,7 +118,7 @@ export function validateAuthorizeHandlerConfig(config: Config) {
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate token handler configuration - ${errorText}`,
+			`Could not validate authorize handler configuration - ${errorText}`,
 		);
 	}
 }
@@ -90,21 +126,24 @@ export function validateAuthorizeHandlerConfig(config: Config) {
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<AuthorizeRequest> {
-	if (!expressRequest.query) {
+	if (!(expressRequest.query || expressRequest.body)) {
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client credentials requests requires query params",
+			"client credentials requests requires request parameters",
 		);
 	}
 
-	const { client_id, request_uri } = expressRequest.query;
+	const client_id =
+		expressRequest.query?.client_id || expressRequest.body?.client_id;
+	const request_uri =
+		expressRequest.query?.request_uri || expressRequest.body?.request_uri;
 
 	if (!client_id) {
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client_id is missing from query params",
+			"client_id is missing from request parameters",
 		);
 	}
 
@@ -112,7 +151,7 @@ async function validateRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"request_uri is missing from query params",
+			"request_uri is missing from request parameters",
 		);
 	}
 

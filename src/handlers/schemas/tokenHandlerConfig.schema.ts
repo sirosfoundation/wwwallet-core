@@ -14,17 +14,12 @@ export const tokenHandlerConfigSchema = {
 			},
 		},
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },
-		access_token_encryption: {
+		token_encryption: {
 			type: "string",
 			pattern:
 				"A128GCM|A192GCM|A256GCM|A128CBC-HS256|A192CBC-HS384|A256CBC-HS512",
 		},
 		access_token_ttl: { type: "number" },
 	},
-	required: [
-		"clients",
-		"secret",
-		"access_token_encryption",
-		"access_token_ttl",
-	],
+	required: ["clients", "secret", "token_encryption", "access_token_ttl"],
 };

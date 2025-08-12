@@ -13,7 +13,9 @@ export const authorizeHandlerConfigSchema = {
 				required: ["id", "secret", "scopes"],
 			},
 		},
+		authorization_code_ttl: { type: "number" },
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },
+		token_encryption: { type: "string" },
 	},
-	required: ["clients", "secret"],
+	required: ["clients", "secret", "authorization_code_ttl", "token_encryption"],
 };

@@ -11,9 +11,9 @@ import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedA
 
 const ajv = new Ajv();
 
-export type PushedAuthorizationRequestConfig = {
+export type PushedAuthorizationRequestHandlerConfig = {
 	pushed_authorization_request_ttl: number;
-	access_token_encryption: string;
+	token_encryption: string;
 	secret: string;
 	clients: Array<{
 		id: string;
@@ -41,7 +41,7 @@ type PushedAuthorizationRequestResponse = {
 };
 
 export function pushedAuthorizationRequestHandlerFactory(
-	config: PushedAuthorizationRequestConfig,
+	config: PushedAuthorizationRequestHandlerConfig,
 ) {
 	return async function pushedAuthorizationRequestHandler(
 		expressRequest: Request,

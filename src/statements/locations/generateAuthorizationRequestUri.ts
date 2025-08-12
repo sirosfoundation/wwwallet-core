@@ -6,7 +6,7 @@ export type GenerateAuthorizationRequestUriParams = AuthorizationRequest;
 
 export type GenerateAuthorizationRequestUriConfig = {
 	pushed_authorization_request_ttl: number;
-	access_token_encryption: string;
+	token_encryption: string;
 	secret: string;
 };
 
@@ -35,7 +35,7 @@ export async function generateAuthorizationRequestUri(
 		code_challenge,
 		code_challenge_method,
 	})
-		.setProtectedHeader({ alg: "dir", enc: config.access_token_encryption })
+		.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
 		.setIssuedAt()
 		.setExpirationTime(now + config.pushed_authorization_request_ttl)
 		.encrypt(secret);

@@ -7,7 +7,9 @@ describe("authorization code - authorize", () => {
 		const response = await request(app).get("/authorize");
 
 		expect(response.status).toBe(400);
-		expect(response.text).toMatch("client_id is missing from query params");
+		expect(response.text).toMatch(
+			"client_id is missing from request parameters",
+		);
 	});
 
 	it("returns an error with client_id", async () => {
@@ -15,7 +17,9 @@ describe("authorization code - authorize", () => {
 		const response = await request(app).get("/authorize").query({ client_id });
 
 		expect(response.status).toBe(400);
-		expect(response.text).toMatch("request_uri is missing from query params");
+		expect(response.text).toMatch(
+			"request_uri is missing from request parameters",
+		);
 	});
 
 	it("returns an error with invalid request_uri", async () => {
@@ -46,7 +50,6 @@ describe("authorization code - authorize", () => {
 			.query({ client_id, request_uri });
 
 		expect(response.status).toBe(200);
-		expect(response.text).toMatch("Login");
 		expect(response.text).toMatch(request_uri);
 	});
 });

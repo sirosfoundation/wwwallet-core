@@ -14,7 +14,7 @@ const ajv = new Ajv();
 export type TokenHandlerConfig = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
-	access_token_encryption: string;
+	token_encryption: string;
 	secret: string;
 };
 

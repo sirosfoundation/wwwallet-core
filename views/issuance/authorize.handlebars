@@ -9,12 +9,15 @@
   <div class="content">
     {{#if @error}}
     <div class="error">{{@errorMessage}}</div>
-    {{else}}
+    {{/if}}
     <div class="login-wrapper">
       <div class="title">
-        <h2>[demo] Login</h2>
+        {{#each @credentialConfigurations}}
+          <h2>{{this.label}}</h2>
+        {{/each}}
       </div>
-      <form action="/login" method="POST">
+      <form action="/authorize" method="POST">
+        <input type="hidden" name="client_id" value="{{@clientId}}"/>
         <input type="hidden" name="request_uri" value="{{@requestUri}}"/>
         <div class="field">
           <input id="username" type="text" name="username" placeholder="Username" />
@@ -25,6 +28,5 @@
         <button type="submit" class="button fluid">Submit</button>
       </form>
     </div>
-    {{/if}}
   </div>
 </main>

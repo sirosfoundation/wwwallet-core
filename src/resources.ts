@@ -43,6 +43,11 @@ export type IssuerGrants = {
 	};
 };
 
+export type ResourceOwner = {
+	sub: string | null;
+	username?: string;
+};
+
 export type CredentialOffer = {
 	credential_issuer: string;
 	credential_configuration_ids: Array<string>;

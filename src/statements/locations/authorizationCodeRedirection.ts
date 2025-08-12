@@ -1,0 +1,23 @@
+import type { AuthorizationRequest } from "../../resources";
+
+type AuthorizationCodeRedirectionParams = {
+	authorization_request: AuthorizationRequest;
+	authorization_code: string;
+};
+
+export type AuthorizationCodeRedirectionConfig = unknown;
+
+export async function authorizationCodeRedirection(
+	{
+		authorization_request,
+		authorization_code,
+	}: AuthorizationCodeRedirectionParams,
+	_config: AuthorizationCodeRedirectionConfig,
+) {
+	const location = new URL(authorization_request.redirect_uri);
+
+	const query = location.searchParams;
+	query.append("code", authorization_code);
+
+	return { location: location.toString() };
+}

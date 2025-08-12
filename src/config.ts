@@ -55,6 +55,7 @@ export type Config = {
 	}>;
 	access_token_ttl?: number;
 	pushed_authorization_request_ttl?: number;
-	access_token_encryption?: string;
+	authorization_code_ttl?: number;
+	token_encryption?: string;
 	secret?: string;
 };
