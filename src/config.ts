@@ -8,7 +8,7 @@ export interface Logger {
 }
 
 export type Config = {
-	logger: Logger;
+	logger?: Logger;
 	databaseOperations?: {
 		insertAuthorizationServerState?: (
 			authorizationServerState: AuthorizationServerState,
