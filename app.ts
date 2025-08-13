@@ -99,7 +99,7 @@ export function server(core: Core) {
 
 		const { username, password } = req.body || {};
 
-		if (username === "username" && password === "password") {
+		if (username === "wwwallet" && password === "tellawww") {
 			resourceOwner = { sub: "sub", username };
 		} else {
 			resourceOwner = null;

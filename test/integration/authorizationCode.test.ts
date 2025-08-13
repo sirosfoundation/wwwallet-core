@@ -56,8 +56,8 @@ describe("authorization code - authorize", () => {
 
 describe("authorization code - authenticate", () => {
 	describe("user credentials are valid", () => {
-		const username = "username";
-		const password = "password";
+		const username = "wwwallet";
+		const password = "tellawww";
 
 		it("returns an error", async () => {
 			const response = await request(app)
