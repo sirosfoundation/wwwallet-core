@@ -1,5 +1,5 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { app } from "../support/app";
 
 describe("well-known endpoints", () => {
@@ -39,6 +39,11 @@ describe("well-known endpoints", () => {
 		);
 
 		expect(response.status).toBe(200);
+
+		// TODO verify signed metadata signature
+		assert(response.body.signed_metadata);
+		delete response.body.signed_metadata;
+
 		expect(response.body).to.deep.eq({
 			credential_endpoint: "http://localhost:5000/credential",
 			credential_issuer: "http://localhost:5000",
