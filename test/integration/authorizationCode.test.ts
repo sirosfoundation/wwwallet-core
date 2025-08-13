@@ -141,6 +141,7 @@ describe("authorization code - authenticate", () => {
 				.query({ client_id });
 
 			expect(response.status).toBe(400);
+			expect(response.text).toMatch(client_id);
 			expect(response.text).toMatch(
 				"request uri is missing from request parameters",
 			);
@@ -155,6 +156,7 @@ describe("authorization code - authenticate", () => {
 				.query({ client_id, request_uri });
 
 			expect(response.status).toBe(401);
+			expect(response.text).toMatch(request_uri);
 			expect(response.text).toMatch("invalid request");
 		});
 

@@ -5,7 +5,6 @@ import type { AuthorizationRequest } from "../../resources";
 
 type validateRequestUriParams = {
 	request_uri: string | undefined;
-	client_id: string | undefined;
 };
 
 export type ValidateRequestUriConfig = {
@@ -13,30 +12,15 @@ export type ValidateRequestUriConfig = {
 };
 
 export async function validateRequestUri(
-	{ client_id, request_uri }: validateRequestUriParams,
+	{ request_uri }: validateRequestUriParams,
 	config: ValidateRequestUriConfig,
 ) {
-	const errorData = {
-		clientId: client_id,
-		requestUri: request_uri,
-	};
-
 	if (!request_uri) {
-		throw new OauthError(
-			400,
-			"bad_request",
-			"request_uri must be defined",
-			errorData,
-		);
+		throw new OauthError(400, "bad_request", "request_uri must be defined");
 	}
 
 	if (!request_uri.startsWith(AUTHORIZATION_REQUEST_URI_PREFIX)) {
-		throw new OauthError(
-			400,
-			"bad_request",
-			"malformed request uri",
-			errorData,
-		);
+		throw new OauthError(400, "bad_request", "malformed request uri");
 	}
 
 	try {
@@ -68,6 +52,6 @@ export async function validateRequestUri(
 			},
 		};
 	} catch (_error) {
-		throw new OauthError(401, "invalid_client", "invalid request", errorData);
+		throw new OauthError(401, "invalid_client", "invalid request");
 	}
 }

@@ -51,7 +51,6 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 
 			const { request_uri, authorization_request } = await validateRequestUri(
 				{
-					client_id: request.client_id,
 					request_uri: request.request_uri,
 				},
 				config,
@@ -105,6 +104,12 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
+				const { client_id, request_uri } = expressRequest.query;
+				error.setData({
+					clientId: client_id,
+					requestUri: request_uri,
+				});
+
 				return error.toResponse();
 			}
 
