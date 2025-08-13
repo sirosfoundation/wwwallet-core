@@ -104,13 +104,8 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const { client_id, request_uri } = expressRequest.query;
-				error.setData({
-					clientId: client_id,
-					requestUri: request_uri,
-				});
-
-				return error.toResponse();
+				const data = authorizeErrorData(expressRequest);
+				return error.toResponse(data);
 			}
 
 			throw error;
@@ -161,5 +156,14 @@ async function validateRequest(
 	return {
 		client_id: client_id.toString(),
 		request_uri: request_uri.toString(),
+	};
+}
+
+function authorizeErrorData(expressRequest: Request) {
+	const { client_id, request_uri } = expressRequest.query;
+
+	return {
+		clientId: client_id,
+		requestUri: request_uri,
 	};
 }

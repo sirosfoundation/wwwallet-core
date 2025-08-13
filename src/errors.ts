@@ -33,17 +33,14 @@ export class OauthError extends Error {
 		this.data = data;
 	}
 
-	setData(data: { [key: string]: unknown }) {
-		this.data = data;
-	}
-
-	toResponse() {
+	toResponse(data: { [key: string]: unknown } = {}) {
 		return {
 			status: this.status,
 			data: {
 				error: this,
 				errorMessage: this.error_description,
 				...this.data,
+				...data,
 			},
 			body: {
 				error: this.error,
