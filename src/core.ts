@@ -2,16 +2,22 @@ import { merge } from "ts-deepmerge";
 import { v6 as uuidv6 } from "uuid";
 import type { Config } from "./config";
 import {
+	type AuthorizeHandlerConfig,
+	authorizeHandlerFactory,
 	type CredentialOfferHandlerConfig,
 	credentialOfferHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
 	type OpenidCredentialIssuerHandlerConfig,
 	oauthAuthorizationServerHandlerFactory,
 	openidCredentialIssuerHandlerFactory,
+	type PushedAuthorizationRequestHandlerConfig,
+	pushedAuthorizationRequestHandlerFactory,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
+	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
 
@@ -38,6 +44,20 @@ export class Core {
 		);
 	}
 
+	get pushedAuthorizationRequest() {
+		validatePushedAuthorizationRequestHandlerConfig(this.config);
+
+		return pushedAuthorizationRequestHandlerFactory(
+			this.config as PushedAuthorizationRequestHandlerConfig,
+		);
+	}
+
+	get authorize() {
+		validateAuthorizeHandlerConfig(this.config);
+
+		return authorizeHandlerFactory(this.config as AuthorizeHandlerConfig);
+	}
+
 	get token() {
 		validateTokenHandlerConfig(this.config);
 
@@ -57,7 +77,9 @@ export const defaultConfig = {
 	logger: console,
 	clients: [],
 	access_token_ttl: 3600 * 2,
-	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+	pushed_authorization_request_ttl: 300,
+	authorization_code_ttl: 60,
+	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	databaseOperations: {},
 	tokenGenerators: {
 		generateIssuerState: uuidv6,

@@ -1,7 +1,10 @@
+type OauthErrorStatus = 400 | 401 | 404;
+
 export type OauthErrorResponse = {
-	status: number;
+	status: OauthErrorStatus;
 	data: {
 		error: OauthError;
+		errorMessage: string;
 	};
 	body: {
 		error: string;
@@ -12,9 +15,13 @@ export type OauthErrorResponse = {
 export class OauthError extends Error {
 	error: string;
 	error_description: string;
-	status: number;
+	status: OauthErrorStatus;
 
-	constructor(status: number, error: string, error_description: string) {
+	constructor(
+		status: OauthErrorStatus,
+		error: string,
+		error_description: string,
+	) {
 		super(error_description);
 
 		this.status = status;
@@ -27,6 +34,7 @@ export class OauthError extends Error {
 			status: this.status,
 			data: {
 				error: this,
+				errorMessage: this.error_description,
 			},
 			body: {
 				error: this.error,

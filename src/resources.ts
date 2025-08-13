@@ -4,7 +4,8 @@ export type IssuerClient = {
 
 export type OauthClient = {
 	id: string;
-	secret: string;
+	secret?: string;
+	redirect_uris?: Array<string>;
 	scopes: Array<string>;
 };
 
@@ -42,8 +43,23 @@ export type IssuerGrants = {
 	};
 };
 
+export type ResourceOwner = {
+	sub: string | null;
+	username?: string;
+};
+
 export type CredentialOffer = {
 	credential_issuer: string;
 	credential_configuration_ids: Array<string>;
 	grants: IssuerGrants;
+};
+
+export type AuthorizationRequest = {
+	response_type: string;
+	client_id: string;
+	redirect_uri: string;
+	scope?: string;
+	state?: string;
+	code_challenge?: string;
+	code_challenge_method?: string;
 };

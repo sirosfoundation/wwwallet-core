@@ -3,9 +3,12 @@ import { engine } from "express-handlebars";
 import morgan from "morgan";
 import {
 	type Core,
+	type ResourceOwner,
+	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./src";
 
@@ -30,10 +33,12 @@ export function server(core: Core) {
 	app.get("/healthz", (_req, res) => {
 		try {
 			// trigger handlers configuration validation
+			validateAuthorizeHandlerConfig(core.config);
 			validateCredentialOfferHandlerConfig(core.config);
-			validateTokenHandlerConfig(core.config);
 			validateOauthAuthorizationServerHandlerConfig(core.config);
 			validateOpenidCredentialIssuerHandlerConfig(core.config);
+			validatePushedAuthorizationRequestHandlerConfig(core.config);
+			validateTokenHandlerConfig(core.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
@@ -51,6 +56,81 @@ export function server(core: Core) {
 		const response = await core.openidCredentialIssuer(req);
 
 		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/pushed-authorization-request", async (req, res) => {
+		const response = await core.pushedAuthorizationRequest(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/authorize", async (req, res) => {
+		const response = await core.authorize(req);
+
+		if (response.status === 302) {
+			return res.redirect(response.location);
+		}
+
+		const credentialConfigurations =
+			core.config.supported_credential_configurations?.filter(
+				(configuration) => {
+					if (response.status === 200) {
+						return response.data.authorizationRequest.scope
+							?.split(" ")
+							.includes(configuration.scope);
+					}
+				},
+			) || [];
+
+		return res.status(response.status).render("issuance/authorize", {
+			data: {
+				credentialConfigurations,
+				...response.data,
+			},
+		});
+	});
+
+	app.post("/authorize", async (req, res) => {
+		let resourceOwner: ResourceOwner | null;
+		const authenticationError: {
+			error?: Error;
+			errorMessage?: string;
+		} = {};
+
+		const { username, password } = req.body || {};
+
+		if (username === "username" && password === "password") {
+			resourceOwner = { sub: "sub", username };
+		} else {
+			resourceOwner = null;
+			authenticationError.error = new Error("invalid credentials");
+			authenticationError.errorMessage = "invalid username or password";
+		}
+
+		const response = await core.authorize(req, resourceOwner);
+
+		if (response.status === 302) {
+			return res.redirect(response.location);
+		}
+
+		const credentialConfigurations =
+			core.config.supported_credential_configurations?.filter(
+				(configuration) => {
+					if (response.status === 200) {
+						return response.data.authorizationRequest.scope
+							?.split(" ")
+							.includes(configuration.scope);
+					}
+				},
+			) || [];
+
+		return res.status(response.status).render("issuance/authorize", {
+			data: {
+				credentialConfigurations,
+				...authenticationError,
+				...response.data,
+			},
+		});
 	});
 
 	app.post("/token", async (req, res) => {

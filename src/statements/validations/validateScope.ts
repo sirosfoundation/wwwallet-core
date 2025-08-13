@@ -1,5 +1,5 @@
-import { OauthError } from "../errors";
-import type { IssuerClient, OauthClient } from "../resources";
+import { OauthError } from "../../errors";
+import type { IssuerClient, OauthClient } from "../../resources";
 
 type validateScopeParams = {
 	client: OauthClient | IssuerClient;

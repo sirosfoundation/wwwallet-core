@@ -26,7 +26,12 @@ export type Config = {
 		};
 		name: string;
 	}>;
-	clients?: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	clients?: Array<{
+		id: string;
+		secret?: string;
+		redirect_uris?: Array<string>;
+		scopes: Array<string>;
+	}>;
 	issuer_client?: {
 		scopes: Array<string>;
 	};
@@ -49,6 +54,8 @@ export type Config = {
 		}>;
 	}>;
 	access_token_ttl?: number;
-	access_token_encryption?: string;
+	pushed_authorization_request_ttl?: number;
+	authorization_code_ttl?: number;
+	token_encryption?: string;
 	secret?: string;
 };

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { server } from "../../app";
 import { Core } from "../../src";
+import type { AuthorizationServerState } from "../../src/resources";
 
 export const config = {
 	logger: {
@@ -29,11 +30,12 @@ export const config = {
 			id: "id",
 			secret: "secret",
 			scopes: ["client:scope"],
+			redirect_uris: ["http://redirect.uri"],
 		},
 	],
 	issuer_display: [{ name: "Test issuer" }],
 	secret: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
 		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],

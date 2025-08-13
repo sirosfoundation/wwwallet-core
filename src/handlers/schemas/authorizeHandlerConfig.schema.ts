@@ -1,4 +1,4 @@
-export const tokenHandlerConfigSchema = {
+export const authorizeHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		clients: {
@@ -13,13 +13,9 @@ export const tokenHandlerConfigSchema = {
 				required: ["id", "secret", "scopes"],
 			},
 		},
+		authorization_code_ttl: { type: "number" },
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },
-		token_encryption: {
-			type: "string",
-			pattern:
-				"A128GCM|A192GCM|A256GCM|A128CBC-HS256|A192CBC-HS384|A256CBC-HS512",
-		},
-		access_token_ttl: { type: "number" },
+		token_encryption: { type: "string" },
 	},
-	required: ["clients", "secret", "token_encryption", "access_token_ttl"],
+	required: ["clients", "secret", "authorization_code_ttl", "token_encryption"],
 };

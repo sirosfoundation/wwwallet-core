@@ -14,7 +14,7 @@ const ajv = new Ajv();
 export type TokenHandlerConfig = {
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
-	access_token_encryption: string;
+	token_encryption: string;
 	secret: string;
 };
 
@@ -99,7 +99,7 @@ async function validateRequest(
 		return validateClientCredentialsRequest(expressRequest);
 	}
 
-	throw new OauthError(400, "bad_request", "grant_type is not supported");
+	throw new OauthError(400, "invalid_request", "grant_type is not supported");
 }
 
 async function validateClientCredentialsRequest(

@@ -21,7 +21,7 @@ describe("client credentials flow", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "bad_request",
+			error: "invalid_request",
 			error_description: "grant_type is not supported",
 		});
 	});
@@ -65,7 +65,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
 			error: "invalid_client",
-			error_description: "invalid client_id or client_secret",
+			error_description: "invalid client credentials",
 		});
 	});
 

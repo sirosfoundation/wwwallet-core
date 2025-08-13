@@ -35,11 +35,12 @@ export const config: Config = {
 		{
 			id: "id",
 			secret: "secret",
-			scopes: ["client:scope"],
+			scopes: ["client:scope", "pid:jpt_dc"],
+			redirect_uris: ["http://redirect.uri"],
 		},
 	],
 	secret: "12345678901234567890123456789012", // 32 characters long secret
-	access_token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {
 		scopes: [

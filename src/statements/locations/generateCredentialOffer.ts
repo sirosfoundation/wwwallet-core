@@ -1,11 +1,11 @@
 import qrcode from "qrcode";
-import { OauthError } from "../errors";
+import { OauthError } from "../../errors";
 import type {
 	AuthorizationServerState,
 	CredentialConfiguration,
 	CredentialOffer,
 	IssuerGrants,
-} from "../resources";
+} from "../../resources";
 
 type GenerateCredentialOfferParams = {
 	authorizationServerState: AuthorizationServerState;
