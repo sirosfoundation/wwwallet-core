@@ -52,6 +52,6 @@ export async function validateRequestUri(
 			},
 		};
 	} catch (_error) {
-		throw new OauthError(401, "invalid_client", "could not parse request_uri");
+		throw new OauthError(401, "invalid_client", "invalid request");
 	}
 }

@@ -97,14 +97,14 @@ export function server(core: Core) {
 			errorMessage?: string;
 		} = {};
 
-		const { username, password } = req.body;
+		const { username, password } = req.body || {};
 
 		if (username === "username" && password === "password") {
 			resourceOwner = { sub: "sub", username };
 		} else {
 			resourceOwner = null;
 			authenticationError.error = new Error("invalid credentials");
-			authenticationError.errorMessage = "Invalid username or password";
+			authenticationError.errorMessage = "invalid username or password";
 		}
 
 		const response = await core.authorize(req, resourceOwner);

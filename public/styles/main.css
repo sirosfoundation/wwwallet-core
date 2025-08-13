@@ -217,6 +217,7 @@ header .logo {
 	border: 1px solid rgba(205, 90, 90, 1);
 	color: rgba(205, 90, 90, 1);
 	padding: 1em 2em;
+	text-transform: capitalize;
 }
 
 @media (max-width: 768px) {
@@ -239,7 +240,7 @@ header .logo {
 	display: block;
 }
 
-form .button.fluid {
+button.button.fluid {
 	width: 100%;
 }
 
