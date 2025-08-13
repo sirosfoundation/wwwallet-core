@@ -153,11 +153,10 @@ header .logo {
 
 .login-wrapper {
 	position: relative;
-	font-size: 1.2em;
 }
 
 .login-wrapper input {
-	font-size: 1.1em;
+	font-size: 1.2em;
 	width: 250px;
 }
 
