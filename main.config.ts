@@ -9,8 +9,8 @@ const logger = new Logger("info");
 
 export const config: Config = {
 	logger: logger,
-	issuer_url: "https://demo-issuer.wwwallet.org",
-	wallet_url: "https://demo.wwwallet.org/",
+	issuer_url: "http://localhost:5000",
+	wallet_url: "http://localhost:3000",
 	databaseOperations: {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
@@ -47,7 +47,7 @@ export const config: Config = {
 				"pid:sd_jwt_vc",
 				"por:sd_jwt_vc",
 			],
-			redirect_uris: ["http://redirect.uri"],
+			redirect_uris: ["http://localhost:3000"],
 		},
 	],
 	secret: "12345678901234567890123456789012", // 32 characters long secret
