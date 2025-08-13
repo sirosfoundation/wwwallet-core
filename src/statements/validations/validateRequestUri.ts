@@ -20,7 +20,7 @@ export async function validateRequestUri(
 	}
 
 	if (!request_uri.startsWith(AUTHORIZATION_REQUEST_URI_PREFIX)) {
-		throw new OauthError(400, "bad_request", "malformed request_uri");
+		throw new OauthError(400, "bad_request", "malformed request uri");
 	}
 
 	try {

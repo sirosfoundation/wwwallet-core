@@ -25,6 +25,11 @@ hr {
 	margin: 2em 0;
 }
 
+a {
+	color: #30549b;
+	text-decoration: inherit;
+}
+
 header {
 	position: fixed;
 	z-index: 1000;

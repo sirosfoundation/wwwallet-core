@@ -8,7 +8,14 @@
   </div>
   <div class="content">
     {{#if @error}}
-    <div class="error">{{@errorMessage}}</div>
+    <div class="error">
+      {{@errorMessage}}<br />
+      {{# if (equals @error.message "invalid credentials")}}
+      Please try again
+      {{else}}
+      Back to <a href="/">credential selection</a>
+      {{/if}}
+    </div>
     {{/if}}
     <div class="login-wrapper">
       <div class="title">
