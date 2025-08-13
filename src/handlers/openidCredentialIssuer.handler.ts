@@ -195,7 +195,7 @@ qCda3m814e6DLvOphAIgHQL+Wm7WFRwxgjzMLN37RojJGrZbF4OFChIkmm0uu5o=
 async function generateSignedMetadata(metadata: OpenidCredentialIssuer) {
 	const privateKey = crypto.createPrivateKey(metadataPrivateKey);
 	const certificate = new crypto.X509Certificate(metadataCertificate);
-	const x5c = [certificate.raw.toString("base64url")];
+	const x5c = [certificate.raw.toString("base64")];
 
 	const now = Date.now() / 1000;
 
