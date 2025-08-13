@@ -33,9 +33,20 @@ export const config: Config = {
 	],
 	clients: [
 		{
-			id: "id",
-			secret: "secret",
-			scopes: ["client:scope", "pid:jpt_dc"],
+			id: "CLIENT123",
+			secret: "321TNEILC",
+			scopes: [
+				"client:scope",
+				"ehic",
+				"diploma",
+				"pid:jpt_dc",
+				"pid:mso_mdoc",
+				"pid:sd_jwt_dc",
+				"pid:sd_jwt_dc:arf_1_5",
+				"pid:sd_jwt_vc:arf_1_5",
+				"pid:sd_jwt_vc",
+				"por:sd_jwt_vc",
+			],
 			redirect_uris: ["http://redirect.uri"],
 		},
 	],
