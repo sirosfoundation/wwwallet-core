@@ -8,7 +8,7 @@ describe("authorization code - authorize", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.text).toMatch(
-			"client_id is missing from request parameters",
+			"client id is missing from request parameters",
 		);
 	});
 
@@ -66,7 +66,7 @@ describe("authorization code - authenticate", () => {
 
 			expect(response.status).toBe(400);
 			expect(response.text).toMatch(
-				"client_id is missing from request parameters",
+				"client id is missing from request parameters",
 			);
 		});
 
@@ -129,7 +129,7 @@ describe("authorization code - authenticate", () => {
 
 			expect(response.status).toBe(400);
 			expect(response.text).toMatch(
-				"client_id is missing from request parameters",
+				"client id is missing from request parameters",
 			);
 		});
 

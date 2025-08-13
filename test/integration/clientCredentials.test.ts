@@ -34,7 +34,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client_id is missing from body params",
+			error_description: "client id is missing from body params",
 		});
 	});
 

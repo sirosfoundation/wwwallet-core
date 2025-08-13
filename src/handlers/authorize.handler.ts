@@ -140,7 +140,7 @@ async function validateRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client_id is missing from request parameters",
+			"client id is missing from request parameters",
 		);
 	}
 

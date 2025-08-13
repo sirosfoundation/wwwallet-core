@@ -111,7 +111,7 @@ async function validateClientCredentialsRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client_id is missing from body params",
+			"client id is missing from body params",
 		);
 	}
 
