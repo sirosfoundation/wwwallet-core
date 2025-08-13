@@ -148,7 +148,7 @@ async function validateRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"request_uri is missing from request parameters",
+			"request uri is missing from request parameters",
 		);
 	}
 

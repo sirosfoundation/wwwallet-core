@@ -18,7 +18,7 @@ describe("authorization code - authorize", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.text).toMatch(
-			"request_uri is missing from request parameters",
+			"request uri is missing from request parameters",
 		);
 	});
 
@@ -79,7 +79,7 @@ describe("authorization code - authenticate", () => {
 
 			expect(response.status).toBe(400);
 			expect(response.text).toMatch(
-				"request_uri is missing from request parameters",
+				"request uri is missing from request parameters",
 			);
 		});
 
@@ -142,7 +142,7 @@ describe("authorization code - authenticate", () => {
 
 			expect(response.status).toBe(400);
 			expect(response.text).toMatch(
-				"request_uri is missing from request parameters",
+				"request uri is missing from request parameters",
 			);
 		});
 
