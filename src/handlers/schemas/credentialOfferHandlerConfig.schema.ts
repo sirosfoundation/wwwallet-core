@@ -8,22 +8,19 @@ export const credentialOfferHandlerConfigSchema = {
 			},
 			required: ["insertAuthorizationServerState"],
 		},
-		tokenGenerators: {
-			type: "object",
-			properties: {
-				generateIssuerState: {},
-			},
-			required: ["generateIssuerState"],
-		},
 		issuer_url: { type: "string" },
 		wallet_url: { type: "string" },
 		issuer_client: {
 			type: "object",
 			properties: {
+				id: { type: "string" },
 				scopes: { type: "array", items: { type: "string" } },
 			},
 			required: ["scopes"],
 		},
+		secret: { type: "string" },
+		token_encryption: { type: "string" },
+		issuer_state_ttl: { type: "number" },
 		supported_credential_configurations: {
 			type: "array",
 			items: {
@@ -41,10 +38,12 @@ export const credentialOfferHandlerConfigSchema = {
 	},
 	required: [
 		"databaseOperations",
-		"tokenGenerators",
 		"issuer_url",
 		"wallet_url",
 		"issuer_client",
+		"secret",
+		"token_encryption",
+		"issuer_state_ttl",
 		"supported_credential_configurations",
 	],
 };

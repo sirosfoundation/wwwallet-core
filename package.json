@@ -34,7 +34,6 @@
 		"jose": "^6.0.12",
 		"morgan": "^1.10.1",
 		"qrcode": "^1.5.4",
-		"ts-deepmerge": "^7.0.3",
-		"uuid": "^11.1.0"
+		"ts-deepmerge": "^7.0.3"
 	}
 }

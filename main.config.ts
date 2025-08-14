@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { v6 as uuidv6 } from "uuid";
 import { Logger } from "./main.logger";
 import type { Config } from "./src";
 import type { AuthorizationServerState } from "./src/resources";
@@ -18,9 +17,6 @@ export const config: Config = {
 			logger.debug("insertAuthorizationServerState not implemented");
 			return authorizationServerState;
 		},
-	},
-	tokenGenerators: {
-		generateIssuerState: uuidv6,
 	},
 	issuer_display: [
 		{

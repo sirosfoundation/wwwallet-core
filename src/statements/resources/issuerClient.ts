@@ -1,9 +1,7 @@
 import type { IssuerClient } from "../../resources";
 
 export type IssuerClientConfig = {
-	issuer_client: {
-		scopes: Array<string>;
-	};
+	issuer_client: IssuerClient;
 };
 
 export async function issuerClient(

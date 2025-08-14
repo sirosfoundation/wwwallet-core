@@ -22,14 +22,15 @@ export type CredentialOfferHandlerConfig = {
 			authorizationServerState: AuthorizationServerState,
 		) => Promise<AuthorizationServerState>;
 	};
-	tokenGenerators: {
-		generateIssuerState: () => string;
-	};
 	issuer_url: string;
 	wallet_url: string;
 	issuer_client: {
+		id: string;
 		scopes: Array<string>;
 	};
+	secret: string;
+	token_encryption: string;
+	issuer_state_ttl: number;
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
@@ -64,7 +65,7 @@ export function credentialOfferHandlerFactory(
 
 			const { scope } = await validateScope(request.scope, { client }, config);
 
-			const { grants } = await generateIssuerGrants(config);
+			const { grants } = await generateIssuerGrants({ client }, config);
 
 			const {
 				credentialOfferUrl,

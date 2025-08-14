@@ -1,5 +1,4 @@
 import { merge } from "ts-deepmerge";
-import { v6 as uuidv6 } from "uuid";
 import type { Config } from "./config";
 import {
 	type AuthorizeHandlerConfig,
@@ -25,6 +24,8 @@ export class Core {
 	config: Config;
 
 	constructor(config: Config) {
+		defaultConfig.issuer_client.id = config.issuer_url;
+
 		this.config = merge(defaultConfig, config);
 	}
 
@@ -79,12 +80,11 @@ export const defaultConfig = {
 	access_token_ttl: 3600 * 2,
 	pushed_authorization_request_ttl: 300,
 	authorization_code_ttl: 60,
+	issuer_state_ttl: 300,
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	databaseOperations: {},
-	tokenGenerators: {
-		generateIssuerState: uuidv6,
-	},
 	issuer_client: {
+		id: "",
 		scopes: [],
 	},
 	issuer_display: [],

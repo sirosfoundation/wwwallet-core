@@ -1,4 +1,5 @@
 export type IssuerClient = {
+	id: string;
 	scopes: Array<string>;
 };
 

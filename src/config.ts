@@ -8,17 +8,14 @@ export interface Logger {
 }
 
 export type Config = {
+	issuer_url: string;
+	wallet_url?: string;
 	logger?: Logger;
 	databaseOperations?: {
 		insertAuthorizationServerState?: (
 			authorizationServerState: AuthorizationServerState,
 		) => Promise<AuthorizationServerState>;
 	};
-	tokenGenerators?: {
-		generateIssuerState?: () => string;
-	};
-	issuer_url?: string;
-	wallet_url?: string;
 	issuer_display?: Array<{
 		locale?: string;
 		logo?: {
@@ -33,6 +30,7 @@ export type Config = {
 		scopes: Array<string>;
 	}>;
 	issuer_client?: {
+		id?: string;
 		scopes: Array<string>;
 	};
 	supported_credential_configurations?: Array<{
