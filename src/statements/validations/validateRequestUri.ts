@@ -16,11 +16,11 @@ export async function validateRequestUri(
 	config: ValidateRequestUriConfig,
 ) {
 	if (!request_uri) {
-		throw new OauthError(400, "bad_request", "request_uri must be defined");
+		throw new OauthError(400, "invalid_request", "request_uri must be defined");
 	}
 
 	if (!request_uri.startsWith(AUTHORIZATION_REQUEST_URI_PREFIX)) {
-		throw new OauthError(400, "bad_request", "malformed request uri");
+		throw new OauthError(400, "invalid_request", "malformed request uri");
 	}
 
 	try {
@@ -33,6 +33,7 @@ export async function validateRequestUri(
 				state,
 				code_challenge,
 				code_challenge_method,
+				issuer_state,
 			},
 		} = await jwtDecrypt<AuthorizationRequest>(
 			request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
@@ -49,6 +50,7 @@ export async function validateRequestUri(
 				state,
 				code_challenge,
 				code_challenge_method,
+				issuer_state,
 			},
 		};
 	} catch (_error) {

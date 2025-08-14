@@ -8,6 +8,13 @@ export const pushedAuthorizationRequestHandlerConfigSchema = {
 				"A128GCM|A192GCM|A256GCM|A128CBC-HS256|A192CBC-HS384|A256CBC-HS512",
 		},
 		pushed_authorization_request_ttl: { type: "number" },
+		issuer_client: {
+			type: "object",
+			properties: {
+				id: { type: "string" },
+			},
+			required: ["id"],
+		},
 		clients: {
 			type: "array",
 			items: {
@@ -21,5 +28,11 @@ export const pushedAuthorizationRequestHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["clients"],
+	required: [
+		"secret",
+		"token_encryption",
+		"pushed_authorization_request_ttl",
+		"issuer_client",
+		"clients",
+	],
 };

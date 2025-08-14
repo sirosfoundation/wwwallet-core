@@ -7,6 +7,7 @@ import {
 	authorizationCodeRedirection,
 	generateAuthorizationCode,
 	validateClientCredentials,
+	validateIssuerState,
 	validateRequestUri,
 	validateResourceOwner,
 	validateScope,
@@ -16,6 +17,9 @@ import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.s
 const ajv = new Ajv();
 
 export type AuthorizeHandlerConfig = {
+	issuer_client: {
+		id: string;
+	};
 	clients: Array<{ id: string; scopes: Array<string> }>;
 	authorization_code_ttl: number;
 	token_encryption: string;
@@ -68,6 +72,13 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			const { scope } = await validateScope(
 				authorization_request.scope,
 				{ client },
+				config,
+			);
+
+			const { issuer_state: _issuer_state } = await validateIssuerState(
+				{
+					issuer_state: authorization_request.issuer_state,
+				},
 				config,
 			);
 

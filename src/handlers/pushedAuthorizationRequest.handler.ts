@@ -5,6 +5,7 @@ import { OauthError, type OauthErrorResponse } from "../errors";
 import {
 	generateAuthorizationRequestUri,
 	validateClientCredentials,
+	validateIssuerState,
 	validateScope,
 } from "../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedAuthorizationRequestHandlerConfig.schema";
@@ -12,14 +13,17 @@ import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedA
 const ajv = new Ajv();
 
 export type PushedAuthorizationRequestHandlerConfig = {
-	pushed_authorization_request_ttl: number;
-	token_encryption: string;
-	secret: string;
+	issuer_client: {
+		id: string;
+	};
 	clients: Array<{
 		id: string;
 		redirect_uris: Array<string>;
 		scopes: Array<string>;
 	}>;
+	pushed_authorization_request_ttl: number;
+	token_encryption: string;
+	secret: string;
 };
 
 type PushedAuthorizationRequest = {
@@ -30,6 +34,7 @@ type PushedAuthorizationRequest = {
 	state?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
+	issuer_state: string;
 };
 
 type PushedAuthorizationRequestResponse = {
@@ -64,6 +69,13 @@ export function pushedAuthorizationRequestHandlerFactory(
 				config,
 			);
 
+			const { issuer_state: _issuer_state } = await validateIssuerState(
+				{
+					issuer_state: request.issuer_state,
+				},
+				config,
+			);
+
 			const { request_uri, expires_in } = await generateAuthorizationRequestUri(
 				request,
 				config,
@@ -91,7 +103,7 @@ export function validatePushedAuthorizationRequestHandlerConfig(
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate token handler configuration - ${errorText}`,
+			`Could not validate pushed authorization request handler configuration - ${errorText}`,
 		);
 	}
 }
@@ -114,6 +126,7 @@ async function validateRequest(
 		state,
 		code_challenge,
 		code_challenge_method,
+		issuer_state,
 	} = expressRequest.body;
 
 	if (response_type !== "code") {
@@ -144,5 +157,6 @@ async function validateRequest(
 		state,
 		code_challenge,
 		code_challenge_method,
+		issuer_state,
 	};
 }

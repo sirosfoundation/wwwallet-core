@@ -1,8 +1,25 @@
+import { EncryptJWT } from "jose";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
-import { app } from "../support/app";
+import { beforeEach, describe, expect, it } from "vitest";
+import { app, core } from "../support/app";
 
 describe("authorization code - authorize", () => {
+	let issuer_state: string;
+	beforeEach(async () => {
+		const now = Date.now() / 1000;
+
+		const secret = new TextEncoder().encode(core.config.secret);
+
+		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+	});
+
 	it("returns an error", async () => {
 		const response = await request(app).get("/authorize");
 
@@ -33,6 +50,10 @@ describe("authorization code - authorize", () => {
 		expect(response.text).toMatch("invalid request");
 	});
 
+	it.skip("returns an error with invalid scope");
+
+	it.skip("returns an error with invalid issuer_state");
+
 	it("returns with a valid request_uri", async () => {
 		const response_type = "code";
 		const client_id = "id";
@@ -43,7 +64,7 @@ describe("authorization code - authorize", () => {
 			body: { request_uri },
 		} = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, scope });
+			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
 		const response = await request(app)
 			.get("/authorize")
@@ -55,6 +76,22 @@ describe("authorization code - authorize", () => {
 });
 
 describe("authorization code - authenticate", () => {
+	let issuer_state: string;
+	beforeEach(async () => {
+		const now = Date.now() / 1000;
+
+		const secret = new TextEncoder().encode(core.config.secret);
+
+		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+	});
+
 	describe("user credentials are valid", () => {
 		const username = "wwwallet";
 		const password = "tellawww";
@@ -95,6 +132,10 @@ describe("authorization code - authenticate", () => {
 			expect(response.text).toMatch("invalid request");
 		});
 
+		it.skip("returns an error with invalid scope");
+
+		it.skip("returns an error with invalid issuer_state");
+
 		it("returns with a valid request_uri", async () => {
 			const response_type = "code";
 			const client_id = "id";
@@ -105,7 +146,7 @@ describe("authorization code - authenticate", () => {
 				body: { request_uri },
 			} = await request(app)
 				.post("/pushed-authorization-request")
-				.send({ response_type, client_id, redirect_uri, scope });
+				.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
 			const response = await request(app)
 				.post("/authorize")
@@ -160,6 +201,10 @@ describe("authorization code - authenticate", () => {
 			expect(response.text).toMatch("invalid request");
 		});
 
+		it.skip("returns an error with invalid scope");
+
+		it.skip("returns an error with invalid issuer_state");
+
 		it("returns with a valid request_uri", async () => {
 			const response_type = "code";
 			const client_id = "id";
@@ -170,7 +215,7 @@ describe("authorization code - authenticate", () => {
 				body: { request_uri },
 			} = await request(app)
 				.post("/pushed-authorization-request")
-				.send({ response_type, client_id, redirect_uri, scope });
+				.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
 			const response = await request(app)
 				.post("/authorize")

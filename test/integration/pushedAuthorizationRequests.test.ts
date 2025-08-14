@@ -1,9 +1,25 @@
-import { jwtDecrypt } from "jose";
+import { EncryptJWT, jwtDecrypt } from "jose";
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { app, core } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
+	let issuer_state: string;
+	beforeEach(async () => {
+		const now = Date.now() / 1000;
+
+		const secret = new TextEncoder().encode(core.config.secret);
+
+		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+	});
+
 	it("returns an error without body", async () => {
 		const response = await request(app).post("/pushed-authorization-request");
 
@@ -97,13 +113,29 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with invalid issuer state", async () => {
+		const issuer_state = "invalid";
+		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type, client_id, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "issuer state is invalid",
+		});
+	});
+
 	it("returns", async () => {
 		const response_type = "code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri });
+			.send({ response_type, client_id, redirect_uri, issuer_state });
 
 		expect(response.status).toBe(200);
 		expect(response.body.expires_in).to.eq(
@@ -133,7 +165,7 @@ describe("pushshed authorization request endpoint", () => {
 		const scope = "client:scope";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, scope });
+			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
 		expect(response.status).toBe(200);
 		expect(response.body.expires_in).to.eq(

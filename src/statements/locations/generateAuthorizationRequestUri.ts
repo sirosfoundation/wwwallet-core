@@ -19,6 +19,7 @@ export async function generateAuthorizationRequestUri(
 		state,
 		code_challenge,
 		code_challenge_method,
+		issuer_state,
 	}: GenerateAuthorizationRequestUriParams,
 	config: GenerateAuthorizationRequestUriConfig,
 ) {
@@ -34,6 +35,7 @@ export async function generateAuthorizationRequestUri(
 		state,
 		code_challenge,
 		code_challenge_method,
+		issuer_state,
 	})
 		.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
 		.setIssuedAt()
