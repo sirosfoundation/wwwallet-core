@@ -141,12 +141,18 @@ describe("authorization code - authenticate", () => {
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
 			const scope = "client:scope";
+			const state = "state";
 
 			const {
 				body: { request_uri },
-			} = await request(app)
-				.post("/pushed-authorization-request")
-				.send({ response_type, client_id, redirect_uri, scope, issuer_state });
+			} = await request(app).post("/pushed-authorization-request").send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				issuer_state,
+				state,
+			});
 
 			const response = await request(app)
 				.post("/authorize")
@@ -156,6 +162,7 @@ describe("authorization code - authenticate", () => {
 			expect(response.status).toBe(302);
 			expect(response.headers.location).toMatch(redirect_uri);
 			expect(response.headers.location).toMatch(/code=.+/);
+			expect(response.headers.location).toMatch(/state=.+/);
 		});
 	});
 

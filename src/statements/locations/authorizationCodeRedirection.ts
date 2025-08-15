@@ -18,6 +18,9 @@ export async function authorizationCodeRedirection(
 
 	const query = location.searchParams;
 	query.append("code", authorization_code);
+	if (authorization_request.state) {
+		query.append("state", authorization_request.state);
+	}
 
 	return { location: location.toString() };
 }
