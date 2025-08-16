@@ -4,8 +4,13 @@ import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 import {
+	type AuthorizationCodeRequest,
+	validateAuthorizationCodeRequest,
+} from "./token/authorizationCode";
+import {
 	type ClientCredentialsRequest,
 	handleClientCredentials,
+	validateClientCredentialsRequest,
 } from "./token/clientCredentials";
 
 const ajv = new Ajv();
@@ -15,14 +20,6 @@ export type TokenHandlerConfig = {
 	access_token_ttl: number;
 	token_encryption: string;
 	secret: string;
-};
-
-type AuthorizationCodeRequest = {
-	grant_type: "authorization_code";
-	client_id: string;
-	client_secret: string;
-	redirect_uri: string;
-	code: string;
 };
 
 type TokenResponse = {
@@ -95,76 +92,8 @@ async function validateRequest(
 	}
 
 	if (expressRequest.body.grant_type === "authorization_code") {
-		return validateAuthrizationCodeRequest(expressRequest);
+		return validateAuthorizationCodeRequest(expressRequest);
 	}
 
 	throw new OauthError(400, "invalid_request", "grant_type is not supported");
-}
-
-async function validateClientCredentialsRequest(
-	expressRequest: Request,
-): Promise<ClientCredentialsRequest> {
-	const { client_id, client_secret, scope, grant_type } = expressRequest.body;
-
-	if (!client_id) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client id is missing from body parameters",
-		);
-	}
-
-	if (!client_secret) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client secret is missing from body parameters",
-		);
-	}
-
-	return {
-		client_id,
-		client_secret,
-		scope,
-		grant_type,
-	};
-}
-
-async function validateAuthrizationCodeRequest(
-	expressRequest: Request,
-): Promise<AuthorizationCodeRequest> {
-	const { client_id, client_secret, redirect_uri, code, grant_type } =
-		expressRequest.body;
-
-	if (!client_id) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client id is missing from body parameters",
-		);
-	}
-
-	if (!redirect_uri) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"redirect uri is missing from body parameters",
-		);
-	}
-
-	if (!code) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"code is missing from body parameters",
-		);
-	}
-
-	return {
-		client_id,
-		client_secret,
-		redirect_uri,
-		code,
-		grant_type,
-	};
 }
