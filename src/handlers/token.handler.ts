@@ -2,12 +2,11 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import {
-	generateAccessToken,
-	validateClientCredentials,
-	validateScope,
-} from "../statements";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
+import {
+	type ClientCredentialsRequest,
+	handleClientCredentials,
+} from "./token/clientCredentials";
 
 const ajv = new Ajv();
 
@@ -18,10 +17,12 @@ export type TokenHandlerConfig = {
 	secret: string;
 };
 
-type ClientCredentialsRequest = {
+type AuthorizationCodeRequest = {
+	grant_type: "authorization_code";
 	client_id: string;
 	client_secret: string;
-	scope?: string;
+	redirect_uri: string;
+	code: string;
 };
 
 type TokenResponse = {
@@ -40,29 +41,23 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
-			const { client } = await validateClientCredentials(
-				{
-					client_id: request.client_id,
-					client_secret: request.client_secret,
-				},
-				config,
+			if (request.grant_type === "client_credentials") {
+				return await handleClientCredentials(request, config);
+			}
+
+			if (request.grant_type === "authorization_code") {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					"grant type is not supported",
+				);
+			}
+
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"grant type is not supported",
 			);
-
-			const { scope } = await validateScope(request.scope, { client }, config);
-
-			const { access_token, expires_in } = await generateAccessToken(
-				{ client, scope },
-				config,
-			);
-
-			return {
-				status: 200,
-				body: {
-					access_token,
-					expires_in,
-					token_type: "bearer",
-				},
-			};
 		} catch (error) {
 			if (error instanceof OauthError) {
 				return error.toResponse();
@@ -86,7 +81,7 @@ export function validateTokenHandlerConfig(config: Config) {
 
 async function validateRequest(
 	expressRequest: Request,
-): Promise<ClientCredentialsRequest> {
+): Promise<ClientCredentialsRequest | AuthorizationCodeRequest> {
 	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
@@ -99,19 +94,23 @@ async function validateRequest(
 		return validateClientCredentialsRequest(expressRequest);
 	}
 
+	if (expressRequest.body.grant_type === "authorization_code") {
+		return validateAuthrizationCodeRequest(expressRequest);
+	}
+
 	throw new OauthError(400, "invalid_request", "grant_type is not supported");
 }
 
 async function validateClientCredentialsRequest(
 	expressRequest: Request,
 ): Promise<ClientCredentialsRequest> {
-	const { client_id, client_secret, scope } = expressRequest.body;
+	const { client_id, client_secret, scope, grant_type } = expressRequest.body;
 
 	if (!client_id) {
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client id is missing from body params",
+			"client id is missing from body parameters",
 		);
 	}
 
@@ -119,7 +118,7 @@ async function validateClientCredentialsRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client_secret is missing from body params",
+			"client secret is missing from body parameters",
 		);
 	}
 
@@ -127,5 +126,45 @@ async function validateClientCredentialsRequest(
 		client_id,
 		client_secret,
 		scope,
+		grant_type,
+	};
+}
+
+async function validateAuthrizationCodeRequest(
+	expressRequest: Request,
+): Promise<AuthorizationCodeRequest> {
+	const { client_id, client_secret, redirect_uri, code, grant_type } =
+		expressRequest.body;
+
+	if (!client_id) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"client id is missing from body parameters",
+		);
+	}
+
+	if (!redirect_uri) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"redirect uri is missing from body parameters",
+		);
+	}
+
+	if (!code) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"code is missing from body parameters",
+		);
+	}
+
+	return {
+		client_id,
+		client_secret,
+		redirect_uri,
+		code,
+		grant_type,
 	};
 }
