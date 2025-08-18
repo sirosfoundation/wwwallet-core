@@ -62,7 +62,7 @@ export function server(core: Core) {
 		return res.status(response.status).send(response.body);
 	});
 
-	app.get("/nonce", async (req, res) => {
+	app.post("/nonce", async (req, res) => {
 		const response = await core.nonce(req);
 
 		return res.status(response.status).send(response.body);

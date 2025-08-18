@@ -5,7 +5,7 @@ import { app, core } from "../support/app";
 
 describe("nonce endpoint", () => {
 	it("renders", async () => {
-		const response = await request(app).get("/nonce");
+		const response = await request(app).post("/nonce");
 
 		expect(response.status).toBe(200);
 		assert(response.body.c_nonce);
