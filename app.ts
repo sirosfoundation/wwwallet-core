@@ -7,6 +7,7 @@ import {
 	type ResourceOwner,
 	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
@@ -37,6 +38,7 @@ export function server(core: Core) {
 			// trigger handlers configuration validation
 			validateAuthorizeHandlerConfig(core.config);
 			validateCredentialOfferHandlerConfig(core.config);
+			validateNonceHandlerConfig(core.config);
 			validateOauthAuthorizationServerHandlerConfig(core.config);
 			validateOpenidCredentialIssuerHandlerConfig(core.config);
 			validatePushedAuthorizationRequestHandlerConfig(core.config);
@@ -56,6 +58,12 @@ export function server(core: Core) {
 
 	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
 		const response = await core.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/nonce", async (req, res) => {
+		const response = await core.nonce(req);
 
 		return res.status(response.status).send(response.body);
 	});

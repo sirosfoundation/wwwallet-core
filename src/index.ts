@@ -3,6 +3,7 @@ export * from "./core";
 export {
 	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,

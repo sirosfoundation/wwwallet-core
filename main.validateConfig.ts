@@ -3,6 +3,7 @@ import { core } from "./main.container";
 import {
 	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
@@ -12,10 +13,11 @@ import {
 try {
 	validateAuthorizeHandlerConfig(core.config);
 	validateCredentialOfferHandlerConfig(core.config);
-	validateTokenHandlerConfig(core.config);
+	validateNonceHandlerConfig(core.config);
 	validateOauthAuthorizationServerHandlerConfig(core.config);
 	validateOpenidCredentialIssuerHandlerConfig(core.config);
 	validatePushedAuthorizationRequestHandlerConfig(core.config);
+	validateTokenHandlerConfig(core.config);
 
 	console.info("    \x1b[32m%s\x1b[0m", "========== configuration validation");
 	console.info("        \x1b[32m[OK]\x1b[32m");

@@ -15,6 +15,7 @@ describe("hello world", () => {
 
 describe("healthz", () => {
 	it("returns an error", async () => {
+		// @ts-ignore
 		const unconfiguredApp = server(new Core({}));
 		const response = await request(unconfiguredApp).get("/healthz");
 

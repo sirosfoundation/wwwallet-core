@@ -5,6 +5,8 @@ import {
 	authorizeHandlerFactory,
 	type CredentialOfferHandlerConfig,
 	credentialOfferHandlerFactory,
+	type NonceHandlerConfig,
+	nonceHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
 	type OpenidCredentialIssuerHandlerConfig,
 	oauthAuthorizationServerHandlerFactory,
@@ -15,6 +17,7 @@ import {
 	tokenHandlerFactory,
 	validateAuthorizeHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
@@ -43,6 +46,12 @@ export class Core {
 		return openidCredentialIssuerHandlerFactory(
 			this.config as OpenidCredentialIssuerHandlerConfig,
 		);
+	}
+
+	get nonce() {
+		validateNonceHandlerConfig(this.config);
+
+		return nonceHandlerFactory(this.config as NonceHandlerConfig);
 	}
 
 	get pushedAuthorizationRequest() {

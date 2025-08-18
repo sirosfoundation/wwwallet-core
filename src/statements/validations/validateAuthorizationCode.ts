@@ -9,6 +9,7 @@ export type ValidateAuthorizationCodeConfig = {
 	secret: string;
 };
 
+// TODO validate code redirect uri according to request
 export async function validateAuthorizationCode(
 	{ authorization_code }: validateAuthorizationCodeParams,
 	config: ValidateAuthorizationCodeConfig,
