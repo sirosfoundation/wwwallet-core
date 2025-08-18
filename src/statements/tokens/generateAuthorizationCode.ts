@@ -30,6 +30,7 @@ export async function generateAuthorizationCode(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const authorization_code = await new EncryptJWT({
+		token_type: "authorization_code",
 		sub: resource_owner.sub,
 		scope,
 	})

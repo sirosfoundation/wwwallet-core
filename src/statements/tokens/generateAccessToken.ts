@@ -23,6 +23,7 @@ export async function generateAccessToken(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const access_token = await new EncryptJWT({
+		token_type: "access_token",
 		client_id: client.id,
 		sub,
 		scope,

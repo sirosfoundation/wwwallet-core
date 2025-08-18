@@ -20,6 +20,7 @@ export async function generateCNonce(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const c_nonce = await new EncryptJWT({
+		token_type: "c_nonce",
 		sub: client.id,
 	})
 		.setProtectedHeader({ alg: "dir", enc: config.token_encryption })

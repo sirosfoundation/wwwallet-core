@@ -24,11 +24,19 @@ export async function validateAuthorizationCode(
 
 	try {
 		const {
-			payload: { sub, scope },
+			payload: { token_type, sub, scope },
 		} = await jwtDecrypt<{ sub: string; scope: string }>(
 			authorization_code,
 			new TextEncoder().encode(config.secret),
 		);
+
+		if (token_type !== "authorization_code") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
 
 		return {
 			authorization_code,
@@ -37,8 +45,8 @@ export async function validateAuthorizationCode(
 		};
 	} catch (_error) {
 		throw new OauthError(
-			401,
-			"invalid_client",
+			400,
+			"invalid_request",
 			"authorization code is invalid",
 		);
 	}

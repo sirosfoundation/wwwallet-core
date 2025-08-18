@@ -46,8 +46,8 @@ describe("authorization code - authorize", () => {
 			.get("/authorize")
 			.query({ client_id, request_uri });
 
-		expect(response.status).toBe(401);
-		expect(response.text).toMatch("invalid request");
+		expect(response.status).toBe(400);
+		expect(response.text).toMatch("authorization request is invalid");
 	});
 
 	it.skip("returns an error with invalid scope");
@@ -128,8 +128,8 @@ describe("authorization code - authenticate", () => {
 				.send({ username, password })
 				.query({ client_id, request_uri });
 
-			expect(response.status).toBe(401);
-			expect(response.text).toMatch("invalid request");
+			expect(response.status).toBe(400);
+			expect(response.text).toMatch("authorization request is invalid");
 		});
 
 		it.skip("returns an error with invalid scope");
@@ -203,9 +203,9 @@ describe("authorization code - authenticate", () => {
 				.send({ username, password })
 				.query({ client_id, request_uri });
 
-			expect(response.status).toBe(401);
+			expect(response.status).toBe(400);
 			expect(response.text).toMatch(request_uri);
-			expect(response.text).toMatch("invalid request");
+			expect(response.text).toMatch("authorization request is invalid");
 		});
 
 		it.skip("returns an error with invalid scope");
@@ -307,9 +307,37 @@ describe("authorization code - token", () => {
 			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code });
 
-		expect(response.status).toBe(401);
+		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
-			error: "invalid_client",
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
+	it("returns an error with invalid token type", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({ sub, token_type: "invalid" })
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
 			error_description: "authorization code is invalid",
 		});
 	});
@@ -322,7 +350,7 @@ describe("authorization code - token", () => {
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(core.config.secret);
-		const code = await new EncryptJWT({ sub })
+		const code = await new EncryptJWT({ sub, token_type: "authorization_code" })
 			.setProtectedHeader({
 				alg: "dir",
 				enc: core.config.token_encryption || "",

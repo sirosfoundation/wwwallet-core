@@ -10,6 +10,7 @@ export type GenerateAuthorizationRequestUriConfig = {
 	secret: string;
 };
 
+// TODO split authorization_request token generation from request_uri urn
 export async function generateAuthorizationRequestUri(
 	{
 		response_type,
@@ -28,6 +29,7 @@ export async function generateAuthorizationRequestUri(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const request_token = await new EncryptJWT({
+		token_type: "authorization_request",
 		response_type,
 		client_id,
 		redirect_uri,

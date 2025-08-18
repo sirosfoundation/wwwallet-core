@@ -129,7 +129,7 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
-	it("returns", async () => {
+	it("returns a token", async () => {
 		const response_type = "code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
@@ -153,6 +153,7 @@ describe("pushshed authorization request endpoint", () => {
 			new TextEncoder().encode(core.config.secret),
 		);
 
+		expect(payload.token_type).to.eq("authorization_request");
 		expect(payload.client_id).to.eq(client_id);
 		expect(payload.redirect_uri).to.eq(redirect_uri);
 		expect(payload.response_type).to.eq(response_type);
@@ -183,6 +184,7 @@ describe("pushshed authorization request endpoint", () => {
 			new TextEncoder().encode(core.config.secret),
 		);
 
+		expect(payload.token_type).to.eq("authorization_request");
 		expect(payload.client_id).to.eq(client_id);
 		expect(payload.redirect_uri).to.eq(redirect_uri);
 		expect(payload.response_type).to.eq(response_type);

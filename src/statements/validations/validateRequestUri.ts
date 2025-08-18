@@ -26,6 +26,7 @@ export async function validateRequestUri(
 	try {
 		const {
 			payload: {
+				token_type,
 				response_type,
 				client_id,
 				redirect_uri,
@@ -39,6 +40,14 @@ export async function validateRequestUri(
 			request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
 			new TextEncoder().encode(config.secret),
 		);
+
+		if (token_type !== "authorization_request") {
+			throw new OauthError(
+				401,
+				"invalid_client",
+				"authorization request is invalid",
+			);
+		}
 
 		return {
 			request_uri,
@@ -54,6 +63,10 @@ export async function validateRequestUri(
 			},
 		};
 	} catch (_error) {
-		throw new OauthError(401, "invalid_client", "invalid request");
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"authorization request is invalid",
+		);
 	}
 }
