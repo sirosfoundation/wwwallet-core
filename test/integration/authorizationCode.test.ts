@@ -314,7 +314,7 @@ describe("authorization code - token", () => {
 		});
 	});
 
-	it("returns", async () => {
+	it("returns a token", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
