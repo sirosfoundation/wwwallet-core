@@ -2,8 +2,8 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import { statementTemplate } from "../statements/statementTemplate";
-import { handlerTemplateConfigSchema } from "./schemas/handlerTemplateConfig.schema";
+import { statementTemplate } from "../statements/_statementTemplate";
+import { handlerTemplateConfigSchema } from "./schemas/_handlerTemplateConfig.schema";
 
 const ajv = new Ajv();
 
