@@ -33,6 +33,7 @@ export type Config = {
 		id?: string;
 		scopes: Array<string>;
 	};
+	supported_credential_configuration_paths?: Array<string>;
 	supported_credential_configurations?: Array<{
 		credential_configuration_id: string;
 		label?: string;
