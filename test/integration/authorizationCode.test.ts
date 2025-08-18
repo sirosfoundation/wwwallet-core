@@ -1,6 +1,6 @@
-import { EncryptJWT } from "jose";
+import { EncryptJWT, jwtDecrypt } from "jose";
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { assert, beforeEach, describe, expect, it } from "vitest";
 import { app, core } from "../support/app";
 
 describe("authorization code - authorize", () => {
@@ -280,7 +280,24 @@ describe("authorization code - token", () => {
 		});
 	});
 
-	it("returns an error with a code", async () => {
+	it("returns an error with an invalid client", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "invalid";
+		const redirect_uri = "http://redirect.uri";
+		const code = "code";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_client",
+			error_description: "invalid client credentials",
+		});
+	});
+
+	it("returns an error with an invalid authorization code", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
@@ -290,10 +307,45 @@ describe("authorization code - token", () => {
 			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code });
 
-		expect(response.status).toBe(400);
+		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
-			error: "invalid_request",
-			error_description: "grant type is not supported",
+			error: "invalid_client",
+			error_description: "authorization code is invalid",
 		});
+	});
+
+	it("returns", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({ sub })
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(200);
+		assert(response.body.access_token);
+		assert(response.body.expires_in);
+		expect(response.body.token_type).to.eq("bearer");
+
+		const { payload } = await jwtDecrypt(
+			response.body.access_token,
+			new TextEncoder().encode(core.config.secret),
+		);
+
+		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		expect(payload.sub).to.eq(sub);
 	});
 });

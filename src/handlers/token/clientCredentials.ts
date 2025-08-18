@@ -1,5 +1,6 @@
 import type { Request } from "express";
 import { OauthError } from "../../errors";
+import type { OauthClient } from "../../resources";
 import {
 	generateAccessToken,
 	validateClientCredentials,
@@ -7,7 +8,7 @@ import {
 } from "../../statements";
 
 export type ClientCredentialsHandlerConfig = {
-	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
+	clients: Array<OauthClient>;
 	access_token_ttl: number;
 	token_encryption: string;
 	secret: string;

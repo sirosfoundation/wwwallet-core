@@ -1,5 +1,18 @@
 import type { Request } from "express";
 import { OauthError } from "../../errors";
+import type { OauthClient } from "../../resources";
+import {
+	generateAccessToken,
+	validateAuthorizationCode,
+	validateClientCredentials,
+} from "../../statements";
+
+export type AuthorizationCodeHandlerConfig = {
+	clients: Array<OauthClient>;
+	access_token_ttl: number;
+	token_encryption: string;
+	secret: string;
+};
 
 export type AuthorizationCodeRequest = {
 	grant_type: "authorization_code";
@@ -8,6 +21,59 @@ export type AuthorizationCodeRequest = {
 	redirect_uri: string;
 	code: string;
 };
+
+export type AuthorizationCodeResponse = {
+	status: 200;
+	body: {
+		access_token: string;
+		expires_in: number;
+		token_type: "bearer";
+	};
+};
+
+export async function handleAuthorizationCode(
+	request: AuthorizationCodeRequest,
+	config: AuthorizationCodeHandlerConfig,
+): Promise<AuthorizationCodeResponse> {
+	const { client } = await validateClientCredentials(
+		{
+			client_id: request.client_id,
+			client_secret: request.client_secret,
+			redirect_uri: request.redirect_uri,
+			confidential: false,
+		},
+		config,
+	);
+
+	const {
+		authorization_code: _authorization_code,
+		sub,
+		scope,
+	} = await validateAuthorizationCode(
+		{
+			authorization_code: request.code,
+		},
+		config,
+	);
+
+	const { access_token, expires_in } = await generateAccessToken(
+		{
+			client,
+			scope,
+			sub,
+		},
+		config,
+	);
+
+	return {
+		status: 200,
+		body: {
+			access_token,
+			expires_in,
+			token_type: "bearer",
+		},
+	};
+}
 
 export async function validateAuthorizationCodeRequest(
 	expressRequest: Request,

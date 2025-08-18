@@ -5,6 +5,7 @@ import { OauthError, type OauthErrorResponse } from "../errors";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 import {
 	type AuthorizationCodeRequest,
+	handleAuthorizationCode,
 	validateAuthorizationCodeRequest,
 } from "./token/authorizationCode";
 import {
@@ -43,11 +44,7 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 			}
 
 			if (request.grant_type === "authorization_code") {
-				throw new OauthError(
-					400,
-					"invalid_request",
-					"grant type is not supported",
-				);
+				return await handleAuthorizationCode(request, config);
 			}
 
 			throw new OauthError(
