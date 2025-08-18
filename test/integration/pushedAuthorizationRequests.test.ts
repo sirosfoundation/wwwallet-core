@@ -42,7 +42,7 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
-	it("returns an error with an invalid response_type", async () => {
+	it("returns an error with an invalid response type", async () => {
 		const response_type = "not_a_code";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
@@ -55,7 +55,7 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
-	it("returns an error with a response_type", async () => {
+	it("returns an error with a response type", async () => {
 		const response_type = "code";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
@@ -68,7 +68,7 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
-	it("returns an error with a client_id", async () => {
+	it("returns an error with a client id", async () => {
 		const response_type = "code";
 		const client_id = "id";
 		const response = await request(app)
@@ -82,7 +82,7 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
-	it("returns an error with an invalid redirect_uri", async () => {
+	it("returns an error with an invalid redirect uri", async () => {
 		const response_type = "code";
 		const client_id = "id";
 		const redirect_uri = "http://invalid.uri";

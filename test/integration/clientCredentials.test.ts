@@ -14,7 +14,7 @@ describe("client credentials flow", () => {
 		});
 	});
 
-	it("returns an error with invalid grant_type", async () => {
+	it("returns an error with invalid grant type", async () => {
 		const grant_type = "invalid_grant_type";
 
 		const response = await request(app).post("/token").send({ grant_type });
@@ -38,7 +38,7 @@ describe("client credentials flow", () => {
 		});
 	});
 
-	it("returns an error with client_id", async () => {
+	it("returns an error with client id", async () => {
 		const grant_type = "client_credentials";
 		const client_id = "client_id";
 
@@ -53,7 +53,7 @@ describe("client credentials flow", () => {
 		});
 	});
 
-	it("returns an error with invalid client_secret", async () => {
+	it("returns an error with invalid client secret", async () => {
 		const grant_type = "client_credentials";
 		const client_id = "id";
 		const client_secret = "client_secret";

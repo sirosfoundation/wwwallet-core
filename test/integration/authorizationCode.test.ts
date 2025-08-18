@@ -29,7 +29,7 @@ describe("authorization code - authorize", () => {
 		);
 	});
 
-	it("returns an error with client_id", async () => {
+	it("returns an error with client id", async () => {
 		const client_id = "id";
 		const response = await request(app).get("/authorize").query({ client_id });
 
@@ -39,7 +39,7 @@ describe("authorization code - authorize", () => {
 		);
 	});
 
-	it("returns an error with invalid request_uri", async () => {
+	it("returns an error with invalid request uri", async () => {
 		const client_id = "id";
 		const request_uri = "urn:wwwallet:authorization_request:invalid";
 		const response = await request(app)
@@ -54,7 +54,7 @@ describe("authorization code - authorize", () => {
 
 	it.skip("returns an error with invalid issuer_state");
 
-	it("returns with a valid request_uri", async () => {
+	it("returns with a valid request uri", async () => {
 		const response_type = "code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
@@ -107,7 +107,7 @@ describe("authorization code - authenticate", () => {
 			);
 		});
 
-		it("returns an error with client_id", async () => {
+		it("returns an error with client id", async () => {
 			const client_id = "id";
 			const response = await request(app)
 				.post("/authorize")
@@ -120,7 +120,7 @@ describe("authorization code - authenticate", () => {
 			);
 		});
 
-		it("returns an error with invalid request_uri", async () => {
+		it("returns an error with invalid request uri", async () => {
 			const client_id = "id";
 			const request_uri = "urn:wwwallet:authorization_request:invalid";
 			const response = await request(app)
@@ -134,9 +134,9 @@ describe("authorization code - authenticate", () => {
 
 		it.skip("returns an error with invalid scope");
 
-		it.skip("returns an error with invalid issuer_state");
+		it.skip("returns an error with invalid issuer state");
 
-		it("returns with a valid request_uri", async () => {
+		it("returns with a valid request uri", async () => {
 			const response_type = "code";
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
@@ -181,7 +181,7 @@ describe("authorization code - authenticate", () => {
 			);
 		});
 
-		it("returns an error with client_id", async () => {
+		it("returns an error with client id", async () => {
 			const client_id = "id";
 			const response = await request(app)
 				.post("/authorize")
@@ -195,7 +195,7 @@ describe("authorization code - authenticate", () => {
 			);
 		});
 
-		it("returns an error with invalid request_uri", async () => {
+		it("returns an error with invalid request uri", async () => {
 			const client_id = "id";
 			const request_uri = "urn:wwwallet:authorization_request:invalid";
 			const response = await request(app)
@@ -210,9 +210,9 @@ describe("authorization code - authenticate", () => {
 
 		it.skip("returns an error with invalid scope");
 
-		it.skip("returns an error with invalid issuer_state");
+		it.skip("returns an error with invalid issuer state");
 
-		it("returns with a valid request_uri", async () => {
+		it("returns with a valid request uri", async () => {
 			const response_type = "code";
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";

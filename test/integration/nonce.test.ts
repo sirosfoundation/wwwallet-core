@@ -4,7 +4,7 @@ import { assert, describe, expect, it } from "vitest";
 import { app, core } from "../support/app";
 
 describe("nonce endpoint", () => {
-	it("renders", async () => {
+	it("returns a token", async () => {
 		const response = await request(app).post("/nonce");
 
 		expect(response.status).toBe(200);
