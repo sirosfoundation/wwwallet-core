@@ -14,18 +14,6 @@ Server static configuration can be edited given the example `main.config.ts` [fi
 
 ```sh
 $ npm start
-
-> start
-> ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./app.ts
-
-========== wwwallet issuer Proof of Concept listening to port 5000
-GET      /
-GET      /healthz
-GET      /.well-known/oauth-authorization-server
-GET      /.well-known/openid-credential-issuer
-POST     /token
-GET      /offer/:scope
-==========
 ```
 
 OR
@@ -48,20 +36,7 @@ $ curl -X POST http://localhost:5000/token \
 ## Run tests
 
 ```sh
-npm run test
-
-> test
-> vitest
-
-
- DEV  v3.2.4 [...]
-
- [...]
-
- Test Files  5 passed (5)
-      Tests  22 passed (22)
-   Start at  17:33:43
-   Duration  753ms (transform 217ms, setup 0ms, collect 1.62s, tests 499ms, environment 1ms, prepare 392ms)
+$ npm run test
 ```
 
 ## Dependency tree
