@@ -1,3 +1,4 @@
+export * from "./validateAuthorizationCode";
 export * from "./validateClientCredentials";
 export * from "./validateIssuerState";
 export * from "./validateRequestUri";

@@ -34,7 +34,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client id is missing from body params",
+			error_description: "client id is missing from body parameters",
 		});
 	});
 
@@ -49,7 +49,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client_secret is missing from body params",
+			error_description: "client secret is missing from body parameters",
 		});
 	});
 
@@ -99,6 +99,14 @@ describe("client credentials flow", () => {
 		assert(response.body.access_token);
 		assert(response.body.expires_in);
 		expect(response.body.token_type).to.eq("bearer");
+
+		const { payload } = await jwtDecrypt(
+			response.body.access_token,
+			new TextEncoder().encode(config.secret),
+		);
+
+		assert(config.clients.find(({ id }) => id === payload.client_id));
+		assert(config.clients.find(({ id }) => id === payload.sub));
 	});
 
 	it("returns a token with www-form-urlencoded", async () => {
@@ -138,6 +146,7 @@ describe("client credentials flow", () => {
 		);
 
 		expect(payload.scope).to.eq(scope);
+		assert(config.clients.find(({ id }) => id === payload.client_id));
 		assert(config.clients.find(({ id }) => id === payload.sub));
 	});
 });
