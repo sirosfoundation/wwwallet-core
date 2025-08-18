@@ -30,16 +30,17 @@ const baseConfig = {
 
 const config = merge(baseConfig, ymlConfig) as Config;
 
-config.supported_credential_configurations?.concat(
-	config.supported_credential_configuration_paths?.map(
-		(credentialConfigurationPath) => {
-			const credential = fs
-				.readFileSync(path.join(__dirname, credentialConfigurationPath))
-				.toString();
+config.supported_credential_configurations =
+	config.supported_credential_configurations?.concat(
+		config.supported_credential_configuration_paths?.map(
+			(credentialConfigurationPath) => {
+				const credential = fs
+					.readFileSync(path.join(__dirname, credentialConfigurationPath))
+					.toString();
 
-			return JSON.parse(credential);
-		},
-	) || [],
-);
+				return JSON.parse(credential);
+			},
+		) || [],
+	);
 
 export { config };
