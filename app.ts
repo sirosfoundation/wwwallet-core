@@ -149,6 +149,12 @@ export function server(core: Core) {
 		return res.status(response.status).send(response.body);
 	});
 
+	app.post("/credential", async (req, res) => {
+		const response = await core.credential(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	app.get("/offer/:scope", async (req, res) => {
 		const response = await core.credentialOffer(req);
 
