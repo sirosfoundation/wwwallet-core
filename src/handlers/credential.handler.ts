@@ -9,6 +9,7 @@ import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig
 const ajv = new Ajv();
 
 export type CredentialHandlerConfig = {
+	issuer_url: string;
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};

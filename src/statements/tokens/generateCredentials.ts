@@ -11,6 +11,7 @@ export type GenerateCredentialsParams = {
 };
 
 export type GenerateCredentialsConfig = {
+	issuer_url: string;
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
@@ -42,14 +43,22 @@ export async function generateCredentials(
 		sub,
 		credentialConfiguration.vct,
 	)) as Claims;
-	const credential = await generateAndSign(claims, credentialConfiguration);
+	const credential = await generateAndSign(
+		claims,
+		credentialConfiguration,
+		config,
+	);
 
 	return {
 		credentials: [{ credential }],
 	};
 }
 
-async function generateAndSign(claims: Claims, credentialConfiguration?: CredentialConfiguration) {
+async function generateAndSign(
+	claims: Claims,
+	credentialConfiguration: CredentialConfiguration,
+	config: GenerateCredentialsConfig,
+) {
 	const alg = "sha-256";
 
 	const disclosures = Object.keys(claims).map((key: string) => {
@@ -67,11 +76,12 @@ async function generateAndSign(claims: Claims, credentialConfiguration?: Credent
 				}),
 			),
 		),
-		vct: credentialConfiguration?.vct,
+		iss: config.issuer_url,
+		vct: credentialConfiguration.vct,
 	};
 
 	const jwt = new Jwt({
-		header: { alg: "ES256", typ: credentialConfiguration?.format },
+		header: { alg: "ES256", typ: credentialConfiguration.format },
 		payload,
 	});
 	await jwt.sign(signer());
