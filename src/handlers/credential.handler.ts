@@ -2,38 +2,44 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
+import { generateCredentials } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
 
 const ajv = new Ajv();
 
 export type CredentialHandlerConfig = {};
 
-type CredentialRequest = {};
+type CredentialRequest = {
+	credential_configuration_ids: Array<string>;
+};
 
 type CredentialResponse = {
 	status: 200;
-	data: {};
-	body: {};
+	body: {
+		credentials: Array<{ credential: string }>;
+	};
 };
 
-export function credentialHandlerFactory(_config: CredentialHandlerConfig) {
+export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 	return async function credentialHandler(
 		expressRequest: Request,
 	): Promise<CredentialResponse | OauthErrorResponse> {
 		try {
-			const _request = await validateRequest(expressRequest);
+			const request = await validateRequest(expressRequest);
 
-			throw new OauthError(
-				400,
-				"invalid_request",
-				"credential endpoint not implemented",
+			const { credentials } = await generateCredentials(
+				{
+					credential_configuration_ids: request.credential_configuration_ids,
+				},
+				config,
 			);
 
-			// return {
-			// 	status: 200,
-			// 	data: {},
-			// 	body: {},
-			// };
+			return {
+				status: 200,
+				body: {
+					credentials,
+				},
+			};
 		} catch (error) {
 			if (error instanceof OauthError) {
 				return error.toResponse();
@@ -56,7 +62,30 @@ export function validateCredentialHandlerConfig(config: Config) {
 }
 
 async function validateRequest(
-	_expressRequest: Request,
+	expressRequest: Request,
 ): Promise<CredentialRequest> {
-	return {};
+	if (!expressRequest.body) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"credential requests require a body",
+		);
+	}
+
+	const { credential_configuration_id } = expressRequest.body;
+
+	const credential_configuration_ids =
+		expressRequest.body.credential_configuration_ids ||
+		(credential_configuration_id && [credential_configuration_id]);
+	if (!credential_configuration_ids?.length) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"credential configuration ids are missing from body parameters",
+		);
+	}
+
+	return {
+		credential_configuration_ids,
+	};
 }

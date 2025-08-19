@@ -80,7 +80,7 @@ async function validateRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"client credentials requests requires a body",
+			"client credentials requests require a body",
 		);
 	}
 

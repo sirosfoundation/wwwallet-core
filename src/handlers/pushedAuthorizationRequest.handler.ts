@@ -115,7 +115,7 @@ async function validateRequest(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"pushed authorization requests requires a body",
+			"pushed authorization requests require a body",
 		);
 	}
 	const {

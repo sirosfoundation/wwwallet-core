@@ -10,7 +10,7 @@ describe("client credentials flow", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client credentials requests requires a body",
+			error_description: "client credentials requests require a body",
 		});
 	});
 
