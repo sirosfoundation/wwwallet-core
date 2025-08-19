@@ -2,6 +2,7 @@ export * from "./config";
 export * from "./core";
 export {
 	validateAuthorizeHandlerConfig,
+	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,

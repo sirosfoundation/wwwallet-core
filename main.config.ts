@@ -23,6 +23,9 @@ const baseConfig = {
 			logger.debug("insertAuthorizationServerState not implemented");
 			return authorizationServerState;
 		},
+		async resourceOwnerData(sub: string, vct: string) {
+			return { sub, vct };
+		},
 	},
 	supported_credential_configuration_paths: [],
 	supported_credential_configurations: [],

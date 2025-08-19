@@ -15,6 +15,7 @@ export type Config = {
 		insertAuthorizationServerState?: (
 			authorizationServerState: AuthorizationServerState,
 		) => Promise<AuthorizationServerState>;
+		resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 	};
 	issuer_display?: Array<{
 		locale?: string;

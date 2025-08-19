@@ -6,6 +6,7 @@ import {
 	type Core,
 	type ResourceOwner,
 	validateAuthorizeHandlerConfig,
+	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
@@ -37,6 +38,7 @@ export function server(core: Core) {
 		try {
 			// trigger handlers configuration validation
 			validateAuthorizeHandlerConfig(core.config);
+			validateCredentialHandlerConfig(core.config);
 			validateCredentialOfferHandlerConfig(core.config);
 			validateNonceHandlerConfig(core.config);
 			validateOauthAuthorizationServerHandlerConfig(core.config);

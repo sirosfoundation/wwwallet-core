@@ -1,6 +1,6 @@
 import { EncryptJWT } from "jose";
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { assert, beforeEach, describe, expect, it } from "vitest";
 import { app, core } from "../support/app";
 
 describe("credential endpoint", () => {
@@ -102,9 +102,10 @@ describe("credential endpoint", () => {
 				.set("Authorization", `DPoP ${access_token}`)
 				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(200);
+			expect(response.status).toBe(404);
 			expect(response.body).to.deep.eq({
-				credentials: [],
+				error: "invalid_credential",
+				error_description: "credential not found",
 			});
 		});
 
@@ -115,9 +116,10 @@ describe("credential endpoint", () => {
 				.set("Authorization", `DPoP ${access_token}`)
 				.send({ credential_configuration_ids });
 
-			expect(response.status).toBe(200);
+			expect(response.status).toBe(404);
 			expect(response.body).to.deep.eq({
-				credentials: [],
+				error: "invalid_credential",
+				error_description: "credential not found",
 			});
 		});
 
@@ -129,9 +131,7 @@ describe("credential endpoint", () => {
 				.send({ credential_configuration_id });
 
 			expect(response.status).toBe(200);
-			expect(response.body).to.deep.eq({
-				credentials: [],
-			});
+			assert(response.body.credentials[0].credential);
 		});
 
 		it("returns credentials with bearer token type", async () => {
@@ -142,9 +142,7 @@ describe("credential endpoint", () => {
 				.send({ credential_configuration_id });
 
 			expect(response.status).toBe(200);
-			expect(response.body).to.deep.eq({
-				credentials: [],
-			});
+			assert(response.body.credentials[0].credential);
 		});
 
 		it("returns credentials with Bearer token type", async () => {
@@ -155,9 +153,7 @@ describe("credential endpoint", () => {
 				.send({ credential_configuration_id });
 
 			expect(response.status).toBe(200);
-			expect(response.body).to.deep.eq({
-				credentials: [],
-			});
+			assert(response.body.credentials[0].credential);
 		});
 	});
 });
