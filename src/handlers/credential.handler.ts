@@ -2,15 +2,20 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import { generateCredentials } from "../statements";
+import { generateCredentials, validateAccessToken } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type CredentialHandlerConfig = {};
+export type CredentialHandlerConfig = {
+	secret: string;
+};
 
 type CredentialRequest = {
 	credential_configuration_ids: Array<string>;
+	credentials: {
+		access_token?: string;
+	};
 };
 
 type CredentialResponse = {
@@ -27,8 +32,16 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
+			const { sub } = await validateAccessToken(
+				{
+					access_token: request.credentials.access_token,
+				},
+				config,
+			);
+
 			const { credentials } = await generateCredentials(
 				{
+					sub,
 					credential_configuration_ids: request.credential_configuration_ids,
 				},
 				config,
@@ -77,6 +90,7 @@ async function validateRequest(
 	const credential_configuration_ids =
 		expressRequest.body.credential_configuration_ids ||
 		(credential_configuration_id && [credential_configuration_id]);
+
 	if (!credential_configuration_ids?.length) {
 		throw new OauthError(
 			400,
@@ -85,7 +99,18 @@ async function validateRequest(
 		);
 	}
 
+	const credentials: CredentialRequest["credentials"] = {};
+
+	const authorizationHeaderCapture = /(DPoP|[b|B]earer) (.+)/.exec(
+		expressRequest.headers.authorization || "",
+	);
+
+	if (authorizationHeaderCapture) {
+		credentials.access_token = authorizationHeaderCapture[2];
+	}
+
 	return {
 		credential_configuration_ids,
+		credentials,
 	};
 }

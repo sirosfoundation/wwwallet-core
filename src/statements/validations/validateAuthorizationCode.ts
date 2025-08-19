@@ -18,7 +18,7 @@ export async function validateAuthorizationCode(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"authorization_code must be defined",
+			"authorization code must be defined",
 		);
 	}
 

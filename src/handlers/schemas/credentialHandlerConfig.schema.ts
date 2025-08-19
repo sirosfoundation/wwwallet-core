@@ -1,5 +1,7 @@
 export const credentialHandlerConfigSchema = {
 	type: "object",
-	properties: {},
-	required: [],
+	properties: {
+		secret: { type: "string" },
+	},
+	required: ["secret"],
 };
