@@ -26,7 +26,7 @@ describe("pushshed authorization request endpoint", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "pushed authorization requests requires a body",
+			error_description: "pushed authorization requests require a body",
 		});
 	});
 

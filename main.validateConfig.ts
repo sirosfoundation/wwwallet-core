@@ -2,6 +2,7 @@ import { exit } from "node:process";
 import { core } from "./main.container";
 import {
 	validateAuthorizeHandlerConfig,
+	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
@@ -12,6 +13,7 @@ import {
 
 try {
 	validateAuthorizeHandlerConfig(core.config);
+	validateCredentialHandlerConfig(core.config);
 	validateCredentialOfferHandlerConfig(core.config);
 	validateNonceHandlerConfig(core.config);
 	validateOauthAuthorizationServerHandlerConfig(core.config);

@@ -21,6 +21,9 @@ export const config = {
 			return authorizationServerState;
 		},
 		__authorizationServerState: null,
+		async resourceOwnerData(sub: string, vct: string) {
+			return { sub, vct };
+		},
 	},
 	clients: [
 		{
