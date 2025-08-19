@@ -3,7 +3,9 @@ import type { Config } from "./config";
 import {
 	type AuthorizeHandlerConfig,
 	authorizeHandlerFactory,
+	type CredentialHandlerConfig,
 	type CredentialOfferHandlerConfig,
+	credentialHandlerFactory,
 	credentialOfferHandlerFactory,
 	type NonceHandlerConfig,
 	nonceHandlerFactory,
@@ -16,6 +18,7 @@ import {
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
 	validateAuthorizeHandlerConfig,
+	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
@@ -72,6 +75,12 @@ export class Core {
 		validateTokenHandlerConfig(this.config);
 
 		return tokenHandlerFactory(this.config as TokenHandlerConfig);
+	}
+
+	get credential() {
+		validateCredentialHandlerConfig(this.config);
+
+		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
 	}
 
 	get credentialOffer() {
