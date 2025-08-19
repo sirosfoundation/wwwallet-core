@@ -42,14 +42,14 @@ export async function generateCredentials(
 		sub,
 		credentialConfiguration.vct,
 	)) as Claims;
-	const credential = await generateAndSign(claims);
+	const credential = await generateAndSign(claims, credentialConfiguration.vct);
 
 	return {
 		credentials: [{ credential }],
 	};
 }
 
-async function generateAndSign(claims: Claims) {
+async function generateAndSign(claims: Claims, vct?: string) {
 	const alg = "sha-256";
 
 	const disclosures = Object.keys(claims).map((key: string) => {
@@ -67,6 +67,7 @@ async function generateAndSign(claims: Claims) {
 				}),
 			),
 		),
+		vct,
 	};
 
 	const jwt = new Jwt({
