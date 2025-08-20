@@ -2,6 +2,7 @@ import { EncryptJWT } from "jose";
 import type { OauthClient, OauthScope } from "../../resources";
 
 export type GenerateAccessTokenParams = {
+	authorization_code?: string;
 	client: OauthClient;
 	scope: OauthScope;
 	sub?: string;
@@ -14,7 +15,12 @@ export type GenerateAccessTokenConfig = {
 };
 
 export async function generateAccessToken(
-	{ client, sub: requestedSub, scope }: GenerateAccessTokenParams,
+	{
+		authorization_code,
+		client,
+		sub: requestedSub,
+		scope,
+	}: GenerateAccessTokenParams,
 	config: GenerateAccessTokenConfig,
 ) {
 	const sub = requestedSub || client.id;
@@ -23,6 +29,7 @@ export async function generateAccessToken(
 	const secret = new TextEncoder().encode(config.secret);
 
 	const access_token = await new EncryptJWT({
+		previous_code: authorization_code,
 		token_type: "access_token",
 		client_id: client.id,
 		sub,

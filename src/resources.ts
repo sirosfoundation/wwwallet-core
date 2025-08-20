@@ -65,3 +65,20 @@ export type AuthorizationRequest = {
 	code_challenge_method?: string;
 	issuer_state?: string;
 };
+
+export type AccessToken = {
+	token_type: "access_token";
+	previous_code?: string;
+	access_token?: string;
+	client_id: string;
+	sub: string;
+	scope: string;
+};
+
+export type AuthorizationCode = {
+	token_type: "authorization_code";
+	authorization_code?: string;
+	redirect_uri: string;
+	sub: string;
+	scope: string;
+};

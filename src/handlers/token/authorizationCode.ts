@@ -45,19 +45,17 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
-	const {
-		authorization_code: _authorization_code,
-		sub,
-		scope,
-	} = await validateAuthorizationCode(
+	const { authorization_code, sub, scope } = await validateAuthorizationCode(
 		{
 			authorization_code: request.code,
+			redirect_uri: request.redirect_uri,
 		},
 		config,
 	);
 
 	const { access_token, expires_in } = await generateAccessToken(
 		{
+			authorization_code,
 			client,
 			scope,
 			sub,

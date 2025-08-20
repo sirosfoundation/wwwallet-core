@@ -1,5 +1,6 @@
 import { jwtDecrypt } from "jose";
 import { OauthError } from "../../errors";
+import type { AccessToken } from "../../resources";
 
 type validateAccessTokenParams = {
 	access_token: string | undefined;
@@ -21,7 +22,7 @@ export async function validateAccessToken(
 	try {
 		const {
 			payload: { token_type, client_id, sub, scope },
-		} = await jwtDecrypt<{ sub: string; scope: string }>(
+		} = await jwtDecrypt<AccessToken>(
 			access_token,
 			new TextEncoder().encode(config.secret),
 		);

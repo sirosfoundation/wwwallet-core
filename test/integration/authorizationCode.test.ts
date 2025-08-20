@@ -342,6 +342,38 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with invalid redirect uri", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			redirect_uri: "http://invalid.uri",
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
 	it("returns a token", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
@@ -350,7 +382,11 @@ describe("authorization code - token", () => {
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(core.config.secret);
-		const code = await new EncryptJWT({ sub, token_type: "authorization_code" })
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			redirect_uri,
+		})
 			.setProtectedHeader({
 				alg: "dir",
 				enc: core.config.token_encryption || "",
@@ -375,5 +411,47 @@ describe("authorization code - token", () => {
 
 		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
 		expect(payload.sub).to.eq(sub);
+	});
+
+	it("returns a token with a scope", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const scope = "scope";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			token_type: "authorization_code",
+			redirect_uri,
+			sub,
+			scope,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(200);
+		assert(response.body.access_token);
+		assert(response.body.expires_in);
+		expect(response.body.token_type).to.eq("bearer");
+
+		const { payload } = await jwtDecrypt(
+			response.body.access_token,
+			new TextEncoder().encode(core.config.secret),
+		);
+
+		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		expect(payload.sub).to.eq(sub);
+		expect(payload.scope).to.eq(scope);
 	});
 });
