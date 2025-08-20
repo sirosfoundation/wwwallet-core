@@ -95,7 +95,7 @@ export class Core {
 export const defaultConfig = {
 	logger: console,
 	clients: [],
-	access_token_ttl: 3600 * 2,
+	access_token_ttl: 60,
 	pushed_authorization_request_ttl: 300,
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,
