@@ -91,7 +91,11 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				);
 
 				const { authorization_code } = await generateAuthorizationCode(
-					{ resource_owner, scope },
+					{
+						redirect_uri: authorization_request.redirect_uri,
+						resource_owner,
+						scope,
+					},
 					config,
 				);
 

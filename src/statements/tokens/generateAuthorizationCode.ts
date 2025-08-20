@@ -3,6 +3,7 @@ import { OauthError } from "../../errors";
 import type { ResourceOwner } from "../../resources";
 
 export type GenerateAuthorizationCodeParams = {
+	redirect_uri: string;
 	resource_owner: ResourceOwner;
 	scope: string;
 };
@@ -14,7 +15,7 @@ export type GenerateAuthorizationCodeConfig = {
 };
 
 export async function generateAuthorizationCode(
-	{ resource_owner, scope }: GenerateAuthorizationCodeParams,
+	{ redirect_uri, resource_owner, scope }: GenerateAuthorizationCodeParams,
 	config: GenerateAuthorizationCodeConfig,
 ) {
 	if (!resource_owner.sub) {
@@ -31,6 +32,7 @@ export async function generateAuthorizationCode(
 
 	const authorization_code = await new EncryptJWT({
 		token_type: "authorization_code",
+		redirect_uri,
 		sub: resource_owner.sub,
 		scope,
 	})

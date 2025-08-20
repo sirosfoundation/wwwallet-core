@@ -136,7 +136,7 @@ describe("authorization code - authenticate", () => {
 
 		it.skip("returns an error with invalid issuer state");
 
-		it("returns with a valid request uri", async () => {
+		it("returns a code with a valid request uri", async () => {
 			const response_type = "code";
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
@@ -163,6 +163,18 @@ describe("authorization code - authenticate", () => {
 			expect(response.headers.location).toMatch(redirect_uri);
 			expect(response.headers.location).toMatch(/code=.+/);
 			expect(response.headers.location).toMatch(/state=.+/);
+
+			const [_all, authorization_code] =
+				/code=([^&]+)/.exec(response.headers.location) || [];
+
+			const { payload } = await jwtDecrypt(
+				authorization_code,
+				new TextEncoder().encode(core.config.secret),
+			);
+
+			expect(payload.scope).to.eq(scope);
+			expect(payload.sub).to.eq("sub");
+			expect(payload.redirect_uri).to.eq(redirect_uri);
 		});
 	});
 
