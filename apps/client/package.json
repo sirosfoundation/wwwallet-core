@@ -5,14 +5,16 @@
 		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts",
 		"config:validate": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./validateConfig.ts"
 	},
+	"devDependencies": {
+		"@types/express": "^5.0.3",
+		"@types/morgan": "^1.9.10",
+		"@types/yaml": "^1.9.6"
+	},
 	"dependencies": {
 		"@wwwallet/core": "link:../../packages/core",
 		"@sd-jwt/core": "^0.14.1",
 		"@sd-jwt/crypto-nodejs": "^0.14.0",
 		"@sd-jwt/utils": "^0.14.0",
-		"@types/express": "^5.0.3",
-		"@types/morgan": "^1.9.10",
-		"@types/yaml": "^1.9.6",
 		"ajv": "^8.17.1",
 		"express": "^5.1.0",
 		"express-handlebars": "^8.0.3",
