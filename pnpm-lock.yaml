@@ -56,9 +56,6 @@ importers:
       '@wwwallet/core':
         specifier: link:../../packages/core
         version: link:../../packages/core
-      ajv:
-        specifier: ^8.17.1
-        version: 8.17.1
       express:
         specifier: ^5.1.0
         version: 5.1.0
@@ -80,9 +77,6 @@ importers:
       morgan:
         specifier: ^1.10.1
         version: 1.10.1
-      qrcode:
-        specifier: ^1.5.4
-        version: 1.5.4
       ts-deepmerge:
         specifier: ^7.0.3
         version: 7.0.3
