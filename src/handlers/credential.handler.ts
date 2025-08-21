@@ -3,7 +3,11 @@ import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { CredentialConfiguration } from "../resources";
-import { generateCredentials, validateAccessToken } from "../statements";
+import {
+	generateCredentials,
+	validateAccessToken,
+	validateDpop,
+} from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -21,6 +25,11 @@ type CredentialRequest = {
 	credential_configuration_ids: Array<string>;
 	credentials: {
 		access_token?: string;
+		dpop?: string | string[];
+	};
+	dpopRequest: {
+		method: string;
+		uri: string;
 	};
 };
 
@@ -38,9 +47,18 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
-			const { sub } = await validateAccessToken(
+			const { sub, access_token } = await validateAccessToken(
 				{
 					access_token: request.credentials.access_token,
+				},
+				config,
+			);
+
+			await validateDpop(
+				{
+					access_token,
+					dpopRequest: request.dpopRequest,
+					dpop: request.credentials.dpop,
 				},
 				config,
 			);
@@ -115,8 +133,16 @@ async function validateRequest(
 		credentials.access_token = authorizationHeaderCapture[2];
 	}
 
+	credentials.dpop = expressRequest.headers.dpop;
+
+	const dpopRequest = {
+		method: expressRequest.method,
+		uri: expressRequest.originalUrl,
+	};
+
 	return {
 		credential_configuration_ids,
 		credentials,
+		dpopRequest,
 	};
 }

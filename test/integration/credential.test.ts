@@ -1,4 +1,7 @@
-import { EncryptJWT } from "jose";
+import crypto from "node:crypto";
+import { SDJwt } from "@sd-jwt/core";
+import { digest as hasher } from "@sd-jwt/crypto-nodejs";
+import { EncryptJWT, exportJWK, generateKeyPair, SignJWT } from "jose";
 import request from "supertest";
 import { assert, beforeEach, describe, expect, it } from "vitest";
 import { app, core } from "../support/app";
@@ -95,65 +98,405 @@ describe("credential endpoint", () => {
 				.encrypt(secret);
 		});
 
-		it("returns empty credential list with unknown credential configuration id", async () => {
+		it("returns an error without dpop", async () => {
 			const credential_configuration_id = "unknwown:configuration:id";
 			const response = await request(app)
 				.post("/credential")
 				.set("Authorization", `DPoP ${access_token}`)
 				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(404);
+			expect(response.status).toBe(400);
 			expect(response.body).to.deep.eq({
-				error: "invalid_credential",
-				error_description: "credential not found",
+				error: "invalid_request",
+				error_description: "request requires a dpop value",
 			});
 		});
 
-		it("returns empty credential list with unknown credential configuration ids", async () => {
-			const credential_configuration_ids = ["unknwown:configuration:id"];
+		it("returns an error with more than one dpop header", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const dpop = "invalid jwt";
 			const response = await request(app)
 				.post("/credential")
 				.set("Authorization", `DPoP ${access_token}`)
-				.send({ credential_configuration_ids });
+				.set("DPoP", dpop)
+				.set("DPoP", "other")
+				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(404);
+			expect(response.status).toBe(400);
 			expect(response.body).to.deep.eq({
-				error: "invalid_credential",
-				error_description: "credential not found",
+				error: "invalid_request",
+				error_description: "dpop jwt header is invalid",
 			});
 		});
 
-		it("returns credentials with DPoP token type", async () => {
-			const credential_configuration_id = "full";
+		it("returns an error with an invalid dpop jwt", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const dpop = "invalid jwt";
 			const response = await request(app)
 				.post("/credential")
 				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
 				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(200);
-			assert(response.body.credentials[0].credential);
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "dpop jwt header is invalid",
+			});
 		});
 
-		it("returns credentials with bearer token type", async () => {
-			const credential_configuration_id = "full";
+		it("returns an error with an invalid dpop jwt header (typ)", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const dpop = await new SignJWT({})
+				.setProtectedHeader({ alg: "HS256" })
+				.sign(new TextEncoder().encode("secret"));
+
 			const response = await request(app)
 				.post("/credential")
-				.set("Authorization", `bearer ${access_token}`)
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
 				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(200);
-			assert(response.body.credentials[0].credential);
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "dpop jwt typ header must have dpop+jwt value",
+			});
 		});
 
-		it("returns credentials with Bearer token type", async () => {
-			const credential_configuration_id = "full";
+		it("returns an error with an invalid dpop jwt header (alg)", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const dpop = await new SignJWT({})
+				.setProtectedHeader({ typ: "dpop+jwt", alg: "HS256" })
+				.sign(new TextEncoder().encode("secret"));
+
 			const response = await request(app)
 				.post("/credential")
-				.set("Authorization", `Bearer ${access_token}`)
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
 				.send({ credential_configuration_id });
 
-			expect(response.status).toBe(200);
-			assert(response.body.credentials[0].credential);
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "jwk is missing from dpop jwt header",
+			});
+		});
+
+		it("returns an error with an invalid dpop jwt header (jwt signing key)", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey } = await generateKeyPair("ES256");
+			const dpop = await new SignJWT({})
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "HS256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(new TextEncoder().encode("secret"));
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "dpop jwt must be signed with an asymetric key",
+			});
+		});
+
+		it("returns an error with an invalid dpop jwt signature", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey: otherPublicKey } = await generateKeyPair("ES256");
+			const { privateKey } = await generateKeyPair("ES256");
+			const dpop = await new SignJWT({})
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(otherPublicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "invalid dpop jwt",
+			});
+		});
+
+		it("returns an error with an invalid dpop jwt payload", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "jti claim is missing in dpop jwt payload",
+			});
+		});
+
+		it("returns an error with an invalid dpop htm value", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {
+				jti: "jti",
+				htm: "htm",
+				htu: "htu",
+				iat: Math.floor(Date.now() / 1000),
+				ath: "ath",
+			};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "invalid dpop htm value",
+			});
+		});
+
+		it("returns an error with an invalid dpop htu value", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {
+				jti: "jti",
+				htm: "POST",
+				htu: "htu",
+				iat: Math.floor(Date.now() / 1000),
+				ath: "ath",
+			};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "invalid dpop htu value",
+			});
+		});
+
+		it("returns an error with an invalid dpop htu value (query params)", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {
+				jti: "jti",
+				htm: "POST",
+				htu: "http://localhost:5000/credential",
+				iat: Math.floor(Date.now() / 1000),
+				ath: "ath",
+			};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential?test=true")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "invalid dpop htu value",
+			});
+		});
+
+		it("returns an error with an invalid dpop ath value", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {
+				jti: "jti",
+				htm: "POST",
+				htu: "http://localhost:5000/credential",
+				iat: Math.floor(Date.now() / 1000),
+				ath: "ath",
+			};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "invalid dpop ath value",
+			});
+		});
+
+		describe("with a valid dpop header", () => {
+			let dpop: string;
+			beforeEach(async () => {
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const ath = crypto
+					.createHash("sha256")
+					.update(access_token)
+					.digest("base64url");
+				const claims = {
+					jti: "jti",
+					htm: "POST",
+					htu: "http://localhost:5000/credential",
+					iat: Math.floor(Date.now() / 1000),
+					ath,
+				};
+				dpop = await new SignJWT(claims)
+					.setProtectedHeader({
+						typ: "dpop+jwt",
+						alg: "ES256",
+						jwk: await exportJWK(publicKey),
+					})
+					.sign(privateKey);
+			});
+
+			it("returns empty credential list with unknown credential configuration id", async () => {
+				const credential_configuration_id = "unknwown:configuration:id";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(404);
+				expect(response.body).to.deep.eq({
+					error: "invalid_credential",
+					error_description: "credential not found",
+				});
+			});
+
+			it("returns empty credential list with unknown credential configuration ids", async () => {
+				const credential_configuration_ids = ["unknwown:configuration:id"];
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_ids });
+
+				expect(response.status).toBe(404);
+				expect(response.body).to.deep.eq({
+					error: "invalid_credential",
+					error_description: "credential not found",
+				});
+			});
+
+			it("returns credentials with DPoP token type", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(200);
+				assert(response.body.credentials[0].credential);
+
+				const credential = response.body.credentials[0].credential;
+				const sdjwt = await SDJwt.fromEncode(credential, hasher);
+				const claims = await sdjwt.getClaims(hasher);
+				expect(claims).to.deep.eq({
+					iss: "http://localhost:5000",
+					sub: "sub",
+					vct: "urn:test:full",
+				});
+			});
+
+			it("returns credentials with bearer token type", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(200);
+				assert(response.body.credentials[0].credential);
+
+				const credential = response.body.credentials[0].credential;
+				const sdjwt = await SDJwt.fromEncode(credential, hasher);
+				const claims = await sdjwt.getClaims(hasher);
+				expect(claims).to.deep.eq({
+					iss: "http://localhost:5000",
+					sub: "sub",
+					vct: "urn:test:full",
+				});
+			});
+
+			it("returns credentials with Bearer token type", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(200);
+				assert(response.body.credentials[0].credential);
+
+				const credential = response.body.credentials[0].credential;
+				const sdjwt = await SDJwt.fromEncode(credential, hasher);
+				const claims = await sdjwt.getClaims(hasher);
+				expect(claims).to.deep.eq({
+					iss: "http://localhost:5000",
+					sub: "sub",
+					vct: "urn:test:full",
+				});
+			});
 		});
 	});
 });
