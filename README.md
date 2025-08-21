@@ -8,12 +8,12 @@ npm ci
 
 ### Configuration
 
-Server static configuration can be edited given the example `main.config.ts` [file](main.config.ts).
+Server static configuration can be edited given the example `config.ts` [file](./apps/client/config.ts).
 
 ## Run a development server
 
 ```sh
-$ npm start
+$ pnpm start
 ```
 
 OR
@@ -36,7 +36,14 @@ $ curl -X POST http://localhost:5000/token \
 ## Run tests
 
 ```sh
-$ npm run test
+$ pnpm test
+```
+
+## Running pnpm commands for a individual package
+```sh
+$ pnpm --filter [PACKAGE NAME] [COMMAND ...]
+# Example:
+# pnpm --filter @wwwallet/core add -D vitest
 ```
 
 ## Dependency tree
