@@ -1,0 +1,227 @@
+import fs from "node:fs";
+import path from "node:path";
+import express from "express";
+import {
+	type AuthorizationServerState,
+	Core,
+	type ResourceOwner,
+	validateAuthorizeHandlerConfig,
+	validateCredentialHandlerConfig,
+	validateCredentialOfferHandlerConfig,
+	validateNonceHandlerConfig,
+	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidCredentialIssuerHandlerConfig,
+	validatePushedAuthorizationRequestHandlerConfig,
+	validateTokenHandlerConfig,
+} from "../../src";
+
+export function server(core: Core) {
+	const app = express();
+
+	app.use(express.json());
+	app.use(express.urlencoded());
+
+	app.get("/", (_req, res) => {
+		res.redirect("/offer/select-a-credential");
+	});
+
+	app.get("/healthz", (_req, res) => {
+		try {
+			// trigger handlers configuration validation
+			validateAuthorizeHandlerConfig(core.config);
+			validateCredentialHandlerConfig(core.config);
+			validateCredentialOfferHandlerConfig(core.config);
+			validateNonceHandlerConfig(core.config);
+			validateOauthAuthorizationServerHandlerConfig(core.config);
+			validateOpenidCredentialIssuerHandlerConfig(core.config);
+			validatePushedAuthorizationRequestHandlerConfig(core.config);
+			validateTokenHandlerConfig(core.config);
+
+			res.status(200).send("ok");
+		} catch (error) {
+			res.status(500).send((error as Error).message);
+		}
+	});
+
+	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
+		const response = await core.oauthAuthorizationServer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
+		const response = await core.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/nonce", async (req, res) => {
+		const response = await core.nonce(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/pushed-authorization-request", async (req, res) => {
+		const response = await core.pushedAuthorizationRequest(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/authorize", async (req, res) => {
+		const response = await core.authorize(req);
+
+		if (response.status === 302) {
+			return res.redirect(response.location);
+		}
+
+		const credentialConfigurations =
+			core.config.supported_credential_configurations?.filter(
+				(configuration) => {
+					if (response.status === 200) {
+						return response.data.authorizationRequest.scope
+							?.split(" ")
+							.includes(configuration.scope);
+					}
+				},
+			) || [];
+
+		return res.status(response.status).send({
+			data: {
+				credentialConfigurations,
+				...response.data,
+			},
+		});
+	});
+
+	app.post("/authorize", async (req, res) => {
+		let resourceOwner: ResourceOwner | null;
+		const authenticationError: {
+			error?: Error;
+			errorMessage?: string;
+		} = {};
+
+		const { username, password } = req.body || {};
+
+		if (username === "wwwallet" && password === "tellawww") {
+			resourceOwner = { sub: "sub", username };
+		} else {
+			resourceOwner = null;
+			authenticationError.error = new Error("invalid credentials");
+			authenticationError.errorMessage = "invalid username or password";
+		}
+
+		const response = await core.authorize(req, resourceOwner);
+
+		if (response.status === 302) {
+			return res.redirect(response.location);
+		}
+
+		const credentialConfigurations =
+			core.config.supported_credential_configurations?.filter(
+				(configuration) => {
+					if (response.status === 200) {
+						return response.data.authorizationRequest.scope
+							?.split(" ")
+							.includes(configuration.scope);
+					}
+				},
+			) || [];
+
+		return res.status(response.status).send({
+			data: {
+				credentialConfigurations,
+				...authenticationError,
+				...response.data,
+			},
+		});
+	});
+
+	app.post("/token", async (req, res) => {
+		const response = await core.token(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/credential", async (req, res) => {
+		const response = await core.credential(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/offer/:scope", async (req, res) => {
+		const response = await core.credentialOffer(req);
+
+		if (req.get("accept")?.match("application/json")) {
+			return res.status(response.status).send(response.body);
+		}
+
+		if (req.get("accept")?.match("text/html")) {
+			return res.status(response.status).send({
+				data: {
+					supportedCredentialConfigurations:
+						core.config.supported_credential_configurations,
+					...response.data,
+				},
+			});
+		}
+
+		return res.status(400).send({
+			error: "invalid_request",
+			error_description: "accept header is missing from request",
+		});
+	});
+
+	return app;
+}
+
+export const config = {
+	logger: {
+		error: (_message: string) => {},
+		info: (_message: string) => {},
+		warn: (_message: string) => {},
+		debug: (_message: string) => {},
+	},
+	issuer_url: "http://localhost:5000",
+	wallet_url: "http://localhost:3000",
+	databaseOperations: {
+		async insertAuthorizationServerState(
+			authorizationServerState: AuthorizationServerState,
+		) {
+			this.__authorizationServerState = authorizationServerState;
+			return authorizationServerState;
+		},
+		__authorizationServerState: null,
+		async resourceOwnerData(sub: string, vct: string) {
+			return { sub, vct };
+		},
+	},
+	clients: [
+		{
+			id: "id",
+			secret: "secret",
+			scopes: ["client:scope"],
+			redirect_uris: ["http://redirect.uri"],
+		},
+	],
+	issuer_display: [{ name: "Test issuer" }],
+	secret: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+	access_token_ttl: 3600 * 2,
+	issuer_client: {
+		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
+	},
+	supported_credential_configurations: [
+		"./credential_configurations/full.sd-jwt.json",
+		"./credential_configurations/full.mso_mdoc.json",
+	].map((credentialConfigurationPath) => {
+		const credential = fs
+			.readFileSync(path.join(__dirname, credentialConfigurationPath))
+			.toString();
+
+		return JSON.parse(credential);
+	}),
+};
+
+export const core = new Core(config);
+
+export const app = server(core);
