@@ -1,7 +1,4 @@
-import express from "express";
-import { engine } from "express-handlebars";
-import Handlebars from "handlebars";
-import morgan from "morgan";
+import path from "node:path";
 import {
 	type Core,
 	type ResourceOwner,
@@ -13,7 +10,11 @@ import {
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
-} from "./src";
+} from "@wwwallet/core";
+import express from "express";
+import { engine } from "express-handlebars";
+import Handlebars from "handlebars";
+import morgan from "morgan";
 
 export function server(core: Core) {
 	const app = express();
@@ -26,9 +27,9 @@ export function server(core: Core) {
 	Handlebars.registerHelper("equals", (a: unknown, b: unknown) => a === b);
 	app.engine("handlebars", engine());
 	app.set("view engine", "handlebars");
-	app.set("views", "./views");
+	app.set("views", path.join(__dirname, "views"));
 
-	app.use(express.static("public"));
+	app.use(express.static(path.join(__dirname, "public")));
 
 	app.get("/", (_req, res) => {
 		res.redirect("/offer/select-a-credential");

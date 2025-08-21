@@ -1,8 +1,7 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { server } from "../../app";
 import { Core } from "../../src";
-import { app } from "../support/app";
+import { app, server } from "../support/app";
 
 describe("hello world", () => {
 	it("renders", async () => {

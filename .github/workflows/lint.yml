@@ -6,15 +6,15 @@ jobs:
   test:
     strategy:
       matrix:
-        node-version: ['22.x']
+        pnpm-version: ['10.15.0']
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+    - name: Setup pnpm ${{ matrix.pnpm-version }}
+      uses: pnpm/action-setup@v3
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - run: npm run biome:ci
+        version: ${{ matrix.pnpm-version }}
+    - run: pnpm install --frozen-lockfile
+    - run: pnpm run biome:ci
