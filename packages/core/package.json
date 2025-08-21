@@ -11,7 +11,7 @@
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.3",
-		"vitest": "^3.2.4"
+		"@types/qrcode": "^1.5.5"
 	},
 	"dependencies": {
 		"@sd-jwt/core": "^0.14.1",

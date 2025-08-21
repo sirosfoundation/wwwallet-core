@@ -3,7 +3,7 @@ import path from "node:path";
 import type { AuthorizationServerState, Config } from "@wwwallet/core";
 import { merge } from "ts-deepmerge";
 import { parse } from "yaml";
-import { Logger } from "./main.logger";
+import { Logger } from "./logger";
 
 const logger = new Logger("info");
 

@@ -9,7 +9,7 @@ import {
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "@wwwallet/core";
-import { core } from "./main.container";
+import { core } from "./container";
 
 try {
 	validateAuthorizeHandlerConfig(core.config);
