@@ -1,7 +1,7 @@
+import { Core } from "@wwwallet/core";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { server } from "../../app";
-import { Core } from "../../src";
 import { app } from "../support/app";
 
 describe("hello world", () => {

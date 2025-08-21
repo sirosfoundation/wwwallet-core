@@ -24,6 +24,7 @@
 		"vitest": "^3.2.4"
 	},
 	"dependencies": {
+		"@wwwallet/core": "link:./packages/core",
 		"@sd-jwt/core": "^0.14.1",
 		"@sd-jwt/crypto-nodejs": "^0.14.0",
 		"@sd-jwt/utils": "^0.14.0",

@@ -1,6 +1,6 @@
+import { Core } from "@wwwallet/core";
 import { Container } from "inversify";
 import { config } from "./main.config";
-import { Core } from "./src";
 
 const container = new Container();
 

@@ -1,7 +1,3 @@
-import express from "express";
-import { engine } from "express-handlebars";
-import Handlebars from "handlebars";
-import morgan from "morgan";
 import {
 	type Core,
 	type ResourceOwner,
@@ -13,7 +9,11 @@ import {
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
-} from "./src";
+} from "@wwwallet/core";
+import express from "express";
+import { engine } from "express-handlebars";
+import Handlebars from "handlebars";
+import morgan from "morgan";
 
 export function server(core: Core) {
 	const app = express();

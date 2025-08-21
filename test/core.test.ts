@@ -1,5 +1,5 @@
+import { Core } from "@wwwallet/core";
 import { assert, describe, expect, it } from "vitest";
-import { Core } from "../src";
 
 describe("validate configurations schema", () => {
 	it("token", () => {

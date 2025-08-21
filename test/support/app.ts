@@ -1,8 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { type AuthorizationServerState, Core } from "@wwwallet/core";
 import { server } from "../../app";
-import { Core } from "../../src";
-import type { AuthorizationServerState } from "../../src/resources";
 
 export const config = {
 	logger: {

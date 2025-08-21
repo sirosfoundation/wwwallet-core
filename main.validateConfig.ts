@@ -1,5 +1,4 @@
 import { exit } from "node:process";
-import { core } from "./main.container";
 import {
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
@@ -9,7 +8,8 @@ import {
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
-} from "./src";
+} from "@wwwallet/core";
+import { core } from "./main.container";
 
 try {
 	validateAuthorizeHandlerConfig(core.config);

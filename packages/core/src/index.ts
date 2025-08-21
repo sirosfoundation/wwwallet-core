@@ -10,4 +10,4 @@ export {
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
-export { ResourceOwner } from "./resources";
+export type { AuthorizationServerState, ResourceOwner } from "./resources";
