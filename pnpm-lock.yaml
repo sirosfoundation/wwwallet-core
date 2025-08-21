@@ -81,6 +81,9 @@ importers:
       '@types/yaml':
         specifier: ^1.9.6
         version: 1.9.7
+      madge:
+        specifier: ^8.0.0
+        version: 8.0.0(typescript@5.9.2)
 
   packages/core:
     dependencies:
@@ -115,6 +118,9 @@ importers:
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5
+      madge:
+        specifier: ^8.0.0
+        version: 8.0.0(typescript@5.9.2)
 
 packages:
 
