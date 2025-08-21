@@ -12,15 +12,11 @@
 	},
 	"dependencies": {
 		"@wwwallet/core": "link:../../packages/core",
-		"@sd-jwt/core": "^0.14.1",
-		"@sd-jwt/crypto-nodejs": "^0.14.0",
-		"@sd-jwt/utils": "^0.14.0",
 		"express": "^5.1.0",
 		"express-handlebars": "^8.0.3",
 		"express-list-routes": "^1.3.1",
 		"handlebars": "^4.7.8",
 		"inversify": "^7.6.1",
-		"jose": "^6.0.12",
 		"morgan": "^1.10.1",
 		"ts-deepmerge": "^7.0.3",
 		"yaml": "^2.8.1"

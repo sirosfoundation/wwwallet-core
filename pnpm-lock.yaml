@@ -44,15 +44,6 @@ importers:
 
   apps/client:
     dependencies:
-      '@sd-jwt/core':
-        specifier: ^0.14.1
-        version: 0.14.1
-      '@sd-jwt/crypto-nodejs':
-        specifier: ^0.14.0
-        version: 0.14.0
-      '@sd-jwt/utils':
-        specifier: ^0.14.0
-        version: 0.14.0
       '@wwwallet/core':
         specifier: link:../../packages/core
         version: link:../../packages/core
@@ -71,9 +62,6 @@ importers:
       inversify:
         specifier: ^7.6.1
         version: 7.9.0(reflect-metadata@0.2.2)
-      jose:
-        specifier: ^6.0.12
-        version: 6.0.12
       morgan:
         specifier: ^1.10.1
         version: 1.10.1
