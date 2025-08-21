@@ -48,4 +48,12 @@ $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 
 ## Dependency tree
 
-![dependency tree](images/dependency-tree.svg)
+### Client application
+
+![dependency tree](images/apps-client-dependency-tree.svg)
+
+---
+
+### Core package
+
+![dependency tree](images/packages-core-dependency-tree.svg)

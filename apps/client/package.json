@@ -3,12 +3,14 @@
 	"private": true,
 	"scripts": {
 		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts",
-		"config:validate": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./validateConfig.ts"
+		"config:validate": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./validateConfig.ts",
+		"dependency-tree": "madge --image ../../images/apps-client-dependency-tree.svg ./main.ts"
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.3",
 		"@types/morgan": "^1.9.10",
-		"@types/yaml": "^1.9.6"
+		"@types/yaml": "^1.9.6",
+		"madge": "^8.0.0"
 	},
 	"dependencies": {
 		"@wwwallet/core": "link:../../packages/core",

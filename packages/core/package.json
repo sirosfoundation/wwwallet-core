@@ -9,9 +9,13 @@
 			"types": "./src/index.ts"
 		}
 	},
+	"scripts": {
+		"dependency-tree": "madge --image ../../images/packages-core-dependency-tree.svg ./src/index.ts"
+	},
 	"devDependencies": {
 		"@types/express": "^5.0.3",
-		"@types/qrcode": "^1.5.5"
+		"@types/qrcode": "^1.5.5",
+		"madge": "^8.0.0"
 	},
 	"dependencies": {
 		"@sd-jwt/core": "^0.14.1",
