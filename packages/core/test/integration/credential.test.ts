@@ -83,12 +83,19 @@ describe("credential endpoint", () => {
 	});
 
 	describe("with a valid access token", () => {
+		const client_id = "id";
 		const sub = "sub";
+		const scope = "full:scope";
 		let access_token: string;
 		beforeEach(async () => {
 			const secret = new TextEncoder().encode(core.config.secret);
 			const now = Date.now() / 1000;
-			access_token = await new EncryptJWT({ sub, token_type: "access_token" })
+			access_token = await new EncryptJWT({
+				client_id,
+				sub,
+				token_type: "access_token",
+				scope,
+			})
 				.setProtectedHeader({
 					alg: "dir",
 					enc: core.config.token_encryption || "",
@@ -495,6 +502,132 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+				});
+			});
+		});
+	});
+
+	describe("with an unprelivegied access token (scope)", () => {
+		const client_id = "id";
+		const sub = "sub";
+		let access_token: string;
+		beforeEach(async () => {
+			const secret = new TextEncoder().encode(core.config.secret);
+			const now = Date.now() / 1000;
+			access_token = await new EncryptJWT({
+				client_id,
+				sub,
+				token_type: "access_token",
+			})
+				.setProtectedHeader({
+					alg: "dir",
+					enc: core.config.token_encryption || "",
+				})
+				.setIssuedAt()
+				.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+				.encrypt(secret);
+		});
+
+		describe("with a valid dpop header", () => {
+			let dpop: string;
+			beforeEach(async () => {
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const ath = crypto
+					.createHash("sha256")
+					.update(access_token)
+					.digest("base64url");
+				const claims = {
+					jti: "jti",
+					htm: "POST",
+					htu: "http://localhost:5000/credential",
+					iat: Math.floor(Date.now() / 1000),
+					ath,
+				};
+				dpop = await new SignJWT(claims)
+					.setProtectedHeader({
+						typ: "dpop+jwt",
+						alg: "ES256",
+						jwk: await exportJWK(publicKey),
+					})
+					.sign(privateKey);
+			});
+
+			it("returns a not found error", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(404);
+				expect(response.body).to.deep.eq({
+					error: "invalid_credential",
+					error_description: "credential not found",
+				});
+			});
+		});
+	});
+
+	describe("with an unprelivegied access token (client)", () => {
+		const client_id = "other";
+		const scope = "full:scope";
+		const sub = "sub";
+		let access_token: string;
+		beforeEach(async () => {
+			const secret = new TextEncoder().encode(core.config.secret);
+			const now = Date.now() / 1000;
+			access_token = await new EncryptJWT({
+				client_id,
+				sub,
+				token_type: "access_token",
+				scope,
+			})
+				.setProtectedHeader({
+					alg: "dir",
+					enc: core.config.token_encryption || "",
+				})
+				.setIssuedAt()
+				.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+				.encrypt(secret);
+		});
+
+		describe("with a valid dpop header", () => {
+			let dpop: string;
+			beforeEach(async () => {
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const ath = crypto
+					.createHash("sha256")
+					.update(access_token)
+					.digest("base64url");
+				const claims = {
+					jti: "jti",
+					htm: "POST",
+					htu: "http://localhost:5000/credential",
+					iat: Math.floor(Date.now() / 1000),
+					ath,
+				};
+				dpop = await new SignJWT(claims)
+					.setProtectedHeader({
+						typ: "dpop+jwt",
+						alg: "ES256",
+						jwk: await exportJWK(publicKey),
+					})
+					.sign(privateKey);
+			});
+
+			it("returns a not found error", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id });
+
+				expect(response.status).toBe(404);
+				expect(response.body).to.deep.eq({
+					error: "invalid_credential",
+					error_description: "credential not found",
 				});
 			});
 		});

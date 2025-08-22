@@ -199,8 +199,14 @@ export const config = {
 		{
 			id: "id",
 			secret: "secret",
-			scopes: ["client:scope"],
+			scopes: ["full:scope", "client:scope"],
 			redirect_uris: ["http://redirect.uri"],
+		},
+		{
+			id: "other",
+			secret: "other",
+			scopes: ["other:scope"],
+			redirect_uris: ["http://other.uri"],
 		},
 	],
 	issuer_display: [{ name: "Test issuer" }],

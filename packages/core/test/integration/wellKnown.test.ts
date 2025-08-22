@@ -27,6 +27,7 @@ describe("well-known endpoints", () => {
 				"full:scope",
 				"full:scope:mso_mdoc",
 				"client:scope",
+				"other:scope",
 			],
 			token_endpoint: "http://localhost:5000/token",
 			token_endpoint_auth_methods_supported: ["none"],

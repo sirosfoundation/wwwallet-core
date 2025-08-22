@@ -75,6 +75,12 @@ export async function validateDpop(
 		if (accessTokenHash.digest("base64url") !== ath) {
 			throw new OauthError(400, "invalid_request", "invalid dpop ath value");
 		}
+
+		return {
+			htm,
+			htu,
+			ath,
+		};
 	} catch (error) {
 		if (error instanceof OauthError) {
 			throw error;
@@ -82,8 +88,6 @@ export async function validateDpop(
 
 		throw new OauthError(400, "invalid_request", "invalid dpop jwt");
 	}
-
-	return {};
 }
 
 async function validateDpopHeader(dpop: string) {
