@@ -7,3 +7,14 @@ services:
     restart: always
     ports:
       - 127.0.0.1:5000:5000
+
+  k6:
+    image: grafana/k6
+    container_name: k6
+    profiles:
+      - k6
+    volumes:
+      - ./scripts:/scripts
+    network_mode: host
+    command: run /scripts/loadtest.oid4vci.k6.js
+

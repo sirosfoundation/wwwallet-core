@@ -47,6 +47,13 @@ In order to perform load tests, here [k6](https://grafana.com/docs/k6/latest/set
 $ k6 run scripts/loadtest.oid4vci.k6.js
 ```
 
+Or with Docker:
+
+```sh
+$ docker compose up k6 --no-log-prefix
+```
+
+
 > __Note__: script is to be updated manually to perform successfull credential issuance (see the NOTE within the script)
 
 ## Running pnpm commands for a individual package
