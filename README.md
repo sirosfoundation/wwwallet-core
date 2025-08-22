@@ -16,7 +16,7 @@ Server static configuration can be edited given the example `config.ts` [file](.
 $ pnpm start
 ```
 
-OR
+Or with Docker:
 
 ```sh
 $ docker compose up
@@ -39,6 +39,23 @@ $ curl -X POST http://localhost:5000/token \
 $ pnpm test
 ```
 
+## Run load tests
+
+In order to perform load tests, here [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) is used to simulate user requests.
+
+```sh
+$ k6 run scripts/loadtest.oid4vci.k6.js
+```
+
+Or with Docker:
+
+```sh
+$ docker compose up k6 --no-log-prefix
+```
+
+
+> __Note__: script is to be updated manually to perform successfull credential issuance (see the NOTE within the script)
+
 ## Running pnpm commands for a individual package
 ```sh
 $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
@@ -47,6 +64,10 @@ $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 ```
 
 ## Dependency tree
+
+```sh
+$ pnpm dependency-tree
+```
 
 ### Client application
 
