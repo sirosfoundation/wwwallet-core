@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"scripts": {
-		"prepare": "husky",
+		"prepare": "sh -c 'if [ \"$CI\" != \"true\" ]; then husky; fi'",
 		"start": "pnpm --filter client start",
 		"config:validate": "pnpm --filter client config:validate",
 		"format": "biome format --write",
