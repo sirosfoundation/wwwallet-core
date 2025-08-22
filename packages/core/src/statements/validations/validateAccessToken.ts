@@ -1,12 +1,13 @@
 import { jwtDecrypt } from "jose";
 import { OauthError } from "../../errors";
-import type { AccessToken } from "../../resources";
+import type { AccessToken, OauthClient } from "../../resources";
 
 type validateAccessTokenParams = {
 	access_token: string | undefined;
 };
 
 export type ValidateAccessTokenConfig = {
+	clients: Array<OauthClient>;
 	secret: string;
 };
 
@@ -31,9 +32,19 @@ export async function validateAccessToken(
 			throw new OauthError(401, "invalid_request", "access token is invalid");
 		}
 
+		const client = config.clients.find(({ id }) => id === client_id);
+
+		if (!client) {
+			throw new OauthError(
+				401,
+				"invalid_request",
+				"access token oauth client could not be found",
+			);
+		}
+
 		return {
 			access_token,
-			client_id,
+			client,
 			sub,
 			scope,
 		};

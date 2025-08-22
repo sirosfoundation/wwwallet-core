@@ -2,10 +2,11 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import type { CredentialConfiguration } from "../resources";
+import type { CredentialConfiguration, OauthClient } from "../resources";
 import {
 	generateCredentials,
 	validateAccessToken,
+	validateCredentialConfigurations,
 	validateDpop,
 } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
@@ -17,6 +18,7 @@ export type CredentialHandlerConfig = {
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
+	clients: Array<OauthClient>;
 	secret: string;
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
@@ -47,7 +49,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 		try {
 			const request = await validateRequest(expressRequest);
 
-			const { sub, access_token } = await validateAccessToken(
+			const { sub, client, scope, access_token } = await validateAccessToken(
 				{
 					access_token: request.credentials.access_token,
 				},
@@ -63,10 +65,17 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
+			const { credential_configuration_ids } =
+				await validateCredentialConfigurations(
+					request.credential_configuration_ids,
+					{ client, scope },
+					config,
+				);
+
 			const { credentials } = await generateCredentials(
 				{
 					sub,
-					credential_configuration_ids: request.credential_configuration_ids,
+					credential_configuration_ids,
 				},
 				config,
 			);
