@@ -18,14 +18,14 @@ async function generateDpop(access_token) {
 		true,
 		["sign", "verify"],
 	);
-	const ath = sha256(access_token, "base64url");
+	const ath = sha256(access_token, "base64rawurl");
 
 	const header = {
 		typ: "dpop+jwt",
 		alg: "ES256",
 		jwk: await crypto.subtle.exportKey("jwk", publicKey),
 	};
-	const claims = {
+	const payload = {
 		jti: "jti",
 		htm: "POST",
 		htu: "http://localhost:5000/credential",
@@ -33,24 +33,24 @@ async function generateDpop(access_token) {
 		ath,
 	};
 
-	const payload =
+	const encodedJwt =
 		b64encode(JSON.stringify(header), "rawurl") +
 		"." +
-		b64encode(JSON.stringify(claims), "rawurl");
+		b64encode(JSON.stringify(payload), "rawurl");
 
 	const signature = await crypto.subtle.sign(
 		{ name: "ECDSA", hash: { name: "SHA-256" } },
 		privateKey,
-		string2ArrayBuffer(payload),
+		string2ArrayBuffer(encodedJwt),
 	);
 
-	return `${payload}.${b64encode(signature, "rawurl")}`;
+	return `${encodedJwt}.${b64encode(signature, "rawurl")}`;
 }
 
 // from k6 documentation
 function string2ArrayBuffer(str) {
-	const buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-	const bufView = new Uint16Array(buf);
+	const buf = new ArrayBuffer(str.length);
+	const bufView = new Uint8Array(buf);
 	for (let i = 0, strLen = str.length; i < strLen; i++) {
 		bufView[i] = str.charCodeAt(i);
 	}
@@ -150,6 +150,6 @@ export default async function () {
 	);
 
 	check(credential, {
-		"credential is status 400": (r) => r.status === 400,
+		"credential is status 200": (r) => r.status === 200,
 	});
 }
