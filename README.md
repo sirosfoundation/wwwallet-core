@@ -53,9 +53,6 @@ Or with Docker:
 $ docker compose up k6 --no-log-prefix
 ```
 
-
-> __Note__: script is to be updated manually to perform successfull credential issuance (see the NOTE within the script)
-
 ## Running pnpm commands for a individual package
 ```sh
 $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
