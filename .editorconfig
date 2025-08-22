@@ -12,6 +12,7 @@ quote_type = double
 
 [*.{yml,yaml}]
 indent_style = space
+indent_size = 2
 
 [*.md]
 trim_trailing_whitespace = false
