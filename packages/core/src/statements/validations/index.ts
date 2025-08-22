@@ -4,6 +4,7 @@ export * from "./validateClientCredentials";
 export * from "./validateCredentialConfigurations";
 export * from "./validateDpop";
 export * from "./validateIssuerState";
+export * from "./validateProofs";
 export * from "./validateRequestUri";
 export * from "./validateResourceOwner";
 export * from "./validateScope";

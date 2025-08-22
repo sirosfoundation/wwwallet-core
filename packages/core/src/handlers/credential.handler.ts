@@ -8,6 +8,7 @@ import {
 	validateAccessToken,
 	validateCredentialConfigurations,
 	validateDpop,
+	validateProofs,
 } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
 
@@ -19,6 +20,7 @@ export type CredentialHandlerConfig = {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
 	clients: Array<OauthClient>;
+	issuer_client: OauthClient;
 	secret: string;
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
@@ -28,6 +30,10 @@ type CredentialRequest = {
 	credentials: {
 		access_token?: string;
 		dpop?: string | string[];
+	};
+	proofs: {
+		jwt?: Array<string>;
+		attestation?: Array<string>;
 	};
 	dpopRequest: {
 		method: string;
@@ -71,6 +77,14 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 					{ client, scope },
 					config,
 				);
+
+			const { proofs: _proofs } = await validateProofs(
+				{
+					proofs: request.proofs,
+					client,
+				},
+				config,
+			);
 
 			const { credentials } = await generateCredentials(
 				{
@@ -118,7 +132,7 @@ async function validateRequest(
 		);
 	}
 
-	const { credential_configuration_id } = expressRequest.body;
+	const { credential_configuration_id, proofs } = expressRequest.body;
 
 	const credential_configuration_ids =
 		expressRequest.body.credential_configuration_ids ||
@@ -129,6 +143,14 @@ async function validateRequest(
 			400,
 			"invalid_request",
 			"credential configuration ids are missing from body parameters",
+		);
+	}
+
+	if (!proofs) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"proofs is missing from body parameters",
 		);
 	}
 
@@ -151,7 +173,8 @@ async function validateRequest(
 
 	return {
 		credential_configuration_ids,
-		credentials,
+		proofs,
 		dpopRequest,
+		credentials,
 	};
 }
