@@ -7,6 +7,13 @@ services:
     restart: always
     ports:
       - 127.0.0.1:5000:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+      start_interval: 5s
 
   k6:
     image: grafana/k6
@@ -17,4 +24,7 @@ services:
       - ./scripts:/scripts
     network_mode: host
     command: run /scripts/loadtest.oid4vci.k6.js
-
+    depends_on:
+      wwwallet-issuer-poc:
+        condition: service_healthy
+        restart: true

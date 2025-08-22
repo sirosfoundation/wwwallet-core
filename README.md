@@ -16,7 +16,7 @@ Server static configuration can be edited given the example `config.ts` [file](.
 $ pnpm start
 ```
 
-OR
+Or with Docker:
 
 ```sh
 $ docker compose up
