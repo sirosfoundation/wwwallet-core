@@ -1,10 +1,61 @@
 import { check } from "k6";
+import { sha256 } from "k6/crypto";
+import { b64encode } from "k6/encoding";
 import http from "k6/http";
 
 export const options = {
 	vus: 10,
 	duration: "30s",
 };
+
+// FIXME signature appears to be invalid
+async function generateDpop(access_token) {
+	const { privateKey, publicKey } = await crypto.subtle.generateKey(
+		{
+			name: "ECDSA",
+			namedCurve: "P-256",
+		},
+		true,
+		["sign", "verify"],
+	);
+	const ath = sha256(access_token, "base64url");
+
+	const header = {
+		typ: "dpop+jwt",
+		alg: "ES256",
+		jwk: await crypto.subtle.exportKey("jwk", publicKey),
+	};
+	const claims = {
+		jti: "jti",
+		htm: "POST",
+		htu: "http://localhost:5000/credential",
+		iat: Math.floor(Date.now() / 1000),
+		ath,
+	};
+
+	const payload =
+		b64encode(JSON.stringify(header), "rawurl") +
+		"." +
+		b64encode(JSON.stringify(claims), "rawurl");
+
+	const signature = await crypto.subtle.sign(
+		{ name: "ECDSA", hash: { name: "SHA-256" } },
+		privateKey,
+		string2ArrayBuffer(payload),
+	);
+
+	return `${payload}.${b64encode(signature, "rawurl")}`;
+}
+
+// from k6 documentation
+function string2ArrayBuffer(str) {
+	const buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+	const bufView = new Uint16Array(buf);
+	for (let i = 0, strLen = str.length; i < strLen; i++) {
+		bufView[i] = str.charCodeAt(i);
+	}
+	return buf;
+}
 
 // The default exported function is gonna be picked up by k6 as the entry point for the test script. It will be executed repeatedly in "iterations" for the whole duration of the test.
 export default async function () {
@@ -76,16 +127,14 @@ export default async function () {
 		code: authorization_code,
 	});
 
+	const access_token = JSON.parse(token.body).access_token;
+
 	check(token, {
 		"token is status 200": (r) => r.status === 200,
 	});
 
 	// credential
-	// NOTE we cannot use jose to craft the dpop token according to the access token,
-	//	the dependency requiring TextEncoder to be defined https://github.com/grafana/k6/issues/2440.
-	//	Those are then to be filled manually from tests for example, looking for a solution to the issue
-	const access_token = "";
-	const dpop = "";
+	const dpop = await generateDpop(access_token);
 
 	const credential = http.post(
 		`http://localhost:5000/credential`,
@@ -94,13 +143,13 @@ export default async function () {
 		},
 		{
 			headers: {
-				Authorization: `DPoP ${access_token}`,
+				Authorization: `Bearer ${access_token}`,
 				DPoP: dpop,
 			},
 		},
 	);
 
 	check(credential, {
-		"credential is status 401": (r) => r.status === 401,
+		"credential is status 400": (r) => r.status === 400,
 	});
 }
