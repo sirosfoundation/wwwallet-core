@@ -1,13 +1,14 @@
 import { decodeProtectedHeader, type JWK, jwtDecrypt, jwtVerify } from "jose";
 import { OauthError } from "../../errors";
-import type { OauthClient } from "../../resources";
+import type { IssuerClient } from "../../resources";
 
 export type ValidateProofsParams = {
 	proofs: {
 		jwt?: Array<string>;
 		attestation?: Array<string>;
+		[key: string]: unknown;
 	};
-	client: OauthClient;
+	client: IssuerClient;
 };
 
 export type ValidateProofsConfig = {
@@ -18,19 +19,13 @@ export async function validateProofs(
 	{ proofs, client }: ValidateProofsParams,
 	config: ValidateProofsConfig,
 ) {
-	if (!client) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"proof must be associated with an issuer client",
-		);
-	}
-
 	for (const proofType of Object.keys(proofs)) {
 		if (proofType === "jwt" && proofs.jwt) {
-			await validateJwtProofs({ proofs: proofs.jwt, client }, config);
-
-			return { proofs };
+			const { proofs: _jwtProofs } = await validateJwtProofs(
+				{ proofs: proofs.jwt, client },
+				config,
+			);
+			continue;
 		}
 
 		throw new OauthError(400, "invalid_request", "unknown proof type");
@@ -40,7 +35,7 @@ export async function validateProofs(
 }
 
 async function validateJwtProofs(
-	{ proofs, client }: { proofs: Array<string>; client: OauthClient },
+	{ proofs, client }: { proofs: Array<string>; client: IssuerClient },
 	config: ValidateProofsConfig,
 ) {
 	let i = 0;
@@ -83,6 +78,8 @@ async function validateJwtProofs(
 
 		i++;
 	}
+
+	return { proofs };
 }
 
 async function validateNonce(
@@ -90,7 +87,7 @@ async function validateNonce(
 		nonce,
 		client,
 		index,
-	}: { nonce: string; client: OauthClient; index: number },
+	}: { nonce: string; client: IssuerClient; index: number },
 	config: ValidateProofsConfig,
 ) {
 	try {
