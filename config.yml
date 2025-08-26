@@ -45,3 +45,5 @@ supported_credential_configuration_paths:
   - ./credential_configurations/diploma.json
   - ./credential_configurations/ehic.json
   - ./credential_configurations/por:sd_jwt_vc.json
+trusted_root_certificate_paths:
+  - ./trusted_certificates/ecosystem.crt

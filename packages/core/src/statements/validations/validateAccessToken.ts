@@ -9,6 +9,7 @@ type validateAccessTokenParams = {
 export type ValidateAccessTokenConfig = {
 	clients: Array<OauthClient>;
 	secret: string;
+	issuer_client: OauthClient;
 };
 
 // TODO validate code redirect uri according to request
@@ -32,7 +33,9 @@ export async function validateAccessToken(
 			throw new OauthError(401, "invalid_request", "access token is invalid");
 		}
 
-		const client = config.clients.find(({ id }) => id === client_id);
+		const client = config.clients
+			.concat([config.issuer_client])
+			.find(({ id }) => id === client_id);
 
 		if (!client) {
 			throw new OauthError(

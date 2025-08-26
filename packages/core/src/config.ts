@@ -59,4 +59,6 @@ export type Config = {
 	issuer_state_ttl?: number;
 	token_encryption?: string;
 	secret?: string;
+	trusted_root_certificates?: Array<string>;
+	trusted_root_certificate_paths?: Array<string>;
 };

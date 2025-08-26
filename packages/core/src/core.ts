@@ -107,4 +107,5 @@ export const defaultConfig = {
 	},
 	issuer_display: [],
 	supported_credential_configurations: [],
+	trusted_root_certificates: [],
 };
