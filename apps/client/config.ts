@@ -28,6 +28,7 @@ const baseConfig = {
 	},
 	supported_credential_configuration_paths: [],
 	supported_credential_configurations: [],
+	trusted_root_certificates: [],
 };
 
 const config = merge(baseConfig, ymlConfig) as Config;
@@ -44,5 +45,13 @@ config.supported_credential_configurations =
 			},
 		) || [],
 	);
+
+config.trusted_root_certificates = config.trusted_root_certificates?.concat(
+	config.trusted_root_certificate_paths?.map((certificatePath) => {
+		return fs
+			.readFileSync(path.join(process.cwd(), certificatePath))
+			.toString();
+	}) || [],
+);
 
 export { config };

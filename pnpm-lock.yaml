@@ -51,9 +51,6 @@ importers:
       '@types/morgan':
         specifier: ^1.9.10
         version: 1.9.10
-      '@types/yaml':
-        specifier: ^1.9.6
-        version: 1.9.7
       '@wwwallet/core':
         specifier: link:../../packages/core
         version: link:../../packages/core
@@ -658,10 +655,6 @@ packages:
 
   '@types/supertest@6.0.3':
     resolution: {integrity: sha512-8WzXq62EXFhJ7QsH3Ocb/iKQ/Ty9ZVWnVzoTKc9tyyFRRF3a74Tk2+TLFgaFFw364Ere+npzHKEJ6ga2LzIL7w==}
-
-  '@types/yaml@1.9.7':
-    resolution: {integrity: sha512-8WMXRDD1D+wCohjfslHDgICd2JtMATZU8CkhH8LVJqcJs6dyYj5TGptzP8wApbmEullGBSsCEzzap73DQ1HJaA==}
-    deprecated: This is a stub types definition. yaml provides its own type definitions, so you do not need this installed.
 
   '@typescript-eslint/project-service@8.40.0':
     resolution: {integrity: sha512-/A89vz7Wf5DEXsGVvcGdYKbVM9F7DyFXj52lNYUDS1L9yJfqjW/fIp5PgMuEJL/KeqVTe2QSbXAGUZljDUpArw==}
@@ -2549,10 +2542,6 @@ snapshots:
     dependencies:
       '@types/methods': 1.1.4
       '@types/superagent': 8.1.9
-
-  '@types/yaml@1.9.7':
-    dependencies:
-      yaml: 2.8.1
 
   '@typescript-eslint/project-service@8.40.0(typescript@5.9.2)':
     dependencies:
