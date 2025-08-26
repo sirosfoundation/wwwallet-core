@@ -10,7 +10,7 @@ const logger = new Logger("info");
 const configPath = process.env.CONFIGURATION_PATH || "./config.yml";
 
 const ymlConfig = parse(
-	fs.readFileSync(path.join(__dirname, configPath)).toString(),
+	fs.readFileSync(path.join(process.cwd(), configPath)).toString(),
 ) as Config;
 
 const baseConfig = {
@@ -37,7 +37,7 @@ config.supported_credential_configurations =
 		config.supported_credential_configuration_paths?.map(
 			(credentialConfigurationPath) => {
 				const credential = fs
-					.readFileSync(path.join(__dirname, credentialConfigurationPath))
+					.readFileSync(path.join(process.cwd(), credentialConfigurationPath))
 					.toString();
 
 				return JSON.parse(credential);

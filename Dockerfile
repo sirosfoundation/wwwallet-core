@@ -12,4 +12,4 @@ COPY . .
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod
 
-CMD ["pnpm", "run", "start"]
+CMD ["pnpm", "run", "start:client"]
