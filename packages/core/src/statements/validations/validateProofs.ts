@@ -85,7 +85,7 @@ async function validateJwtProofs(
 }
 
 async function validateAttestationProofs(
-	{ proofs, client: _client }: { proofs: Array<string>; client: IssuerClient },
+	{ proofs, client }: { proofs: Array<string>; client: IssuerClient },
 	config: ValidateProofsConfig,
 ) {
 	let i = 0;
@@ -105,16 +105,16 @@ async function validateAttestationProofs(
 
 			try {
 				const {
-					payload: { nonce: _nonce },
+					payload: { nonce },
 				} = await jwtVerify<{ nonce: string | undefined }>(
 					proof,
 					new crypto.X509Certificate(Buffer.from(x5c[0], "base64")).publicKey,
 				);
 
-				// await validateNonce(
-				// 	{ nonce, client, type: "attestation", index: i },
-				// 	config,
-				// );
+				await validateNonce(
+					{ nonce, client, type: "attestation", index: i },
+					config,
+				);
 			} catch (error) {
 				if (error instanceof OauthError) {
 					throw error;
