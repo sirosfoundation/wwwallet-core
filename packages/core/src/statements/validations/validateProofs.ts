@@ -9,22 +9,22 @@ export type ValidateProofsParams = {
 		attestation?: Array<string>;
 		[key: string]: unknown;
 	};
-	client: IssuerClient;
 };
 
 export type ValidateProofsConfig = {
 	secret: string;
 	trusted_root_certificates: Array<string>;
+	issuer_client: IssuerClient;
 };
 
 export async function validateProofs(
-	{ proofs, client }: ValidateProofsParams,
+	{ proofs }: ValidateProofsParams,
 	config: ValidateProofsConfig,
 ) {
 	for (const proofType of Object.keys(proofs)) {
 		if (proofType === "jwt" && proofs.jwt) {
 			const { proofs: _jwtProofs } = await validateJwtProofs(
-				{ proofs: proofs.jwt, client },
+				{ proofs: proofs.jwt },
 				config,
 			);
 			continue;
@@ -32,7 +32,7 @@ export async function validateProofs(
 
 		if (proofType === "attestation" && proofs.attestation) {
 			const { proofs: _attestationProofs } = await validateAttestationProofs(
-				{ proofs: proofs.attestation, client },
+				{ proofs: proofs.attestation },
 				config,
 			);
 			continue;
@@ -45,7 +45,7 @@ export async function validateProofs(
 }
 
 async function validateJwtProofs(
-	{ proofs, client }: { proofs: Array<string>; client: IssuerClient },
+	{ proofs }: { proofs: Array<string> },
 	config: ValidateProofsConfig,
 ) {
 	let i = 0;
@@ -65,7 +65,7 @@ async function validateJwtProofs(
 				payload: { nonce },
 			} = await jwtVerify<{ nonce: string | undefined }>(proof, jwk);
 
-			await validateNonce({ nonce, client, type: "jwt", index: i }, config);
+			await validateNonce({ nonce, type: "jwt", index: i }, config);
 		} catch (error) {
 			if (error instanceof OauthError) {
 				throw error;
@@ -85,7 +85,7 @@ async function validateJwtProofs(
 }
 
 async function validateAttestationProofs(
-	{ proofs, client }: { proofs: Array<string>; client: IssuerClient },
+	{ proofs }: { proofs: Array<string> },
 	config: ValidateProofsConfig,
 ) {
 	let i = 0;
@@ -111,10 +111,7 @@ async function validateAttestationProofs(
 					new crypto.X509Certificate(Buffer.from(x5c[0], "base64")).publicKey,
 				);
 
-				await validateNonce(
-					{ nonce, client, type: "attestation", index: i },
-					config,
-				);
+				await validateNonce({ nonce, type: "attestation", index: i }, config);
 			} catch (error) {
 				if (error instanceof OauthError) {
 					throw error;
@@ -147,12 +144,10 @@ async function validateAttestationProofs(
 async function validateNonce(
 	{
 		nonce,
-		client,
 		type,
 		index,
 	}: {
 		nonce: string | undefined;
-		client: IssuerClient;
 		type: string;
 		index: number;
 	},
@@ -180,7 +175,7 @@ async function validateNonce(
 			);
 		}
 
-		if (sub !== client.id) {
+		if (sub !== config.issuer_client.id) {
 			throw new OauthError(
 				400,
 				"invalid_request",

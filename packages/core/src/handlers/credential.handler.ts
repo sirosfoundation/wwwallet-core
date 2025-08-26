@@ -82,7 +82,6 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			const { proofs: _proofs } = await validateProofs(
 				{
 					proofs: request.proofs,
-					client,
 				},
 				config,
 			);

@@ -17,36 +17,23 @@ j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
 
 describe("validate Proofs", () => {
 	const config = {
+		issuer_client: core.config.issuer_client as IssuerClient,
 		secret: core.config.secret || "",
 		trusted_root_certificates: core.config.trusted_root_certificates || [],
 	};
 
 	it("resolves empty proofs", async () => {
 		const proofs = {};
-		const client = {
-			id: "id",
-			secret: "secret",
-			scopes: [],
-		};
 
-		return expect(
-			validateProofs({ proofs, client }, config),
-		).resolves.to.deep.eq({
+		return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 			proofs: {},
 		});
 	});
 
 	it("rejects with an unknown proof type", async () => {
 		const proofs = { unknown: [] };
-		const client = {
-			id: "id",
-			secret: "secret",
-			scopes: [],
-		};
 
-		return expect(
-			validateProofs({ proofs, client }, config),
-		).rejects.to.deep.eq(
+		return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 			new OauthError(400, "invalid_request", "unknown proof type"),
 		);
 	});
@@ -54,30 +41,16 @@ describe("validate Proofs", () => {
 	describe("with a jwt proof", () => {
 		it("resolves empty proof with no proof", async () => {
 			const proofs = { jwt: [] };
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
 
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).resolves.to.deep.eq({
+			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { jwt: [] },
 			});
 		});
 
 		it("rejects with an invalid jwt", async () => {
 			const proofs = { jwt: ["invalid"] };
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
 
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(400, "invalid_request", "jwt proof #0 is invalid"),
 			);
 		});
@@ -88,15 +61,7 @@ describe("validate Proofs", () => {
 				.sign(new TextEncoder().encode("secret"));
 			const proofs = { jwt: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -112,15 +77,7 @@ describe("validate Proofs", () => {
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -137,15 +94,7 @@ describe("validate Proofs", () => {
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(400, "invalid_request", "jwt proof #0 nonce is invalid"),
 			);
 		});
@@ -170,15 +119,7 @@ describe("validate Proofs", () => {
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -208,15 +149,7 @@ describe("validate Proofs", () => {
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -246,11 +179,7 @@ describe("validate Proofs", () => {
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
-			const client = core.config.issuer_client as IssuerClient;
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).resolves.to.deep.eq({
+			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { jwt: [proof] },
 			});
 		});
@@ -259,30 +188,16 @@ describe("validate Proofs", () => {
 	describe("with an attestation proof", () => {
 		it("resolves empty proof with no proof", async () => {
 			const proofs = { attestation: [] };
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
 
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).resolves.to.deep.eq({
+			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { attestation: [] },
 			});
 		});
 
 		it("rejects with an invalid attestation", async () => {
 			const proofs = { attestation: ["invalid"] };
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
 
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -297,15 +212,7 @@ describe("validate Proofs", () => {
 				.sign(new TextEncoder().encode("secret"));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -320,15 +227,7 @@ describe("validate Proofs", () => {
 				.sign(new TextEncoder().encode("secret"));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -345,15 +244,7 @@ describe("validate Proofs", () => {
 				.sign(new TextEncoder().encode("secret"));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -368,15 +259,7 @@ describe("validate Proofs", () => {
 				.sign(new TextEncoder().encode("secret"));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -391,15 +274,7 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -416,15 +291,7 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -452,15 +319,7 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -489,15 +348,7 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
-			const client = {
-				id: "id",
-				secret: "secret",
-				scopes: [],
-			};
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).rejects.to.deep.eq(
+			return expect(validateProofs({ proofs }, config)).rejects.to.deep.eq(
 				new OauthError(
 					400,
 					"invalid_request",
@@ -526,11 +377,7 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
-			const client = core.config.issuer_client as IssuerClient;
-
-			return expect(
-				validateProofs({ proofs, client }, config),
-			).resolves.to.deep.eq({
+			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { attestation: [proof] },
 			});
 		});
