@@ -23,6 +23,7 @@ export type CredentialHandlerConfig = {
 	issuer_client: OauthClient;
 	secret: string;
 	supported_credential_configurations: Array<CredentialConfiguration>;
+	trusted_root_certificates: Array<string>;
 };
 
 type CredentialRequest = {

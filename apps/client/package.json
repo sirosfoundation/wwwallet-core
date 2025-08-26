@@ -12,7 +12,6 @@
 	"dependencies": {
 		"@types/express": "^5.0.3",
 		"@types/morgan": "^1.9.10",
-		"@types/yaml": "^1.9.6",
 		"@wwwallet/core": "link:../../packages/core",
 		"express": "^5.1.0",
 		"express-handlebars": "^8.0.3",

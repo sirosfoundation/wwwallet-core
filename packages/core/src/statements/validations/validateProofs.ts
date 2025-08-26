@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { decodeProtectedHeader, type JWK, jwtDecrypt, jwtVerify } from "jose";
 import { OauthError } from "../../errors";
 import type { IssuerClient } from "../../resources";
@@ -13,6 +14,7 @@ export type ValidateProofsParams = {
 
 export type ValidateProofsConfig = {
 	secret: string;
+	trusted_root_certificates: Array<string>;
 };
 
 export async function validateProofs(
@@ -23,6 +25,14 @@ export async function validateProofs(
 		if (proofType === "jwt" && proofs.jwt) {
 			const { proofs: _jwtProofs } = await validateJwtProofs(
 				{ proofs: proofs.jwt, client },
+				config,
+			);
+			continue;
+		}
+
+		if (proofType === "attestation" && proofs.attestation) {
+			const { proofs: _attestationProofs } = await validateAttestationProofs(
+				{ proofs: proofs.attestation, client },
 				config,
 			);
 			continue;
@@ -47,23 +57,15 @@ async function validateJwtProofs(
 				throw new OauthError(
 					400,
 					"invalid_request",
-					`jwk header is missing in jwt proof #${i}`,
+					`jwk header is missing at jwt proof #${i}`,
 				);
 			}
 
 			const {
 				payload: { nonce },
-			} = await jwtVerify<{ nonce: string }>(proof, jwk);
+			} = await jwtVerify<{ nonce: string | undefined }>(proof, jwk);
 
-			if (!nonce) {
-				throw new OauthError(
-					400,
-					"invalid_request",
-					`nonce claim is missing in jwt proof #${i}`,
-				);
-			}
-
-			await validateNonce({ nonce, client, index: i }, config);
+			await validateNonce({ nonce, client, type: "jwt", index: i }, config);
 		} catch (error) {
 			if (error instanceof OauthError) {
 				throw error;
@@ -82,14 +84,88 @@ async function validateJwtProofs(
 	return { proofs };
 }
 
+async function validateAttestationProofs(
+	{ proofs, client }: { proofs: Array<string>; client: IssuerClient },
+	config: ValidateProofsConfig,
+) {
+	let i = 0;
+	for (const proof of proofs) {
+		try {
+			const header: { x5c?: Array<string> } = decodeProtectedHeader(proof);
+
+			if (!header.x5c || !Array.isArray(header.x5c)) {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					`x5c header is missing at attestation proof #${i}`,
+				);
+			}
+
+			const { x5c } = await validateX5c({ x5c: header.x5c, index: i }, config);
+
+			try {
+				const {
+					payload: { nonce },
+				} = await jwtVerify<{ nonce: string | undefined }>(
+					proof,
+					new crypto.X509Certificate(Buffer.from(x5c[0], "base64")).publicKey,
+				);
+
+				await validateNonce(
+					{ nonce, client, type: "attestation", index: i },
+					config,
+				);
+			} catch (error) {
+				if (error instanceof OauthError) {
+					throw error;
+				}
+
+				throw new OauthError(
+					400,
+					"invalid_request",
+					`invalid signature at attestation proof #${i}`,
+				);
+			}
+		} catch (error) {
+			if (error instanceof OauthError) {
+				throw error;
+			}
+
+			throw new OauthError(
+				400,
+				"invalid_request",
+				`attestation proof #${i} is invalid`,
+			);
+		}
+
+		i++;
+	}
+
+	return { proofs };
+}
+
 async function validateNonce(
 	{
 		nonce,
 		client,
+		type,
 		index,
-	}: { nonce: string; client: IssuerClient; index: number },
+	}: {
+		nonce: string | undefined;
+		client: IssuerClient;
+		type: string;
+		index: number;
+	},
 	config: ValidateProofsConfig,
 ) {
+	if (!nonce) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			`nonce claim is missing at ${type} proof #${index}`,
+		);
+	}
+
 	try {
 		const secret = new TextEncoder().encode(config.secret);
 		const {
@@ -100,7 +176,7 @@ async function validateNonce(
 			throw new OauthError(
 				400,
 				"invalid_request",
-				`nonce token type is invalid in jwt proof #${index}`,
+				`nonce token type is invalid at ${type} proof #${index}`,
 			);
 		}
 
@@ -108,7 +184,7 @@ async function validateNonce(
 			throw new OauthError(
 				400,
 				"invalid_request",
-				`nonce subject is invalid in jwt proof #${index}`,
+				`nonce subject is invalid at ${type} proof #${index}`,
 			);
 		}
 	} catch (error) {
@@ -119,7 +195,40 @@ async function validateNonce(
 		throw new OauthError(
 			400,
 			"invalid_request",
-			`jwt proof #${index} nonce is invalid`,
+			`${type} proof #${index} nonce is invalid`,
 		);
 	}
+}
+
+async function validateX5c(
+	{ x5c, index }: { x5c: Array<string>; index: number },
+	config: ValidateProofsConfig,
+): Promise<{ x5c: Array<string> }> {
+	const verified = x5c.concat([]);
+	config.trusted_root_certificates.forEach((trustedCertificate: string) => {
+		const authority = new crypto.X509Certificate(trustedCertificate);
+
+		x5c.forEach((raw: string) => {
+			const certificate = new crypto.X509Certificate(
+				Buffer.from(raw, "base64"),
+			);
+
+			if (
+				certificate.checkIssued(authority) &&
+				certificate.verify(authority.publicKey)
+			) {
+				verified.splice(verified.indexOf(raw), 1);
+			}
+		});
+	});
+
+	if (verified.length) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			`x5c certificate chain not trusted at attestation proof #${index}`,
+		);
+	}
+
+	return { x5c };
 }
