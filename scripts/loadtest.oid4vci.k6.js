@@ -47,6 +47,38 @@ async function generateDpop(access_token) {
 	return `${encodedJwt}.${b64encode(signature, "rawurl")}`;
 }
 
+async function generateProof(nonce) {
+	const { privateKey, publicKey } = await crypto.subtle.generateKey(
+		{
+			name: "ECDSA",
+			namedCurve: "P-256",
+		},
+		true,
+		["sign", "verify"],
+	);
+
+	const header = {
+		alg: "ES256",
+		jwk: await crypto.subtle.exportKey("jwk", publicKey),
+	};
+	const payload = {
+		nonce,
+	};
+
+	const encodedJwt =
+		b64encode(JSON.stringify(header), "rawurl") +
+		"." +
+		b64encode(JSON.stringify(payload), "rawurl");
+
+	const signature = await crypto.subtle.sign(
+		{ name: "ECDSA", hash: { name: "SHA-256" } },
+		privateKey,
+		string2ArrayBuffer(encodedJwt),
+	);
+
+	return `${encodedJwt}.${b64encode(signature, "rawurl")}`;
+}
+
 // from k6 documentation
 function string2ArrayBuffer(str) {
 	const buf = new ArrayBuffer(str.length);
@@ -133,16 +165,24 @@ export default async function () {
 		"token is status 200": (r) => r.status === 200,
 	});
 
+	const nonce = http.post(`http://localhost:5000/nonce`);
+
+	const c_nonce = JSON.parse(nonce.body).c_nonce;
+
 	// credential
 	const dpop = await generateDpop(access_token);
 
 	const credential = http.post(
 		`http://localhost:5000/credential`,
-		{
+		JSON.stringify({
 			credential_configuration_ids: ["urn:eudi:pid:1:dc"],
-		},
+			proofs: {
+				jwt: [await generateProof(c_nonce)],
+			},
+		}),
 		{
 			headers: {
+				"Content-Type": "application/json",
 				Authorization: `Bearer ${access_token}`,
 				DPoP: dpop,
 			},
