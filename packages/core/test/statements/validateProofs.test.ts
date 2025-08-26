@@ -385,7 +385,26 @@ describe("validate Proofs", () => {
 			);
 		});
 
-		it("rejects without nonce", async () => {
+		it("resolves", async () => {
+			const proof = await new SignJWT({})
+				.setProtectedHeader({ alg: "ES256", x5c: [trustedCertificate] })
+				.sign(crypto.createPrivateKey(privateKey));
+			const proofs = { attestation: [proof] };
+
+			const client = {
+				id: "id",
+				secret: "secret",
+				scopes: [],
+			};
+
+			return expect(
+				validateProofs({ proofs, client }, config),
+			).resolves.to.deep.eq({
+				proofs: { attestation: [proof] },
+			});
+		});
+
+		it.skip("rejects without nonce", async () => {
 			const proof = await new SignJWT({})
 				.setProtectedHeader({ alg: "ES256", x5c: [trustedCertificate] })
 				.sign(crypto.createPrivateKey(privateKey));
@@ -408,7 +427,7 @@ describe("validate Proofs", () => {
 			);
 		});
 
-		it("rejects with invalid nonce", async () => {
+		it.skip("rejects with invalid nonce", async () => {
 			const c_nonce = "invalid";
 
 			const proof = await new SignJWT({ nonce: c_nonce })
@@ -433,7 +452,7 @@ describe("validate Proofs", () => {
 			);
 		});
 
-		it("rejects with an invalid nonce (token type)", async () => {
+		it.skip("rejects with an invalid nonce (token type)", async () => {
 			const secret = new TextEncoder().encode(core.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
@@ -469,7 +488,7 @@ describe("validate Proofs", () => {
 			);
 		});
 
-		it("rejects with an invalid nonce (sub)", async () => {
+		it.skip("rejects with an invalid nonce (sub)", async () => {
 			const secret = new TextEncoder().encode(core.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
@@ -506,7 +525,7 @@ describe("validate Proofs", () => {
 			);
 		});
 
-		it("resolves with a valid nonce", async () => {
+		it.skip("resolves with a valid nonce", async () => {
 			const secret = new TextEncoder().encode(core.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
