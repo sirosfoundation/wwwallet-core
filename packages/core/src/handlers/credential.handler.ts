@@ -133,7 +133,7 @@ async function validateRequest(
 		);
 	}
 
-	const { credential_configuration_id, proofs } = expressRequest.body;
+	const { credential_configuration_id, proof } = expressRequest.body;
 
 	const credential_configuration_ids =
 		expressRequest.body.credential_configuration_ids ||
@@ -145,6 +145,15 @@ async function validateRequest(
 			"invalid_request",
 			"credential configuration ids are missing from body parameters",
 		);
+	}
+
+	const proofs = expressRequest.body.proofs || (proof && {});
+
+	if (proof?.jwt) {
+		proofs.jwt = [proof.jwt];
+	}
+	if (proof?.attestation) {
+		proofs.attestation = [proof.attestation];
 	}
 
 	if (!proofs) {

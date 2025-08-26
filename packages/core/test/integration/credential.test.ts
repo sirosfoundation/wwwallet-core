@@ -45,6 +45,19 @@ describe("credential endpoint", () => {
 		const credential_configuration_id = "unknwown:configuration:id";
 		const response = await request(app)
 			.post("/credential")
+			.send({ credential_configuration_id, proof: {} });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "access token must be set",
+		});
+	});
+
+	it("returns an error without authorization header", async () => {
+		const credential_configuration_id = "unknwown:configuration:id";
+		const response = await request(app)
+			.post("/credential")
 			.send({ credential_configuration_id, proofs: {} });
 
 		expect(response.status).toBe(401);
@@ -530,7 +543,7 @@ describe("credential endpoint", () => {
 				});
 			});
 
-			it("returns credentials with a proof", async () => {
+			it("returns credentials with proofs", async () => {
 				const credential_configuration_id = "full";
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
 				const proof = await new SignJWT({ nonce: c_nonce })
@@ -541,6 +554,31 @@ describe("credential endpoint", () => {
 					.set("Authorization", `Bearer ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
+
+				expect(response.status).toBe(200);
+				assert(response.body.credentials[0].credential);
+
+				const credential = response.body.credentials[0].credential;
+				const sdjwt = await SDJwt.fromEncode(credential, hasher);
+				const claims = await sdjwt.getClaims(hasher);
+				expect(claims).to.deep.eq({
+					iss: "http://localhost:5000",
+					sub: "sub",
+					vct: "urn:test:full",
+				});
+			});
+
+			it("returns credentials with a proof", async () => {
+				const credential_configuration_id = "full";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk: await exportJWK(publicKey) })
+					.sign(privateKey);
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proof: { jwt: proof } });
 
 				expect(response.status).toBe(200);
 				assert(response.body.credentials[0].credential);
