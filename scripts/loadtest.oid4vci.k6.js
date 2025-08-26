@@ -169,6 +169,10 @@ export default async function () {
 
 	const c_nonce = JSON.parse(nonce.body).c_nonce;
 
+	check(nonce, {
+		"nonce is status 200": (r) => r.status === 200,
+	});
+
 	// credential
 	const dpop = await generateDpop(access_token);
 
