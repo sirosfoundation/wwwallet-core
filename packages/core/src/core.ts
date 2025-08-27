@@ -99,7 +99,10 @@ export class Core {
 		if (this.config.secret_ttl && this.config.rotate_secret) {
 			const newSecret = crypto.randomBytes(16).toString("hex");
 			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
-			this.config.previous_secrets = this.config.previous_secrets?.slice(0, SECRET_MEMORY);
+			this.config.previous_secrets = this.config.previous_secrets?.slice(
+				0,
+				SECRET_MEMORY,
+			);
 			this.config.secret = newSecret;
 
 			setTimeout(() => {
@@ -126,6 +129,6 @@ export const defaultConfig = {
 	supported_credential_configurations: [],
 	trusted_root_certificates: [],
 	previous_secrets: [],
-	secret_ttl: 600,
+	secret_ttl: 720,
 	rotate_secret: true,
 };
