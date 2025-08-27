@@ -5,6 +5,7 @@ import {
 	generateAccessToken,
 	validateAuthorizationCode,
 	validateClientCredentials,
+	validateCodeVerifier,
 } from "../../statements";
 
 export type AuthorizationCodeHandlerConfig = {
@@ -20,6 +21,7 @@ export type AuthorizationCodeRequest = {
 	client_secret: string;
 	redirect_uri: string;
 	code: string;
+	code_verifier: string | undefined;
 };
 
 export type AuthorizationCodeResponse = {
@@ -45,10 +47,25 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
-	const { authorization_code, sub, scope } = await validateAuthorizationCode(
+	const {
+		authorization_code,
+		code_challenge,
+		code_challenge_method,
+		sub,
+		scope,
+	} = await validateAuthorizationCode(
 		{
 			authorization_code: request.code,
 			redirect_uri: request.redirect_uri,
+		},
+		config,
+	);
+
+	await validateCodeVerifier(
+		{
+			code_challenge,
+			code_challenge_method,
+			code_verifier: request.code_verifier,
 		},
 		config,
 	);
@@ -76,8 +93,14 @@ export async function handleAuthorizationCode(
 export async function validateAuthorizationCodeRequest(
 	expressRequest: Request,
 ): Promise<AuthorizationCodeRequest> {
-	const { client_id, client_secret, redirect_uri, code, grant_type } =
-		expressRequest.body;
+	const {
+		client_id,
+		client_secret,
+		redirect_uri,
+		code,
+		code_verifier,
+		grant_type,
+	} = expressRequest.body;
 
 	if (!client_id) {
 		throw new OauthError(
@@ -108,6 +131,7 @@ export async function validateAuthorizationCodeRequest(
 		client_secret,
 		redirect_uri,
 		code,
+		code_verifier,
 		grant_type,
 	};
 }

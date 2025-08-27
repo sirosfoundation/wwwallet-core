@@ -386,7 +386,7 @@ describe("authorization code - token", () => {
 		});
 	});
 
-	it("returns a token", async () => {
+	it("returns an error without code challenge", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
@@ -410,6 +410,225 @@ describe("authorization code - token", () => {
 		const response = await request(app)
 			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "code challenge is missing from authorization request",
+		});
+	});
+
+	it("returns an error without code challenge method", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "test";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description:
+				"code challenge method is missing from authorization request",
+		});
+	});
+
+	it("returns an error with an invalid code challenge method", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "test";
+		const code_challenge_method = "invalid";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "only S256 code challenge method is supported",
+		});
+	});
+
+	it("returns an error without code verifier", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "test";
+		const code_challenge_method = "S256";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description:
+				"Proof Key for Code Exchange requests require a code verifier",
+		});
+	});
+
+	it("returns an error with an invalid code verifier", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "test";
+		const code_challenge_method = "S256";
+		const code_verifier = "invalid";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "code verifier is invalid",
+		});
+	});
+
+	it("returns an error with an invalid code verifier", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "test";
+		const code_challenge_method = "S256";
+		const code_verifier = "invalid";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "code verifier is invalid",
+		});
+	});
+
+	it("returns a token", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
+		const code_verifier = "test";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(core.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: core.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);
@@ -426,19 +645,24 @@ describe("authorization code - token", () => {
 	});
 
 	it("returns a token with a scope", async () => {
+		const scope = "scope";
 		const grant_type = "authorization_code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const sub = "sub";
-		const scope = "scope";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
+		const code_verifier = "test";
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(core.config.secret);
 		const code = await new EncryptJWT({
-			token_type: "authorization_code",
-			redirect_uri,
 			sub,
 			scope,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
 		})
 			.setProtectedHeader({
 				alg: "dir",
@@ -450,7 +674,7 @@ describe("authorization code - token", () => {
 
 		const response = await request(app)
 			.post("/token")
-			.send({ grant_type, client_id, redirect_uri, code });
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);

@@ -81,4 +81,6 @@ export type AuthorizationCode = {
 	redirect_uri: string;
 	sub: string;
 	scope: string;
+	code_challenge?: string;
+	code_challenge_method?: string;
 };

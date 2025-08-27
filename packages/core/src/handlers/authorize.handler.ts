@@ -92,7 +92,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 
 				const { authorization_code } = await generateAuthorizationCode(
 					{
-						redirect_uri: authorization_request.redirect_uri,
+						authorization_request: authorization_request,
 						resource_owner,
 						scope,
 					},
