@@ -12,6 +12,7 @@ export type ClientCredentialsHandlerConfig = {
 	access_token_ttl: number;
 	token_encryption: string;
 	secret: string;
+	previous_secrets: Array<string>;
 };
 
 export type ClientCredentialsRequest = {

@@ -1,4 +1,5 @@
 import { jwtDecrypt } from "jose";
+import { JWEDecryptionFailed } from "jose/errors";
 import { OauthError } from "../../errors";
 import type { AccessToken, OauthClient } from "../../resources";
 
@@ -9,6 +10,7 @@ type validateAccessTokenParams = {
 export type ValidateAccessTokenConfig = {
 	clients: Array<OauthClient>;
 	secret: string;
+	previous_secrets: Array<string>;
 	issuer_client: OauthClient;
 };
 
@@ -27,7 +29,16 @@ export async function validateAccessToken(
 		} = await jwtDecrypt<AccessToken>(
 			access_token,
 			new TextEncoder().encode(config.secret),
-		);
+		).catch((error) => {
+			if (error instanceof JWEDecryptionFailed) {
+				return jwtDecrypt<AccessToken>(
+					access_token,
+					new TextEncoder().encode(config.previous_secrets[0]),
+				);
+			}
+
+			throw error;
+		});
 
 		if (token_type !== "access_token") {
 			throw new OauthError(401, "invalid_request", "access token is invalid");

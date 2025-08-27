@@ -24,6 +24,7 @@ export type AuthorizeHandlerConfig = {
 	authorization_code_ttl: number;
 	token_encryption: string;
 	secret: string;
+	previous_secrets: Array<string>;
 };
 
 type AuthorizeRequest = {

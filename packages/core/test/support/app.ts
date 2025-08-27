@@ -210,7 +210,6 @@ export const config = {
 		},
 	],
 	issuer_display: [{ name: "Test issuer" }],
-	secret: "12345678901234567890123456789012",
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	access_token_ttl: 3600 * 2,
 	issuer_client: {

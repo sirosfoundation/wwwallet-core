@@ -176,6 +176,49 @@ describe("authorization code - authenticate", () => {
 			expect(payload.sub).to.eq("sub");
 			expect(payload.redirect_uri).to.eq(redirect_uri);
 		});
+
+		it("returns a code with a valid request uri with secret rotation", async () => {
+			const response_type = "code";
+			const client_id = "id";
+			const redirect_uri = "http://redirect.uri";
+			const scope = "client:scope";
+			const state = "state";
+
+			const {
+				body: { request_uri },
+			} = await request(app).post("/pushed-authorization-request").send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				issuer_state,
+				state,
+			});
+
+			core.rotateSecret();
+
+			const response = await request(app)
+				.post("/authorize")
+				.send({ username, password })
+				.query({ client_id, request_uri });
+
+			expect(response.status).toBe(302);
+			expect(response.headers.location).toMatch(redirect_uri);
+			expect(response.headers.location).toMatch(/code=.+/);
+			expect(response.headers.location).toMatch(/state=.+/);
+
+			const [_all, authorization_code] =
+				/code=([^&]+)/.exec(response.headers.location) || [];
+
+			const { payload } = await jwtDecrypt(
+				authorization_code,
+				new TextEncoder().encode(core.config.secret),
+			);
+
+			expect(payload.scope).to.eq(scope);
+			expect(payload.sub).to.eq("sub");
+			expect(payload.redirect_uri).to.eq(redirect_uri);
+		});
 	});
 
 	describe("user credentials are invalid", () => {

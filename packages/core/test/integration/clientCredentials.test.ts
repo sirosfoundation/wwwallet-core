@@ -1,7 +1,7 @@
 import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { assert, describe, expect, it } from "vitest";
-import { app, config } from "../support/app";
+import { app, core } from "../support/app";
 
 describe("client credentials flow", () => {
 	it("returns an error with no body", async () => {
@@ -102,11 +102,11 @@ describe("client credentials flow", () => {
 
 		const { payload } = await jwtDecrypt(
 			response.body.access_token,
-			new TextEncoder().encode(config.secret),
+			new TextEncoder().encode(core.config.secret),
 		);
 
-		assert(config.clients.find(({ id }) => id === payload.client_id));
-		assert(config.clients.find(({ id }) => id === payload.sub));
+		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		assert(core.config.clients?.find(({ id }) => id === payload.sub));
 	});
 
 	it("returns a token with www-form-urlencoded", async () => {
@@ -142,11 +142,11 @@ describe("client credentials flow", () => {
 
 		const { payload } = await jwtDecrypt(
 			response.body.access_token,
-			new TextEncoder().encode(config.secret),
+			new TextEncoder().encode(core.config.secret),
 		);
 
 		expect(payload.scope).to.eq(scope);
-		assert(config.clients.find(({ id }) => id === payload.client_id));
-		assert(config.clients.find(({ id }) => id === payload.sub));
+		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		assert(core.config.clients?.find(({ id }) => id === payload.sub));
 	});
 });

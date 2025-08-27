@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { merge } from "ts-deepmerge";
 import type { Config } from "./config";
 import {
@@ -33,6 +34,7 @@ export class Core {
 		defaultConfig.issuer_client.id = config.issuer_url;
 
 		this.config = merge(defaultConfig, config);
+		this.rotateSecret();
 	}
 
 	get oauthAuthorizationServer() {
@@ -90,6 +92,18 @@ export class Core {
 			this.config as CredentialOfferHandlerConfig,
 		);
 	}
+
+	rotateSecret() {
+		if (this.config.secret_ttl && this.config.rotate_secret) {
+			const newSecret = crypto.randomBytes(16).toString("hex");
+			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
+			this.config.secret = newSecret;
+
+			setTimeout(() => {
+				this.rotateSecret();
+			}, this.config?.secret_ttl * 1000);
+		}
+	}
 }
 
 export const defaultConfig = {
@@ -108,4 +122,7 @@ export const defaultConfig = {
 	issuer_display: [],
 	supported_credential_configurations: [],
 	trusted_root_certificates: [],
+	previous_secrets: [],
+	secret_ttl: 600,
+	rotate_secret: true,
 };
