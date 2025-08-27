@@ -108,6 +108,8 @@ export default async function () {
 	const response_type = "code";
 	const client_id = "CLIENT123";
 	const redirect_uri = "http://localhost:3000";
+	const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+	const code_challenge_method = "S256";
 	const pushedAuthorizationRequest = http.post(
 		"http://localhost:5000/pushed-authorization-request",
 		{
@@ -116,6 +118,8 @@ export default async function () {
 			redirect_uri,
 			scope,
 			issuer_state,
+			code_challenge,
+			code_challenge_method,
 		},
 	);
 
@@ -152,11 +156,13 @@ export default async function () {
 	});
 
 	// token
+	const code_verifier = "test";
 	const token = http.post(`http://localhost:5000/token`, {
 		client_id,
 		redirect_uri,
 		grant_type: "authorization_code",
 		code: authorization_code,
+		code_verifier,
 	});
 
 	const access_token = JSON.parse(token.body).access_token;
