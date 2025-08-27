@@ -21,7 +21,14 @@ export async function validateAuthorizationCode(
 ) {
 	try {
 		const {
-			payload: { token_type, redirect_uri, sub, scope },
+			payload: {
+				token_type,
+				redirect_uri,
+				code_challenge,
+				code_challenge_method,
+				sub,
+				scope,
+			},
 		} = await jwtDecrypt<AuthorizationCode>(
 			authorization_code,
 			new TextEncoder().encode(config.secret),
@@ -45,6 +52,8 @@ export async function validateAuthorizationCode(
 
 		return {
 			authorization_code,
+			code_challenge,
+			code_challenge_method,
 			sub,
 			scope,
 		};
