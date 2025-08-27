@@ -101,7 +101,7 @@ export class Core {
 
 			setTimeout(() => {
 				this.rotateSecret();
-			}, this.config?.secret_ttl * 1000);
+			}, this.config.secret_ttl * 1000);
 		}
 	}
 }
