@@ -27,6 +27,8 @@ import {
 	validateTokenHandlerConfig,
 } from "./handlers";
 
+const SECRET_MEMORY = 1000;
+
 export class Core {
 	config: Config;
 
@@ -97,6 +99,7 @@ export class Core {
 		if (this.config.secret_ttl && this.config.rotate_secret) {
 			const newSecret = crypto.randomBytes(16).toString("hex");
 			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
+			this.config.previous_secrets = this.config.previous_secrets?.slice(0, SECRET_MEMORY);
 			this.config.secret = newSecret;
 
 			setTimeout(() => {
