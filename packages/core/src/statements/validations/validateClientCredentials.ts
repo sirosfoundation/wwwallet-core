@@ -1,4 +1,6 @@
 import { jwtDecrypt } from "jose";
+import { JWEDecryptionFailed } from "jose/errors";
+import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../constants";
 import { OauthError } from "../../errors";
 import type { OauthClient } from "../../resources";
 
@@ -12,7 +14,8 @@ type validateClientCredentialsParams = {
 
 export type ValidateClientCredentialsConfig = {
 	clients: Array<OauthClient>;
-	secret?: string;
+	secret: string;
+	previous_secrets: Array<string>;
 };
 
 export async function validateClientCredentials(
@@ -40,9 +43,18 @@ export async function validateClientCredentials(
 			const {
 				payload: { client_id: requestClientId },
 			} = await jwtDecrypt<{ client_id: string }>(
-				request_uri.replace("urn:wwwallet:authorization_request:", ""),
+				request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
 				new TextEncoder().encode(config.secret),
-			);
+			).catch((error) => {
+				if (error instanceof JWEDecryptionFailed) {
+					return jwtDecrypt<{ client_id: string }>(
+						request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
+						new TextEncoder().encode(config.previous_secrets[0]),
+					);
+				}
+
+				throw error;
+			});
 			client = config.clients.find((client: OauthClient) => {
 				return client.id === client_id && client.id === requestClientId;
 			});

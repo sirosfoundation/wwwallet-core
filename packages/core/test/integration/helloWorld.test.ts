@@ -20,7 +20,7 @@ describe("healthz", () => {
 
 		expect(response.status).toBe(500);
 		expect(response.text).toBe(
-			"Could not validate authorize handler configuration - data must have required property 'secret'",
+			"Could not validate authorize handler configuration - data/issuer_client must have required property 'id'",
 		);
 	});
 

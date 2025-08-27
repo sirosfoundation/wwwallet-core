@@ -24,6 +24,7 @@ export type PushedAuthorizationRequestHandlerConfig = {
 	pushed_authorization_request_ttl: number;
 	token_encryption: string;
 	secret: string;
+	previous_secrets: Array<string>;
 };
 
 type PushedAuthorizationRequest = {

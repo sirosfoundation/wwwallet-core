@@ -21,6 +21,7 @@ export type TokenHandlerConfig = {
 	access_token_ttl: number;
 	token_encryption: string;
 	secret: string;
+	previous_secrets: Array<string>;
 };
 
 type TokenResponse = {

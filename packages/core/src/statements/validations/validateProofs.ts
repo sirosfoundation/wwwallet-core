@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { decodeProtectedHeader, type JWK, jwtDecrypt, jwtVerify } from "jose";
+import { JWEDecryptionFailed } from "jose/errors";
 import { OauthError } from "../../errors";
 import type { IssuerClient } from "../../resources";
 
@@ -13,6 +14,7 @@ export type ValidateProofsParams = {
 
 export type ValidateProofsConfig = {
 	secret: string;
+	previous_secrets: Array<string>;
 	trusted_root_certificates: Array<string>;
 	issuer_client: IssuerClient;
 };
@@ -165,7 +167,19 @@ async function validateNonce(
 		const secret = new TextEncoder().encode(config.secret);
 		const {
 			payload: { sub, token_type },
-		} = await jwtDecrypt<{ sub: string; token_type: string }>(nonce, secret);
+		} = await jwtDecrypt<{ sub: string; token_type: string }>(
+			nonce,
+			secret,
+		).catch((error) => {
+			if (error instanceof JWEDecryptionFailed) {
+				return jwtDecrypt<{ sub: string; token_type: string }>(
+					nonce,
+					new TextEncoder().encode(config.previous_secrets[0]),
+				);
+			}
+
+			throw error;
+		});
 
 		if (token_type !== "c_nonce") {
 			throw new OauthError(

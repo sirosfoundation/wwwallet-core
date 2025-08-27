@@ -1,4 +1,5 @@
 import { jwtDecrypt } from "jose";
+import { JWEDecryptionFailed } from "jose/errors";
 import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../constants";
 import { OauthError } from "../../errors";
 import type { AuthorizationRequest } from "../../resources";
@@ -9,6 +10,7 @@ type validateRequestUriParams = {
 
 export type ValidateRequestUriConfig = {
 	secret: string;
+	previous_secrets: Array<string>;
 };
 
 export async function validateRequestUri(
@@ -39,7 +41,16 @@ export async function validateRequestUri(
 		} = await jwtDecrypt<AuthorizationRequest>(
 			request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
 			new TextEncoder().encode(config.secret),
-		);
+		).catch((error) => {
+			if (error instanceof JWEDecryptionFailed) {
+				return jwtDecrypt<AuthorizationRequest>(
+					request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
+					new TextEncoder().encode(config.previous_secrets[0]),
+				);
+			}
+
+			throw error;
+		});
 
 		if (token_type !== "authorization_request") {
 			throw new OauthError(
