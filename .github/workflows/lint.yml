@@ -3,7 +3,7 @@ name: Lint and formatting
 on: [push]
 
 jobs:
-  test:
+  lint:
     strategy:
       matrix:
         pnpm-version: ['10.15.0']

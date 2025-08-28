@@ -3,7 +3,7 @@ name: Validate configuration
 on: [push]
 
 jobs:
-  test:
+  config:
     strategy:
       matrix:
         pnpm-version: ['10.15.0']
