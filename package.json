@@ -4,6 +4,7 @@
 		"prepare": "sh -c 'if [ \"$CI\" != \"true\" ]; then husky; fi'",
 		"start:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/main.ts",
 		"config:validate:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/validateConfig.ts",
+		"build:core": "pnpm --filter @wwwallet/core build",
 		"format": "biome format --write",
 		"biome:ci": "biome ci",
 		"test": "vitest run",
