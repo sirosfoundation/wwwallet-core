@@ -1,4 +1,20 @@
 {
-	"extends": "../../tsconfig.json",
-	"include": ["src/**/*", "test/**/*"]
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"target": "es2022",
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"strict": true,
+		"noImplicitOverride": true,
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"lib": ["es2024"],
+		"declaration": true,
+		"noEmit": true
+	},
+	"include": ["./**/*.ts"],
+	"exclude": ["node_modules"]
 }
