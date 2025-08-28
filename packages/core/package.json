@@ -16,6 +16,7 @@
 	},
 	"scripts": {
 		"build": "tsup-node",
+		"dev": "tsup-node --watch",
 		"dependency-tree": "madge --image ../../images/packages-core-dependency-tree.svg ./src/index.ts"
 	},
 	"devDependencies": {
