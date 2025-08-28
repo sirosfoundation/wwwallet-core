@@ -13,8 +13,14 @@ Server static configuration can be edited given the example `config.ts` [file](.
 ## Run a development server
 
 ```sh
-$ pnpm start
+$ pnpm run dev
 ```
+
+> [!NOTE]
+> If you're working with a fresh clone of the repo or haven't run any builds, you need to run an initial build of all [packages](./packages):
+> ```sh
+> $ pnpm run build
+> ```
 
 Or with Docker:
 
