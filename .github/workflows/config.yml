@@ -17,5 +17,6 @@ jobs:
       with:
         version: ${{ matrix.pnpm-version }}
     - run: pnpm install --frozen-lockfile
+    - run: pnpm run build:core
     - run: pnpm run config:validate:client
 
