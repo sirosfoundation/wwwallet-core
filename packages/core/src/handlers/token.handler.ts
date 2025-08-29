@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "../config";
+import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 import {
@@ -17,6 +17,7 @@ import {
 const ajv = new Ajv();
 
 export type TokenHandlerConfig = {
+	logger: Logger;
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	token_encryption: string;
@@ -55,6 +56,8 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 			);
 		} catch (error) {
 			if (error instanceof OauthError) {
+				config.logger.business("token_error", { error: error.message });
+
 				return error.toResponse();
 			}
 

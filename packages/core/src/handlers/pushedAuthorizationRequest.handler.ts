@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "../config";
+import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import {
 	generateAuthorizationRequestUri,
@@ -13,6 +13,7 @@ import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedA
 const ajv = new Ajv();
 
 export type PushedAuthorizationRequestHandlerConfig = {
+	logger: Logger;
 	issuer_client: {
 		id: string;
 	};
@@ -82,12 +83,17 @@ export function pushedAuthorizationRequestHandlerFactory(
 				config,
 			);
 
+			config.logger.business("pushed_authorization", { request_uri });
+
 			return {
 				status: 200,
 				body: { request_uri, expires_in },
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
+				config.logger.business("pushed_authorization_error", {
+					error: error.message,
+				});
 				return error.toResponse();
 			}
 

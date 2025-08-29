@@ -113,7 +113,14 @@ export class Core {
 }
 
 export const defaultConfig = {
-	logger: console,
+	logger: {
+		business: (event: string, data: { [key: string]: string | undefined }) =>
+			console.info(`${event} - `, JSON.stringify(data)),
+		error: console.error,
+		info: console.info,
+		warn: console.warn,
+		debug: console.debug,
+	},
 	clients: [],
 	access_token_ttl: 60,
 	pushed_authorization_request_ttl: 300,

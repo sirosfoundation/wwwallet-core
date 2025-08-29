@@ -25,7 +25,7 @@ export class OauthError extends Error {
 		error_description: string,
 		data: { [key: string]: unknown } = {},
 	) {
-		super(error_description);
+		super(`\"${error_description}\"`);
 
 		this.status = status;
 		this.error = error;

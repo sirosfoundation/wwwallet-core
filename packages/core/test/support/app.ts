@@ -176,6 +176,10 @@ export function server(core: Core) {
 
 export const config = {
 	logger: {
+		business: (
+			_event: string,
+			_data: { [key: string]: string | undefined },
+		) => {},
 		error: (_message: string) => {},
 		info: (_message: string) => {},
 		warn: (_message: string) => {},

@@ -1,4 +1,5 @@
 import type { Request } from "express";
+import type { Logger } from "../../config";
 import { OauthError } from "../../errors";
 import type { OauthClient } from "../../resources";
 import {
@@ -9,6 +10,7 @@ import {
 } from "../../statements";
 
 export type AuthorizationCodeHandlerConfig = {
+	logger: Logger;
 	clients: Array<OauthClient>;
 	access_token_ttl: number;
 	token_encryption: string;
@@ -80,6 +82,13 @@ export async function handleAuthorizationCode(
 		},
 		config,
 	);
+
+	config.logger.business("authorization_code", {
+		client_id: client.id,
+		sub,
+		access_token,
+		expires_in: expires_in.toString(),
+	});
 
 	return {
 		status: 200,

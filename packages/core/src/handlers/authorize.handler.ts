@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "../config";
+import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { AuthorizationRequest, ResourceOwner } from "../resources";
 import {
@@ -17,6 +17,7 @@ import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.s
 const ajv = new Ajv();
 
 export type AuthorizeHandlerConfig = {
+	logger: Logger;
 	issuer_client: {
 		id: string;
 	};
@@ -104,11 +105,19 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 					{ authorization_request, authorization_code },
 					config,
 				);
+
+				config.logger.business("authenticate", {
+					request_uri,
+					authorization_code,
+				});
+
 				return {
 					status: 302,
 					location,
 				};
 			}
+
+			config.logger.business("authorize", { request_uri });
 
 			return {
 				status: 200,
@@ -121,6 +130,11 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 		} catch (error) {
 			if (error instanceof OauthError) {
 				const data = authorizeErrorData(expressRequest);
+
+				config.logger.business("authorize_error", {
+					error: error.message,
+					...data,
+				});
 				return error.toResponse(data);
 			}
 
@@ -179,7 +193,7 @@ function authorizeErrorData(expressRequest: Request) {
 	const { client_id, request_uri } = expressRequest.query;
 
 	return {
-		clientId: client_id,
-		requestUri: request_uri,
+		clientId: client_id as string,
+		requestUri: request_uri as string,
 	};
 }

@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "../config";
+import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { CredentialConfiguration, OauthClient } from "../resources";
 import {
@@ -15,6 +15,7 @@ import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig
 const ajv = new Ajv();
 
 export type CredentialHandlerConfig = {
+	logger: Logger;
 	issuer_url: string;
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
@@ -95,6 +96,8 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
+			config.logger.business("credential", { access_token, sub, scope });
+
 			return {
 				status: 200,
 				body: {
@@ -103,6 +106,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
+				config.logger.business("credential_error", { error: error.message });
 				return error.toResponse();
 			}
 

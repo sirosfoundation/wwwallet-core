@@ -9,31 +9,44 @@ export class Logger implements CoreLogger {
 		this.level = level;
 	}
 
+	business(event: string, data: { [key: string]: string | undefined }) {
+		this.info(
+			`${event} - ` +
+				Object.keys(data)
+					.map((key: string) => `${key}=${data[key]}`)
+					.join(" "),
+		);
+	}
+
 	error(message: string) {
 		if (this.logLevels.indexOf("error") > this.logLevels.indexOf(this.level))
 			return;
 
-		console.error(message);
+		console.error(this.logPrefix(), message);
 	}
 
 	info(message: string) {
 		if (this.logLevels.indexOf("info") > this.logLevels.indexOf(this.level))
 			return;
 
-		console.info(message);
+		console.info(this.logPrefix(), message);
 	}
 
 	warn(message: string) {
 		if (this.logLevels.indexOf("warn") > this.logLevels.indexOf(this.level))
 			return;
 
-		console.warn(message);
+		console.warn(this.logPrefix(), message);
 	}
 
 	debug(message: string) {
 		if (this.logLevels.indexOf("debug") > this.logLevels.indexOf(this.level))
 			return;
 
-		console.log(message);
+		console.log(this.logPrefix(), message);
+	}
+
+	logPrefix() {
+		return `[wwwallet-issuer-poc] ${new Date().toISOString()} | `;
 	}
 }

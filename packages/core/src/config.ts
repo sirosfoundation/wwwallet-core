@@ -1,6 +1,26 @@
 import type { AuthorizationServerState } from "./resources";
 
+type BusinessEvent =
+	| "authorize"
+	| "authenticate"
+	| "authorize_error"
+	| "credential"
+	| "credential_error"
+	| "credential_offer"
+	| "credential_offer_error"
+	| "nonce"
+	| "nonce_error"
+	| "pushed_authorization"
+	| "pushed_authorization_error"
+	| "client_credentials"
+	| "authorization_code"
+	| "token_error";
+
 export interface Logger {
+	business: (
+		event: BusinessEvent,
+		data: { [key: string]: string | undefined },
+	) => void;
 	error: (message: string) => void;
 	info: (message: string) => void;
 	warn: (message: string) => void;

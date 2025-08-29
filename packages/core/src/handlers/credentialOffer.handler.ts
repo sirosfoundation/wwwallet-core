@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config } from "../config";
+import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type {
 	AuthorizationServerState,
@@ -17,6 +17,7 @@ import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHan
 const ajv = new Ajv();
 
 export type CredentialOfferHandlerConfig = {
+	logger: Logger;
 	databaseOperations: {
 		insertAuthorizationServerState: (
 			authorizationServerState: AuthorizationServerState,
@@ -80,6 +81,13 @@ export function credentialOfferHandlerFactory(
 				config,
 			);
 
+			config.logger.business("credential_offer", {
+				client_id: client.id,
+				scope,
+				credential_configuration_ids: credentialConfigurations
+					.map(({ credential_configuration_id }) => credential_configuration_id)
+					.join(","),
+			});
 			return {
 				status: 200,
 				data: {
@@ -94,6 +102,9 @@ export function credentialOfferHandlerFactory(
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
+				config.logger.business("credential_offer_error", {
+					error: error.message,
+				});
 				return error.toResponse();
 			}
 
