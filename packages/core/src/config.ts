@@ -80,6 +80,7 @@ export type Config = {
 	secret_ttl?: number;
 	token_encryption?: string;
 	secret?: string;
+	secret_base?: string;
 	previous_secrets?: Array<string>;
 	rotate_secret?: boolean;
 	trusted_root_certificates?: Array<string>;

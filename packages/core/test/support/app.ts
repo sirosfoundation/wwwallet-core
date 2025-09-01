@@ -15,7 +15,7 @@ import {
 	validateTokenHandlerConfig,
 } from "../../src";
 
-export function server(core: Core) {
+export function server(core: Core): express.Express {
 	const app = express();
 
 	app.use(express.json());
@@ -191,6 +191,7 @@ export const config = {
 		async insertAuthorizationServerState(
 			authorizationServerState: AuthorizationServerState,
 		) {
+			// @ts-ignore
 			this.__authorizationServerState = authorizationServerState;
 			return authorizationServerState;
 		},
@@ -215,7 +216,8 @@ export const config = {
 	],
 	issuer_display: [{ name: "Test issuer" }],
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
-	access_token_ttl: 3600 * 2,
+	secret_base: "test",
+	rotate_secret: true,
 	issuer_client: {
 		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
 	},

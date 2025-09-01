@@ -1,6 +1,6 @@
-import crypto from "node:crypto";
 import { merge } from "ts-deepmerge";
 import type { Config } from "./config";
+import { secretDerivation } from "./crypto";
 import {
 	type AuthorizeHandlerConfig,
 	authorizeHandlerFactory,
@@ -27,7 +27,7 @@ import {
 	validateTokenHandlerConfig,
 } from "./handlers";
 
-const SECRET_MEMORY = 1000;
+const SECRET_MEMORY = 10;
 
 export class Core {
 	config: Config;
@@ -95,9 +95,16 @@ export class Core {
 		);
 	}
 
-	rotateSecret() {
-		if (this.config.secret_ttl && this.config.rotate_secret) {
-			const newSecret = crypto.randomBytes(16).toString("hex");
+	async rotateSecret() {
+		if (
+			this.config.secret_ttl &&
+			this.config.rotate_secret &&
+			this.config.secret_base
+		) {
+			const base = this.config.secret_base;
+			const ttl = this.config.secret_ttl;
+			const now = Date.now() / 1000;
+			const newSecret = await secretDerivation(base, Math.floor(now / ttl));
 			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
 			this.config.previous_secrets = this.config.previous_secrets?.slice(
 				0,
@@ -137,5 +144,5 @@ export const defaultConfig = {
 	trusted_root_certificates: [],
 	previous_secrets: [],
 	secret_ttl: 720,
-	rotate_secret: true,
+	rotate_secret: false,
 };
