@@ -1,4 +1,6 @@
 import { merge } from "ts-deepmerge";
+import { logger } from "./adapters/console";
+import { generateToken, validateToken } from "./adapters/stateless";
 import type { Config } from "./config";
 import { secretDerivation } from "./crypto";
 import {
@@ -120,13 +122,10 @@ export class Core {
 }
 
 export const defaultConfig = {
-	logger: {
-		business: (event: string, data: { [key: string]: string | undefined }) =>
-			console.info(`${event} - `, JSON.stringify(data)),
-		error: console.error,
-		info: console.info,
-		warn: console.warn,
-		debug: console.debug,
+	logger,
+	databaseOperations: {
+		generateToken,
+		validateToken,
 	},
 	clients: [],
 	access_token_ttl: 60,
@@ -134,7 +133,6 @@ export const defaultConfig = {
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
-	databaseOperations: {},
 	issuer_client: {
 		id: "",
 		scopes: [],

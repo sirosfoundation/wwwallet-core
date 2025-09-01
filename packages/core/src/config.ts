@@ -27,6 +27,10 @@ export interface Logger {
 	debug: (message: string) => void;
 }
 
+export type TokenGenerator = () => Promise<void>;
+
+export type TokenValidator = () => Promise<void>;
+
 export type Config = {
 	issuer_url: string;
 	wallet_url?: string;
@@ -36,6 +40,8 @@ export type Config = {
 			authorizationServerState: AuthorizationServerState,
 		) => Promise<AuthorizationServerState>;
 		resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
+		generateToken?: TokenGenerator;
+		TokenValidator?: TokenGenerator;
 	};
 	issuer_display?: Array<{
 		locale?: string;
