@@ -2,31 +2,31 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import type { CredentialConfiguration, OauthClient } from "../resources";
 import {
 	generateCredentials,
 	validateAccessToken,
 	validateCredentialConfigurations,
 	validateDpop,
 	validateProofs,
+	type GenerateCredentialsConfig,
+	type ValidateAccessTokenConfig,
+	type ValidateCredentialConfigurationsConfig,
+	type ValidateDpopConfig,
+	type ValidateProofsConfig,
 } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type CredentialHandlerConfig = {
+export type CredentialHandlerConfig = ({
 	logger: Logger;
-	issuer_url: string;
-	databaseOperations: {
-		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
-	};
-	clients: Array<OauthClient>;
-	issuer_client: OauthClient;
-	secret: string;
-	previous_secrets: Array<string>;
-	supported_credential_configurations: Array<CredentialConfiguration>;
-	trusted_root_certificates: Array<string>;
-};
+}
+	& ValidateAccessTokenConfig
+	& ValidateDpopConfig
+	& ValidateCredentialConfigurationsConfig
+	& ValidateProofsConfig
+	& GenerateCredentialsConfig
+);
 
 type CredentialRequest = {
 	credential_configuration_ids: Array<string>;

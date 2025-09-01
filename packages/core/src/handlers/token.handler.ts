@@ -7,23 +7,23 @@ import {
 	type AuthorizationCodeRequest,
 	handleAuthorizationCode,
 	validateAuthorizationCodeRequest,
+	type AuthorizationCodeHandlerConfig,
 } from "./token/authorizationCode";
 import {
 	type ClientCredentialsRequest,
 	handleClientCredentials,
 	validateClientCredentialsRequest,
+	type ClientCredentialsHandlerConfig,
 } from "./token/clientCredentials";
 
 const ajv = new Ajv();
 
-export type TokenHandlerConfig = {
+export type TokenHandlerConfig = ({
 	logger: Logger;
-	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
-	access_token_ttl: number;
-	token_encryption: string;
-	secret: string;
-	previous_secrets: Array<string>;
-};
+}
+	& ClientCredentialsHandlerConfig
+	& AuthorizationCodeHandlerConfig
+);
 
 type TokenResponse = {
 	status: 200;

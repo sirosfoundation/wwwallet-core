@@ -7,26 +7,21 @@ import {
 	validateClientCredentials,
 	validateIssuerState,
 	validateScope,
+	type GenerateAuthorizationRequestUriConfig,
+	type ValidateClientCredentialsConfig,
+	type ValidateIssuerStateConfig,
 } from "../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedAuthorizationRequestHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type PushedAuthorizationRequestHandlerConfig = {
+export type PushedAuthorizationRequestHandlerConfig = ({
 	logger: Logger;
-	issuer_client: {
-		id: string;
-	};
-	clients: Array<{
-		id: string;
-		redirect_uris: Array<string>;
-		scopes: Array<string>;
-	}>;
-	pushed_authorization_request_ttl: number;
-	token_encryption: string;
-	secret: string;
-	previous_secrets: Array<string>;
-};
+}
+	& ValidateClientCredentialsConfig
+	& ValidateIssuerStateConfig
+	& GenerateAuthorizationRequestUriConfig
+);
 
 type PushedAuthorizationRequest = {
 	response_type: string;
@@ -47,9 +42,7 @@ type PushedAuthorizationRequestResponse = {
 	};
 };
 
-export function pushedAuthorizationRequestHandlerFactory(
-	config: PushedAuthorizationRequestHandlerConfig,
-) {
+export function pushedAuthorizationRequestHandlerFactory(config: PushedAuthorizationRequestHandlerConfig) {
 	return async function pushedAuthorizationRequestHandler(
 		expressRequest: Request,
 	): Promise<PushedAuthorizationRequestResponse | OauthErrorResponse> {
