@@ -15,6 +15,7 @@
 		"test:cover": "vitest run --coverage",
 		"dependency-tree": "pnpm run -r dependency-tree",
 		"lerna": "lerna",
+		"lerna:version": "lerna version --no-private",
 		"lerna:publish": "lerna publish from-package --no-private"
 	},
 	"devDependencies": {
