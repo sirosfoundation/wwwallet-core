@@ -4,5 +4,8 @@
   "initialVersions": {
     "@wwwallet-private/core": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "angry-moose-cheat",
+    "common-birds-exist"
+  ]
 }
