@@ -8,7 +8,6 @@ export const options = {
 	duration: "30s",
 };
 
-// FIXME signature appears to be invalid
 async function generateDpop(access_token) {
 	const { privateKey, publicKey } = await crypto.subtle.generateKey(
 		{
