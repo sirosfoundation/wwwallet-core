@@ -2,7 +2,6 @@ import crypto from "node:crypto";
 import { EncryptJWT, exportJWK, generateKeyPair, SignJWT } from "jose";
 import { describe, expect, it } from "vitest";
 import { OauthError } from "../../src/errors";
-import type { IssuerClient } from "../../src/resources";
 import { validateProofs } from "../../src/statements";
 import { core } from "../support/app";
 
@@ -16,11 +15,7 @@ j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
 `;
 
 describe("validate Proofs", () => {
-	const config = {
-		issuer_client: core.config.issuer_client as IssuerClient,
-		secret: core.config.secret || "",
-		trusted_root_certificates: core.config.trusted_root_certificates || [],
-	};
+	const config = core.config;
 
 	it("resolves empty proofs", async () => {
 		const proofs = {};

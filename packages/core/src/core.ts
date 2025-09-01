@@ -95,7 +95,7 @@ export class Core {
 		);
 	}
 
-	rotateSecret() {
+	async rotateSecret() {
 		if (
 			this.config.secret_ttl &&
 			this.config.rotate_secret &&
@@ -104,7 +104,7 @@ export class Core {
 			const base = this.config.secret_base;
 			const ttl = this.config.secret_ttl;
 			const now = Date.now() / 1000;
-			const newSecret = secretDerivation(base, Math.floor(now / ttl));
+			const newSecret = await secretDerivation(base, Math.floor(now / ttl));
 			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
 			this.config.previous_secrets = this.config.previous_secrets?.slice(
 				0,
