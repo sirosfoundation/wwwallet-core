@@ -63,7 +63,7 @@ $ docker compose up k6 --no-log-prefix
 ```sh
 $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # Example:
-# pnpm --filter @wwwallet/core add -D vitest
+# pnpm --filter @wwwallet-private/core add -D vitest
 ```
 
 ## Dependency tree
