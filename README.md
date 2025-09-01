@@ -66,6 +66,10 @@ $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # pnpm --filter @wwwallet-private/core add -D vitest
 ```
 
+## Changelog and versioning
+
+Please read [./.changeset/README.md](./.changeset/README.md) For information about changelog and versioning.
+
 ## Dependency tree
 
 ```sh
