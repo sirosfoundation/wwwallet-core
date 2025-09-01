@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config, Logger } from "../config";
+import type { Config, Logger, TokenValidator } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { CredentialConfiguration, OauthClient } from "../resources";
 import {
@@ -19,6 +19,7 @@ export type CredentialHandlerConfig = {
 	issuer_url: string;
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
+		validateToken: TokenValidator;
 	};
 	clients: Array<OauthClient>;
 	issuer_client: OauthClient;

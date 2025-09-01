@@ -1,6 +1,10 @@
 import { merge } from "ts-deepmerge";
 import { logger } from "./adapters/console";
-import { generateToken, validateToken } from "./adapters/stateless";
+import {
+	generateToken,
+	type TokenOptions,
+	validateToken,
+} from "./adapters/stateless";
 import type { Config } from "./config";
 import { secretDerivation } from "./crypto";
 import {
@@ -38,6 +42,7 @@ export class Core {
 		defaultConfig.issuer_client.id = config.issuer_url;
 
 		this.config = merge(defaultConfig, config);
+
 		this.rotateSecret();
 	}
 
@@ -112,6 +117,23 @@ export class Core {
 				0,
 				SECRET_MEMORY,
 			);
+
+			if (
+				this.config.databaseOperations &&
+				(this.config.databaseOperations.tokenOptions as TokenOptions)
+			) {
+				(this.config.databaseOperations.tokenOptions as TokenOptions).secret =
+					newSecret;
+				(
+					this.config.databaseOperations.tokenOptions as TokenOptions
+				).previous_secrets?.unshift(newSecret);
+				(
+					this.config.databaseOperations.tokenOptions as TokenOptions
+				).previous_secrets = this.config.previous_secrets?.slice(
+					0,
+					SECRET_MEMORY,
+				);
+			}
 			this.config.secret = newSecret;
 
 			setTimeout(() => {
@@ -126,13 +148,16 @@ export const defaultConfig = {
 	databaseOperations: {
 		generateToken,
 		validateToken,
+		tokenOptions: {
+			secret_ttl: 720,
+			token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+		},
 	},
 	clients: [],
 	access_token_ttl: 60,
 	pushed_authorization_request_ttl: 300,
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,
-	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	issuer_client: {
 		id: "",
 		scopes: [],
@@ -141,6 +166,7 @@ export const defaultConfig = {
 	supported_credential_configurations: [],
 	trusted_root_certificates: [],
 	previous_secrets: [],
+	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
 	secret_ttl: 720,
 	rotate_secret: false,
 };

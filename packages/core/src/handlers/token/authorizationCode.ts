@@ -1,5 +1,5 @@
 import type { Request } from "express";
-import type { Logger } from "../../config";
+import type { Logger, TokenGenerator } from "../../config";
 import { OauthError } from "../../errors";
 import type { OauthClient } from "../../resources";
 import {
@@ -11,6 +11,9 @@ import {
 
 export type AuthorizationCodeHandlerConfig = {
 	logger: Logger;
+	databaseOperations: {
+		generateToken: TokenGenerator;
+	};
 	clients: Array<OauthClient>;
 	access_token_ttl: number;
 	token_encryption: string;

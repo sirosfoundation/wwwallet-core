@@ -1,4 +1,5 @@
-import { EncryptJWT } from "jose";
+import type { Logger, TokenGenerator } from "../../config";
+import { OauthError } from "../../errors";
 import type { OauthClient, OauthScope } from "../../resources";
 
 export type GenerateAccessTokenParams = {
@@ -9,9 +10,11 @@ export type GenerateAccessTokenParams = {
 };
 
 export type GenerateAccessTokenConfig = {
+	databaseOperations: {
+		generateToken: TokenGenerator;
+	};
+	logger: Logger;
 	access_token_ttl: number;
-	token_encryption: string;
-	secret: string;
 };
 
 export async function generateAccessToken(
@@ -24,23 +27,28 @@ export async function generateAccessToken(
 	config: GenerateAccessTokenConfig,
 ) {
 	const sub = requestedSub || client.id;
-	const now = Date.now() / 1000;
 
-	const secret = new TextEncoder().encode(config.secret);
+	try {
+		const expires_in = config.access_token_ttl;
+		const access_token = await config.databaseOperations.generateToken(
+			"access_token",
+			{
+				previous_code: authorization_code,
+				client_id: client.id,
+				sub,
+				scope,
+			},
+			expires_in,
+		);
 
-	const access_token = await new EncryptJWT({
-		previous_code: authorization_code,
-		token_type: "access_token",
-		client_id: client.id,
-		sub,
-		scope,
-	})
-		.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
-		.setIssuedAt()
-		.setExpirationTime(now + config.access_token_ttl)
-		.encrypt(secret);
+		return { access_token, expires_in };
+	} catch (error) {
+		config.logger.error((error as Error).message);
 
-	const expires_in = config.access_token_ttl;
-
-	return { access_token, expires_in };
+		throw new OauthError(
+			500,
+			"unknown_error",
+			"could not generate access token",
+		);
+	}
 }

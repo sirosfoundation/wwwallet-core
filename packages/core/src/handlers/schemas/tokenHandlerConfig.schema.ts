@@ -1,6 +1,14 @@
 export const tokenHandlerConfigSchema = {
 	type: "object",
 	properties: {
+		logger: {},
+		databaseOperations: {
+			type: "object",
+			properties: {
+				generateToken: {},
+			},
+			required: ["generateToken"],
+		},
 		clients: {
 			type: "array",
 			items: {

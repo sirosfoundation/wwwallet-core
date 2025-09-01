@@ -67,7 +67,6 @@ export type AuthorizationRequest = {
 };
 
 export type AccessToken = {
-	token_type: "access_token";
 	previous_code?: string;
 	access_token?: string;
 	client_id: string;

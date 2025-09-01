@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config, Logger } from "../config";
+import type { Config, Logger, TokenGenerator } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 import {
@@ -18,6 +18,9 @@ const ajv = new Ajv();
 
 export type TokenHandlerConfig = {
 	logger: Logger;
+	databaseOperations: {
+		generateToken: TokenGenerator;
+	};
 	clients: Array<{ id: string; secret: string; scopes: Array<string> }>;
 	access_token_ttl: number;
 	token_encryption: string;

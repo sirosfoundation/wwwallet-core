@@ -1,7 +1,6 @@
-import { jwtDecrypt } from "jose";
-import { JWEDecryptionFailed } from "jose/errors";
+import type { TokenValidator } from "../../config";
 import { OauthError } from "../../errors";
-import type { AccessToken, OauthClient } from "../../resources";
+import type { OauthClient } from "../../resources";
 
 type validateAccessTokenParams = {
 	access_token: string | undefined;
@@ -9,8 +8,9 @@ type validateAccessTokenParams = {
 
 export type ValidateAccessTokenConfig = {
 	clients: Array<OauthClient>;
-	secret: string;
-	previous_secrets: Array<string>;
+	databaseOperations: {
+		validateToken: TokenValidator;
+	};
 	issuer_client: OauthClient;
 };
 
@@ -25,24 +25,11 @@ export async function validateAccessToken(
 
 	try {
 		const {
-			payload: { token_type, client_id, sub, scope },
-		} = await jwtDecrypt<AccessToken>(
+			payload: { client_id, sub, scope },
+		} = await config.databaseOperations.validateToken(
+			"access_token",
 			access_token,
-			new TextEncoder().encode(config.secret),
-		).catch((error) => {
-			if (error instanceof JWEDecryptionFailed) {
-				return jwtDecrypt<AccessToken>(
-					access_token,
-					new TextEncoder().encode(config.previous_secrets[0]),
-				);
-			}
-
-			throw error;
-		});
-
-		if (token_type !== "access_token") {
-			throw new OauthError(401, "invalid_request", "access token is invalid");
-		}
+		);
 
 		const client = config.clients
 			.concat([config.issuer_client])

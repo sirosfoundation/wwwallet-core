@@ -1,4 +1,4 @@
-import type { AuthorizationServerState } from "./resources";
+import type { AccessToken, AuthorizationServerState } from "./resources";
 
 type BusinessEvent =
 	| "authorize"
@@ -27,9 +27,20 @@ export interface Logger {
 	debug: (message: string) => void;
 }
 
-export type TokenGenerator = () => Promise<void>;
+type TokenType = "access_token";
 
-export type TokenValidator = () => Promise<void>;
+type Token = AccessToken;
+
+export type TokenGenerator = (
+	token_type: TokenType,
+	data: Token,
+	ttl?: number,
+) => Promise<string>;
+
+export type TokenValidator = (
+	token_type: TokenType,
+	token: string,
+) => Promise<{ payload: Token }>;
 
 export type Config = {
 	issuer_url: string;
@@ -42,6 +53,7 @@ export type Config = {
 		resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 		generateToken?: TokenGenerator;
 		TokenValidator?: TokenGenerator;
+		tokenOptions?: unknown;
 	};
 	issuer_display?: Array<{
 		locale?: string;

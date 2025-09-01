@@ -5,8 +5,9 @@ export const credentialHandlerConfigSchema = {
 			type: "object",
 			properties: {
 				resourceOwnerData: {},
+				validateToken: {},
 			},
-			required: ["resourceOwnerData"],
+			required: ["resourceOwnerData", "validateToken"],
 		},
 		secret: { type: "string" },
 	},
