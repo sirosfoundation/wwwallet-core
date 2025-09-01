@@ -57,7 +57,7 @@ importers:
       '@types/morgan':
         specifier: ^1.9.10
         version: 1.9.10
-      '@wwwallet/core':
+      '@wwwallet-private/core':
         specifier: link:../../packages/core
         version: link:../../packages/core
       express:
