@@ -61,7 +61,7 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       '@wwwallet-private/core':
-        specifier: link:../../packages/core
+        specifier: workspace:*
         version: link:../../packages/core
       express:
         specifier: ^5.1.0
