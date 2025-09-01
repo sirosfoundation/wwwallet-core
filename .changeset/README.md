@@ -49,8 +49,8 @@ When you want to tag and publish a release (usually right after a new version), 
 $ pnpm changeset:tag
 ```
 
-This creates new tags for all packages that have new versions. Then, you can publish these new tags on NPM by running:
+This creates new tags for all packages that have new versions. Then, you can build the packages and publish these new tags on NPM by running:
 
 ```sh
-$ pnpm release -r
+$ pnpm run build && pnpm release -r
 ```
