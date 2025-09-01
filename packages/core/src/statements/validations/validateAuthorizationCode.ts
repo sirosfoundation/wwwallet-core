@@ -1,17 +1,13 @@
-import { jwtDecrypt } from "jose";
-import { JWEDecryptionFailed } from "jose/errors";
 import { OauthError } from "../../errors";
 import type { AuthorizationCode } from "../../resources";
+import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateAuthorizationCodeParams = {
 	authorization_code: string;
 	redirect_uri: string;
 };
 
-export type ValidateAuthorizationCodeConfig = {
-	secret: string;
-	previous_secrets: Array<string>;
-};
+export type ValidateAuthorizationCodeConfig = DecryptConfig;
 
 // TODO validate code redirect uri according to request
 export async function validateAuthorizationCode(
@@ -31,19 +27,7 @@ export async function validateAuthorizationCode(
 				sub,
 				scope,
 			},
-		} = await jwtDecrypt<AuthorizationCode>(
-			authorization_code,
-			new TextEncoder().encode(config.secret),
-		).catch((error) => {
-			if (error instanceof JWEDecryptionFailed) {
-				return jwtDecrypt<AuthorizationCode>(
-					authorization_code,
-					new TextEncoder().encode(config.previous_secrets[0]),
-				);
-			}
-
-			throw error;
-		});
+		} = await jwtDecryptWithConfigKeys<AuthorizationCode>(authorization_code, config);
 
 		if (token_type !== "authorization_code") {
 			throw new OauthError(

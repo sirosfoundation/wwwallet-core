@@ -1,18 +1,17 @@
-import { jwtDecrypt } from "jose";
-import { JWEDecryptionFailed } from "jose/errors";
 import { OauthError } from "../../errors";
 import type { AccessToken, OauthClient } from "../../resources";
+import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateAccessTokenParams = {
 	access_token: string | undefined;
 };
 
-export type ValidateAccessTokenConfig = {
+export type ValidateAccessTokenConfig = ({
 	clients: Array<OauthClient>;
-	secret: string;
-	previous_secrets: Array<string>;
 	issuer_client: OauthClient;
-};
+}
+	& DecryptConfig
+);
 
 // TODO validate code redirect uri according to request
 export async function validateAccessToken(
@@ -26,19 +25,7 @@ export async function validateAccessToken(
 	try {
 		const {
 			payload: { token_type, client_id, sub, scope },
-		} = await jwtDecrypt<AccessToken>(
-			access_token,
-			new TextEncoder().encode(config.secret),
-		).catch((error) => {
-			if (error instanceof JWEDecryptionFailed) {
-				return jwtDecrypt<AccessToken>(
-					access_token,
-					new TextEncoder().encode(config.previous_secrets[0]),
-				);
-			}
-
-			throw error;
-		});
+		} = await jwtDecryptWithConfigKeys<AccessToken>(access_token, config);
 
 		if (token_type !== "access_token") {
 			throw new OauthError(401, "invalid_request", "access token is invalid");
