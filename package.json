@@ -16,7 +16,8 @@
 		"dependency-tree": "pnpm run -r dependency-tree",
 		"changeset:add": "changeset add",
 		"changeset:version": "source .changeset/.env && changeset version",
-		"changeset:tag": "changeset tag"
+		"changeset:tag": "changeset tag",
+		"changeset:pre": "changeset pre"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
