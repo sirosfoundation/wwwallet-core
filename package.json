@@ -15,7 +15,7 @@
 		"test:cover": "vitest run --coverage",
 		"dependency-tree": "pnpm run -r dependency-tree",
 		"changeset:add": "changeset add",
-		"changeset:version": "changeset version",
+		"changeset:version": "source .changeset/.env && changeset version",
 		"changeset:tag": "changeset tag"
 	},
 	"devDependencies": {
