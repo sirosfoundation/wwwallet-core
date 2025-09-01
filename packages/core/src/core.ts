@@ -144,5 +144,5 @@ export const defaultConfig = {
 	trusted_root_certificates: [],
 	previous_secrets: [],
 	secret_ttl: 720,
-	rotate_secret: true,
+	rotate_secret: false,
 };

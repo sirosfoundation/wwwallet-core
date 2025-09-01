@@ -23,6 +23,7 @@ clients:
     redirect_uris:
       - http://localhost:3000
 secret_base: "12345678901234567890123456789012"
+rotate_secret: true
 token_encryption: A128CBC-HS256 # see https://github.com/panva/jose/issues/210#jwe-enc
 issuer_client:
   scopes:
