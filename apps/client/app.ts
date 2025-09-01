@@ -10,7 +10,7 @@ import {
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
-} from "@wwwallet/core";
+} from "@wwwallet-private/core";
 import express from "express";
 import { engine } from "express-handlebars";
 import Handlebars from "handlebars";

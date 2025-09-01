@@ -1,5 +1,6 @@
 {
-	"name": "@wwwallet/core",
+	"name": "@wwwallet-private/core",
+	"version": "0.0.0",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",

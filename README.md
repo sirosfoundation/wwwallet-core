@@ -63,8 +63,12 @@ $ docker compose up k6 --no-log-prefix
 ```sh
 $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # Example:
-# pnpm --filter @wwwallet/core add -D vitest
+# pnpm --filter @wwwallet-private/core add -D vitest
 ```
+
+## Changelog and versioning
+
+Please read [./.changeset/README.md](./.changeset/README.md) For information about changelog and versioning.
 
 ## Dependency tree
 
