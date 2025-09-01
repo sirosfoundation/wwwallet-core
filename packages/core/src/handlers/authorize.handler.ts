@@ -65,7 +65,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			const { client } = await validateClientCredentials(
 				{
 					client_id: request.client_id,
-					request_uri,
+					authorization_request,
 					confidential: false,
 				},
 				config,

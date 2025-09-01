@@ -1,14 +1,11 @@
-import { jwtDecrypt } from "jose";
-import { JWEDecryptionFailed } from "jose/errors";
-import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../constants";
 import { OauthError } from "../../errors";
-import type { OauthClient } from "../../resources";
+import type { AuthorizationRequest, OauthClient } from "../../resources";
 
 type validateClientCredentialsParams = {
 	client_id: string;
 	client_secret?: string;
 	redirect_uri?: string;
-	request_uri?: string;
+	authorization_request?: AuthorizationRequest;
 	confidential?: boolean;
 };
 
@@ -23,7 +20,7 @@ export async function validateClientCredentials(
 		client_id,
 		client_secret,
 		redirect_uri,
-		request_uri,
+		authorization_request,
 		confidential = true,
 	}: validateClientCredentialsParams,
 	config: ValidateClientCredentialsConfig,
@@ -38,29 +35,12 @@ export async function validateClientCredentials(
 		});
 	}
 
-	if (!confidential && request_uri) {
-		try {
-			const {
-				payload: { client_id: requestClientId },
-			} = await jwtDecrypt<{ client_id: string }>(
-				request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
-				new TextEncoder().encode(config.secret),
-			).catch((error) => {
-				if (error instanceof JWEDecryptionFailed) {
-					return jwtDecrypt<{ client_id: string }>(
-						request_uri.replace(AUTHORIZATION_REQUEST_URI_PREFIX, ""),
-						new TextEncoder().encode(config.previous_secrets[0]),
-					);
-				}
-
-				throw error;
-			});
-			client = config.clients.find((client: OauthClient) => {
-				return client.id === client_id && client.id === requestClientId;
-			});
-		} catch (_error) {
-			throw new OauthError(401, "invalid_client", "invalid client credentials");
-		}
+	if (!confidential && authorization_request) {
+		client = config.clients.find((client: OauthClient) => {
+			return (
+				client.id === client_id && client.id === authorization_request.client_id
+			);
+		});
 	}
 
 	if (confidential && client_secret) {
