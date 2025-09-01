@@ -14,7 +14,8 @@
 		"test:watch": "vitest",
 		"test:cover": "vitest run --coverage",
 		"dependency-tree": "pnpm run -r dependency-tree",
-		"lerna": "lerna"
+		"lerna": "lerna",
+		"lerna:publish": "lerna publish from-package --no-private"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.1.2",
