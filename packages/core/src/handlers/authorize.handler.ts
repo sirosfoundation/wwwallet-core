@@ -109,6 +109,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				config.logger.business("authenticate", {
 					request_uri,
 					authorization_code,
+					sub: resource_owner.sub || "",
 				});
 
 				return {

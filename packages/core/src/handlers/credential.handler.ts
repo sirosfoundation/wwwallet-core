@@ -96,7 +96,12 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			config.logger.business("credential", { access_token, sub, scope });
+			config.logger.business("credential", {
+				access_token,
+				sub,
+				scope,
+				credential_configuration_ids: credential_configuration_ids.join(","),
+			});
 
 			return {
 				status: 200,
