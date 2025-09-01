@@ -66,6 +66,18 @@ $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # pnpm --filter @wwwallet-private/core add -D vitest
 ```
 
+## Publishing packages
+
+To publish a package, first you need to create a new version:
+```sh
+$ pnpm lerna:version
+```
+
+Then, publish it:
+```sh
+$ pnpm lerna:publish
+```
+
 ## Dependency tree
 
 ```sh
