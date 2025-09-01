@@ -11,29 +11,46 @@ import {
 } from "@wwwallet/core";
 import { core } from "./container";
 
-try {
-	validateAuthorizeHandlerConfig(core.config);
-	validateCredentialHandlerConfig(core.config);
-	validateCredentialOfferHandlerConfig(core.config);
-	validateNonceHandlerConfig(core.config);
-	validateOauthAuthorizationServerHandlerConfig(core.config);
-	validateOpenidCredentialIssuerHandlerConfig(core.config);
-	validatePushedAuthorizationRequestHandlerConfig(core.config);
-	validateTokenHandlerConfig(core.config);
+setTimeout(() => {
+	try {
+		validateAuthorizeHandlerConfig(core.config);
+		validateCredentialHandlerConfig(core.config);
+		validateCredentialOfferHandlerConfig(core.config);
+		validateNonceHandlerConfig(core.config);
+		validateOauthAuthorizationServerHandlerConfig(core.config);
+		validateOpenidCredentialIssuerHandlerConfig(core.config);
+		validatePushedAuthorizationRequestHandlerConfig(core.config);
+		validateTokenHandlerConfig(core.config);
 
-	console.info("    \x1b[32m%s\x1b[0m", "========== configuration validation");
-	console.info("        \x1b[32m[OK]\x1b[32m");
-	console.info("    \x1b[32m%s\x1b[0m", "===================================");
+		console.info(
+			"    \x1b[32m%s\x1b[0m",
+			"========== configuration validation",
+		);
+		console.info("        \x1b[32m[OK]\x1b[32m");
+		console.info(
+			"    \x1b[32m%s\x1b[0m",
+			"===================================",
+		);
 
-	console.log("\n");
-} catch (error) {
-	console.error("    \x1b[31m%s\x1b[0m", "========== configuration validation");
-	console.error("        \x1b[31m[ERROR] %s\x1b[0m", (error as Error).message);
-	console.error("    \x1b[31m%s\x1b[0m", "===================================");
+		console.log("\n");
 
-	console.log("\n");
+		exit(0);
+	} catch (error) {
+		console.error(
+			"    \x1b[31m%s\x1b[0m",
+			"========== configuration validation",
+		);
+		console.error(
+			"        \x1b[31m[ERROR] %s\x1b[0m",
+			(error as Error).message,
+		);
+		console.error(
+			"    \x1b[31m%s\x1b[0m",
+			"===================================",
+		);
 
-	exit(1);
-}
+		console.log("\n");
 
-exit(0);
+		exit(1);
+	}
+}, 100);
