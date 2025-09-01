@@ -215,7 +215,7 @@ export const config = {
 	],
 	issuer_display: [{ name: "Test issuer" }],
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
-	access_token_ttl: 3600 * 2,
+	secret_base: "test",
 	issuer_client: {
 		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
 	},

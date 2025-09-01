@@ -7,9 +7,15 @@ describe("validate configurations schema", () => {
 		// @ts-ignore
 		const core = new Core({});
 
-		core.token;
+		try {
+			core.token;
 
-		assert(true);
+			assert(false);
+		} catch (error) {
+			expect((error as Error).message).to.eq(
+				"Could not validate token handler configuration - data must have required property 'secret'",
+			);
+		}
 	});
 
 	it("#credentialOffer", () => {
