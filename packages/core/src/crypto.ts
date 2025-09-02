@@ -47,6 +47,6 @@ export async function jwtDecryptWithConfigKeys<T>(
 				continue;
 			}
 			throw error;
-		};
+		}
 	}
 }
