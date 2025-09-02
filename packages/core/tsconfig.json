@@ -13,7 +13,8 @@
 		"moduleResolution": "bundler",
 		"lib": ["es2024"],
 		"declaration": true,
-		"noEmit": true
+		"noEmit": true,
+		"jsx": "react"
 	},
 	"include": ["./**/*.ts"],
 	"exclude": ["node_modules"]
