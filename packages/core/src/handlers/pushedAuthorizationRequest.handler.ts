@@ -3,25 +3,23 @@ import type { Request } from "express";
 import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import {
+	type GenerateAuthorizationRequestUriConfig,
 	generateAuthorizationRequestUri,
+	type ValidateClientCredentialsConfig,
+	type ValidateIssuerStateConfig,
 	validateClientCredentials,
 	validateIssuerState,
 	validateScope,
-	type GenerateAuthorizationRequestUriConfig,
-	type ValidateClientCredentialsConfig,
-	type ValidateIssuerStateConfig,
 } from "../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedAuthorizationRequestHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type PushedAuthorizationRequestHandlerConfig = ({
+export type PushedAuthorizationRequestHandlerConfig = {
 	logger: Logger;
-}
-	& ValidateClientCredentialsConfig
-	& ValidateIssuerStateConfig
-	& GenerateAuthorizationRequestUriConfig
-);
+} & ValidateClientCredentialsConfig &
+	ValidateIssuerStateConfig &
+	GenerateAuthorizationRequestUriConfig;
 
 type PushedAuthorizationRequest = {
 	response_type: string;
@@ -42,7 +40,9 @@ type PushedAuthorizationRequestResponse = {
 	};
 };
 
-export function pushedAuthorizationRequestHandlerFactory(config: PushedAuthorizationRequestHandlerConfig) {
+export function pushedAuthorizationRequestHandlerFactory(
+	config: PushedAuthorizationRequestHandlerConfig,
+) {
 	return async function pushedAuthorizationRequestHandler(
 		expressRequest: Request,
 	): Promise<PushedAuthorizationRequestResponse | OauthErrorResponse> {

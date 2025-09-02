@@ -1,17 +1,15 @@
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AccessToken, OauthClient } from "../../resources";
-import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateAccessTokenParams = {
 	access_token: string | undefined;
 };
 
-export type ValidateAccessTokenConfig = ({
+export type ValidateAccessTokenConfig = {
 	clients: Array<OauthClient>;
 	issuer_client: OauthClient;
-}
-	& DecryptConfig
-);
+} & DecryptConfig;
 
 // TODO validate code redirect uri according to request
 export async function validateAccessToken(

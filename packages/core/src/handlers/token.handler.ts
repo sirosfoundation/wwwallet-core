@@ -4,26 +4,24 @@ import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
 import {
+	type AuthorizationCodeHandlerConfig,
 	type AuthorizationCodeRequest,
 	handleAuthorizationCode,
 	validateAuthorizationCodeRequest,
-	type AuthorizationCodeHandlerConfig,
 } from "./token/authorizationCode";
 import {
+	type ClientCredentialsHandlerConfig,
 	type ClientCredentialsRequest,
 	handleClientCredentials,
 	validateClientCredentialsRequest,
-	type ClientCredentialsHandlerConfig,
 } from "./token/clientCredentials";
 
 const ajv = new Ajv();
 
-export type TokenHandlerConfig = ({
+export type TokenHandlerConfig = {
 	logger: Logger;
-}
-	& ClientCredentialsHandlerConfig
-	& AuthorizationCodeHandlerConfig
-);
+} & ClientCredentialsHandlerConfig &
+	AuthorizationCodeHandlerConfig;
 
 type TokenResponse = {
 	status: 200;

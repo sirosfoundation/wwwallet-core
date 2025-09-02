@@ -1,17 +1,15 @@
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
-import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateIssuerStateParams = {
 	issuer_state: string | undefined;
 };
 
-export type ValidateIssuerStateConfig = ({
+export type ValidateIssuerStateConfig = {
 	issuer_client: {
 		id: string;
 	};
-}
-	& DecryptConfig
-);
+} & DecryptConfig;
 
 export async function validateIssuerState(
 	{ issuer_state }: validateIssuerStateParams,

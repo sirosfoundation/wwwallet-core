@@ -2,22 +2,20 @@ import type { Request } from "express";
 import type { Logger } from "../../config";
 import { OauthError } from "../../errors";
 import {
+	type GenerateAccessTokenConfig,
 	generateAccessToken,
+	type ValidateAuthorizationCodeConfig,
+	type ValidateClientCredentialsConfig,
 	validateAuthorizationCode,
 	validateClientCredentials,
 	validateCodeVerifier,
-	type GenerateAccessTokenConfig,
-	type ValidateAuthorizationCodeConfig,
-	type ValidateClientCredentialsConfig,
 } from "../../statements";
 
-export type AuthorizationCodeHandlerConfig = ({
+export type AuthorizationCodeHandlerConfig = {
 	logger: Logger;
-}
-	& ValidateClientCredentialsConfig
-	& ValidateAuthorizationCodeConfig
-	& GenerateAccessTokenConfig
-);
+} & ValidateClientCredentialsConfig &
+	ValidateAuthorizationCodeConfig &
+	GenerateAccessTokenConfig;
 
 export type AuthorizationCodeRequest = {
 	grant_type: "authorization_code";

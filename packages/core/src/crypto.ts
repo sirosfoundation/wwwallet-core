@@ -1,7 +1,7 @@
+import crypto from "node:crypto";
 import type { JWTDecryptOptions, JWTDecryptResult } from "jose";
 import { jwtDecrypt } from "jose";
 import { JWEDecryptionFailed } from "jose/errors";
-import crypto from "node:crypto";
 
 export async function secretDerivation(
 	secret: string,
@@ -23,10 +23,9 @@ export async function secretDerivation(
 	});
 }
 
-
 export type DecryptConfig = {
-	secret: string,
-	previous_secrets: string[],
+	secret: string;
+	previous_secrets: string[];
 };
 export async function jwtDecryptWithConfigKeys<T>(
 	jwt: string | Uint8Array,
@@ -42,7 +41,10 @@ export async function jwtDecryptWithConfigKeys<T>(
 			return await jwtDecrypt<T>(jwt, key, options);
 		} catch (error) {
 			++fallback_i;
-			if (error instanceof JWEDecryptionFailed && fallback_i < config.previous_secrets.length) {
+			if (
+				error instanceof JWEDecryptionFailed &&
+				fallback_i < config.previous_secrets.length
+			) {
 				key = encoder.encode(config.previous_secrets[fallback_i]);
 				continue;
 			}

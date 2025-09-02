@@ -1,6 +1,6 @@
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AuthorizationCode } from "../../resources";
-import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateAuthorizationCodeParams = {
 	authorization_code: string;
@@ -27,7 +27,10 @@ export async function validateAuthorizationCode(
 				sub,
 				scope,
 			},
-		} = await jwtDecryptWithConfigKeys<AuthorizationCode>(authorization_code, config);
+		} = await jwtDecryptWithConfigKeys<AuthorizationCode>(
+			authorization_code,
+			config,
+		);
 
 		if (token_type !== "authorization_code") {
 			throw new OauthError(

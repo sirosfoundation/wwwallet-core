@@ -1,7 +1,7 @@
 import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../constants";
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AuthorizationRequest } from "../../resources";
-import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 type validateRequestUriParams = {
 	request_uri: string | undefined;

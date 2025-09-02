@@ -4,36 +4,34 @@ import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { AuthorizationRequest, ResourceOwner } from "../resources";
 import {
-	authorizationCodeRedirection,
-	generateAuthorizationCode,
-	validateClientCredentials,
-	validateIssuerState,
-	validateRequestUri,
-	validateResourceOwner,
-	validateScope,
 	type AuthorizationCodeRedirectionConfig,
+	authorizationCodeRedirection,
 	type GenerateAuthorizationCodeConfig,
+	generateAuthorizationCode,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
 	type ValidateRequestUriConfig,
 	type ValidateResourceOwnerConfig,
 	type ValidateScopeConfig,
+	validateClientCredentials,
+	validateIssuerState,
+	validateRequestUri,
+	validateResourceOwner,
+	validateScope,
 } from "../statements";
 import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type AuthorizeHandlerConfig = ({
+export type AuthorizeHandlerConfig = {
 	logger: Logger;
-}
-	& ValidateRequestUriConfig
-	& ValidateClientCredentialsConfig
-	& ValidateScopeConfig
-	& ValidateIssuerStateConfig
-	& ValidateResourceOwnerConfig
-	& GenerateAuthorizationCodeConfig
-	& AuthorizationCodeRedirectionConfig
-);
+} & ValidateRequestUriConfig &
+	ValidateClientCredentialsConfig &
+	ValidateScopeConfig &
+	ValidateIssuerStateConfig &
+	ValidateResourceOwnerConfig &
+	GenerateAuthorizationCodeConfig &
+	AuthorizationCodeRedirectionConfig;
 
 type AuthorizeRequest = {
 	client_id: string;

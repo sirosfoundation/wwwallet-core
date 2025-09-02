@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import { decodeProtectedHeader, type JWK, jwtVerify } from "jose";
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { IssuerClient } from "../../resources";
-import { jwtDecryptWithConfigKeys, type DecryptConfig } from "../../crypto";
 
 export type ValidateProofsParams = {
 	proofs: {
@@ -12,12 +12,10 @@ export type ValidateProofsParams = {
 	};
 };
 
-export type ValidateProofsConfig = ({
+export type ValidateProofsConfig = {
 	trusted_root_certificates: Array<string>;
 	issuer_client: IssuerClient;
-}
-	& DecryptConfig
-);
+} & DecryptConfig;
 
 export async function validateProofs(
 	{ proofs }: ValidateProofsParams,
@@ -166,7 +164,10 @@ async function validateNonce(
 	try {
 		const {
 			payload: { sub, token_type },
-		} = await jwtDecryptWithConfigKeys<{ sub: string; token_type: string }>(nonce, config);
+		} = await jwtDecryptWithConfigKeys<{ sub: string; token_type: string }>(
+			nonce,
+			config,
+		);
 
 		if (token_type !== "c_nonce") {
 			throw new OauthError(
