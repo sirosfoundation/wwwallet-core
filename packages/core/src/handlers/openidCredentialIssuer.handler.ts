@@ -3,7 +3,12 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import { SignJWT } from "jose";
 import type { Config } from "../config";
-import type { CredentialConfiguration } from "../resources";
+import type {
+	CredentialConfiguration,
+	CredentialConfigurationSupported,
+	CredentialConfigurationsSupported,
+	OpenidCredentialIssuer,
+} from "../resources";
 import { openidCredentialIssuerHandlerConfigSchema } from "./schemas/openidCredentialIssuerHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -34,54 +39,6 @@ export type OpenidCredentialIssuerHandlerConfig = {
 			locale: string;
 		}>;
 	}>;
-};
-
-type CredentialConfigurationSupported = {
-	format: string;
-	vct?: string;
-	doctype?: string;
-	scope: string;
-	description?: string;
-	display: Array<{
-		name: string;
-		description?: string;
-		background_image?: {
-			uri: string;
-		};
-		background_color?: string;
-		text_color?: string;
-		locale: string;
-	}>;
-	cryptographic_binding_methods_supported: Array<string>;
-	credential_signing_alg_values_supported: Array<string>;
-	proof_types_supported: {
-		jwt: {
-			proof_signing_alg_values_supported: Array<string>;
-		};
-		attestation: {
-			proof_signing_alg_values_supported: Array<string>;
-			key_attestations_required: {};
-		};
-	};
-};
-
-type CredentialConfigurationsSupported = {
-	[credential_configuration_id: string]: CredentialConfigurationSupported;
-};
-
-type OpenidCredentialIssuer = {
-	credential_issuer: string;
-	nonce_endpoint: string;
-	credential_endpoint: string;
-	display: Array<{
-		locale: string;
-		logo?: {
-			uri: string;
-		};
-		name?: string;
-	}>;
-	credential_configurations_supported: CredentialConfigurationsSupported;
-	signed_metadata?: string;
 };
 
 type OpenidCredentialIssuerResponse = {

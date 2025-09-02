@@ -2,14 +2,18 @@ import Ajv from "ajv";
 import type { Config } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { IssuerMetadata } from "../resources";
-import { fetchIssuerMetadata, validateCredentialOffer } from "../statements";
+import {
+	type FetchIssuerMetadataConfig,
+	fetchIssuerMetadata,
+	type ValidateCredentialOfferConfig,
+	validateCredentialOffer,
+} from "../statements";
 import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type LocationHandlerConfig = {
-	window: Window;
-};
+export type LocationHandlerConfig = ValidateCredentialOfferConfig &
+	FetchIssuerMetadataConfig;
 
 type ProtocolLocation = {
 	credential_offer: string | null;
@@ -21,7 +25,7 @@ type Step = "pushed_authorization_request";
 
 type PushedAuthorizationRequestMetadata = {
 	issuer_state: string;
-	issuer_information: IssuerMetadata;
+	issuer_metadata: IssuerMetadata;
 };
 
 type ProtocolMetadata = {
@@ -47,7 +51,7 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 					config,
 				);
 
-			const { issuer_information } = await fetchIssuerMetadata(
+			const { issuer_metadata } = await fetchIssuerMetadata(
 				{
 					grants,
 					credential_issuer,
@@ -64,7 +68,7 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 					nextStep,
 					data: {
 						issuer_state,
-						issuer_information,
+						issuer_metadata,
 						credential_configuration_ids,
 					},
 				};

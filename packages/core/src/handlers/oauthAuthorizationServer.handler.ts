@@ -1,6 +1,7 @@
 import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
+import type { OauthAuthorizationServer } from "../resources";
 import { oauthAuthorizationServerHandlerConfigSchema } from "./schemas/oauthAuthorizationServerHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -13,21 +14,7 @@ export type OauthAuthorizationServerHandlerConfig = {
 
 type OauthAuthorizationServerResponse = {
 	status: 200;
-	body: {
-		issuer: string;
-		authorization_endpoint: string;
-		authorization_challenge_endpoint: string;
-		token_endpoint: string;
-		pushed_authorization_request_endpoint: string;
-		require_pushed_authorization_requests: boolean;
-		token_endpoint_auth_methods_supported: Array<string>;
-		response_types_supported: Array<string>;
-		code_challenge_methods_supported: Array<string>;
-		dpop_signing_alg_values_supported: Array<string>;
-		grant_types_supported: Array<string>;
-		jwks_uri: string;
-		scopes_supported: Array<string>;
-	};
+	body: OauthAuthorizationServer;
 };
 
 export function oauthAuthorizationServerHandlerFactory(
