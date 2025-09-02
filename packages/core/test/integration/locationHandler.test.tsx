@@ -10,6 +10,7 @@ describe("location handler", () => {
 	it("test", () => {
 		render(<LocationHandler />);
 
-		expect(screen.getByText("test")).to.eq("");
+		const link = screen.getByText("test") as HTMLAnchorElement;
+		expect(link.getAttribute("href")).to.equal("/");
 	});
 });
