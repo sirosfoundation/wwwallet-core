@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!coverage/**/*", "!**/dist"]
+		"includes": ["**", "!coverage/**/*", "!**/dist", "!.changeset/**/*"]
 	},
 	"formatter": {
 		"enabled": true,

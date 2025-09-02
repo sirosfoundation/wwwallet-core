@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AuthorizationServerState, Config } from "@wwwallet/core";
+import type { AuthorizationServerState, Config } from "@wwwallet-private/core";
 import { merge } from "ts-deepmerge";
 import { parse } from "yaml";
 import { Logger } from "./logger";

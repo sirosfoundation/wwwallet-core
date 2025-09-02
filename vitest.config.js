@@ -5,6 +5,8 @@ export default defineConfig({
 	test: {
 		coverage: {
 			exclude: [
+				"packages/core/tsup.config.ts",
+				"packages/core/dist/**",
 				"apps/client/**",
 				"scripts/**",
 				"**/_*",

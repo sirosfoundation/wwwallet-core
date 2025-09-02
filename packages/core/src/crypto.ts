@@ -8,19 +8,25 @@ export async function secretDerivation(
 	count: number,
 ): Promise<string> {
 	return new Promise((resolve, reject) => {
-		const rawCount = new Uint8Array(8);
-		for (let i = 0; i < rawCount.length; i++) {
-			rawCount[i] = count % 256;
-			count = Math.floor(count / 256);
-		}
+		const rawCount = I2OSP(count, 8);
 
-		crypto.hkdf("sha256", secret, rawCount, "info", 64, (error, derivedKey) => {
+		crypto.hkdf("sha256", secret, rawCount, "info", 16, (error, derivedKey) => {
 			if (error) {
 				return reject(error);
 			}
-			resolve(Buffer.from(derivedKey.slice(0, 16)).toString("hex"));
+			resolve(Buffer.from(derivedKey).toString("hex"));
 		});
 	});
+}
+
+export function I2OSP(a: bigint | number, length: number): Uint8Array {
+	if (typeof a === "number") {
+		return I2OSP(BigInt(a), length);
+	} else {
+		return new Uint8Array(length).map((_, i: number): number =>
+			Number(BigInt.asUintN(8, a >> (BigInt(length - 1 - i) * 8n))),
+		);
+	}
 }
 
 export type DecryptConfig = {
