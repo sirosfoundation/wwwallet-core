@@ -11,8 +11,6 @@ type validateClientCredentialsParams = {
 
 export type ValidateClientCredentialsConfig = {
 	clients: Array<OauthClient>;
-	secret: string;
-	previous_secrets: Array<string>;
 };
 
 export async function validateClientCredentials(

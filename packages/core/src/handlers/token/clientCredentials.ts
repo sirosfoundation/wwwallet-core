@@ -1,21 +1,18 @@
 import type { Request } from "express";
 import type { Logger } from "../../config";
 import { OauthError } from "../../errors";
-import type { OauthClient } from "../../resources";
 import {
+	type GenerateAccessTokenConfig,
 	generateAccessToken,
+	type ValidateClientCredentialsConfig,
 	validateClientCredentials,
 	validateScope,
 } from "../../statements";
 
 export type ClientCredentialsHandlerConfig = {
 	logger: Logger;
-	clients: Array<OauthClient>;
-	access_token_ttl: number;
-	token_encryption: string;
-	secret: string;
-	previous_secrets: Array<string>;
-};
+} & ValidateClientCredentialsConfig &
+	GenerateAccessTokenConfig;
 
 export type ClientCredentialsRequest = {
 	grant_type: "client_credentials";

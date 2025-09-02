@@ -4,8 +4,15 @@ import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { AuthorizationRequest, ResourceOwner } from "../resources";
 import {
+	type AuthorizationCodeRedirectionConfig,
 	authorizationCodeRedirection,
+	type GenerateAuthorizationCodeConfig,
 	generateAuthorizationCode,
+	type ValidateClientCredentialsConfig,
+	type ValidateIssuerStateConfig,
+	type ValidateRequestUriConfig,
+	type ValidateResourceOwnerConfig,
+	type ValidateScopeConfig,
 	validateClientCredentials,
 	validateIssuerState,
 	validateRequestUri,
@@ -18,15 +25,13 @@ const ajv = new Ajv();
 
 export type AuthorizeHandlerConfig = {
 	logger: Logger;
-	issuer_client: {
-		id: string;
-	};
-	clients: Array<{ id: string; scopes: Array<string> }>;
-	authorization_code_ttl: number;
-	token_encryption: string;
-	secret: string;
-	previous_secrets: Array<string>;
-};
+} & ValidateRequestUriConfig &
+	ValidateClientCredentialsConfig &
+	ValidateScopeConfig &
+	ValidateIssuerStateConfig &
+	ValidateResourceOwnerConfig &
+	GenerateAuthorizationCodeConfig &
+	AuthorizationCodeRedirectionConfig;
 
 type AuthorizeRequest = {
 	client_id: string;

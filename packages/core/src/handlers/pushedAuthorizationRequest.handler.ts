@@ -3,7 +3,10 @@ import type { Request } from "express";
 import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import {
+	type GenerateAuthorizationRequestUriConfig,
 	generateAuthorizationRequestUri,
+	type ValidateClientCredentialsConfig,
+	type ValidateIssuerStateConfig,
 	validateClientCredentials,
 	validateIssuerState,
 	validateScope,
@@ -14,19 +17,9 @@ const ajv = new Ajv();
 
 export type PushedAuthorizationRequestHandlerConfig = {
 	logger: Logger;
-	issuer_client: {
-		id: string;
-	};
-	clients: Array<{
-		id: string;
-		redirect_uris: Array<string>;
-		scopes: Array<string>;
-	}>;
-	pushed_authorization_request_ttl: number;
-	token_encryption: string;
-	secret: string;
-	previous_secrets: Array<string>;
-};
+} & ValidateClientCredentialsConfig &
+	ValidateIssuerStateConfig &
+	GenerateAuthorizationRequestUriConfig;
 
 type PushedAuthorizationRequest = {
 	response_type: string;

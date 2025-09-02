@@ -1,5 +1,4 @@
-import { jwtDecrypt } from "jose";
-import { JWEDecryptionFailed } from "jose/errors";
+import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 
 type validateIssuerStateParams = {
@@ -7,12 +6,10 @@ type validateIssuerStateParams = {
 };
 
 export type ValidateIssuerStateConfig = {
-	secret: string;
-	previous_secrets: Array<string>;
 	issuer_client: {
 		id: string;
 	};
-};
+} & DecryptConfig;
 
 export async function validateIssuerState(
 	{ issuer_state }: validateIssuerStateParams,
@@ -29,19 +26,7 @@ export async function validateIssuerState(
 	try {
 		const {
 			payload: { sub },
-		} = await jwtDecrypt<{ sub: string }>(
-			issuer_state,
-			new TextEncoder().encode(config.secret),
-		).catch((error) => {
-			if (error instanceof JWEDecryptionFailed) {
-				return jwtDecrypt<{ sub: string }>(
-					issuer_state,
-					new TextEncoder().encode(config.previous_secrets[0]),
-				);
-			}
-
-			throw error;
-		});
+		} = await jwtDecryptWithConfigKeys<{ sub: string }>(issuer_state, config);
 
 		if (sub !== config.issuer_client.id) {
 			throw new OauthError(400, "invalid_request", "issuer state is invalid");
