@@ -11,11 +11,11 @@ export async function secretDerivation(
 			count = Math.floor(count / 256);
 		}
 
-		crypto.hkdf("sha256", secret, rawCount, "info", 64, (error, derivedKey) => {
+		crypto.hkdf("sha256", secret, rawCount, "info", 16, (error, derivedKey) => {
 			if (error) {
 				return reject(error);
 			}
-			resolve(Buffer.from(derivedKey.slice(0, 16)).toString("hex"));
+			resolve(Buffer.from(derivedKey).toString("hex"));
 		});
 	});
 }
