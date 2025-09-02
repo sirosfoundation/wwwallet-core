@@ -104,15 +104,28 @@ export class Core {
 			const now = Date.now() / 1000;
 			const count = Math.floor(now / this.config.secret_ttl);
 
-			const newSecret = await secretDerivation(base, count);
-			if (this.config.secret) {
-				this.config.previous_secrets?.unshift(this.config.secret);
-				this.config.previous_secrets = this.config.previous_secrets?.slice(
-					0,
-					SECRET_MEMORY,
-				);
+			let newSecret = await secretDerivation(base, count);
+			if (
+				newSecret === this.config.secret ||
+				this.config.previous_secrets?.includes(newSecret)
+			) {
+				newSecret = await secretDerivation(base, count + 1);
 			}
-			this.config.secret = newSecret;
+			if (
+				newSecret === this.config.secret ||
+				this.config.previous_secrets?.includes(newSecret)
+			) {
+				// Both current and next secret already derived - skipping this secret update
+			} else {
+				if (this.config.secret) {
+					this.config.previous_secrets?.unshift(this.config.secret);
+					this.config.previous_secrets = this.config.previous_secrets?.slice(
+						0,
+						SECRET_MEMORY,
+					);
+				}
+				this.config.secret = newSecret;
+			}
 		} else {
 			console.warn(
 				"Cannot rotateSecret(): config.secret_ttl or config.secret_base is not set",
@@ -134,7 +147,7 @@ export class Core {
 			this.stopRotateSecretTimer();
 			this.rotateSecretHandle = setInterval(
 				intervalFn,
-				this.config.secret_ttl * 1000,
+				this.config.secret_ttl * 1000 * 0.95,
 			);
 		} else {
 			throw new Error(
