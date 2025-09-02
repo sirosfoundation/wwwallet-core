@@ -25,7 +25,7 @@ export async function secretDerivation(
 
 export type DecryptConfig = {
 	secret: string;
-	previous_secrets: string[];
+	previous_secrets: Array<string>;
 };
 export async function jwtDecryptWithConfigKeys<T>(
 	jwt: string | Uint8Array,
