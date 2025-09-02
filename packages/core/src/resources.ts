@@ -84,3 +84,7 @@ export type AuthorizationCode = {
 	code_challenge?: string;
 	code_challenge_method?: string;
 };
+
+export type IssuerMetadata = {
+	issuer: string;
+};

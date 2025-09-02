@@ -112,6 +112,9 @@ importers:
       '@types/qrcode':
         specifier: ^1.5.5
         version: 1.5.5
+      '@types/web':
+        specifier: ^0.0.265
+        version: 0.0.265
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -753,6 +756,9 @@ packages:
 
   '@types/supertest@6.0.3':
     resolution: {integrity: sha512-8WzXq62EXFhJ7QsH3Ocb/iKQ/Ty9ZVWnVzoTKc9tyyFRRF3a74Tk2+TLFgaFFw364Ere+npzHKEJ6ga2LzIL7w==}
+
+  '@types/web@0.0.265':
+    resolution: {integrity: sha512-5XdBLVywmNBrEqOCeR+tfK6xi3N5mFGUEvckFJ5PYuqtDnro0qVJJvPW84KlWMus7PRu0R5kdlMRvSvwQ9+ENw==}
 
   '@typescript-eslint/project-service@8.40.0':
     resolution: {integrity: sha512-/A89vz7Wf5DEXsGVvcGdYKbVM9F7DyFXj52lNYUDS1L9yJfqjW/fIp5PgMuEJL/KeqVTe2QSbXAGUZljDUpArw==}
@@ -3185,6 +3191,8 @@ snapshots:
     dependencies:
       '@types/methods': 1.1.4
       '@types/superagent': 8.1.9
+
+  '@types/web@0.0.265': {}
 
   '@typescript-eslint/project-service@8.40.0(typescript@5.9.2)':
     dependencies:
