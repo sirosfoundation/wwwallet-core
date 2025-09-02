@@ -31,12 +31,15 @@ const SECRET_MEMORY = 10;
 
 export class Core {
 	config: Config;
+	rotateSecretHandle?: NodeJS.Timeout;
 
 	constructor(config: Config) {
 		defaultConfig.issuer_client.id = config.issuer_url;
 
 		this.config = merge(defaultConfig, config);
-		this.rotateSecret();
+		if (this.config.rotate_secret) {
+			this.startRotateSecretTimer();
+		}
 	}
 
 	get oauthAuthorizationServer() {
@@ -96,25 +99,53 @@ export class Core {
 	}
 
 	async rotateSecret() {
-		if (
-			this.config.secret_ttl &&
-			this.config.rotate_secret &&
-			this.config.secret_base
-		) {
+		if (this.config.secret_ttl && this.config.secret_base) {
 			const base = this.config.secret_base;
-			const ttl = this.config.secret_ttl;
 			const now = Date.now() / 1000;
-			const newSecret = await secretDerivation(base, Math.floor(now / ttl));
-			this.config.previous_secrets?.unshift(this.config.secret || newSecret);
-			this.config.previous_secrets = this.config.previous_secrets?.slice(
-				0,
-				SECRET_MEMORY,
-			);
-			this.config.secret = newSecret;
+			const count = Math.floor(now / this.config.secret_ttl);
 
-			setTimeout(() => {
-				this.rotateSecret();
-			}, this.config.secret_ttl * 1000);
+			const newSecret = await secretDerivation(base, count);
+			if (this.config.secret) {
+				this.config.previous_secrets?.unshift(this.config.secret);
+				this.config.previous_secrets = this.config.previous_secrets?.slice(
+					0,
+					SECRET_MEMORY,
+				);
+			}
+			this.config.secret = newSecret;
+		} else {
+			console.warn(
+				"Cannot rotateSecret(): config.secret_ttl or config.secret_base is not set",
+			);
+		}
+	}
+
+	async startRotateSecretTimer(afterRotate?: () => void) {
+		if (this.config.secret_ttl && this.config.secret_base) {
+			const intervalFn = afterRotate
+				? async () => {
+						await this.rotateSecret();
+						afterRotate();
+					}
+				: async () => {
+						await this.rotateSecret();
+					};
+			await intervalFn();
+			this.stopRotateSecretTimer();
+			this.rotateSecretHandle = setInterval(
+				intervalFn,
+				this.config.secret_ttl * 1000,
+			);
+		} else {
+			throw new Error(
+				"Configuration not sufficient for startRotateSecretTimer()",
+			);
+		}
+	}
+
+	stopRotateSecretTimer() {
+		if (this.rotateSecretHandle) {
+			clearInterval(this.rotateSecretHandle);
 		}
 	}
 }
