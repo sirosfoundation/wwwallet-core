@@ -1,2 +1,3 @@
 pnpm run biome:ci
+pnpm build
 pnpm run config:validate:client
