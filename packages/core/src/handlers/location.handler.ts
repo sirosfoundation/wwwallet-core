@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
-import { OauthError, type OauthErrorResponse } from "../errors";
+import { OauthError } from "../errors";
 import type { IssuerMetadata } from "../resources";
 import {
 	type FetchIssuerMetadataConfig,
@@ -24,6 +24,7 @@ type Protocol = "oid4vci";
 type Step = "pushed_authorization_request";
 
 type PushedAuthorizationRequestMetadata = {
+	credential_configuration_ids: Array<string>;
 	issuer_state: string;
 	issuer_metadata: IssuerMetadata;
 };
@@ -37,7 +38,7 @@ type ProtocolMetadata = {
 export function locationHandlerFactory(config: LocationHandlerConfig) {
 	return async function locationHandler(
 		windowLocation: Location,
-	): Promise<ProtocolMetadata | OauthErrorResponse> {
+	): Promise<ProtocolMetadata> {
 		const location = await parseLocation(windowLocation);
 
 		if (location.credential_offer) {
@@ -59,7 +60,7 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 				config,
 			);
 
-			if (grants.authorization_code) {
+			if (grants?.authorization_code) {
 				const nextStep = "pushed_authorization_request";
 				const { issuer_state } = grants.authorization_code;
 
