@@ -220,7 +220,7 @@ describe("location handler - handler", () => {
 		}
 	});
 
-	it("returns an error without grants", async () => {
+	it("returns an error with empty grants", async () => {
 		const credential_issuer = "https://demo-issuer.wwwallet.org/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = {};

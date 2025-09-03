@@ -36,7 +36,7 @@ export class Core {
 	config: Config;
 
 	constructor(config: Config) {
-		defaultConfig.issuer_client.id = config.issuer_url;
+		defaultConfig.issuer_client.id = config.issuer_url || "";
 
 		this.config = merge(defaultConfig, config);
 		this.rotateSecret();
