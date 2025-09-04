@@ -10,6 +10,10 @@ import {
 	type PresentationSuccessConfig,
 	type PresentationSuccessProtocolResponse,
 } from "./location/presentationSuccess";
+import {
+	handleProtocolError,
+	type ProtocolErrorResponse,
+} from "./location/protocolError";
 import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
 
 const ajv = new Ajv();
@@ -20,6 +24,8 @@ export type LocationHandlerConfig = CredentialOfferLocationConfig &
 type ProtocolLocation = {
 	credential_offer: string | null;
 	code: string | null;
+	error: string | null;
+	error_description: string | null;
 };
 
 type NoProtocol = {
@@ -29,6 +35,7 @@ type NoProtocol = {
 type ProtocolResponse =
 	| CredentialOfferProtocolResponse
 	| PresentationSuccessProtocolResponse
+	| ProtocolErrorResponse
 	| NoProtocol;
 
 export function locationHandlerFactory(config: LocationHandlerConfig) {
@@ -36,6 +43,10 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 		windowLocation: Location,
 	): Promise<ProtocolResponse> {
 		const location = await parseLocation(windowLocation);
+
+		if (location.error) {
+			return await handleProtocolError(location, config);
+		}
 
 		if (location.code) {
 			return await handlePresentationSuccess(location, config);
@@ -69,6 +80,13 @@ async function parseLocation(
 
 	const credential_offer = searchParams.get("credential_offer");
 	const code = searchParams.get("code");
+	const error = searchParams.get("error");
+	const error_description = searchParams.get("error_description");
 
-	return { credential_offer, code };
+	return {
+		credential_offer,
+		code,
+		error,
+		error_description,
+	};
 }

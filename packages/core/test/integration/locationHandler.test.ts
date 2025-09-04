@@ -5,8 +5,6 @@ import { locationHandlerFactory } from "../../src/handlers";
 const locationHandler = locationHandlerFactory({});
 
 describe("location handler - no protocol", () => {
-	const locationHandler = locationHandlerFactory({});
-
 	it("returns", async () => {
 		const location = {
 			search: "",
@@ -27,6 +25,49 @@ describe("location handler - no protocol", () => {
 		const response = await locationHandler(location);
 
 		expect(response.protocol).to.eq(null);
+	});
+});
+
+describe("location handler - protocol error", () => {
+	it("returns", async () => {
+		const error = "error";
+		const location = {
+			search: `error=${error}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+		if (!response.protocol) {
+			return assert(false);
+		}
+		expect(response.protocol).to.eq("oauth");
+		expect(response.nextStep).to.eq("protocol_error");
+		if (response.nextStep !== "protocol_error") {
+			return assert(false);
+		}
+		expect(response.data.error).to.eq(error);
+		expect(response.data.error_description).to.eq(null);
+	});
+
+	it("returns with an error description", async () => {
+		const error = "error";
+		const error_description = "error_description";
+		const location = {
+			search: `error=${error}&error_description=${error_description}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+		if (!response.protocol) {
+			return assert(false);
+		}
+		expect(response.protocol).to.eq("oauth");
+		expect(response.nextStep).to.eq("protocol_error");
+		if (response.nextStep !== "protocol_error") {
+			return assert(false);
+		}
+		expect(response.data.error).to.eq(error);
+		expect(response.data.error_description).to.eq(error_description);
 	});
 });
 
