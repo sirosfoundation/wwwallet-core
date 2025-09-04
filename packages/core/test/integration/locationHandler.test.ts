@@ -1,7 +1,10 @@
 import { assert, describe, expect, it } from "vitest";
+import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
-describe("location handler", () => {
+const locationHandler = locationHandlerFactory({});
+
+describe("location handler - no protocol", () => {
 	const locationHandler = locationHandlerFactory({});
 
 	it("returns", async () => {
@@ -15,6 +18,41 @@ describe("location handler", () => {
 		expect(response.protocol).to.eq(null);
 	});
 
+	it("returns with invalid parameters", async () => {
+		const location = {
+			search: "param=invalid",
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response.protocol).to.eq(null);
+	});
+});
+
+describe("location handler - presentation success", () => {
+	it("returns", async () => {
+		const code = "code";
+		const location = {
+			search: `code=${code}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response.protocol).to.eq("oid4vp");
+		if (!response.protocol) {
+			return assert(false);
+		}
+		expect(response.nextStep).to.eq("presentation_success");
+		if (response.nextStep !== "presentation_success") {
+			return assert(false);
+		}
+		expect(response.data.code).to.eq(code);
+	});
+});
+
+describe("location handler - credential offer", () => {
 	it("returns an error with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
@@ -27,6 +65,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer could not be parsed",
@@ -46,6 +87,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer must contain a credential issuer parameter",
@@ -68,6 +112,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer must contain a credential configuration ids parameter",
@@ -92,6 +139,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer credential configuration ids parameter is invalid",
@@ -116,6 +166,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_issuer");
 			expect(error.error_description).to.eq(
 				"could not fetch issuer information",
@@ -140,6 +193,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -166,6 +222,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -192,6 +251,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -218,6 +280,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",

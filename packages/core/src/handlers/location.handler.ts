@@ -1,85 +1,48 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
-import { OauthError } from "../errors";
-import type { IssuerMetadata } from "../resources";
 import {
-	type FetchIssuerMetadataConfig,
-	fetchIssuerMetadata,
-	type ValidateCredentialOfferConfig,
-	validateCredentialOffer,
-} from "../statements";
+	type CredentialOfferLocationConfig,
+	type CredentialOfferProtocolResponse,
+	handleCredentialOffer,
+} from "./location/credentialOffer";
+import {
+	handlePresentationSuccess,
+	type PresentationSuccessConfig,
+	type PresentationSuccessProtocolResponse,
+} from "./location/presentationSuccess";
 import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type LocationHandlerConfig = ValidateCredentialOfferConfig &
-	FetchIssuerMetadataConfig;
+export type LocationHandlerConfig = CredentialOfferLocationConfig &
+	PresentationSuccessConfig;
 
 type ProtocolLocation = {
 	credential_offer: string | null;
+	code: string | null;
 };
 
-type Protocol = "oid4vci";
-
-type Step = "pushed_authorization_request";
-
-type PushedAuthorizationRequestMetadata = {
-	credential_configuration_ids: Array<string>;
-	issuer_state: string;
-	issuer_metadata: IssuerMetadata;
+type NoProtocol = {
+	protocol: null;
 };
 
-type ProtocolMetadata = {
-	protocol: Protocol | null;
-	nextStep?: Step;
-	data?: PushedAuthorizationRequestMetadata;
-};
+type ProtocolResponse =
+	| CredentialOfferProtocolResponse
+	| PresentationSuccessProtocolResponse
+	| NoProtocol;
 
 export function locationHandlerFactory(config: LocationHandlerConfig) {
 	return async function locationHandler(
 		windowLocation: Location,
-	): Promise<ProtocolMetadata> {
+	): Promise<ProtocolResponse> {
 		const location = await parseLocation(windowLocation);
 
+		if (location.code) {
+			return await handlePresentationSuccess(location, config);
+		}
+
 		if (location.credential_offer) {
-			const protocol = "oid4vci";
-
-			const { credential_issuer, credential_configuration_ids, grants } =
-				await validateCredentialOffer(
-					{
-						credential_offer: location.credential_offer,
-					},
-					config,
-				);
-
-			const { issuer_metadata } = await fetchIssuerMetadata(
-				{
-					grants,
-					credential_issuer,
-				},
-				config,
-			);
-
-			if (grants?.authorization_code) {
-				const nextStep = "pushed_authorization_request";
-				const { issuer_state } = grants.authorization_code;
-
-				return {
-					protocol,
-					nextStep,
-					data: {
-						issuer_state,
-						issuer_metadata,
-						credential_configuration_ids,
-					},
-				};
-			}
-
-			throw new OauthError(
-				400,
-				"invalid_location",
-				"credential offer grants is not supported",
-			);
+			return await handleCredentialOffer(location, config);
 		}
 
 		return {
@@ -105,6 +68,7 @@ async function parseLocation(
 	const searchParams = new URLSearchParams(windowLocation.search);
 
 	const credential_offer = searchParams.get("credential_offer");
+	const code = searchParams.get("code");
 
-	return { credential_offer };
+	return { credential_offer, code };
 }
