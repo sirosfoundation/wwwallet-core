@@ -2,33 +2,26 @@ import { render, screen, waitFor } from "@testing-library/react";
 // biome-ignore lint/correctness/noUnusedImports: required by tsx files
 import React, { useState } from "react";
 import { assert, describe, expect, it, vi } from "vitest";
-import { Core, type IssuerMetadata } from "../../src";
+import { Core } from "../../src";
 import { OauthError } from "../../src/errors";
 
 const core = new Core({});
-
-type PushedAuthorizationRequestMetadata = {
-	issuer_state: string;
-	issuer_metadata: IssuerMetadata;
-};
 
 const LocationHandler = () => {
 	const [success, setSuccess] = useState(false);
 	const [error, setError] = useState<OauthError | null>(null);
 	const [protocol, setProtocol] = useState<string | null>(null);
 	const [nextStep, setNextStep] = useState<string | undefined>(undefined);
-	const [data, setData] = useState<
-		PushedAuthorizationRequestMetadata | undefined
-	>(undefined);
 
 	(async () => {
 		return core
 			.location(window.location)
-			.then(({ protocol, nextStep, data }) => {
+			.then((response) => {
 				setSuccess(true);
-				setProtocol(protocol);
-				setNextStep(nextStep);
-				setData(data);
+				setProtocol(response.protocol);
+				if (response.protocol) {
+					setNextStep(response.nextStep);
+				}
 			})
 			.catch((error) => {
 				if (error instanceof OauthError) {
@@ -45,7 +38,6 @@ const LocationHandler = () => {
 				<div data-testid="success">
 					{protocol && <p data-testid="protocol">{protocol}</p>}
 					{nextStep && <p data-testid="nextStep">{nextStep}</p>}
-					{data && <p data-testid="issuerState">{data.issuer_state}</p>}
 				</div>
 			)}
 		</div>
@@ -99,11 +91,6 @@ describe.skip("location handler - integration", () => {
 
 			const nextStep = screen.getByTestId("nextStep") as HTMLAnchorElement;
 			expect(nextStep.innerHTML).to.eq("pushed_authorization_request");
-
-			const issuerState = screen.getByTestId(
-				"issuerState",
-			) as HTMLAnchorElement;
-			expect(issuerState.innerHTML).to.eq(issuer_state);
 		});
 	});
 });

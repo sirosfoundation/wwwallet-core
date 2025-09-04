@@ -6,12 +6,18 @@ import {
 	handleCredentialOffer,
 } from "./location/credentialOffer";
 import {
+	handlePresentationRequest,
+	type PresentationRequestConfig,
+	type PresentationRequestResponse,
+} from "./location/presentationRequest";
+import {
 	handlePresentationSuccess,
 	type PresentationSuccessConfig,
 	type PresentationSuccessProtocolResponse,
 } from "./location/presentationSuccess";
 import {
 	handleProtocolError,
+	type ProtocolErrorConfig,
 	type ProtocolErrorResponse,
 } from "./location/protocolError";
 import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
@@ -19,13 +25,25 @@ import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.sch
 const ajv = new Ajv();
 
 export type LocationHandlerConfig = CredentialOfferLocationConfig &
-	PresentationSuccessConfig;
+	PresentationSuccessConfig &
+	PresentationRequestConfig &
+	ProtocolErrorConfig;
 
 type ProtocolLocation = {
 	credential_offer: string | null;
 	code: string | null;
 	error: string | null;
 	error_description: string | null;
+	client_id: string | null;
+	response_uri: string | null;
+	response_type: string | null;
+	response_mode: string | null;
+	nonce: string | null;
+	state: string | null;
+	dcql_query: string | null;
+	scope: string | null;
+	request: string | null;
+	request_uri: string | null;
 };
 
 type NoProtocol = {
@@ -35,6 +53,7 @@ type NoProtocol = {
 type ProtocolResponse =
 	| CredentialOfferProtocolResponse
 	| PresentationSuccessProtocolResponse
+	| PresentationRequestResponse
 	| ProtocolErrorResponse
 	| NoProtocol;
 
@@ -54,6 +73,10 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 
 		if (location.credential_offer) {
 			return await handleCredentialOffer(location, config);
+		}
+
+		if (location.client_id) {
+			return await handlePresentationRequest(location, config);
 		}
 
 		return {
@@ -82,11 +105,31 @@ async function parseLocation(
 	const code = searchParams.get("code");
 	const error = searchParams.get("error");
 	const error_description = searchParams.get("error_description");
+	const client_id = searchParams.get("client_id");
+	const response_uri = searchParams.get("response_uri");
+	const response_type = searchParams.get("response_type");
+	const response_mode = searchParams.get("response_mode");
+	const nonce = searchParams.get("nonce");
+	const state = searchParams.get("state");
+	const dcql_query = searchParams.get("dcql_query");
+	const scope = searchParams.get("scope");
+	const request = searchParams.get("request");
+	const request_uri = searchParams.get("request_uri");
 
 	return {
 		credential_offer,
 		code,
 		error,
 		error_description,
+		client_id,
+		response_uri,
+		response_type,
+		response_mode,
+		nonce,
+		state,
+		dcql_query,
+		scope,
+		request,
+		request_uri,
 	};
 }
