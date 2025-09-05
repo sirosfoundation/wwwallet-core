@@ -1,9 +1,11 @@
+import { SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
+import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
-describe("location handler", () => {
-	const locationHandler = locationHandlerFactory({});
+const locationHandler = locationHandlerFactory({});
 
+describe("location handler - no protocol", () => {
 	it("returns", async () => {
 		const location = {
 			search: "",
@@ -15,6 +17,82 @@ describe("location handler", () => {
 		expect(response.protocol).to.eq(null);
 	});
 
+	it("returns with invalid parameters", async () => {
+		const location = {
+			search: "param=invalid",
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response.protocol).to.eq(null);
+	});
+});
+
+describe("location handler - protocol error", () => {
+	it("returns", async () => {
+		const error = "error";
+		const location = {
+			search: `error=${error}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+		expect(response.protocol).to.eq("oauth");
+		if (response.protocol === "oauth") {
+			expect(response.nextStep).to.eq("protocol_error");
+			if (response.nextStep !== "protocol_error") {
+				return assert(false);
+			}
+			expect(response.data.error).to.eq(error);
+			expect(response.data.error_description).to.eq(null);
+		}
+	});
+
+	it("returns with an error description", async () => {
+		const error = "error";
+		const error_description = "error_description";
+		const location = {
+			search: `error=${error}&error_description=${error_description}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+		expect(response.protocol).to.eq("oauth");
+		if (response.protocol === "oauth") {
+			expect(response.nextStep).to.eq("protocol_error");
+			if (response.nextStep !== "protocol_error") {
+				return assert(false);
+			}
+			expect(response.data.error).to.eq(error);
+			expect(response.data.error_description).to.eq(error_description);
+		}
+	});
+});
+
+describe("location handler - presentation success", () => {
+	it("returns", async () => {
+		const code = "code";
+		const location = {
+			search: `code=${code}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response.protocol).to.eq("oid4vp");
+		if (!response.protocol) {
+			return assert(false);
+		}
+		expect(response.nextStep).to.eq("presentation_success");
+		if (response.nextStep === "presentation_success") {
+			return expect(response.data.code).to.eq(code);
+		}
+		assert(false);
+	});
+});
+
+describe("location handler - credential offer", () => {
 	it("returns an error with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
@@ -27,6 +105,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer could not be parsed",
@@ -46,6 +127,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer must contain a credential issuer parameter",
@@ -68,6 +152,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer must contain a credential configuration ids parameter",
@@ -92,6 +179,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer credential configuration ids parameter is invalid",
@@ -116,6 +206,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_issuer");
 			expect(error.error_description).to.eq(
 				"could not fetch issuer information",
@@ -140,6 +233,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -166,6 +262,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -192,6 +291,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -218,6 +320,9 @@ describe("location handler", () => {
 
 			assert(false);
 		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
 				"credential offer grants is not supported",
@@ -242,11 +347,13 @@ describe("location handler", () => {
 		const response = await locationHandler(location);
 
 		expect(response.protocol).to.eq("oid4vci");
-		expect(response.nextStep).to.eq("pushed_authorization_request");
-		assert(response.data?.issuer_metadata);
-		expect(response.data?.credential_configuration_ids).to.deep.eq(
-			credential_configuration_ids,
-		);
+		if (response.protocol === "oid4vci") {
+			expect(response.nextStep).to.eq("pushed_authorization_request");
+			assert(response.data?.issuer_metadata);
+			expect(response.data?.credential_configuration_ids).to.deep.eq(
+				credential_configuration_ids,
+			);
+		}
 	});
 
 	it("returns with a valid authorization code grants (issuer_state)", async () => {
@@ -267,11 +374,224 @@ describe("location handler", () => {
 		const response = await locationHandler(location);
 
 		expect(response.protocol).to.eq("oid4vci");
-		expect(response.nextStep).to.eq("pushed_authorization_request");
-		assert(response.data?.issuer_metadata);
-		expect(response.data?.credential_configuration_ids).to.deep.eq(
-			credential_configuration_ids,
-		);
-		expect(response.data?.issuer_state).to.deep.eq(issuer_state);
+		if (response.protocol === "oid4vci") {
+			expect(response.nextStep).to.eq("pushed_authorization_request");
+			assert(response.data?.issuer_metadata);
+			expect(response.data?.credential_configuration_ids).to.deep.eq(
+				credential_configuration_ids,
+			);
+			expect(response.data?.issuer_state).to.deep.eq(issuer_state);
+		}
 	});
+});
+
+describe("location handler - presentation request", () => {
+	it("returns an error without response uri", async () => {
+		const client_id = "client_id";
+		const location = {
+			search: `?client_id=${client_id}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"response uri parameter is missing",
+			);
+		}
+	});
+
+	it("returns an error without response type", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const location = {
+			search: `?client_id=${client_id}&response_uri=${response_uri}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"response type parameter is missing",
+			);
+		}
+	});
+
+	it("returns an error without response mode", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const location = {
+			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"response mode parameter is missing",
+			);
+		}
+	});
+
+	it("returns an error without nonce", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const location = {
+			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq("nonce parameter is missing");
+		}
+	});
+
+	it("returns an error without state", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const location = {
+			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}&nonce=${nonce}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq("state parameter is missing");
+		}
+	});
+
+	it("returns a presentation request", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const location = {
+			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}&nonce=${nonce}&state=${state}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response).to.deep.eq({
+			data: {
+				client_id: "client_id",
+				nonce: "nonce",
+				response_mode: "response_mode",
+				response_type: "response_type",
+				response_uri: "response_uri",
+				state: "state",
+			},
+			nextStep: "presentation",
+			protocol: "oid4vp",
+		});
+	});
+
+	it("returns an error with invalid request", async () => {
+		const client_id = "client_id";
+		const request = "invalid";
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"could not parse presentation request",
+			);
+		}
+	});
+
+	it("returns a presentation request with request", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+		})
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(new TextEncoder().encode("secret"));
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response).to.deep.eq({
+			data: {
+				client_id: "client_id",
+				nonce: "nonce",
+				response_mode: "response_mode",
+				response_type: "response_type",
+				response_uri: "response_uri",
+				state: "state",
+			},
+			nextStep: "presentation",
+			protocol: "oid4vp",
+		});
+	});
+
+	it.skip("returns a presentation request with a request uri");
 });

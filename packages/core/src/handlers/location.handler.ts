@@ -1,85 +1,82 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
-import { OauthError } from "../errors";
-import type { IssuerMetadata } from "../resources";
 import {
-	type FetchIssuerMetadataConfig,
-	fetchIssuerMetadata,
-	type ValidateCredentialOfferConfig,
-	validateCredentialOffer,
-} from "../statements";
+	type CredentialOfferLocationConfig,
+	type CredentialOfferProtocolResponse,
+	handleCredentialOffer,
+} from "./location/credentialOffer";
+import {
+	handlePresentationRequest,
+	type PresentationRequestConfig,
+	type PresentationRequestResponse,
+} from "./location/presentationRequest";
+import {
+	handlePresentationSuccess,
+	type PresentationSuccessConfig,
+	type PresentationSuccessProtocolResponse,
+} from "./location/presentationSuccess";
+import {
+	handleProtocolError,
+	type ProtocolErrorConfig,
+	type ProtocolErrorResponse,
+} from "./location/protocolError";
 import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
 
 const ajv = new Ajv();
 
-export type LocationHandlerConfig = ValidateCredentialOfferConfig &
-	FetchIssuerMetadataConfig;
+export type LocationHandlerConfig = CredentialOfferLocationConfig &
+	PresentationSuccessConfig &
+	PresentationRequestConfig &
+	ProtocolErrorConfig;
 
 type ProtocolLocation = {
 	credential_offer: string | null;
+	code: string | null;
+	error: string | null;
+	error_description: string | null;
+	client_id: string | null;
+	response_uri: string | null;
+	response_type: string | null;
+	response_mode: string | null;
+	nonce: string | null;
+	state: string | null;
+	dcql_query: string | null;
+	scope: string | null;
+	request: string | null;
+	request_uri: string | null;
 };
 
-type Protocol = "oid4vci";
-
-type Step = "pushed_authorization_request";
-
-type PushedAuthorizationRequestMetadata = {
-	credential_configuration_ids: Array<string>;
-	issuer_state: string;
-	issuer_metadata: IssuerMetadata;
+type NoProtocol = {
+	protocol: null;
 };
 
-type ProtocolMetadata = {
-	protocol: Protocol | null;
-	nextStep?: Step;
-	data?: PushedAuthorizationRequestMetadata;
-};
+type ProtocolResponse =
+	| CredentialOfferProtocolResponse
+	| PresentationSuccessProtocolResponse
+	| PresentationRequestResponse
+	| ProtocolErrorResponse
+	| NoProtocol;
 
 export function locationHandlerFactory(config: LocationHandlerConfig) {
 	return async function locationHandler(
 		windowLocation: Location,
-	): Promise<ProtocolMetadata> {
+	): Promise<ProtocolResponse> {
 		const location = await parseLocation(windowLocation);
 
+		if (location.error) {
+			return await handleProtocolError(location, config);
+		}
+
+		if (location.code) {
+			return await handlePresentationSuccess(location, config);
+		}
+
 		if (location.credential_offer) {
-			const protocol = "oid4vci";
+			return await handleCredentialOffer(location, config);
+		}
 
-			const { credential_issuer, credential_configuration_ids, grants } =
-				await validateCredentialOffer(
-					{
-						credential_offer: location.credential_offer,
-					},
-					config,
-				);
-
-			const { issuer_metadata } = await fetchIssuerMetadata(
-				{
-					grants,
-					credential_issuer,
-				},
-				config,
-			);
-
-			if (grants?.authorization_code) {
-				const nextStep = "pushed_authorization_request";
-				const { issuer_state } = grants.authorization_code;
-
-				return {
-					protocol,
-					nextStep,
-					data: {
-						issuer_state,
-						issuer_metadata,
-						credential_configuration_ids,
-					},
-				};
-			}
-
-			throw new OauthError(
-				400,
-				"invalid_location",
-				"credential offer grants is not supported",
-			);
+		if (location.client_id) {
+			return await handlePresentationRequest(location, config);
 		}
 
 		return {
@@ -105,6 +102,34 @@ async function parseLocation(
 	const searchParams = new URLSearchParams(windowLocation.search);
 
 	const credential_offer = searchParams.get("credential_offer");
+	const code = searchParams.get("code");
+	const error = searchParams.get("error");
+	const error_description = searchParams.get("error_description");
+	const client_id = searchParams.get("client_id");
+	const response_uri = searchParams.get("response_uri");
+	const response_type = searchParams.get("response_type");
+	const response_mode = searchParams.get("response_mode");
+	const nonce = searchParams.get("nonce");
+	const state = searchParams.get("state");
+	const dcql_query = searchParams.get("dcql_query");
+	const scope = searchParams.get("scope");
+	const request = searchParams.get("request");
+	const request_uri = searchParams.get("request_uri");
 
-	return { credential_offer };
+	return {
+		credential_offer,
+		code,
+		error,
+		error_description,
+		client_id,
+		response_uri,
+		response_type,
+		response_mode,
+		nonce,
+		state,
+		dcql_query,
+		scope,
+		request,
+		request_uri,
+	};
 }
