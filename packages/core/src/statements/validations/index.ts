@@ -3,6 +3,7 @@ export * from "./validateAuthorizationCode";
 export * from "./validateClientCredentials";
 export * from "./validateCodeVerifier";
 export * from "./validateCredentialConfigurations";
+export * from "./validateCredentialOffer";
 export * from "./validateDpop";
 export * from "./validateIssuerState";
 export * from "./validateProofs";

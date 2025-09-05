@@ -28,7 +28,7 @@ export interface Logger {
 }
 
 export type Config = {
-	issuer_url: string;
+	issuer_url?: string;
 	wallet_url?: string;
 	logger?: Logger;
 	databaseOperations?: {

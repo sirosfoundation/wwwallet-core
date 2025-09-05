@@ -8,6 +8,8 @@ import {
 	type CredentialOfferHandlerConfig,
 	credentialHandlerFactory,
 	credentialOfferHandlerFactory,
+	type LocationHandlerConfig,
+	locationHandlerFactory,
 	type NonceHandlerConfig,
 	nonceHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
@@ -21,6 +23,7 @@ import {
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateLocationHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
@@ -33,7 +36,7 @@ export class Core {
 	config: Config;
 
 	constructor(config: Config) {
-		defaultConfig.issuer_client.id = config.issuer_url;
+		defaultConfig.issuer_client.id = config.issuer_url || "";
 
 		this.config = merge(defaultConfig, config);
 		this.rotateSecret();
@@ -93,6 +96,12 @@ export class Core {
 		return credentialOfferHandlerFactory(
 			this.config as CredentialOfferHandlerConfig,
 		);
+	}
+
+	get location() {
+		validateLocationHandlerConfig(this.config);
+
+		return locationHandlerFactory(this.config as LocationHandlerConfig);
 	}
 
 	async rotateSecret() {

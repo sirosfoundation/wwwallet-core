@@ -9,6 +9,7 @@
 		"compilerOptions": {
 			"strict": true,
 			"esModuleInterop": true,
+			"jsx": "react",
 			"moduleResolution": "nodenext",
 			"target": "esnext",
 			"rootDir": "./src",
