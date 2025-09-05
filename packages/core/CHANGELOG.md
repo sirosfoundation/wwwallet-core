@@ -1,5 +1,15 @@
 # @wwwallet-private/core
 
+## 0.1.0-alpha.1
+
+### Minor Changes
+
+- [`5a98758`](https://github.com/malach-it/wwwallet-issuer-poc/commit/5a98758f6b0a148c82b1bb50daa88aeb5a6e2888) Thanks [@patatoid](https://github.com/patatoid)! - Add wallet location handler
+
+### Patch Changes
+
+- [#61](https://github.com/malach-it/wwwallet-issuer-poc/pull/61) [`05aeebd`](https://github.com/malach-it/wwwallet-issuer-poc/commit/05aeebd4e1bcf17a6d0afd509c27a0837460a51e) Thanks [@patatoid](https://github.com/patatoid)! - Individual vitest configuration for each package to fix new react tests
+
 ## 0.1.0-alpha.0
 
 ### Minor Changes
