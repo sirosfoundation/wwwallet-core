@@ -1,5 +1,5 @@
 ---
-"@wwwallet-private/core": patch
+"@wwwallet-private/server-core": patch
 ---
 
 Add changeset to manage versioning of packages

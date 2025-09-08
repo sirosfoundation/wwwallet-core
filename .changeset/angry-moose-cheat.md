@@ -1,5 +1,5 @@
 ---
-"@wwwallet-private/core": minor
+"@wwwallet-private/server-core": minor
 ---
 
 Initial alpha release
