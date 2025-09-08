@@ -2,12 +2,15 @@
   "mode": "pre",
   "tag": "alpha",
   "initialVersions": {
-    "@wwwallet-private/core": "0.0.0"
+    "@wwwallet-private/core": "0.0.0",
+    "@wwwallet-private/client-core": "0.0.0",
+    "@wwwallet-private/server-core": "0.0.0"
   },
   "changesets": [
     "angry-moose-cheat",
     "common-birds-exist",
     "fine-poems-hunt",
-    "real-ghosts-fold"
+    "real-ghosts-fold",
+    "solid-rocks-stick"
   ]
 }
