@@ -1,4 +1,4 @@
-import { Core } from "@wwwallet-private/core";
+import { Core } from "@wwwallet-private/server-core";
 import { Container } from "inversify";
 import { config } from "./config";
 
