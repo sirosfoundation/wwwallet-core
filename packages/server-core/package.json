@@ -21,7 +21,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:cover": "vitest run --coverage",
-		"dependency-tree": "madge --image ../../images/packages-core-dependency-tree.svg ./src/index.ts"
+		"dependency-tree": "madge --image ../../images/packages-server-core-dependency-tree.svg ./src/index.ts"
 	},
 	"devDependencies": {
 		"@types/supertest": "^6.0.3",
