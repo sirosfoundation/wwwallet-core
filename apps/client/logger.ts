@@ -1,4 +1,4 @@
-import type { Logger as CoreLogger } from "@wwwallet-private/core";
+import type { Logger as CoreLogger } from "@wwwallet-private/server-core";
 export type LogLevel = "error" | "info" | "warn" | "debug";
 
 export class Logger implements CoreLogger {
