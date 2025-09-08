@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"target": "es2022",
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"strict": true,
+		"noImplicitOverride": true,
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"lib": ["es2024"],
+		"declaration": true,
+		"noEmit": true,
+		"jsx": "react"
+	},
+	"include": ["./**/*.ts", "./**/*.tsx"],
+	"exclude": ["node_modules"]
+}

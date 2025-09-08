@@ -82,6 +82,10 @@ $ pnpm dependency-tree
 
 ---
 
-### Core package
+### Server core package
 
-![dependency tree](images/packages-core-dependency-tree.svg)
+![dependency tree](images/packages-server-core-dependency-tree.svg)
+
+### Client core package
+
+![dependency tree](images/packages-client-core-dependency-tree.svg)
