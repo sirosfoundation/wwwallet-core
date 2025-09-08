@@ -11,7 +11,7 @@ import {
 	validateIssuerState,
 	validateScope,
 } from "../statements";
-import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas/pushedAuthorizationRequestHandlerConfig.schema";
+import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

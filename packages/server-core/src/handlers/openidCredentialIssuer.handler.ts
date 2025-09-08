@@ -9,7 +9,7 @@ import type {
 	CredentialConfigurationsSupported,
 	OpenidCredentialIssuer,
 } from "../resources";
-import { openidCredentialIssuerHandlerConfigSchema } from "./schemas/openidCredentialIssuerHandlerConfig.schema";
+import { openidCredentialIssuerHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

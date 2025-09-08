@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../config";
 import type { OauthAuthorizationServer } from "../resources";
-import { oauthAuthorizationServerHandlerConfigSchema } from "./schemas/oauthAuthorizationServerHandlerConfig.schema";
+import { oauthAuthorizationServerHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

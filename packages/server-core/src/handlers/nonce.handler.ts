@@ -4,7 +4,7 @@ import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
 import type { OauthClient } from "../resources";
 import { generateCNonce, issuerClient } from "../statements";
-import { nonceHandlerConfigSchema } from "./schemas/nonceHandlerConfig.schema";
+import { nonceHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

@@ -19,7 +19,7 @@ import {
 	validateResourceOwner,
 	validateScope,
 } from "../statements";
-import { authorizeHandlerConfigSchema } from "./schemas/authorizeHandlerConfig.schema";
+import { authorizeHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

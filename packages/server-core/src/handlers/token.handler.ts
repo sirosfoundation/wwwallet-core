@@ -2,7 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../config";
 import { OauthError, type OauthErrorResponse } from "../errors";
-import { tokenHandlerConfigSchema } from "./schemas/tokenHandlerConfig.schema";
+import { tokenHandlerConfigSchema } from "./schemas";
 import {
 	type AuthorizationCodeHandlerConfig,
 	type AuthorizationCodeRequest,

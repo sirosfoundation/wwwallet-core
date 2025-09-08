@@ -12,7 +12,7 @@ import {
 	issuerClient,
 	validateScope,
 } from "../statements";
-import { credentialOfferHandlerConfigSchema } from "./schemas/credentialOfferHandlerConfig.schema";
+import { credentialOfferHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

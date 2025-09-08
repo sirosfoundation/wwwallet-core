@@ -14,7 +14,7 @@ import {
 	validateDpop,
 	validateProofs,
 } from "../statements";
-import { credentialHandlerConfigSchema } from "./schemas/credentialHandlerConfig.schema";
+import { credentialHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

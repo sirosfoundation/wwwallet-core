@@ -20,7 +20,7 @@ import {
 	type ProtocolErrorConfig,
 	type ProtocolErrorResponse,
 } from "./location/protocolError";
-import { locationHandlerConfigSchema } from "./schemas/locationHandlerConfig.schema";
+import { locationHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 
