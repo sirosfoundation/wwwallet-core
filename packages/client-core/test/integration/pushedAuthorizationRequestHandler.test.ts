@@ -6,7 +6,7 @@ const issuer = "http://issuer.url";
 const config = {
 	wallet_url: "http://wallet.url",
 	httpClient: {
-		get: async <T>(url: string) => {
+		post: async <T>(url: string) => {
 			return { data: { request_uri: url } as T };
 		},
 	},
@@ -84,7 +84,7 @@ describe("pushedAuthorizationRequestHandler", () => {
 		const config = {
 			wallet_url: "http://wallet.url",
 			httpClient: {
-				get: async <T>(url: string) => {
+				post: async <T>(url: string) => {
 					if (url.match(pushed_authorization_request_endpoint)) {
 						throw new Error("rejected");
 					}

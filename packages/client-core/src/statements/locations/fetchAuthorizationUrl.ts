@@ -10,7 +10,7 @@ export type FetchAuthorizationUrlParams = {
 export type FetchAuthorizationUrlConfig = {
 	wallet_url: string;
 	httpClient: {
-		get: <T>(url: string) => Promise<{ data: T }>;
+		post: <T>(url: string, body?: unknown) => Promise<{ data: T }>;
 	};
 };
 
@@ -60,7 +60,7 @@ export async function fetchAuthorizationUrl(
 	const {
 		data: { request_uri },
 	} = await config.httpClient
-		.get<{ request_uri: string }>(pushedAuthorizationRequestUrl.toString())
+		.post<{ request_uri: string }>(pushedAuthorizationRequestUrl.toString())
 		.catch((error) => {
 			throw new OauthError(
 				400,
