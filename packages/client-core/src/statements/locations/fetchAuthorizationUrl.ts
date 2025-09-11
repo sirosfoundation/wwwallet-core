@@ -7,18 +7,33 @@ export type FetchAuthorizationUrlParams = {
 	issuer_state: string;
 };
 
+type RequestHeaders = {
+	[key: string]: string;
+};
+
 export type FetchAuthorizationUrlConfig = {
 	wallet_url: string;
 	httpClient: {
-		post: <T>(url: string, body?: unknown) => Promise<{ data: T }>;
+		post: <T>(
+			url: string,
+			body?: unknown,
+			config?: { headers: RequestHeaders },
+		) => Promise<{ data: T }>;
 	};
+};
+
+type PushedAuthorizationRequestParams = {
+	redirect_uri?: string;
+	client_id?: string;
+	issuer_state?: string;
+	scope?: string;
 };
 
 export async function fetchAuthorizationUrl(
 	{ issuer, client, issuer_state }: FetchAuthorizationUrlParams,
 	config: FetchAuthorizationUrlConfig,
 ) {
-	const pushedAuthorizationRequestParams = new URLSearchParams();
+	const pushedAuthorizationRequestParams: PushedAuthorizationRequestParams = {};
 
 	if (!issuer) {
 		throw new OauthError(
@@ -32,7 +47,7 @@ export async function fetchAuthorizationUrl(
 		client.pushed_authorization_request_endpoint,
 	);
 
-	pushedAuthorizationRequestParams.append("redirect_uri", config.wallet_url);
+	pushedAuthorizationRequestParams.redirect_uri = config.wallet_url;
 
 	if (!client) {
 		throw new OauthError(
@@ -41,7 +56,7 @@ export async function fetchAuthorizationUrl(
 			"pushed authorization requests require a client",
 		);
 	}
-	pushedAuthorizationRequestParams.append("client_id", client.client_id);
+	pushedAuthorizationRequestParams.client_id = client.client_id;
 
 	if (!issuer_state) {
 		throw new OauthError(
@@ -50,17 +65,23 @@ export async function fetchAuthorizationUrl(
 			"pushed authorization requests require an issuer state",
 		);
 	}
-	pushedAuthorizationRequestParams.append("issuer_state", issuer_state);
+	pushedAuthorizationRequestParams.issuer_state = issuer_state;
 
 	// TODO get scope from session location
-	pushedAuthorizationRequestParams.append("scope", client.scope);
-
-	pushedAuthorizationRequestUrl.search = `?${pushedAuthorizationRequestParams.toString()}`;
+	pushedAuthorizationRequestParams.scope = client.scope;
 
 	const {
 		data: { request_uri },
 	} = await config.httpClient
-		.post<{ request_uri: string }>(pushedAuthorizationRequestUrl.toString())
+		.post<{ request_uri: string }>(
+			pushedAuthorizationRequestUrl.toString(),
+			pushedAuthorizationRequestParams,
+			{
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+			},
+		)
 		.catch((error) => {
 			throw new OauthError(
 				400,
