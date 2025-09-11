@@ -3,7 +3,13 @@ import { assert, describe, expect, it } from "vitest";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
-const locationHandler = locationHandlerFactory({});
+const locationHandler = locationHandlerFactory({
+	httpClient: {
+		get: async <T>(url: string) => {
+			return { data: url as T };
+		},
+	},
+});
 
 describe("location handler - no protocol", () => {
 	it("returns", async () => {
@@ -382,6 +388,82 @@ describe("location handler - credential offer", () => {
 			);
 			expect(response.data?.issuer_state).to.deep.eq(issuer_state);
 		}
+	});
+
+	describe("http client cannot fetch issuer information", () => {
+		it("returns an error on oauth authorization server", async () => {
+			const locationHandler = locationHandlerFactory({
+				httpClient: {
+					get: async <T>(url: string) => {
+						if (url.match(/oauth-authorization-server/)) {
+							throw new Error("could not fetch");
+						}
+						return { data: url as T };
+					},
+				},
+			});
+			const credential_issuer = "credential_issuer";
+			const credential_configuration_ids = ["credential_configuration_ids"];
+			const credential_offer = {
+				credential_issuer,
+				credential_configuration_ids,
+			};
+			const location = {
+				search: `?credential_offer=${JSON.stringify(credential_offer)}`,
+			};
+
+			try {
+				// @ts-ignore
+				await locationHandler(location);
+
+				assert(false);
+			} catch (error) {
+				if (!(error instanceof OauthError)) {
+					assert(false);
+				}
+				expect(error.error).to.eq("invalid_issuer");
+				expect(error.error_description).to.eq(
+					"could not fetch issuer information",
+				);
+			}
+		});
+
+		it("returns an error on oauth authorization server", async () => {
+			const locationHandler = locationHandlerFactory({
+				httpClient: {
+					get: async <T>(url: string) => {
+						if (url.match(/openid-credential-issuer/)) {
+							throw new Error("could not fetch");
+						}
+						return { data: url as T };
+					},
+				},
+			});
+			const credential_issuer = "credential_issuer";
+			const credential_configuration_ids = ["credential_configuration_ids"];
+			const credential_offer = {
+				credential_issuer,
+				credential_configuration_ids,
+			};
+			const location = {
+				search: `?credential_offer=${JSON.stringify(credential_offer)}`,
+			};
+
+			try {
+				// @ts-ignore
+				await locationHandler(location);
+
+				assert(false);
+			} catch (error) {
+				if (!(error instanceof OauthError)) {
+					assert(false);
+				}
+				expect(error.error).to.eq("invalid_issuer");
+				expect(error.error_description).to.eq(
+					"could not fetch issuer information",
+				);
+			}
+		});
 	});
 });
 

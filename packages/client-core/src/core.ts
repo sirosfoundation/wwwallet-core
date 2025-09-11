@@ -1,3 +1,4 @@
+import axios from "axios";
 import { merge } from "ts-deepmerge";
 import type { Config } from "./config";
 import {
@@ -31,4 +32,6 @@ export class Core {
 	}
 }
 
-export const defaultConfig = {};
+export const defaultConfig = {
+	httpClient: axios,
+};

@@ -1,5 +1,7 @@
 export const locationHandlerConfigSchema = {
 	type: "object",
-	properties: {},
+	properties: {
+		httpClient: {},
+	},
 	required: [],
 };
