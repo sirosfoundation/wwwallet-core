@@ -1,4 +1,3 @@
-import axios from "axios";
 import { OauthError } from "../../errors";
 import type {
 	Grants,
@@ -11,18 +10,22 @@ export type FetchIssuerMetadataParams = {
 	credential_issuer: string;
 };
 
-export type FetchIssuerMetadataConfig = {};
+export type FetchIssuerMetadataConfig = {
+	httpClient: {
+		get: <T>(url: string) => Promise<{ data: T }>;
+	};
+};
 
 export async function fetchIssuerMetadata(
 	{ grants: _grants, credential_issuer }: FetchIssuerMetadataParams,
-	_config: FetchIssuerMetadataConfig,
+	config: FetchIssuerMetadataConfig,
 ) {
 	try {
 		const openidCredentialIssuerUrl = new URL(
 			"/.well-known/openid-credential-issuer",
 			credential_issuer,
 		);
-		const openidCredentialIssuer = await axios
+		const openidCredentialIssuer = await config.httpClient
 			.get<OpenidCredentialIssuer>(openidCredentialIssuerUrl.toString())
 			.then(({ data }) => data);
 
@@ -30,7 +33,7 @@ export async function fetchIssuerMetadata(
 			"/.well-known/oauth-authorization-server",
 			credential_issuer,
 		);
-		const oauthAuthorizationServer = await axios
+		const oauthAuthorizationServer = await config.httpClient
 			.get<OauthAuthorizationServer>(oauthAuthorizationServerUrl.toString())
 			.then(({ data }) => data);
 
