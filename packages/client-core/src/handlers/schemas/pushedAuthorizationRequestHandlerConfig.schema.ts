@@ -1,6 +1,7 @@
 export const pushedAuthorizationRequestHandlerConfigSchema = {
 	type: "object",
 	properties: {
+		httpClient: {},
 		wallet_url: { type: "string" },
 		static_clients: {
 			type: "array",
