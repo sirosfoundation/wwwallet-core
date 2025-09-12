@@ -195,35 +195,8 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential issuer", async () => {
-		const credential_issuer = "credential_issuer";
-		const credential_configuration_ids = ["credential_configuration_ids"];
-		const credential_offer = {
-			credential_issuer,
-			credential_configuration_ids,
-		};
-		const location = {
-			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
-		};
-
-		try {
-			// @ts-ignore
-			await locationHandler(location);
-
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				assert(false);
-			}
-			expect(error.error).to.eq("invalid_issuer");
-			expect(error.error_description).to.eq(
-				"could not fetch issuer information",
-			);
-		}
-	});
-
 	it("returns an error without grants", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const credential_offer = {
 			credential_issuer,
@@ -250,7 +223,7 @@ describe("location handler - credential offer", () => {
 	});
 
 	it("returns an error with empty grants", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = {};
 		const credential_offer = {
@@ -279,7 +252,7 @@ describe("location handler - credential offer", () => {
 	});
 
 	it("returns an error with an invalid grants", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { invalid: true };
 		const credential_offer = {
@@ -308,7 +281,7 @@ describe("location handler - credential offer", () => {
 	});
 
 	it("returns an error with an invalid authorization code grants", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: null };
 		const credential_offer = {
@@ -337,7 +310,7 @@ describe("location handler - credential offer", () => {
 	});
 
 	it("returns with a valid authorization code grants", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: {} };
 		const credential_offer = {
@@ -355,7 +328,6 @@ describe("location handler - credential offer", () => {
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
-			assert(response.data?.issuer_metadata);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);
@@ -363,7 +335,7 @@ describe("location handler - credential offer", () => {
 	});
 
 	it("returns with a valid authorization code grants (issuer_state)", async () => {
-		const credential_issuer = "https://demo-issuer.wwwallet.org/";
+		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const issuer_state = "issuer_state";
 		const grants = { authorization_code: { issuer_state } };
@@ -382,88 +354,11 @@ describe("location handler - credential offer", () => {
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
-			assert(response.data?.issuer_metadata);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);
 			expect(response.data?.issuer_state).to.deep.eq(issuer_state);
 		}
-	});
-
-	describe("http client cannot fetch issuer information", () => {
-		it("returns an error on oauth authorization server", async () => {
-			const locationHandler = locationHandlerFactory({
-				httpClient: {
-					get: async <T>(url: string) => {
-						if (url.match(/oauth-authorization-server/)) {
-							throw new Error("could not fetch");
-						}
-						return { data: url as T };
-					},
-				},
-			});
-			const credential_issuer = "credential_issuer";
-			const credential_configuration_ids = ["credential_configuration_ids"];
-			const credential_offer = {
-				credential_issuer,
-				credential_configuration_ids,
-			};
-			const location = {
-				search: `?credential_offer=${JSON.stringify(credential_offer)}`,
-			};
-
-			try {
-				// @ts-ignore
-				await locationHandler(location);
-
-				assert(false);
-			} catch (error) {
-				if (!(error instanceof OauthError)) {
-					assert(false);
-				}
-				expect(error.error).to.eq("invalid_issuer");
-				expect(error.error_description).to.eq(
-					"could not fetch issuer information",
-				);
-			}
-		});
-
-		it("returns an error on oauth authorization server", async () => {
-			const locationHandler = locationHandlerFactory({
-				httpClient: {
-					get: async <T>(url: string) => {
-						if (url.match(/openid-credential-issuer/)) {
-							throw new Error("could not fetch");
-						}
-						return { data: url as T };
-					},
-				},
-			});
-			const credential_issuer = "credential_issuer";
-			const credential_configuration_ids = ["credential_configuration_ids"];
-			const credential_offer = {
-				credential_issuer,
-				credential_configuration_ids,
-			};
-			const location = {
-				search: `?credential_offer=${JSON.stringify(credential_offer)}`,
-			};
-
-			try {
-				// @ts-ignore
-				await locationHandler(location);
-
-				assert(false);
-			} catch (error) {
-				if (!(error instanceof OauthError)) {
-					assert(false);
-				}
-				expect(error.error).to.eq("invalid_issuer");
-				expect(error.error_description).to.eq(
-					"could not fetch issuer information",
-				);
-			}
-		});
 	});
 });
 

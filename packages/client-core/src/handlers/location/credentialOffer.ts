@@ -1,14 +1,10 @@
 import { OauthError } from "../../errors";
-import type { IssuerMetadata } from "../../resources";
 import {
-	type FetchIssuerMetadataConfig,
-	fetchIssuerMetadata,
 	type ValidateCredentialOfferConfig,
 	validateCredentialOffer,
 } from "../../statements";
 
-export type CredentialOfferLocationConfig = ValidateCredentialOfferConfig &
-	FetchIssuerMetadataConfig;
+export type CredentialOfferLocationConfig = ValidateCredentialOfferConfig;
 
 type CredentialOfferProtocol = "oid4vci";
 
@@ -21,7 +17,6 @@ export type CredentialOfferLocation = {
 type PushedAuthorizationRequestMetadata = {
 	credential_configuration_ids: Array<string>;
 	issuer_state: string;
-	issuer_metadata: IssuerMetadata;
 };
 
 export type CredentialOfferProtocolResponse = {
@@ -45,21 +40,13 @@ export async function handleCredentialOffer(
 		);
 	}
 
-	const { credential_issuer, credential_configuration_ids, grants } =
+	const { credential_configuration_ids, grants } =
 		await validateCredentialOffer(
 			{
 				credential_offer: location.credential_offer,
 			},
 			config,
 		);
-
-	const { issuer_metadata } = await fetchIssuerMetadata(
-		{
-			grants,
-			credential_issuer,
-		},
-		config,
-	);
 
 	if (grants?.authorization_code) {
 		const { issuer_state } = grants.authorization_code;
@@ -69,7 +56,6 @@ export async function handleCredentialOffer(
 			nextStep,
 			data: {
 				issuer_state,
-				issuer_metadata,
 				credential_configuration_ids,
 			},
 		};
