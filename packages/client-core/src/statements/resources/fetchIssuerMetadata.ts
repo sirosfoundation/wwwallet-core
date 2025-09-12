@@ -25,17 +25,19 @@ export async function fetchIssuerMetadata(
 			"/.well-known/openid-credential-issuer",
 			credential_issuer,
 		);
-		const openidCredentialIssuer = await config.httpClient
-			.get<OpenidCredentialIssuer>(openidCredentialIssuerUrl.toString())
-			.then(({ data }) => data);
-
 		const oauthAuthorizationServerUrl = new URL(
 			"/.well-known/oauth-authorization-server",
 			credential_issuer,
 		);
-		const oauthAuthorizationServer = await config.httpClient
-			.get<OauthAuthorizationServer>(oauthAuthorizationServerUrl.toString())
-			.then(({ data }) => data);
+		const [openidCredentialIssuer, oauthAuthorizationServer] =
+			await Promise.all([
+				config.httpClient
+					.get<OpenidCredentialIssuer>(openidCredentialIssuerUrl.toString())
+					.then(({ data }) => data),
+				config.httpClient
+					.get<OauthAuthorizationServer>(oauthAuthorizationServerUrl.toString())
+					.then(({ data }) => data),
+			]);
 
 		return {
 			issuer_metadata: {
