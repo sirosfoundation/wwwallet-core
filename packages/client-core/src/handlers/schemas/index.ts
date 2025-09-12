@@ -1,2 +1,2 @@
+export * from "./authorizationConfig.schema";
 export * from "./locationHandlerConfig.schema";
-export * from "./pushedAuthorizationRequestHandlerConfig.schema";

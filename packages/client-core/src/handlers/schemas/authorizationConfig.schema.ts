@@ -1,4 +1,4 @@
-export const pushedAuthorizationRequestHandlerConfigSchema = {
+export const authorizationHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		httpClient: {},
