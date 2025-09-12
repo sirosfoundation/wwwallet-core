@@ -4,9 +4,13 @@ import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
 const locationHandler = locationHandlerFactory({
-	httpClient: {
-		get: async <T>(url: string) => {
-			return { data: url as T };
+	// @ts-expect-error
+	clientStateStore: {
+		async create(issuer: string, issuer_state: string) {
+			return {
+				issuer,
+				issuer_state,
+			};
 		},
 	},
 });
@@ -213,12 +217,10 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
-			);
+			expect(error.error_description).to.eq("grants parameter is required");
 		}
 	});
 
@@ -246,7 +248,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
@@ -275,7 +277,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
@@ -304,7 +306,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
