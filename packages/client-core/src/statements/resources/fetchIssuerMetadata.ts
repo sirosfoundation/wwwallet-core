@@ -1,22 +1,25 @@
 import { OauthError } from "../../errors";
+import type { ClientStateStore } from "../../ports";
 import type {
+	ClientState,
 	OauthAuthorizationServer,
 	OpenidCredentialIssuer,
 } from "../../resources";
 
 export type FetchIssuerMetadataParams = {
 	issuer: string;
-	issuer_state: string;
+	client_state: ClientState;
 };
 
 export type FetchIssuerMetadataConfig = {
 	httpClient: {
 		get: <T>(url: string) => Promise<{ data: T }>;
 	};
+	clientStateStore: ClientStateStore;
 };
 
 export async function fetchIssuerMetadata(
-	{ issuer, issuer_state: _issuer_state }: FetchIssuerMetadataParams,
+	{ client_state, issuer }: FetchIssuerMetadataParams,
 	config: FetchIssuerMetadataConfig,
 ) {
 	try {
@@ -38,11 +41,19 @@ export async function fetchIssuerMetadata(
 					.then(({ data }) => data),
 			]);
 
+		const issuer_metadata = {
+			...oauthAuthorizationServer,
+			...openidCredentialIssuer,
+		};
+
+		const newClientState = await config.clientStateStore.setIssuerMetadata(
+			client_state,
+			issuer_metadata,
+		);
+
 		return {
-			issuer_metadata: {
-				...oauthAuthorizationServer,
-				...openidCredentialIssuer,
-			},
+			issuer_metadata,
+			client_state: newClientState,
 		};
 	} catch (_error) {
 		throw new OauthError(

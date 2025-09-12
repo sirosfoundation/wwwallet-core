@@ -4,7 +4,10 @@ import React, { useState } from "react";
 import { assert, describe, expect, it } from "vitest";
 import { Core } from "../../src";
 import { OauthError } from "../../src/errors";
-import { fetchIssuerMetadataMock } from "../support/client";
+import {
+	clientStateStoreMock,
+	fetchIssuerMetadataMock,
+} from "../support/client";
 
 const issuer = "http://issuer.url";
 const issuer_state = "issuer_state";
@@ -18,8 +21,10 @@ const config = {
 			issuer,
 			authorization_endpoint: new URL("/authorize", issuer).toString(),
 			pushed_authorization_request_endpoint: new URL("/par", issuer).toString(),
+			credential_configurations_supported: {},
 		}),
 	},
+	clientStateStore: clientStateStoreMock(),
 	static_clients: [
 		{
 			client_id: "id",
@@ -54,7 +59,9 @@ const AuthorizationHandler = (props: {
 				setSuccess(true);
 				setProtocol(response.protocol);
 				setNextStep(response.nextStep);
-				setAuthorizeUrl(response.data.authorize_url);
+				if (response.nextStep === "authorize") {
+					setAuthorizeUrl(response.data.authorize_url);
+				}
 			})
 			.catch((error) => {
 				if (error instanceof OauthError) {

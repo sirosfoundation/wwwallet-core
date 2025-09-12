@@ -2,7 +2,10 @@ import { afterEach, assert, describe, expect, it } from "vitest";
 import type { RequestHeaders } from "../../src";
 import { OauthError } from "../../src/errors";
 import { authorizationHandlerFactory } from "../../src/handlers";
-import { fetchIssuerMetadataMock } from "../support/client";
+import {
+	clientStateStoreMock,
+	fetchIssuerMetadataMock,
+} from "../support/client";
 
 describe("authorizationRequestHandler - pushed authorization requests", () => {
 	const issuer = "http://issuer.url";
@@ -30,8 +33,15 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 					"/par",
 					issuer,
 				).toString(),
+				credential_configurations_supported: {
+					id: { scope: "scope" },
+				},
 			}),
 		},
+		clientStateStore: clientStateStoreMock({
+			state: "state",
+			credential_configuration_ids: ["id"],
+		}),
 		static_clients: [
 			{
 				client_id: "id",
@@ -100,6 +110,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 				issuer_state: "issuer_state",
 				redirect_uri: "http://wallet.url",
 				scope: "scope",
+				state: "state",
 			},
 			config: {
 				headers: {
@@ -145,8 +156,10 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 						"/par",
 						issuer,
 					).toString(),
+					credential_configurations_supported: {},
 				}),
 			},
+			clientStateStore: clientStateStoreMock(),
 			static_clients: [
 				{
 					client_id: "id",
@@ -175,7 +188,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 						client_id: "id",
 						issuer_state: "issuer_state",
 						redirect_uri: "http://wallet.url",
-						scope: "scope",
+						scope: "",
+						state: undefined,
 					},
 					config: {
 						headers: {
@@ -222,6 +236,7 @@ describe("authorizationRequestHandler - authorization challenge", () => {
 			},
 			get: fetchIssuerMetadataMock(issuerMetadata),
 		},
+		clientStateStore: clientStateStoreMock(),
 		static_clients: [
 			{
 				client_id: "id",
@@ -279,6 +294,7 @@ describe("authorizationRequestHandler - no authorization method", () => {
 			},
 			get: fetchIssuerMetadataMock(issuerMetadata),
 		},
+		clientStateStore: clientStateStoreMock(),
 		static_clients: [
 			{
 				client_id: "id",

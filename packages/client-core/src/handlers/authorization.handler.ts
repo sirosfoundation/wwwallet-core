@@ -3,6 +3,7 @@ import type { Config } from "../config";
 import { OauthError } from "../errors";
 import type { IssuerMetadata } from "../resources";
 import {
+	clientState,
 	type FetchAuthorizationUrlConfig,
 	type FetchIssuerMetadataConfig,
 	fetchAuthorizationUrl,
@@ -57,19 +58,25 @@ export function authorizationHandlerFactory(
 		try {
 			const { client } = await issuerClient({ issuer }, config);
 
-			const { issuer_metadata } = await fetchIssuerMetadata(
-				{
-					issuer,
-					issuer_state,
-				},
+			const { client_state: initialClientState } = await clientState(
+				{ issuer, issuer_state },
 				config,
 			);
+
+			const { issuer_metadata, client_state: issuerMetadataClientState } =
+				await fetchIssuerMetadata(
+					{
+						issuer,
+						client_state: initialClientState,
+					},
+					config,
+				);
 
 			if (issuer_metadata.pushed_authorization_request_endpoint) {
 				const nextStep = "authorize";
 				const { authorize_url } = await fetchAuthorizationUrl(
 					{
-						issuer_metadata,
+						client_state: issuerMetadataClientState,
 						client,
 						issuer_state,
 					},
