@@ -270,7 +270,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"no given authorization grant is not supported",
+				"given authorization grants are not supported",
 			);
 		}
 	});
@@ -299,7 +299,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"no given authorization grant is not supported",
+				"given authorization grants are not supported",
 			);
 		}
 	});
@@ -328,7 +328,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"no given authorization grant is not supported",
+				"given authorization grants are not supported",
 			);
 		}
 	});

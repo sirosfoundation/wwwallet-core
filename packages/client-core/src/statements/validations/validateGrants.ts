@@ -36,7 +36,7 @@ export async function validateGrants(
 		throw new OauthError(
 			400,
 			"invalid_location",
-			"no given authorization grant is not supported",
+			"given authorization grants are not supported",
 		);
 	}
 
