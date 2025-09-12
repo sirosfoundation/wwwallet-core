@@ -2,6 +2,7 @@ export const locationHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		httpClient: {},
+		clientStateStore: {},
 	},
-	required: [],
+	required: ["httpClient", "clientStateStore"],
 };
