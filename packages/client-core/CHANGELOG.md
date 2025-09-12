@@ -1,5 +1,13 @@
 # @wwwallet-private/client-core
 
+## 0.1.0-alpha.5
+
+### Minor Changes
+
+- [#71](https://github.com/malach-it/wwwallet-issuer-poc/pull/71) [`e6ad6ba`](https://github.com/malach-it/wwwallet-issuer-poc/commit/e6ad6ba3e9adf3fe980c0c254f8f934aadab8527) Thanks [@patatoid](https://github.com/patatoid)! - Get pushed authorization request parameters from client state
+
+- [#70](https://github.com/malach-it/wwwallet-issuer-poc/pull/70) [`52503dc`](https://github.com/malach-it/wwwallet-issuer-poc/commit/52503dc455be97cfb76e985fb383ca0e7f086641) Thanks [@patatoid](https://github.com/patatoid)! - Add authorization chanllenge method to authorization handler
+
 ## 0.1.0-alpha.4
 
 ### Minor Changes
