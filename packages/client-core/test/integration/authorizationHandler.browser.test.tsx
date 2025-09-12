@@ -4,15 +4,21 @@ import React, { useState } from "react";
 import { assert, describe, expect, it } from "vitest";
 import { Core } from "../../src";
 import { OauthError } from "../../src/errors";
+import { fetchIssuerMetadataMock } from "../support/client";
 
 const issuer = "http://issuer.url";
 const issuer_state = "issuer_state";
 const config = {
 	wallet_url: "http://wallet.url",
 	httpClient: {
-		get: (url: string) => {
-			return Promise.resolve({ data: { request_uri: url } });
+		post: async (url: string) => {
+			return { data: { request_uri: url } };
 		},
+		get: fetchIssuerMetadataMock({
+			issuer,
+			authorization_endpoint: new URL("/authorize", issuer).toString(),
+			pushed_authorization_request_endpoint: new URL("/par", issuer).toString(),
+		}),
 	},
 	static_clients: [
 		{
@@ -28,7 +34,7 @@ const config = {
 // @ts-ignore
 const core = new Core(config);
 
-const PushedAuthorizationRequestHandler = (props: {
+const AuthorizationHandler = (props: {
 	issuer: string;
 	issuer_state: string;
 }) => {
@@ -40,7 +46,7 @@ const PushedAuthorizationRequestHandler = (props: {
 
 	(async () => {
 		return core
-			.pushedAuthorizationRequest({
+			.authorization({
 				issuer: props.issuer,
 				issuer_state: props.issuer_state,
 			})
@@ -72,14 +78,11 @@ const PushedAuthorizationRequestHandler = (props: {
 	);
 };
 
-describe.skip("pushed authorization request handler - integration", () => {
+describe("authorization handler - integration", () => {
 	it("returns an error with an invalid issuer", () => {
 		const issuer = "http://issuer.other";
 		render(
-			<PushedAuthorizationRequestHandler
-				issuer={issuer}
-				issuer_state={issuer_state}
-			/>,
+			<AuthorizationHandler issuer={issuer} issuer_state={issuer_state} />,
 		);
 
 		return waitFor(() => {
@@ -91,10 +94,7 @@ describe.skip("pushed authorization request handler - integration", () => {
 
 	it("renders", () => {
 		render(
-			<PushedAuthorizationRequestHandler
-				issuer={issuer}
-				issuer_state={issuer_state}
-			/>,
+			<AuthorizationHandler issuer={issuer} issuer_state={issuer_state} />,
 		);
 
 		return waitFor(() => {
@@ -110,7 +110,7 @@ describe.skip("pushed authorization request handler - integration", () => {
 				"authorizeUrl",
 			) as HTMLAnchorElement;
 			expect(authorizeUrl.innerHTML).to.eq(
-				"http://issuer.url/authorize?client_id=id&amp;request_uri=http%3A%2F%2Fissuer.url%2Fpar%3Fredirect_uri%3Dhttp%253A%252F%252Fwallet.url%26client_id%3Did%26issuer_state%3Dissuer_state%26scope%3Dscope",
+				"http://issuer.url/authorize?client_id=id&amp;request_uri=http%3A%2F%2Fissuer.url%2Fpar",
 			);
 		});
 	});
