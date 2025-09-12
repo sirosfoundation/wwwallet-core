@@ -27,7 +27,6 @@ const LocationHandler = () => {
 				if (error instanceof OauthError) {
 					return setError(error);
 				}
-				console.log(error);
 			});
 	})();
 

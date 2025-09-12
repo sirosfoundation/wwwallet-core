@@ -118,8 +118,6 @@ function getScopeFromIssuerMetadata(
 	credential_configuration_ids: Array<string>,
 	issuer_metadata: IssuerMetadata,
 ) {
-	console.log(issuer_metadata);
-	console.log(credential_configuration_ids);
 	return Object.keys(issuer_metadata.credential_configurations_supported)
 		.filter((credential_configuration_id) => {
 			return credential_configuration_ids.includes(credential_configuration_id);
