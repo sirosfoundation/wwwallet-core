@@ -3,7 +3,9 @@ import type { Config } from "../config";
 import { OauthError } from "../errors";
 import {
 	type FetchAuthorizationUrlConfig,
+	type FetchIssuerMetadataConfig,
 	fetchAuthorizationUrl,
+	fetchIssuerMetadata,
 	type IssuerClientConfig,
 	issuerClient,
 } from "../statements";
@@ -12,7 +14,7 @@ import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas";
 const ajv = new Ajv();
 
 export type PushedAuthorizationRequestHandlerConfig =
-	FetchAuthorizationUrlConfig & IssuerClientConfig;
+	FetchIssuerMetadataConfig & FetchAuthorizationUrlConfig & IssuerClientConfig;
 
 type PushedAuthorizationRequestHandlerParams = {
 	issuer: string;
@@ -44,9 +46,17 @@ export function pushedAuthorizationRequestHandlerFactory(
 		try {
 			const { client } = await issuerClient({ issuer }, config);
 
-			const { authorize_url } = await fetchAuthorizationUrl(
+			const { issuer_metadata } = await fetchIssuerMetadata(
 				{
 					issuer,
+					issuer_state,
+				},
+				config,
+			);
+
+			const { authorize_url } = await fetchAuthorizationUrl(
+				{
+					issuer_metadata,
 					client,
 					issuer_state,
 				},

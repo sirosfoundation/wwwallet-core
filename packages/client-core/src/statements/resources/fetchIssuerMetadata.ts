@@ -1,13 +1,12 @@
 import { OauthError } from "../../errors";
 import type {
-	Grants,
 	OauthAuthorizationServer,
 	OpenidCredentialIssuer,
 } from "../../resources";
 
 export type FetchIssuerMetadataParams = {
-	grants: Grants;
-	credential_issuer: string;
+	issuer: string;
+	issuer_state: string;
 };
 
 export type FetchIssuerMetadataConfig = {
@@ -17,17 +16,17 @@ export type FetchIssuerMetadataConfig = {
 };
 
 export async function fetchIssuerMetadata(
-	{ grants: _grants, credential_issuer }: FetchIssuerMetadataParams,
+	{ issuer, issuer_state: _issuer_state }: FetchIssuerMetadataParams,
 	config: FetchIssuerMetadataConfig,
 ) {
 	try {
 		const openidCredentialIssuerUrl = new URL(
 			"/.well-known/openid-credential-issuer",
-			credential_issuer,
+			issuer,
 		);
 		const oauthAuthorizationServerUrl = new URL(
 			"/.well-known/oauth-authorization-server",
-			credential_issuer,
+			issuer,
 		);
 		const [openidCredentialIssuer, oauthAuthorizationServer] =
 			await Promise.all([

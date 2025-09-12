@@ -3,6 +3,29 @@ import type { RequestHeaders } from "../../src";
 import { OauthError } from "../../src/errors";
 import { pushedAuthorizationRequestHandlerFactory } from "../../src/handlers";
 
+const fetchIssuerMetadataMock = (issuer: string) => {
+	return async <T>(url: string) => {
+		if (url.match(/oauth-authorization-server/)) {
+			return {
+				data: {
+					issuer,
+					authorization_endpoint: new URL("/authorize", issuer).toString(),
+					pushed_authorization_request_endpoint: new URL(
+						"/par",
+						issuer,
+					).toString(),
+				} as T,
+			};
+		}
+		if (url.match(/openid-credential-issuer/)) {
+			return {
+				data: {} as T,
+			};
+		}
+		throw new Error("not found");
+	};
+};
+
 describe("pushedAuthorizationRequestHandler", () => {
 	const issuer = "http://issuer.url";
 	let lastRequest: {
@@ -22,6 +45,7 @@ describe("pushedAuthorizationRequestHandler", () => {
 				lastRequest = { url, body, config };
 				return { data: { request_uri: url } as T };
 			},
+			get: fetchIssuerMetadataMock(issuer),
 		},
 		static_clients: [
 			{
@@ -130,6 +154,7 @@ describe("pushedAuthorizationRequestHandler", () => {
 
 					return { data: { request_uri: url } as T };
 				},
+				get: fetchIssuerMetadataMock(issuer),
 			},
 			static_clients: [
 				{
