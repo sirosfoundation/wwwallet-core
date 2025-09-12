@@ -2,12 +2,12 @@ import axios from "axios";
 import { merge } from "ts-deepmerge";
 import type { Config } from "./config";
 import {
+	type AuthorizationHandlerConfig,
+	authorizationHandlerFactory,
 	type LocationHandlerConfig,
 	locationHandlerFactory,
-	type PushedAuthorizationRequestHandlerConfig,
-	pushedAuthorizationRequestHandlerFactory,
+	validateAuthorizationHandlerConfig,
 	validateLocationHandlerConfig,
-	validatePushedAuthorizationRequestHandlerConfig,
 } from "./handlers";
 
 export class Core {
@@ -23,11 +23,11 @@ export class Core {
 		return locationHandlerFactory(this.config as LocationHandlerConfig);
 	}
 
-	get pushedAuthorizationRequest() {
-		validatePushedAuthorizationRequestHandlerConfig(this.config);
+	get authorization() {
+		validateAuthorizationHandlerConfig(this.config);
 
-		return pushedAuthorizationRequestHandlerFactory(
-			this.config as PushedAuthorizationRequestHandlerConfig,
+		return authorizationHandlerFactory(
+			this.config as AuthorizationHandlerConfig,
 		);
 	}
 }
