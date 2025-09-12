@@ -1,18 +1,9 @@
+import type { ClientStateStore, HttpClient } from "./ports";
 import type { OauthClient } from "./resources";
 
-export type RequestHeaders = {
-	[key: string]: string;
-};
-
 export type Config = {
-	httpClient?: {
-		get?: <T>(url: string) => Promise<{ data: T }>;
-		post?: <T>(
-			url: string,
-			body?: unknown,
-			config?: { headers: RequestHeaders },
-		) => Promise<{ data: T }>;
-	};
+	httpClient?: HttpClient;
+	clientStateStore?: ClientStateStore;
 	static_clients?: Array<OauthClient>;
 	wallet_url?: string;
 };

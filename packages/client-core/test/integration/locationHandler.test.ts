@@ -1,12 +1,17 @@
 import { SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
+import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
 const locationHandler = locationHandlerFactory({
-	httpClient: {
-		get: async <T>(url: string) => {
-			return { data: url as T };
+	// @ts-expect-error
+	clientStateStore: {
+		async create(issuer: string, issuer_state: string) {
+			return {
+				issuer,
+				issuer_state,
+			};
 		},
 	},
 });
@@ -99,6 +104,27 @@ describe("location handler - presentation success", () => {
 });
 
 describe("location handler - credential offer", () => {
+	let lastClientState: ClientState;
+	const locationHandler = locationHandlerFactory({
+		// @ts-expect-error
+		clientStateStore: {
+			async create(issuer: string, issuer_state: string) {
+				lastClientState = {
+					issuer,
+					issuer_state,
+				};
+				return lastClientState;
+			},
+			async setCredentialConfigurationIds(
+				clientState: ClientState,
+				credentialConfigurationIds: Array<string>,
+			) {
+				clientState.credential_configuration_ids = credentialConfigurationIds;
+				return clientState;
+			},
+		},
+	});
+
 	it("returns an error with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
@@ -213,12 +239,10 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
-			);
+			expect(error.error_description).to.eq("grants parameter is required");
 		}
 	});
 
@@ -246,7 +270,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
@@ -275,7 +299,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
@@ -304,7 +328,7 @@ describe("location handler - credential offer", () => {
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
-				"credential offer grants is not supported",
+				"no given authorization grant is not supported",
 			);
 		}
 	});
@@ -328,6 +352,7 @@ describe("location handler - credential offer", () => {
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
+			expect(response.data?.issuer).to.eq(credential_issuer);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);
@@ -351,9 +376,15 @@ describe("location handler - credential offer", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
+		expect(lastClientState).to.deep.eq({
+			credential_configuration_ids: ["credential_configuration_ids"],
+			issuer: "https://issuer.url/",
+			issuer_state: "issuer_state",
+		});
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
+			expect(response.data?.issuer).to.eq(credential_issuer);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);

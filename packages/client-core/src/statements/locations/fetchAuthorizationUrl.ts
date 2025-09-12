@@ -1,10 +1,10 @@
 import { OauthError } from "../../errors";
-import type { IssuerMetadata, OauthClient } from "../../resources";
+import type { ClientState, IssuerMetadata, OauthClient } from "../../resources";
 
 export type FetchAuthorizationUrlParams = {
-	issuer_metadata: IssuerMetadata;
 	client: OauthClient;
 	issuer_state: string;
+	client_state: ClientState;
 };
 
 type RequestHeaders = {
@@ -27,23 +27,24 @@ type PushedAuthorizationRequestParams = {
 	client_id?: string;
 	issuer_state?: string;
 	scope?: string;
+	state?: string;
 };
 
 export async function fetchAuthorizationUrl(
-	{ issuer_metadata, client, issuer_state }: FetchAuthorizationUrlParams,
+	{ client_state, client, issuer_state }: FetchAuthorizationUrlParams,
 	config: FetchAuthorizationUrlConfig,
 ) {
 	const pushedAuthorizationRequestParams: PushedAuthorizationRequestParams = {};
 
-	if (!issuer_metadata.issuer) {
+	if (!client_state.issuer_metadata?.pushed_authorization_request_endpoint) {
 		throw new OauthError(
 			400,
 			"invalid_client",
-			"pushed authorization requests require an issuer",
+			"pushed authorization request endpoint missing in issuer metadata ",
 		);
 	}
 	const pushedAuthorizationRequestUrl = new URL(
-		issuer_metadata.pushed_authorization_request_endpoint,
+		client_state.issuer_metadata.pushed_authorization_request_endpoint,
 	);
 
 	pushedAuthorizationRequestParams.redirect_uri = config.wallet_url;
@@ -66,8 +67,12 @@ export async function fetchAuthorizationUrl(
 	}
 	pushedAuthorizationRequestParams.issuer_state = issuer_state;
 
-	// TODO get scope from session location
-	pushedAuthorizationRequestParams.scope = client.scope;
+	pushedAuthorizationRequestParams.state = client_state.state;
+
+	pushedAuthorizationRequestParams.scope = getScopeFromIssuerMetadata(
+		client_state.credential_configuration_ids || [],
+		client_state.issuer_metadata,
+	);
 
 	const {
 		data: { request_uri },
@@ -90,11 +95,37 @@ export async function fetchAuthorizationUrl(
 			);
 		});
 
-	const authorizeUrl = new URL(issuer_metadata.authorization_endpoint);
+	if (!client_state.issuer_metadata?.authorization_endpoint) {
+		throw new OauthError(
+			400,
+			"invalid_client",
+			"authorization endpoint missing in issuer metadata ",
+		);
+	}
+
+	const authorizeUrl = new URL(
+		client_state.issuer_metadata.authorization_endpoint,
+	);
 	const authorizeParams = new URLSearchParams();
 	authorizeParams.append("client_id", client.client_id);
 	authorizeParams.append("request_uri", request_uri);
 	authorizeUrl.search = `?${authorizeParams.toString()}`;
 
 	return { authorize_url: authorizeUrl.toString() };
+}
+
+function getScopeFromIssuerMetadata(
+	credential_configuration_ids: Array<string>,
+	issuer_metadata: IssuerMetadata,
+) {
+	return Object.keys(issuer_metadata.credential_configurations_supported)
+		.filter((credential_configuration_id) => {
+			return credential_configuration_ids.includes(credential_configuration_id);
+		})
+		.map((credential_configuration_id) => {
+			return issuer_metadata.credential_configurations_supported[
+				credential_configuration_id
+			].scope;
+		})
+		.join(" ");
 }

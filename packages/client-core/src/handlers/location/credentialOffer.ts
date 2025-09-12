@@ -1,10 +1,13 @@
 import { OauthError } from "../../errors";
 import {
 	type ValidateCredentialOfferConfig,
+	type ValidateGrantsConfig,
 	validateCredentialOffer,
+	validateGrants,
 } from "../../statements";
 
-export type CredentialOfferLocationConfig = ValidateCredentialOfferConfig;
+export type CredentialOfferLocationConfig = ValidateCredentialOfferConfig &
+	ValidateGrantsConfig;
 
 type CredentialOfferProtocol = "oid4vci";
 
@@ -15,8 +18,9 @@ export type CredentialOfferLocation = {
 };
 
 type PushedAuthorizationRequestMetadata = {
+	issuer: string;
 	credential_configuration_ids: Array<string>;
-	issuer_state: string;
+	issuer_state: string | undefined;
 };
 
 export type CredentialOfferProtocolResponse = {
@@ -40,21 +44,28 @@ export async function handleCredentialOffer(
 		);
 	}
 
-	const { credential_configuration_ids, grants } =
-		await validateCredentialOffer(
-			{
-				credential_offer: location.credential_offer,
-			},
-			config,
-		);
+	const {
+		credential_issuer: issuer,
+		credential_configuration_ids,
+		grants,
+	} = await validateCredentialOffer(
+		{
+			credential_offer: location.credential_offer,
+		},
+		config,
+	);
 
-	if (grants?.authorization_code) {
-		const { issuer_state } = grants.authorization_code;
+	const { grant_types, issuer_state } = await validateGrants(
+		{ credential_configuration_ids, issuer, grants },
+		config,
+	);
 
+	if (grant_types.includes("authorization_code")) {
 		return {
 			protocol,
 			nextStep,
 			data: {
+				issuer,
 				issuer_state,
 				credential_configuration_ids,
 			},

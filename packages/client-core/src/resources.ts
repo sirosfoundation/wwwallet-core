@@ -1,10 +1,16 @@
 export type OauthClient = {
 	issuer: string;
 	client_id: string;
-	// ---- TODO get from session
-	scope: string;
-	// --------------------------
 };
+
+export interface ClientState {
+	issuer: string;
+	issuer_state: string;
+	state?: string;
+	credential_configuration_ids?: Array<string>;
+	issuer_metadata?: IssuerMetadata;
+	context?: unknown;
+}
 
 export type CredentialConfigurationSupported = {
 	format: string;
