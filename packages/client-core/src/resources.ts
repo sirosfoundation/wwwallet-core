@@ -2,8 +2,6 @@ export type OauthClient = {
 	issuer: string;
 	client_id: string;
 	// ---- TODO get from session
-	pushed_authorization_request_endpoint: string;
-	authorize_endpoint: string;
 	scope: string;
 	// --------------------------
 };

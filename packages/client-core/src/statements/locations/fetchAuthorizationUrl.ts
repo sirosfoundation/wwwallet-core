@@ -1,8 +1,8 @@
 import { OauthError } from "../../errors";
-import type { OauthClient } from "../../resources";
+import type { IssuerMetadata, OauthClient } from "../../resources";
 
 export type FetchAuthorizationUrlParams = {
-	issuer: string;
+	issuer_metadata: IssuerMetadata;
 	client: OauthClient;
 	issuer_state: string;
 };
@@ -30,21 +30,20 @@ type PushedAuthorizationRequestParams = {
 };
 
 export async function fetchAuthorizationUrl(
-	{ issuer, client, issuer_state }: FetchAuthorizationUrlParams,
+	{ issuer_metadata, client, issuer_state }: FetchAuthorizationUrlParams,
 	config: FetchAuthorizationUrlConfig,
 ) {
 	const pushedAuthorizationRequestParams: PushedAuthorizationRequestParams = {};
 
-	if (!issuer) {
+	if (!issuer_metadata.issuer) {
 		throw new OauthError(
 			400,
 			"invalid_client",
 			"pushed authorization requests require an issuer",
 		);
 	}
-	// TODO get pushed authorization request endpoint from session issuer information
 	const pushedAuthorizationRequestUrl = new URL(
-		client.pushed_authorization_request_endpoint,
+		issuer_metadata.pushed_authorization_request_endpoint,
 	);
 
 	pushedAuthorizationRequestParams.redirect_uri = config.wallet_url;
@@ -91,8 +90,7 @@ export async function fetchAuthorizationUrl(
 			);
 		});
 
-	// TODO get authorize endpoint from session issuer information
-	const authorizeUrl = new URL(client.authorize_endpoint);
+	const authorizeUrl = new URL(issuer_metadata.authorization_endpoint);
 	const authorizeParams = new URLSearchParams();
 	authorizeParams.append("client_id", client.client_id);
 	authorizeParams.append("request_uri", request_uri);
