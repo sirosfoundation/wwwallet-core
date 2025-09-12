@@ -3,6 +3,7 @@ import type { IssuerMetadata } from "./resources";
 export interface ClientState {
 	issuer: string;
 	issuer_state: string;
+	state?: string;
 	credential_configuration_ids?: Array<string>;
 	issuerMetadata?: IssuerMetadata;
 }
