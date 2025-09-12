@@ -110,7 +110,7 @@ export function authorizationHandlerFactory(
 			);
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = templateErrorData({ issuer, issuer_state });
+				const data = authorizationHandlerErrorData({ issuer, issuer_state });
 				throw error.toResponse(data);
 			}
 
@@ -125,11 +125,11 @@ export function validateAuthorizationHandlerConfig(config: Config) {
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate handler template configuration - ${errorText}`,
+			`Could not validate authorization handler configuration - ${errorText}`,
 		);
 	}
 }
 
-function templateErrorData(params: AuthorizationHandlerParams) {
+function authorizationHandlerErrorData(params: AuthorizationHandlerParams) {
 	return params;
 }
