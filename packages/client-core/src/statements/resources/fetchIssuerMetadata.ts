@@ -41,6 +41,7 @@ export async function fetchIssuerMetadata(
 					.then(({ data }) => data),
 			]);
 
+		// TODO verify issuer metadata json schema
 		const issuer_metadata = {
 			...oauthAuthorizationServer,
 			...openidCredentialIssuer,
