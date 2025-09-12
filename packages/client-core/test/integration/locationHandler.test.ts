@@ -1,5 +1,6 @@
 import { SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
+import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 
@@ -103,6 +104,27 @@ describe("location handler - presentation success", () => {
 });
 
 describe("location handler - credential offer", () => {
+	let lastClientState: ClientState;
+	const locationHandler = locationHandlerFactory({
+		// @ts-expect-error
+		clientStateStore: {
+			async create(issuer: string, issuer_state: string) {
+				lastClientState = {
+					issuer,
+					issuer_state,
+				};
+				return lastClientState;
+			},
+			async setCredentialConfigurationIds(
+				clientState: ClientState,
+				credentialConfigurationIds: Array<string>,
+			) {
+				clientState.credential_configuration_ids = credentialConfigurationIds;
+				return clientState;
+			},
+		},
+	});
+
 	it("returns an error with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
@@ -354,6 +376,11 @@ describe("location handler - credential offer", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
+		expect(lastClientState).to.deep.eq({
+			credential_configuration_ids: ["credential_configuration_ids"],
+			issuer: "https://issuer.url/",
+			issuer_state: "issuer_state",
+		});
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");

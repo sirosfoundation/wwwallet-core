@@ -56,7 +56,7 @@ export async function handleCredentialOffer(
 	);
 
 	const { grant_types, issuer_state } = await validateGrants(
-		{ issuer, grants },
+		{ credential_configuration_ids, issuer, grants },
 		config,
 	);
 
