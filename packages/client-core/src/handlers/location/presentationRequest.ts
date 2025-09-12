@@ -1,8 +1,10 @@
-import axios from "axios";
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
+import type { HttpClient } from "../../ports";
 
-export type PresentationRequestConfig = {};
+export type PresentationRequestConfig = {
+	httpClient: HttpClient;
+};
 
 type CredentialOfferProtocol = "oid4vp";
 
@@ -52,7 +54,7 @@ const nextStep = "presentation";
 
 export async function handlePresentationRequest(
 	location: PresentationRequestLocation,
-	_config: PresentationRequestConfig,
+	config: PresentationRequestConfig,
 ): Promise<PresentationRequestResponse> {
 	const parameters: Array<
 		| "client_id"
@@ -80,7 +82,7 @@ export async function handlePresentationRequest(
 	};
 	try {
 		if (location.request_uri) {
-			const payload = await axios
+			const payload = await config.httpClient
 				.get<PresentationRequest>(location.request_uri)
 				.then(({ data }) => data);
 			request = payload;

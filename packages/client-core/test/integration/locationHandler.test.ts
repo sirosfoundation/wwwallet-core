@@ -3,17 +3,16 @@ import { assert, describe, expect, it } from "vitest";
 import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
+import { clientStateStoreMock } from "../support/client";
 
 const locationHandler = locationHandlerFactory({
-	// @ts-expect-error
-	clientStateStore: {
-		async create(issuer: string, issuer_state: string) {
-			return {
-				issuer,
-				issuer_state,
-			};
+	// @ts-ignore
+	httpClient: {
+		get: async <T>(_url: string) => {
+			return { data: {} as T };
 		},
 	},
+	clientStateStore: clientStateStoreMock(),
 });
 
 describe("location handler - no protocol", () => {
@@ -598,6 +597,59 @@ describe("location handler - presentation request", () => {
 			},
 			nextStep: "presentation",
 			protocol: "oid4vp",
+		});
+	});
+
+	describe("with a presentation request uri", () => {
+		const request_uri = "http://request.uri";
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: async <T>(url: string) => {
+					if (url !== request_uri) {
+						throw new Error("invalid request_uri");
+					}
+					return {
+						data: {
+							client_id,
+							response_uri,
+							response_type,
+							response_mode,
+							nonce,
+							state,
+						} as T,
+					};
+				},
+			},
+			clientStateStore: clientStateStoreMock(),
+		});
+
+		it("returns a presentation request with request", async () => {
+			const location = {
+				search: `?client_id=${client_id}&request_uri=${request_uri}`,
+			};
+
+			// @ts-ignore
+			const response = await locationHandler(location);
+
+			expect(response).to.deep.eq({
+				data: {
+					client_id: "client_id",
+					nonce: "nonce",
+					response_mode: "response_mode",
+					response_type: "response_type",
+					response_uri: "response_uri",
+					state: "state",
+				},
+				nextStep: "presentation",
+				protocol: "oid4vp",
+			});
 		});
 	});
 
