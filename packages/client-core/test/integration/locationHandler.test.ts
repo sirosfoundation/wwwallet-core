@@ -328,6 +328,7 @@ describe("location handler - credential offer", () => {
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
+			expect(response.data?.issuer).to.eq(credential_issuer);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);
@@ -354,6 +355,7 @@ describe("location handler - credential offer", () => {
 		expect(response.protocol).to.eq("oid4vci");
 		if (response.protocol === "oid4vci") {
 			expect(response.nextStep).to.eq("pushed_authorization_request");
+			expect(response.data?.issuer).to.eq(credential_issuer);
 			expect(response.data?.credential_configuration_ids).to.deep.eq(
 				credential_configuration_ids,
 			);

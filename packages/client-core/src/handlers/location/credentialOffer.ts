@@ -15,6 +15,7 @@ export type CredentialOfferLocation = {
 };
 
 type PushedAuthorizationRequestMetadata = {
+	issuer: string;
 	credential_configuration_ids: Array<string>;
 	issuer_state: string;
 };
@@ -40,13 +41,16 @@ export async function handleCredentialOffer(
 		);
 	}
 
-	const { credential_configuration_ids, grants } =
-		await validateCredentialOffer(
-			{
-				credential_offer: location.credential_offer,
-			},
-			config,
-		);
+	const {
+		credential_issuer: issuer,
+		credential_configuration_ids,
+		grants,
+	} = await validateCredentialOffer(
+		{
+			credential_offer: location.credential_offer,
+		},
+		config,
+	);
 
 	if (grants?.authorization_code) {
 		const { issuer_state } = grants.authorization_code;
@@ -55,6 +59,7 @@ export async function handleCredentialOffer(
 			protocol,
 			nextStep,
 			data: {
+				issuer,
 				issuer_state,
 				credential_configuration_ids,
 			},
