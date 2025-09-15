@@ -16,14 +16,16 @@ export const fetchIssuerMetadataMock = (issuerMetadata: unknown) => {
 	};
 };
 
-export const clientStateStoreMock = (state: unknown = {}) => {
+export const clientStateStoreMock = (clientState: unknown = {}) => {
+	const code_verifier = "code_verifier";
+	const state = "state";
 	return {
 		async create(issuer: string, issuer_state: string) {
-			return { issuer, issuer_state };
+			return { issuer, issuer_state, state, code_verifier };
 		},
 		async fromIssuerState(issuer: string, issuer_state: string) {
 			// @ts-ignore
-			return { issuer, issuer_state, ...state };
+			return { issuer, issuer_state, state, code_verifier, ...clientState };
 		},
 		async setCredentialConfigurationIds(
 			client_state: ClientState,

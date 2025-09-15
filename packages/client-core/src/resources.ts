@@ -6,7 +6,8 @@ export type OauthClient = {
 export interface ClientState {
 	issuer: string;
 	issuer_state: string;
-	state?: string;
+	state: string;
+	code_verifier: string;
 	credential_configuration_ids?: Array<string>;
 	issuer_metadata?: IssuerMetadata;
 	context?: unknown;

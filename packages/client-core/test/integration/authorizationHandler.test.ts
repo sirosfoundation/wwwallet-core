@@ -111,6 +111,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 				redirect_uri: "http://wallet.url",
 				scope: "scope",
 				state: "state",
+				code_challenge: "73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM",
+				code_challenge_method: "S256",
 			},
 			config: {
 				headers: {
@@ -189,7 +191,9 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 						issuer_state: "issuer_state",
 						redirect_uri: "http://wallet.url",
 						scope: "",
-						state: undefined,
+						state: "state",
+						code_challenge: "73oehA2tBul5grZPhXUGQwNAjxh69zNES8bu2bVD0EM",
+						code_challenge_method: "S256",
 					},
 					config: {
 						headers: {

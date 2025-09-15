@@ -28,6 +28,8 @@ type PushedAuthorizationRequestParams = {
 	issuer_state?: string;
 	scope?: string;
 	state?: string;
+	code_challenge_method?: string;
+	code_challenge?: string;
 };
 
 export async function fetchAuthorizationUrl(
@@ -68,6 +70,11 @@ export async function fetchAuthorizationUrl(
 	pushedAuthorizationRequestParams.issuer_state = issuer_state;
 
 	pushedAuthorizationRequestParams.state = client_state.state;
+
+	pushedAuthorizationRequestParams.code_challenge_method = "S256";
+	pushedAuthorizationRequestParams.code_challenge = await S256codeChallenge(
+		client_state.code_verifier,
+	);
 
 	pushedAuthorizationRequestParams.scope = getScopeFromIssuerMetadata(
 		client_state.credential_configuration_ids || [],
@@ -128,4 +135,14 @@ function getScopeFromIssuerMetadata(
 			].scope;
 		})
 		.join(" ");
+}
+
+async function S256codeChallenge(code_verifier: string) {
+	const rawCodeVerifier = new TextEncoder().encode(code_verifier);
+	const hash = await crypto.subtle.digest("SHA-256", rawCodeVerifier);
+
+	return btoa(String.fromCharCode(...new Uint8Array(hash)))
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/, "");
 }

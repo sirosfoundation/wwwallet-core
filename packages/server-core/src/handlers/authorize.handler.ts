@@ -106,6 +106,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 					config,
 				);
 
+				// TODO add state parameter
 				const { location } = await authorizationCodeRedirection(
 					{ authorization_request, authorization_code },
 					config,
