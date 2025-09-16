@@ -2,14 +2,20 @@ import { OauthError } from "../../errors";
 import {
 	type ClientStateConfig,
 	clientState,
+	type FetchAccessTokenConfig,
 	type FetchIssuerMetadataConfig,
+	fetchAccessToken,
 	fetchIssuerMetadata,
 	type GenerateDpopConfig,
 	generateDpop,
+	type IssuerClientConfig,
+	issuerClient,
 } from "../../statements";
 
 export type AuthorizationCodeConfig = ClientStateConfig &
+	IssuerClientConfig &
 	FetchIssuerMetadataConfig &
+	FetchAccessTokenConfig &
 	GenerateDpopConfig;
 
 type AuthorizationCodeProtocol = "oid4vci";
@@ -26,7 +32,10 @@ export type AuthorizationCodeResponse = {
 	nextStep: AuthorizationCodeNextStep;
 	data: {
 		access_token: string;
-		nonce: string;
+		expires_in: number;
+		c_nonce: string;
+		c_nonce_expires_in: number;
+		refresh_token: string;
 	};
 };
 
@@ -50,6 +59,13 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
+	const { client } = await issuerClient(
+		{
+			issuer: initialClientState.issuer,
+		},
+		config,
+	);
+
 	const { issuer_metadata, client_state: _issuerMetadataClientState } =
 		await fetchIssuerMetadata(
 			{
@@ -63,17 +79,23 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
-	// const { access_token, client_state: _accessTokenClientState } =
-	// 	await fetchAccessToken(
-	// 		{
-	// 			issuer_metadata,
-	// 			dpop: accessTokenDpop,
-	// 			code,
-	// 		},
-	// 		config,
-	// 	);
+	const {
+		access_token,
+		expires_in,
+		c_nonce,
+		c_nonce_expires_in,
+		refresh_token,
+	} = await fetchAccessToken(
+		{
+			client,
+			issuer_metadata,
+			dpop: accessTokenDpop,
+			code,
+		},
+		config,
+	);
 
-	const { dpop: nonceDpop } = await generateDpop(
+	const { dpop: _nonceDpop } = await generateDpop(
 		{
 			// access_token,
 			htm: issuer_metadata.nonce_endpoint,
@@ -94,8 +116,11 @@ export async function handleAuthorizationCode(
 		protocol,
 		nextStep,
 		data: {
-			access_token: accessTokenDpop,
-			nonce: nonceDpop,
+			access_token,
+			expires_in,
+			c_nonce,
+			c_nonce_expires_in,
+			refresh_token,
 		},
 	};
 }

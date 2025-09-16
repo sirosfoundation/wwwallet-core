@@ -1,5 +1,4 @@
 import { afterEach, assert, describe, expect, it } from "vitest";
-import type { RequestHeaders } from "../../src";
 import { OauthError } from "../../src/errors";
 import { authorizationHandlerFactory } from "../../src/handlers";
 import {
@@ -20,7 +19,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 			post: async <T>(
 				url: string,
 				body?: unknown,
-				config?: { headers: RequestHeaders },
+				config?: { headers: Record<string, string> },
 			) => {
 				// @ts-ignore
 				lastRequest = { url, body, config };
@@ -45,13 +44,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 		static_clients: [
 			{
 				client_id: "id",
+				client_secret: "secret",
 				issuer,
-				pushed_authorization_request_endpoint: new URL(
-					"/par",
-					issuer,
-				).toString(),
-				authorize_endpoint: new URL("/authorize", issuer).toString(),
-				scope: "scope",
 			},
 		],
 	};
@@ -140,7 +134,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 				post: async <T>(
 					url: string,
 					body?: unknown,
-					config?: { headers: RequestHeaders },
+					config?: { headers: Record<string, string> },
 				) => {
 					lastRequest = { url, body, config };
 					if (url.match(pushed_authorization_request_endpoint)) {
@@ -163,10 +157,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 			static_clients: [
 				{
 					client_id: "id",
+					client_secret: "secret",
 					issuer,
-					pushed_authorization_request_endpoint,
-					authorize_endpoint: new URL("/authorize", issuer).toString(),
-					scope: "scope",
 				},
 			],
 		};
@@ -230,7 +222,7 @@ describe("authorizationRequestHandler - authorization challenge", () => {
 			post: async <T>(
 				url: string,
 				body?: unknown,
-				config?: { headers: RequestHeaders },
+				config?: { headers: Record<string, string> },
 			) => {
 				// @ts-ignore
 				lastRequest = { url, body, config };
@@ -242,13 +234,8 @@ describe("authorizationRequestHandler - authorization challenge", () => {
 		static_clients: [
 			{
 				client_id: "id",
+				client_secret: "secret",
 				issuer,
-				pushed_authorization_request_endpoint: new URL(
-					"/par",
-					issuer,
-				).toString(),
-				authorize_endpoint: new URL("/authorize", issuer).toString(),
-				scope: "scope",
 			},
 		],
 	};
@@ -300,13 +287,8 @@ describe("authorizationRequestHandler - no authorization method", () => {
 		static_clients: [
 			{
 				client_id: "id",
+				client_secret: "secret",
 				issuer,
-				pushed_authorization_request_endpoint: new URL(
-					"/par",
-					issuer,
-				).toString(),
-				authorize_endpoint: new URL("/authorize", issuer).toString(),
-				scope: "scope",
 			},
 		],
 	};

@@ -1,5 +1,5 @@
 import { OauthError } from "../../errors";
-import type { ClientStateStore } from "../../ports";
+import type { ClientStateStore, HttpClient } from "../../ports";
 import type {
 	ClientState,
 	OauthAuthorizationServer,
@@ -12,9 +12,7 @@ export type FetchIssuerMetadataParams = {
 };
 
 export type FetchIssuerMetadataConfig = {
-	httpClient: {
-		get: <T>(url: string) => Promise<{ data: T }>;
-	};
+	httpClient: HttpClient;
 	clientStateStore: ClientStateStore;
 };
 

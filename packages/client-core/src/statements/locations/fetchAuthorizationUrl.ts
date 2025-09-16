@@ -1,4 +1,5 @@
 import { OauthError } from "../../errors";
+import type { HttpClient } from "../../ports";
 import type { ClientState, IssuerMetadata, OauthClient } from "../../resources";
 
 export type FetchAuthorizationUrlParams = {
@@ -7,19 +8,9 @@ export type FetchAuthorizationUrlParams = {
 	client_state: ClientState;
 };
 
-type RequestHeaders = {
-	[key: string]: string;
-};
-
 export type FetchAuthorizationUrlConfig = {
 	wallet_url: string;
-	httpClient: {
-		post: <T>(
-			url: string,
-			body?: unknown,
-			config?: { headers: RequestHeaders },
-		) => Promise<{ data: T }>;
-	};
+	httpClient: HttpClient;
 };
 
 type PushedAuthorizationRequestParams = {

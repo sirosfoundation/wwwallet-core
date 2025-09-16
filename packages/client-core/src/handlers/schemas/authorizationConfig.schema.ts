@@ -10,9 +10,10 @@ export const authorizationHandlerConfigSchema = {
 				type: "object",
 				properties: {
 					client_id: { type: "string" },
+					client_secret: { type: "string" },
 					issuer: { type: "string" },
-					purpose: { type: "string" },
 				},
+				required: ["issuer", "client_id", "client_secret"],
 			},
 		},
 	},

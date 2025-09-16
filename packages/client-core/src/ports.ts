@@ -14,15 +14,11 @@ export type ClientStateStore = {
 	): Promise<ClientState>;
 };
 
-export type RequestHeaders = {
-	[key: string]: string;
-};
-
 export type HttpClient = {
 	get: <T>(url: string) => Promise<{ data: T }>;
 	post: <T>(
 		url: string,
 		body?: unknown,
-		config?: { headers: RequestHeaders },
+		config?: { headers: Record<string, string> },
 	) => Promise<{ data: T }>;
 };

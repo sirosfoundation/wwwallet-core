@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { decodeProtectedHeader, type JWK, jwtVerify, SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
 import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
@@ -17,6 +17,7 @@ const locationHandler = locationHandlerFactory({
 	},
 	clientStateStore: clientStateStoreMock(),
 	dpop_ttl_seconds: 10,
+	static_clients: [],
 });
 
 describe("location handler - no protocol", () => {
@@ -85,7 +86,47 @@ describe("location handler - protocol error", () => {
 });
 
 describe("location handler - authorization code", () => {
+	const issuer = "http://issuer.url";
+
 	it("returns an error", async () => {
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("could not find issuer client");
+		}
+	});
+
+	it("returns an error when issuer client is configured", async () => {
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: async <T>(_url: string) => {
+					return { data: {} as T };
+				},
+			},
+			clientStateStore: clientStateStoreMock({ issuer }),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
 		const code = "code";
 		const state = "state";
 		const location = {
@@ -108,36 +149,133 @@ describe("location handler - authorization code", () => {
 		}
 	});
 
-	describe("when issuer metadata is present in client state", () => {
+	it("returns an error when issuer metadata is present in client state", async () => {
 		const locationHandler = locationHandlerFactory({
 			// @ts-ignore
 			httpClient: {
 				get: fetchIssuerMetadataMock({}),
 			},
 			clientStateStore: clientStateStoreMock({
+				issuer,
 				issuer_metadata: {},
 			}),
 			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_request");
+			expect(error.error_description).to.eq("could not fetch access token");
+		}
+	});
+
+	it("returns error when access token request is a success", async () => {
+		let lastRequest: {
+			url: string;
+			body: unknown;
+			config?: { headers: Record<string, string> };
+		} | null = null;
+		const access_token = "access_token";
+		const c_nonce = "c_nonce";
+		const refresh_token = "refresh_token";
+		const expires_in = 10;
+		const c_nonce_expires_in = 10;
+
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+				post: async <T>(
+					url: string,
+					body: unknown,
+					config?: { headers: Record<string, string> },
+				) => {
+					lastRequest = { url, body, config };
+					return {
+						data: {
+							access_token,
+							expires_in,
+							c_nonce,
+							c_nonce_expires_in,
+							refresh_token,
+						} as T,
+					};
+				},
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer,
+				issuer_metadata: {
+					token_endpoint: "http://token.endpoint",
+				},
+			}),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		// @ts-ignore
+		expect(lastRequest?.url).to.eq("http://token.endpoint");
+		// @ts-ignore
+		expect(lastRequest?.body).to.deep.eq({
+			client_id: "id",
+			client_secret: "secret",
+			code: "code",
+			grant_type: "authorization_code",
 		});
 
-		it("WIP return dpop", async () => {
-			const code = "code";
-			const state = "state";
-			const location = {
-				search: `?code=${code}&state=${state}`,
-			};
+		// @ts-ignore
+		const dpop = lastRequest?.config.headers.DPoP;
+		const { jwk } = decodeProtectedHeader(dpop);
+		const { payload } = await jwtVerify(dpop, jwk as JWK);
 
-			// @ts-ignore
-			const response = await locationHandler(location);
+		assert(payload.exp);
+		expect(payload.htm).to.eq("http://token.endpoint");
+		expect(payload.htu).to.eq("POST");
+		assert(payload.iat);
+		assert(payload.jti);
 
-			expect(response.protocol).to.eq("oid4vci");
-			if (response.protocol === "oid4vci") {
-				expect(response.nextStep).to.eq("credential_request");
-				if (response.nextStep === "credential_request") {
-					assert(response.data.access_token);
-					assert(response.data.nonce);
-				}
-			}
+		expect(response).to.deep.eq({
+			data: {
+				access_token: "access_token",
+				c_nonce: "c_nonce",
+				c_nonce_expires_in: 10,
+				expires_in: 10,
+				refresh_token: "refresh_token",
+			},
+			nextStep: "credential_request",
+			protocol: "oid4vci",
 		});
 	});
 });
@@ -173,6 +311,8 @@ describe("location handler - credential offer", () => {
 				lastClientState = {
 					issuer,
 					issuer_state,
+					state: "state",
+					code_verifier: "code_verifier",
 				};
 				return lastClientState;
 			},
@@ -411,13 +551,17 @@ describe("location handler - credential offer", () => {
 		const response = await locationHandler(location);
 
 		expect(response.protocol).to.eq("oid4vci");
-		if (response.protocol === "oid4vci") {
-			expect(response.nextStep).to.eq("pushed_authorization_request");
-			expect(response.data?.issuer).to.eq(credential_issuer);
-			expect(response.data?.credential_configuration_ids).to.deep.eq(
-				credential_configuration_ids,
-			);
+		if (response.protocol !== "oid4vci") {
+			assert(false);
 		}
+		expect(response.nextStep).to.eq("pushed_authorization_request");
+		if (response.nextStep !== "pushed_authorization_request") {
+			assert(false);
+		}
+		expect(response.data?.issuer).to.eq(credential_issuer);
+		expect(response.data?.credential_configuration_ids).to.deep.eq(
+			credential_configuration_ids,
+		);
 	});
 
 	it("returns with a valid authorization code grants (issuer_state)", async () => {
@@ -438,19 +582,25 @@ describe("location handler - credential offer", () => {
 		const response = await locationHandler(location);
 
 		expect(lastClientState).to.deep.eq({
+			state: "state",
+			code_verifier: "code_verifier",
 			credential_configuration_ids: ["credential_configuration_ids"],
 			issuer: "https://issuer.url/",
 			issuer_state: "issuer_state",
 		});
 		expect(response.protocol).to.eq("oid4vci");
-		if (response.protocol === "oid4vci") {
-			expect(response.nextStep).to.eq("pushed_authorization_request");
-			expect(response.data?.issuer).to.eq(credential_issuer);
-			expect(response.data?.credential_configuration_ids).to.deep.eq(
-				credential_configuration_ids,
-			);
-			expect(response.data?.issuer_state).to.deep.eq(issuer_state);
+		if (response.protocol !== "oid4vci") {
+			assert(false);
 		}
+		expect(response.nextStep).to.eq("pushed_authorization_request");
+		if (response.nextStep !== "pushed_authorization_request") {
+			assert(false);
+		}
+		expect(response.data?.issuer).to.eq(credential_issuer);
+		expect(response.data?.credential_configuration_ids).to.deep.eq(
+			credential_configuration_ids,
+		);
+		expect(response.data?.issuer_state).to.deep.eq(issuer_state);
 	});
 });
 
