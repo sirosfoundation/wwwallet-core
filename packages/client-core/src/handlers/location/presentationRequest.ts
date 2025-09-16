@@ -6,7 +6,7 @@ export type PresentationRequestConfig = {
 	httpClient: HttpClient;
 };
 
-type CredentialOfferProtocol = "oid4vp";
+type PresentationRequestProtocol = "oid4vp";
 
 type PresentationRequestNextStep = "presentation";
 
@@ -35,7 +35,7 @@ type PresentationRequest = {
 };
 
 export type PresentationRequestResponse = {
-	protocol: CredentialOfferProtocol;
+	protocol: PresentationRequestProtocol;
 	nextStep: PresentationRequestNextStep;
 	data: {
 		client_id: string;

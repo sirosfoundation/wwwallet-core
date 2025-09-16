@@ -3,6 +3,7 @@ import type { ClientState, IssuerMetadata } from "./resources";
 export type ClientStateStore = {
 	create(issuer: string, issuer_state: string): Promise<ClientState>;
 	fromIssuerState(issuer: string, issuer_state: string): Promise<ClientState>;
+	fromState(state: string): Promise<ClientState>;
 	setCredentialConfigurationIds(
 		clientState: ClientState,
 		credentialConfigurationIds: Array<string>,

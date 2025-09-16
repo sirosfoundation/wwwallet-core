@@ -1,6 +1,11 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
 import {
+	type AuthorizationCodeConfig,
+	type AuthorizationCodeResponse,
+	handleAuthorizationCode,
+} from "./location/authorizationCode";
+import {
 	type CredentialOfferLocationConfig,
 	type CredentialOfferProtocolResponse,
 	handleCredentialOffer,
@@ -27,6 +32,7 @@ const ajv = new Ajv();
 export type LocationHandlerConfig = CredentialOfferLocationConfig &
 	PresentationSuccessConfig &
 	PresentationRequestConfig &
+	AuthorizationCodeConfig &
 	ProtocolErrorConfig;
 
 type ProtocolLocation = {
@@ -54,6 +60,7 @@ type ProtocolResponse =
 	| CredentialOfferProtocolResponse
 	| PresentationSuccessProtocolResponse
 	| PresentationRequestResponse
+	| AuthorizationCodeResponse
 	| ProtocolErrorResponse
 	| NoProtocol;
 
@@ -65,6 +72,10 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 
 		if (location.error) {
 			return await handleProtocolError(location, config);
+		}
+
+		if (location.code && location.state) {
+			return await handleAuthorizationCode(location, config);
 		}
 
 		if (location.code) {
@@ -91,7 +102,7 @@ export function validateLocationHandlerConfig(config: Config) {
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate handler template configuration - ${errorText}`,
+			`Could not validate location handler configuration - ${errorText}`,
 		);
 	}
 }
@@ -102,9 +113,9 @@ async function parseLocation(
 	const searchParams = new URLSearchParams(windowLocation.search);
 
 	const credential_offer = searchParams.get("credential_offer");
-	const code = searchParams.get("code");
 	const error = searchParams.get("error");
 	const error_description = searchParams.get("error_description");
+	const code = searchParams.get("code");
 	const client_id = searchParams.get("client_id");
 	const response_uri = searchParams.get("response_uri");
 	const response_type = searchParams.get("response_type");

@@ -89,10 +89,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 				throw error;
 			}
 
-			expect(error.error).to.eq("invalid_request");
-			expect(error.error_description).to.eq(
-				"pushed authorization requests require an issuer state",
-			);
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("client state could not be found");
 		}
 	});
 

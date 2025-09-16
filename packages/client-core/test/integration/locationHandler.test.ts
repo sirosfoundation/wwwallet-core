@@ -3,7 +3,10 @@ import { assert, describe, expect, it } from "vitest";
 import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
-import { clientStateStoreMock } from "../support/client";
+import {
+	clientStateStoreMock,
+	fetchIssuerMetadataMock,
+} from "../support/client";
 
 const locationHandler = locationHandlerFactory({
 	// @ts-ignore
@@ -13,6 +16,7 @@ const locationHandler = locationHandlerFactory({
 		},
 	},
 	clientStateStore: clientStateStoreMock(),
+	dpop_ttl_seconds: 10,
 });
 
 describe("location handler - no protocol", () => {
@@ -77,6 +81,64 @@ describe("location handler - protocol error", () => {
 			expect(response.data.error).to.eq(error);
 			expect(response.data.error_description).to.eq(error_description);
 		}
+	});
+});
+
+describe("location handler - authorization code", () => {
+	it("returns an error", async () => {
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_issuer");
+			expect(error.error_description).to.eq(
+				"could not fetch issuer information",
+			);
+		}
+	});
+
+	describe("when issuer metadata is present in client state", () => {
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer_metadata: {},
+			}),
+			dpop_ttl_seconds: 10,
+		});
+
+		it("WIP return dpop", async () => {
+			const code = "code";
+			const state = "state";
+			const location = {
+				search: `?code=${code}&state=${state}`,
+			};
+
+			// @ts-ignore
+			const response = await locationHandler(location);
+
+			expect(response.protocol).to.eq("oid4vci");
+			if (response.protocol === "oid4vci") {
+				expect(response.nextStep).to.eq("credential_request");
+				if (response.nextStep === "credential_request") {
+					assert(response.data.access_token);
+					assert(response.data.nonce);
+				}
+			}
+		});
 	});
 });
 

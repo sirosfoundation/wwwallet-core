@@ -3,6 +3,7 @@ export const locationHandlerConfigSchema = {
 	properties: {
 		httpClient: {},
 		clientStateStore: {},
+		dpop_ttl_seconds: { type: "number" },
 	},
 	required: ["httpClient", "clientStateStore"],
 };

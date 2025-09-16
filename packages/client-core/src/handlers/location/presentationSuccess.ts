@@ -2,7 +2,7 @@ import { OauthError } from "../../errors";
 
 export type PresentationSuccessConfig = {};
 
-type CredentialOfferProtocol = "oid4vp";
+type PresentationSuccessProtocol = "oid4vp";
 
 type PresentationSuccessNextStep = "presentation_success";
 
@@ -11,7 +11,7 @@ export type PresentationSuccessLocation = {
 };
 
 export type PresentationSuccessProtocolResponse = {
-	protocol: CredentialOfferProtocol;
+	protocol: PresentationSuccessProtocol;
 	nextStep: PresentationSuccessNextStep;
 	data: {
 		code: string;

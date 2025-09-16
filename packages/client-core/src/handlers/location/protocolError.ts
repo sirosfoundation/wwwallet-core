@@ -2,7 +2,7 @@ import { OauthError } from "../../errors";
 
 export type ProtocolErrorConfig = {};
 
-type CredentialOfferProtocol = "oauth";
+type ProtocolErrorProtocol = "oauth";
 
 type ProtocolErrorNextStep = "protocol_error";
 
@@ -12,7 +12,7 @@ export type ProtocolErrorLocation = {
 };
 
 export type ProtocolErrorResponse = {
-	protocol: CredentialOfferProtocol;
+	protocol: ProtocolErrorProtocol;
 	nextStep: ProtocolErrorNextStep;
 	data: {
 		error: string;
