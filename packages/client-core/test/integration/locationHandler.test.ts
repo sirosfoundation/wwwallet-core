@@ -88,7 +88,7 @@ describe("location handler - protocol error", () => {
 describe("location handler - authorization code", () => {
 	const issuer = "http://issuer.url";
 
-	it("returns an error", async () => {
+	it("rejects with no configuration", async () => {
 		const code = "code";
 		const state = "state";
 		const location = {
@@ -109,7 +109,7 @@ describe("location handler - authorization code", () => {
 		}
 	});
 
-	it("returns an error when issuer client is configured", async () => {
+	it("rejects when issuer client is configured", async () => {
 		const locationHandler = locationHandlerFactory({
 			// @ts-ignore
 			httpClient: {
@@ -149,7 +149,7 @@ describe("location handler - authorization code", () => {
 		}
 	});
 
-	it("returns an error when issuer metadata is present in client state", async () => {
+	it("rejects when issuer metadata is present in client state", async () => {
 		const locationHandler = locationHandlerFactory({
 			// @ts-ignore
 			httpClient: {
@@ -188,7 +188,7 @@ describe("location handler - authorization code", () => {
 		}
 	});
 
-	it("returns error when access token request is a success", async () => {
+	it("rejects when access token request is a success", async () => {
 		let lastRequest: {
 			url: string;
 			body: unknown;
@@ -326,7 +326,7 @@ describe("location handler - credential offer", () => {
 		},
 	});
 
-	it("returns an error with an invalid credential offer", async () => {
+	it("rejects with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
 			search: `?credential_offer=${credential_offer}`,
@@ -348,7 +348,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (empty)", async () => {
+	it("rejects with an invalid credential offer (empty)", async () => {
 		const credential_offer = {};
 		const location = {
 			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
@@ -370,7 +370,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (credential_issuer)", async () => {
+	it("rejects with an invalid credential offer (credential_issuer)", async () => {
 		const credential_issuer = "credential_issuer";
 		const credential_offer = {
 			credential_issuer,
@@ -395,7 +395,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (credential_configuration_ids)", async () => {
+	it("rejects with an invalid credential offer (credential_configuration_ids)", async () => {
 		const credential_issuer = "credential_issuer";
 		const credential_configuration_ids = "invalid";
 		const credential_offer = {
@@ -422,7 +422,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error without grants", async () => {
+	it("rejects without grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const credential_offer = {
@@ -447,7 +447,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with empty grants", async () => {
+	it("rejects with empty grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = {};
@@ -476,7 +476,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid grants", async () => {
+	it("rejects with an invalid grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { invalid: true };
@@ -505,7 +505,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid authorization code grants", async () => {
+	it("rejects with an invalid authorization code grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: null };
@@ -605,7 +605,7 @@ describe("location handler - credential offer", () => {
 });
 
 describe("location handler - presentation request", () => {
-	it("returns an error without response uri", async () => {
+	it("rejects without response uri", async () => {
 		const client_id = "client_id";
 		const location = {
 			search: `?client_id=${client_id}`,
@@ -627,7 +627,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without response type", async () => {
+	it("rejects without response type", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const location = {
@@ -650,7 +650,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without response mode", async () => {
+	it("rejects without response mode", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -674,7 +674,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without nonce", async () => {
+	it("rejects without nonce", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -697,7 +697,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without state", async () => {
+	it("rejects without state", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -749,7 +749,7 @@ describe("location handler - presentation request", () => {
 		});
 	});
 
-	it("returns an error with invalid request", async () => {
+	it("rejects with invalid request", async () => {
 		const client_id = "client_id";
 		const request = "invalid";
 		const location = {
