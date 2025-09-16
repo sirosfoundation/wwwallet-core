@@ -189,11 +189,11 @@ describe("location handler - authorization code", () => {
 	});
 
 	it("rejects when access token request is a success", async () => {
-		let lastRequest: {
+		const lastRequest: Array<{
 			url: string;
 			body: unknown;
 			config?: { headers: Record<string, string> };
-		} | null = null;
+		}> = [];
 		const access_token = "access_token";
 		const c_nonce = "c_nonce";
 		const refresh_token = "refresh_token";
@@ -209,16 +209,20 @@ describe("location handler - authorization code", () => {
 					body: unknown,
 					config?: { headers: Record<string, string> },
 				) => {
-					lastRequest = { url, body, config };
-					return {
-						data: {
-							access_token,
-							expires_in,
-							c_nonce,
-							c_nonce_expires_in,
-							refresh_token,
-						} as T,
-					};
+					lastRequest.push({ url, body, config });
+					if (url === "http://token.endpoint") {
+						return {
+							data: {
+								access_token,
+								expires_in,
+								c_nonce,
+								c_nonce_expires_in,
+								refresh_token,
+							} as T,
+						};
+					}
+
+					throw new Error("not found");
 				},
 			},
 			clientStateStore: clientStateStoreMock({
@@ -242,13 +246,92 @@ describe("location handler - authorization code", () => {
 			search: `?code=${code}&state=${state}`,
 		};
 
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_request");
+			expect(error.error_description).to.eq("could not fetch nonce");
+		}
+	});
+
+	it("resolves when nonce request is a success", async () => {
+		const lastRequest: Array<{
+			url: string;
+			body: unknown;
+			config?: { headers: Record<string, string> };
+		}> = [];
+		const access_token = "access_token";
+		const c_nonce = "c_nonce";
+		const refresh_token = "refresh_token";
+		const expires_in = 10;
+		const c_nonce_expires_in = 10;
+		const nonce = "nonce";
+
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+				post: async <T>(
+					url: string,
+					body: unknown,
+					config?: { headers: Record<string, string> },
+				) => {
+					lastRequest.push({ url, body, config });
+					if (url === "http://token.endpoint") {
+						return {
+							data: {
+								access_token,
+								expires_in,
+								c_nonce,
+								c_nonce_expires_in,
+								refresh_token,
+							} as T,
+						};
+					}
+
+					if (url === "http://nonce.endpoint") {
+						return { data: { nonce } as T };
+					}
+
+					throw new Error("not found");
+				},
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer,
+				issuer_metadata: {
+					token_endpoint: "http://token.endpoint",
+					nonce_endpoint: "http://nonce.endpoint",
+				},
+			}),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
 		// @ts-ignore
 		const response = await locationHandler(location);
 
+		// token request
 		// @ts-ignore
-		expect(lastRequest?.url).to.eq("http://token.endpoint");
+		expect(lastRequest[0].url).to.eq("http://token.endpoint");
 		// @ts-ignore
-		expect(lastRequest?.body).to.deep.eq({
+		expect(lastRequest[0].body).to.deep.eq({
 			client_id: "id",
 			client_secret: "secret",
 			code: "code",
@@ -256,15 +339,38 @@ describe("location handler - authorization code", () => {
 		});
 
 		// @ts-ignore
-		const dpop = lastRequest?.config.headers.DPoP;
-		const { jwk } = decodeProtectedHeader(dpop);
-		const { payload } = await jwtVerify(dpop, jwk as JWK);
+		const accessTokenDpop = lastRequest[0].config.headers.DPoP;
+		const { jwk: accessTokenDpopJwk } = decodeProtectedHeader(accessTokenDpop);
+		const { payload: accessTokenDpopPayload } = await jwtVerify(
+			accessTokenDpop,
+			accessTokenDpopJwk as JWK,
+		);
 
-		assert(payload.exp);
-		expect(payload.htm).to.eq("http://token.endpoint");
-		expect(payload.htu).to.eq("POST");
-		assert(payload.iat);
-		assert(payload.jti);
+		assert(accessTokenDpopPayload.exp);
+		expect(accessTokenDpopPayload.htm).to.eq("http://token.endpoint");
+		expect(accessTokenDpopPayload.htu).to.eq("POST");
+		assert(accessTokenDpopPayload.iat);
+		assert(accessTokenDpopPayload.jti);
+
+		// nonce request
+		// @ts-ignore
+		expect(lastRequest[1].url).to.eq("http://nonce.endpoint");
+		// @ts-ignore
+		expect(lastRequest[1].body).to.deep.eq({});
+
+		// @ts-ignore
+		const nonceDpop = lastRequest[1].config.headers.DPoP;
+		const { jwk: nonceDpopJwk } = decodeProtectedHeader(nonceDpop);
+		const { payload: nonceDpopPayload } = await jwtVerify(
+			nonceDpop,
+			nonceDpopJwk as JWK,
+		);
+
+		assert(nonceDpopPayload.exp);
+		expect(nonceDpopPayload.htm).to.eq("http://nonce.endpoint");
+		expect(nonceDpopPayload.htu).to.eq("POST");
+		assert(nonceDpopPayload.iat);
+		assert(nonceDpopPayload.jti);
 
 		expect(response).to.deep.eq({
 			data: {
@@ -273,6 +379,7 @@ describe("location handler - authorization code", () => {
 				c_nonce_expires_in: 10,
 				expires_in: 10,
 				refresh_token: "refresh_token",
+				nonce: "nonce",
 			},
 			nextStep: "credential_request",
 			protocol: "oid4vci",

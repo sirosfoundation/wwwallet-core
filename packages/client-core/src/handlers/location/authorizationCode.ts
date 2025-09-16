@@ -4,8 +4,10 @@ import {
 	clientState,
 	type FetchAccessTokenConfig,
 	type FetchIssuerMetadataConfig,
+	type FetchNonceConfig,
 	fetchAccessToken,
 	fetchIssuerMetadata,
+	fetchNonce,
 	type GenerateDpopConfig,
 	generateDpop,
 	type IssuerClientConfig,
@@ -16,6 +18,7 @@ export type AuthorizationCodeConfig = ClientStateConfig &
 	IssuerClientConfig &
 	FetchIssuerMetadataConfig &
 	FetchAccessTokenConfig &
+	FetchNonceConfig &
 	GenerateDpopConfig;
 
 type AuthorizationCodeProtocol = "oid4vci";
@@ -36,6 +39,7 @@ export type AuthorizationCodeResponse = {
 		c_nonce: string;
 		c_nonce_expires_in: number;
 		refresh_token: string;
+		nonce: string;
 	};
 };
 
@@ -95,22 +99,22 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
-	const { dpop: _nonceDpop } = await generateDpop(
+	const { dpop: nonceDpop } = await generateDpop(
 		{
-			// access_token,
+			access_token,
 			htm: issuer_metadata.nonce_endpoint,
 			htu: "POST",
 		},
 		config,
 	);
 
-	// const { nonce, client_state: _nonceClientState } = await fetchNonce(
-	// 	{
-	// 		dpop: nonceDpop,
-	// 		issuer_metadata,
-	// 	},
-	// 	config,
-	// );
+	const { nonce } = await fetchNonce(
+		{
+			dpop: nonceDpop,
+			issuer_metadata,
+		},
+		config,
+	);
 
 	return {
 		protocol,
@@ -121,6 +125,7 @@ export async function handleAuthorizationCode(
 			c_nonce,
 			c_nonce_expires_in,
 			refresh_token,
+			nonce,
 		},
 	};
 }
