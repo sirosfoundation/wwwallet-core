@@ -85,7 +85,7 @@ const AuthorizationHandler = (props: {
 };
 
 describe.skip("authorization handler - integration", () => {
-	it("returns an error with an invalid issuer", () => {
+	it("rejects with an invalid issuer", () => {
 		const issuer = "http://issuer.other";
 		render(
 			<AuthorizationHandler issuer={issuer} issuer_state={issuer_state} />,

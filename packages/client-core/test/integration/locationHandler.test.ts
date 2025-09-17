@@ -1,9 +1,12 @@
-import { SignJWT } from "jose";
+import { decodeProtectedHeader, type JWK, jwtVerify, SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
 import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
-import { clientStateStoreMock } from "../support/client";
+import {
+	clientStateStoreMock,
+	fetchIssuerMetadataMock,
+} from "../support/client";
 
 const locationHandler = locationHandlerFactory({
 	// @ts-ignore
@@ -13,6 +16,8 @@ const locationHandler = locationHandlerFactory({
 		},
 	},
 	clientStateStore: clientStateStoreMock(),
+	dpop_ttl_seconds: 10,
+	static_clients: [],
 });
 
 describe("location handler - no protocol", () => {
@@ -80,6 +85,308 @@ describe("location handler - protocol error", () => {
 	});
 });
 
+describe("location handler - authorization code", () => {
+	const issuer = "http://issuer.url";
+
+	it("rejects with no configuration", async () => {
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("could not find issuer client");
+		}
+	});
+
+	it("rejects when issuer client is configured", async () => {
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: async <T>(_url: string) => {
+					return { data: {} as T };
+				},
+			},
+			clientStateStore: clientStateStoreMock({ issuer }),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_issuer");
+			expect(error.error_description).to.eq(
+				"could not fetch issuer information",
+			);
+		}
+	});
+
+	it("rejects when issuer metadata is present in client state", async () => {
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer,
+				issuer_metadata: {},
+			}),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_request");
+			expect(error.error_description).to.eq("could not fetch access token");
+		}
+	});
+
+	it("rejects when access token request is a success", async () => {
+		const lastRequest: Array<{
+			url: string;
+			body: unknown;
+			config?: { headers: Record<string, string> };
+		}> = [];
+		const access_token = "access_token";
+		const c_nonce = "c_nonce";
+		const refresh_token = "refresh_token";
+		const expires_in = 10;
+		const c_nonce_expires_in = 10;
+
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+				post: async <T>(
+					url: string,
+					body: unknown,
+					config?: { headers: Record<string, string> },
+				) => {
+					lastRequest.push({ url, body, config });
+					if (url === "http://token.endpoint") {
+						return {
+							data: {
+								access_token,
+								expires_in,
+								c_nonce,
+								c_nonce_expires_in,
+								refresh_token,
+							} as T,
+						};
+					}
+
+					throw new Error("not found");
+				},
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer,
+				issuer_metadata: {
+					token_endpoint: "http://token.endpoint",
+				},
+			}),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				assert(false);
+			}
+			expect(error.error).to.eq("invalid_request");
+			expect(error.error_description).to.eq("could not fetch nonce");
+		}
+	});
+
+	it("resolves when nonce request is a success", async () => {
+		const lastRequest: Array<{
+			url: string;
+			body: unknown;
+			config?: { headers: Record<string, string> };
+		}> = [];
+		const access_token = "access_token";
+		const c_nonce = "c_nonce";
+		const refresh_token = "refresh_token";
+		const expires_in = 10;
+		const c_nonce_expires_in = 10;
+		const nonce = "nonce";
+
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: fetchIssuerMetadataMock({}),
+				post: async <T>(
+					url: string,
+					body: unknown,
+					config?: { headers: Record<string, string> },
+				) => {
+					lastRequest.push({ url, body, config });
+					if (url === "http://token.endpoint") {
+						return {
+							data: {
+								access_token,
+								expires_in,
+								c_nonce,
+								c_nonce_expires_in,
+								refresh_token,
+							} as T,
+						};
+					}
+
+					if (url === "http://nonce.endpoint") {
+						return { data: { nonce } as T };
+					}
+
+					throw new Error("not found");
+				},
+			},
+			clientStateStore: clientStateStoreMock({
+				issuer,
+				issuer_metadata: {
+					token_endpoint: "http://token.endpoint",
+					nonce_endpoint: "http://nonce.endpoint",
+				},
+			}),
+			dpop_ttl_seconds: 10,
+			static_clients: [
+				{
+					client_id: "id",
+					client_secret: "secret",
+					issuer,
+				},
+			],
+		});
+		const code = "code";
+		const state = "state";
+		const location = {
+			search: `?code=${code}&state=${state}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		// token request
+		// @ts-ignore
+		expect(lastRequest[0].url).to.eq("http://token.endpoint");
+		// @ts-ignore
+		expect(lastRequest[0].body).to.deep.eq({
+			client_id: "id",
+			client_secret: "secret",
+			code: "code",
+			grant_type: "authorization_code",
+		});
+
+		// @ts-ignore
+		const accessTokenDpop = lastRequest[0].config.headers.DPoP;
+		const { jwk: accessTokenDpopJwk } = decodeProtectedHeader(accessTokenDpop);
+		const { payload: accessTokenDpopPayload } = await jwtVerify(
+			accessTokenDpop,
+			accessTokenDpopJwk as JWK,
+		);
+
+		assert(accessTokenDpopPayload.exp);
+		expect(accessTokenDpopPayload.htm).to.eq("http://token.endpoint");
+		expect(accessTokenDpopPayload.htu).to.eq("POST");
+		assert(accessTokenDpopPayload.iat);
+		assert(accessTokenDpopPayload.jti);
+
+		// nonce request
+		// @ts-ignore
+		expect(lastRequest[1].url).to.eq("http://nonce.endpoint");
+		// @ts-ignore
+		expect(lastRequest[1].body).to.deep.eq({});
+
+		// @ts-ignore
+		const nonceDpop = lastRequest[1].config.headers.DPoP;
+		const { jwk: nonceDpopJwk } = decodeProtectedHeader(nonceDpop);
+		const { payload: nonceDpopPayload } = await jwtVerify(
+			nonceDpop,
+			nonceDpopJwk as JWK,
+		);
+
+		assert(nonceDpopPayload.exp);
+		expect(nonceDpopPayload.htm).to.eq("http://nonce.endpoint");
+		expect(nonceDpopPayload.htu).to.eq("POST");
+		assert(nonceDpopPayload.iat);
+		assert(nonceDpopPayload.jti);
+
+		expect(response).to.deep.eq({
+			data: {
+				access_token: "access_token",
+				c_nonce: "c_nonce",
+				c_nonce_expires_in: 10,
+				expires_in: 10,
+				refresh_token: "refresh_token",
+				nonce: "nonce",
+			},
+			nextStep: "credential_request",
+			protocol: "oid4vci",
+		});
+	});
+});
+
 describe("location handler - presentation success", () => {
 	it("returns", async () => {
 		const code = "code";
@@ -111,6 +418,8 @@ describe("location handler - credential offer", () => {
 				lastClientState = {
 					issuer,
 					issuer_state,
+					state: "state",
+					code_verifier: "code_verifier",
 				};
 				return lastClientState;
 			},
@@ -124,7 +433,7 @@ describe("location handler - credential offer", () => {
 		},
 	});
 
-	it("returns an error with an invalid credential offer", async () => {
+	it("rejects with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
 		const location = {
 			search: `?credential_offer=${credential_offer}`,
@@ -146,7 +455,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (empty)", async () => {
+	it("rejects with an invalid credential offer (empty)", async () => {
 		const credential_offer = {};
 		const location = {
 			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
@@ -168,7 +477,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (credential_issuer)", async () => {
+	it("rejects with an invalid credential offer (credential_issuer)", async () => {
 		const credential_issuer = "credential_issuer";
 		const credential_offer = {
 			credential_issuer,
@@ -193,7 +502,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid credential offer (credential_configuration_ids)", async () => {
+	it("rejects with an invalid credential offer (credential_configuration_ids)", async () => {
 		const credential_issuer = "credential_issuer";
 		const credential_configuration_ids = "invalid";
 		const credential_offer = {
@@ -220,7 +529,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error without grants", async () => {
+	it("rejects without grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const credential_offer = {
@@ -245,7 +554,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with empty grants", async () => {
+	it("rejects with empty grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = {};
@@ -274,7 +583,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid grants", async () => {
+	it("rejects with an invalid grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { invalid: true };
@@ -303,7 +612,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns an error with an invalid authorization code grants", async () => {
+	it("rejects with an invalid authorization code grants", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: null };
@@ -349,13 +658,17 @@ describe("location handler - credential offer", () => {
 		const response = await locationHandler(location);
 
 		expect(response.protocol).to.eq("oid4vci");
-		if (response.protocol === "oid4vci") {
-			expect(response.nextStep).to.eq("pushed_authorization_request");
-			expect(response.data?.issuer).to.eq(credential_issuer);
-			expect(response.data?.credential_configuration_ids).to.deep.eq(
-				credential_configuration_ids,
-			);
+		if (response.protocol !== "oid4vci") {
+			assert(false);
 		}
+		expect(response.nextStep).to.eq("pushed_authorization_request");
+		if (response.nextStep !== "pushed_authorization_request") {
+			assert(false);
+		}
+		expect(response.data?.issuer).to.eq(credential_issuer);
+		expect(response.data?.credential_configuration_ids).to.deep.eq(
+			credential_configuration_ids,
+		);
 	});
 
 	it("returns with a valid authorization code grants (issuer_state)", async () => {
@@ -376,24 +689,30 @@ describe("location handler - credential offer", () => {
 		const response = await locationHandler(location);
 
 		expect(lastClientState).to.deep.eq({
+			state: "state",
+			code_verifier: "code_verifier",
 			credential_configuration_ids: ["credential_configuration_ids"],
 			issuer: "https://issuer.url/",
 			issuer_state: "issuer_state",
 		});
 		expect(response.protocol).to.eq("oid4vci");
-		if (response.protocol === "oid4vci") {
-			expect(response.nextStep).to.eq("pushed_authorization_request");
-			expect(response.data?.issuer).to.eq(credential_issuer);
-			expect(response.data?.credential_configuration_ids).to.deep.eq(
-				credential_configuration_ids,
-			);
-			expect(response.data?.issuer_state).to.deep.eq(issuer_state);
+		if (response.protocol !== "oid4vci") {
+			assert(false);
 		}
+		expect(response.nextStep).to.eq("pushed_authorization_request");
+		if (response.nextStep !== "pushed_authorization_request") {
+			assert(false);
+		}
+		expect(response.data?.issuer).to.eq(credential_issuer);
+		expect(response.data?.credential_configuration_ids).to.deep.eq(
+			credential_configuration_ids,
+		);
+		expect(response.data?.issuer_state).to.deep.eq(issuer_state);
 	});
 });
 
 describe("location handler - presentation request", () => {
-	it("returns an error without response uri", async () => {
+	it("rejects without response uri", async () => {
 		const client_id = "client_id";
 		const location = {
 			search: `?client_id=${client_id}`,
@@ -415,7 +734,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without response type", async () => {
+	it("rejects without response type", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const location = {
@@ -438,7 +757,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without response mode", async () => {
+	it("rejects without response mode", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -462,7 +781,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without nonce", async () => {
+	it("rejects without nonce", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -485,7 +804,7 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns an error without state", async () => {
+	it("rejects without state", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
@@ -537,7 +856,7 @@ describe("location handler - presentation request", () => {
 		});
 	});
 
-	it("returns an error with invalid request", async () => {
+	it("rejects with invalid request", async () => {
 		const client_id = "client_id";
 		const request = "invalid";
 		const location = {

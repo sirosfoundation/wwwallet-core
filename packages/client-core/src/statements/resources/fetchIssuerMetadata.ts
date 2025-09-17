@@ -1,5 +1,5 @@
 import { OauthError } from "../../errors";
-import type { ClientStateStore } from "../../ports";
+import type { ClientStateStore, HttpClient } from "../../ports";
 import type {
 	ClientState,
 	OauthAuthorizationServer,
@@ -7,14 +7,12 @@ import type {
 } from "../../resources";
 
 export type FetchIssuerMetadataParams = {
-	issuer: string;
+	issuer?: string;
 	client_state: ClientState;
 };
 
 export type FetchIssuerMetadataConfig = {
-	httpClient: {
-		get: <T>(url: string) => Promise<{ data: T }>;
-	};
+	httpClient: HttpClient;
 	clientStateStore: ClientStateStore;
 };
 
@@ -22,6 +20,13 @@ export async function fetchIssuerMetadata(
 	{ client_state, issuer }: FetchIssuerMetadataParams,
 	config: FetchIssuerMetadataConfig,
 ) {
+	if (client_state.issuer_metadata) {
+		return {
+			issuer_metadata: client_state.issuer_metadata,
+			client_state,
+		};
+	}
+
 	try {
 		const openidCredentialIssuerUrl = new URL(
 			"/.well-known/openid-credential-issuer",

@@ -16,7 +16,9 @@ export const fetchIssuerMetadataMock = (issuerMetadata: unknown) => {
 	};
 };
 
-export const clientStateStoreMock = (clientState: unknown = {}) => {
+export const clientStateStoreMock = (
+	clientState: Record<string, unknown> = {},
+) => {
 	const code_verifier = "code_verifier";
 	const state = "state";
 	return {
@@ -24,8 +26,16 @@ export const clientStateStoreMock = (clientState: unknown = {}) => {
 			return { issuer, issuer_state, state, code_verifier };
 		},
 		async fromIssuerState(issuer: string, issuer_state: string) {
-			// @ts-ignore
 			return { issuer, issuer_state, state, code_verifier, ...clientState };
+		},
+		async fromState(state: string) {
+			return {
+				issuer: "http://issuer.url",
+				issuer_state: "issuer_state",
+				state,
+				code_verifier,
+				...clientState,
+			};
 		},
 		async setCredentialConfigurationIds(
 			client_state: ClientState,

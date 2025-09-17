@@ -54,7 +54,7 @@ describe.skip("location handler - integration", () => {
 		});
 	});
 
-	it("returns an error with an invalid credential offer", () => {
+	it("rejects with an invalid credential offer", () => {
 		vi.stubGlobal("location", {
 			search: "?credential_offer=invalid",
 		});
