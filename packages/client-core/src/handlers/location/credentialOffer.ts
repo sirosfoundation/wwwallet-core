@@ -11,7 +11,7 @@ export type CredentialOfferLocationConfig = ValidateCredentialOfferConfig &
 
 type CredentialOfferProtocol = "oid4vci";
 
-type CredentialOfferNextStep = "pushed_authorization_request";
+type CredentialOfferNextStep = "authorization_request";
 
 export type CredentialOfferLocation = {
 	credential_offer: string | null;
@@ -30,9 +30,24 @@ export type CredentialOfferProtocolResponse = {
 };
 
 const protocol = "oid4vci";
-const nextStep = "pushed_authorization_request";
+const nextStep = "authorization_request";
 
 export async function handleCredentialOffer(
+	location: CredentialOfferLocation,
+	config: CredentialOfferLocationConfig,
+): Promise<CredentialOfferProtocolResponse> {
+	try {
+		return await doHandleCredentialOffer(location, config);
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error.toResponse({ protocol, nextStep });
+		}
+
+		throw error;
+	}
+}
+
+async function doHandleCredentialOffer(
 	location: CredentialOfferLocation,
 	config: CredentialOfferLocationConfig,
 ): Promise<CredentialOfferProtocolResponse> {

@@ -23,6 +23,21 @@ const nextStep = "presentation_success";
 
 export async function handlePresentationSuccess(
 	location: PresentationSuccessLocation,
+	config: PresentationSuccessConfig,
+): Promise<PresentationSuccessProtocolResponse> {
+	try {
+		return await doHandlePresentationSuccess(location, config);
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error.toResponse({ protocol, nextStep });
+		}
+
+		throw error;
+	}
+}
+
+async function doHandlePresentationSuccess(
+	location: PresentationSuccessLocation,
 	_config: PresentationSuccessConfig,
 ): Promise<PresentationSuccessProtocolResponse> {
 	if (!location.code) {

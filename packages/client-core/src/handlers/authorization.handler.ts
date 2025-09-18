@@ -47,6 +47,7 @@ type AuthorizationResponse =
 	| AuthorizationChallengeResponse;
 
 const protocol = "oid4vci";
+const currentStep = "authorization_request";
 
 export function authorizationHandlerFactory(
 	config: AuthorizationHandlerConfig,
@@ -112,7 +113,12 @@ export function authorizationHandlerFactory(
 			);
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = authorizationHandlerErrorData({ issuer, issuer_state });
+				const data = authorizationHandlerErrorData({
+					protocol,
+					currentStep,
+					issuer,
+					issuer_state,
+				});
 				throw error.toResponse(data);
 			}
 
@@ -132,6 +138,11 @@ export function validateAuthorizationHandlerConfig(config: Config) {
 	}
 }
 
-function authorizationHandlerErrorData(params: AuthorizationHandlerParams) {
+function authorizationHandlerErrorData(
+	params: {
+		protocol: string;
+		currentStep: string;
+	} & AuthorizationHandlerParams,
+) {
 	return params;
 }

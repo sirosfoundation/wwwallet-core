@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
+import { OauthError } from "../errors";
 import {
 	type AuthorizationCodeConfig,
 	type AuthorizationCodeResponse,
@@ -64,35 +65,46 @@ type ProtocolResponse =
 	| ProtocolErrorResponse
 	| NoProtocol;
 
+const currentStep = "parse_location";
+
 export function locationHandlerFactory(config: LocationHandlerConfig) {
 	return async function locationHandler(
 		windowLocation: Location,
 	): Promise<ProtocolResponse> {
-		const location = await parseLocation(windowLocation);
+		try {
+			const location = await parseLocation(windowLocation);
 
-		if (location.error) {
-			return await handleProtocolError(location, config);
+			if (location.error) {
+				return await handleProtocolError(location, config);
+			}
+
+			if (location.code && location.state) {
+				return await handleAuthorizationCode(location, config);
+			}
+
+			if (location.code) {
+				return await handlePresentationSuccess(location, config);
+			}
+
+			if (location.credential_offer) {
+				return await handleCredentialOffer(location, config);
+			}
+
+			if (location.client_id) {
+				return await handlePresentationRequest(location, config);
+			}
+
+			return {
+				protocol: null,
+			};
+		} catch (error) {
+			if (error instanceof OauthError) {
+				const data = locationErrorData({ currentStep, windowLocation });
+				throw error.toResponse(data);
+			}
+
+			throw error;
 		}
-
-		if (location.code && location.state) {
-			return await handleAuthorizationCode(location, config);
-		}
-
-		if (location.code) {
-			return await handlePresentationSuccess(location, config);
-		}
-
-		if (location.credential_offer) {
-			return await handleCredentialOffer(location, config);
-		}
-
-		if (location.client_id) {
-			return await handlePresentationRequest(location, config);
-		}
-
-		return {
-			protocol: null,
-		};
 	};
 }
 
@@ -143,4 +155,11 @@ async function parseLocation(
 		request,
 		request_uri,
 	};
+}
+
+function locationErrorData(params: {
+	currentStep: string;
+	windowLocation: Location;
+}) {
+	return params;
 }

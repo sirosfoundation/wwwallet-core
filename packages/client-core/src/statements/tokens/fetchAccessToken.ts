@@ -57,11 +57,12 @@ export async function fetchAccessToken(
 			c_nonce_expires_in,
 			refresh_token,
 		};
-	} catch (_error) {
+	} catch (error) {
 		throw new OauthError(
 			400,
 			"invalid_request",
 			"could not fetch access token",
+			{ error },
 		);
 	}
 }

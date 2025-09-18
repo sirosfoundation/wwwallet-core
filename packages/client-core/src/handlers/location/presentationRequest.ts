@@ -56,6 +56,21 @@ export async function handlePresentationRequest(
 	location: PresentationRequestLocation,
 	config: PresentationRequestConfig,
 ): Promise<PresentationRequestResponse> {
+	try {
+		return await doHandlePresentationRequest(location, config);
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error.toResponse({ protocol, nextStep });
+		}
+
+		throw error;
+	}
+}
+
+async function doHandlePresentationRequest(
+	location: PresentationRequestLocation,
+	config: PresentationRequestConfig,
+): Promise<PresentationRequestResponse> {
 	const parameters: Array<
 		| "client_id"
 		| "response_uri"

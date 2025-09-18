@@ -29,7 +29,9 @@ export async function fetchNonce(
 			.then(({ data }) => data);
 
 		return { nonce };
-	} catch (_error) {
-		throw new OauthError(400, "invalid_request", "could not fetch nonce");
+	} catch (error) {
+		throw new OauthError(400, "invalid_request", "could not fetch nonce", {
+			error,
+		});
 	}
 }

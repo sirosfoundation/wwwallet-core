@@ -41,6 +41,7 @@ type CredentialResponse = {
 };
 
 const protocol = "oid4vci";
+const currentStep = "credential_request";
 const nextStep = "credential_success";
 
 export function credentialHandlerFactory(config: CredentialHandlerConfig) {
@@ -92,7 +93,15 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = templateErrorData({ protocol, nextStep });
+				const data = credentialErrorData({
+					protocol,
+					currentStep,
+					nextStep,
+					state,
+					access_token,
+					credential_configuration_id,
+					proofs,
+				});
 				throw error.toResponse(data);
 			}
 
@@ -107,11 +116,17 @@ export function validateCredentialHandlerConfig(config: Config) {
 		const errorText = ajv.errorsText(validate.errors);
 
 		throw new Error(
-			`Could not validate handler template configuration - ${errorText}`,
+			`Could not validate credential handler configuration - ${errorText}`,
 		);
 	}
 }
 
-function templateErrorData(params: { protocol: string; nextStep: string }) {
+function credentialErrorData(
+	params: {
+		protocol: string;
+		currentStep: string;
+		nextStep: string;
+	} & CredentialHandlerParams,
+) {
 	return params;
 }

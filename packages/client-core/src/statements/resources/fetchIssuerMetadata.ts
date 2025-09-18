@@ -61,11 +61,12 @@ export async function fetchIssuerMetadata(
 			issuer_metadata,
 			client_state: newClientState,
 		};
-	} catch (_error) {
+	} catch (error) {
 		throw new OauthError(
 			400,
 			"invalid_issuer",
 			"could not fetch issuer information",
+			{ error },
 		);
 	}
 }

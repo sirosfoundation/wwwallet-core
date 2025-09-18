@@ -50,6 +50,11 @@ describe("credentialHandler", () => {
 			expect(error.error).to.eq("invalid_client");
 			expect(error.error_description).to.eq("client state could not be found");
 			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
 				nextStep: "credential_success",
 				protocol: "oid4vci",
 			});
@@ -77,6 +82,11 @@ describe("credentialHandler", () => {
 			expect(error.error).to.eq("invalid_parameters");
 			expect(error.error_description).to.eq("access token is missing");
 			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
 				nextStep: "credential_success",
 				protocol: "oid4vci",
 			});
@@ -106,6 +116,11 @@ describe("credentialHandler", () => {
 				"credential configuration id is missing",
 			);
 			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
 				nextStep: "credential_success",
 				protocol: "oid4vci",
 			});
@@ -150,6 +165,11 @@ describe("credentialHandler", () => {
 				"credential endpoint is missing in issuer metadata",
 			);
 			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
 				nextStep: "credential_success",
 				protocol: "oid4vci",
 			});
@@ -160,7 +180,7 @@ describe("credentialHandler", () => {
 		const config = {
 			httpClient: {
 				// @ts-ignore
-				post: async (..._params: any[]) => {
+				post: async (..._params) => {
 					throw new Error("rejected");
 				},
 				get: fetchIssuerMetadataMock({}),
@@ -196,6 +216,11 @@ describe("credentialHandler", () => {
 			expect(error.error).to.eq("invalid_request");
 			expect(error.error_description).to.eq("could not fetch credential");
 			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
 				error: new Error("rejected"),
 				nextStep: "credential_success",
 				protocol: "oid4vci",

@@ -48,6 +48,7 @@ export async function validateCredentialOffer(
 			400,
 			"invalid_location",
 			"credential offer could not be parsed",
+			{ error },
 		);
 	}
 }

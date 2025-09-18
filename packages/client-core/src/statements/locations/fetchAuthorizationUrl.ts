@@ -89,7 +89,7 @@ export async function fetchAuthorizationUrl(
 				400,
 				"invalid_issuer",
 				"could not perform pushed authorization request",
-				{ request: error },
+				{ error },
 			);
 		});
 

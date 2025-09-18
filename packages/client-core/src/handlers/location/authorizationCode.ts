@@ -47,6 +47,21 @@ const protocol = "oid4vci";
 const nextStep = "credential_request";
 
 export async function handleAuthorizationCode(
+	params: AuthorizationCodeLocation,
+	config: AuthorizationCodeConfig,
+): Promise<AuthorizationCodeResponse> {
+	try {
+		return await doHandleAuthorizationCode(params, config);
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error.toResponse({ protocol, nextStep });
+		}
+
+		throw error;
+	}
+}
+
+async function doHandleAuthorizationCode(
 	{ state, code }: AuthorizationCodeLocation,
 	config: AuthorizationCodeConfig,
 ): Promise<AuthorizationCodeResponse> {

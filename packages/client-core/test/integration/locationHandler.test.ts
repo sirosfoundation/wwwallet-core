@@ -102,7 +102,7 @@ describe("location handler - authorization code", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_client");
 			expect(error.error_description).to.eq("could not find issuer client");
@@ -140,7 +140,7 @@ describe("location handler - authorization code", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_issuer");
 			expect(error.error_description).to.eq(
@@ -181,7 +181,7 @@ describe("location handler - authorization code", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_request");
 			expect(error.error_description).to.eq("could not fetch access token");
@@ -253,7 +253,7 @@ describe("location handler - authorization code", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_request");
 			expect(error.error_description).to.eq("could not fetch nonce");
@@ -452,7 +452,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -474,7 +474,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -499,7 +499,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -526,7 +526,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -580,7 +580,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -609,7 +609,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -638,7 +638,7 @@ describe("location handler - credential offer", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -667,8 +667,8 @@ describe("location handler - credential offer", () => {
 		if (response.protocol !== "oid4vci") {
 			assert(false);
 		}
-		expect(response.nextStep).to.eq("pushed_authorization_request");
-		if (response.nextStep !== "pushed_authorization_request") {
+		expect(response.nextStep).to.eq("authorization_request");
+		if (response.nextStep !== "authorization_request") {
 			assert(false);
 		}
 		expect(response.data?.issuer).to.eq(credential_issuer);
@@ -705,8 +705,8 @@ describe("location handler - credential offer", () => {
 		if (response.protocol !== "oid4vci") {
 			assert(false);
 		}
-		expect(response.nextStep).to.eq("pushed_authorization_request");
-		if (response.nextStep !== "pushed_authorization_request") {
+		expect(response.nextStep).to.eq("authorization_request");
+		if (response.nextStep !== "authorization_request") {
 			assert(false);
 		}
 		expect(response.data?.issuer).to.eq(credential_issuer);
@@ -731,7 +731,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -754,7 +754,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -778,7 +778,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(
@@ -803,7 +803,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq("nonce parameter is missing");
@@ -827,7 +827,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq("state parameter is missing");
@@ -876,7 +876,7 @@ describe("location handler - presentation request", () => {
 			assert(false);
 		} catch (error) {
 			if (!(error instanceof OauthError)) {
-				assert(false);
+				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
 			expect(error.error_description).to.eq(

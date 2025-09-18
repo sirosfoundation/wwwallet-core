@@ -25,6 +25,21 @@ const nextStep = "protocol_error";
 
 export async function handleProtocolError(
 	location: ProtocolErrorLocation,
+	config: ProtocolErrorConfig,
+): Promise<ProtocolErrorResponse> {
+	try {
+		return await doHandleProtocolError(location, config);
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error.toResponse({ protocol, nextStep });
+		}
+
+		throw error;
+	}
+}
+
+async function doHandleProtocolError(
+	location: ProtocolErrorLocation,
 	_config: ProtocolErrorConfig,
 ): Promise<ProtocolErrorResponse> {
 	if (!location.error) {
