@@ -67,7 +67,7 @@ export type OauthAuthorizationServer = {
 	authorization_endpoint: string;
 	authorization_challenge_endpoint: string;
 	token_endpoint: string;
-	pushed_authorization_request_endpoint: string;
+	pushed_authorization_request_endpoint?: string;
 	require_pushed_authorization_requests: boolean;
 	token_endpoint_auth_methods_supported: Array<string>;
 	response_types_supported: Array<string>;
