@@ -4,7 +4,10 @@ export class OauthError extends Error {
 	error: string;
 	error_description: string;
 	status: OauthErrorStatus;
-	data: { [key: string]: unknown };
+	data: {
+		error: Error;
+		[key: string]: unknown;
+	};
 
 	constructor(
 		status: OauthErrorStatus,
@@ -17,7 +20,7 @@ export class OauthError extends Error {
 		this.status = status;
 		this.error = error;
 		this.error_description = error_description;
-		this.data = data;
+		this.data = Object.assign({ error: this }, data);
 	}
 
 	toResponse(data: { [key: string]: unknown } = {}) {
