@@ -99,7 +99,10 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = locationErrorData({ currentStep, windowLocation });
+				const data = locationErrorData({
+					currentStep,
+					location: windowLocation.href,
+				});
 				throw error.toResponse(data);
 			}
 
@@ -157,9 +160,6 @@ async function parseLocation(
 	};
 }
 
-function locationErrorData(params: {
-	currentStep: string;
-	windowLocation: Location;
-}) {
+function locationErrorData(params: { currentStep: string; location: string }) {
 	return params;
 }
