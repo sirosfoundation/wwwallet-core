@@ -1,6 +1,6 @@
 import { OauthError } from "../../errors";
 import type { ClientStateStore } from "../../ports";
-import type { Grants } from "../../resources";
+import type { ClientState, Grants } from "../../resources";
 
 export type ValidateGrantsParams = {
 	issuer: string;
@@ -40,16 +40,15 @@ export async function validateGrants(
 		);
 	}
 
+	let client_state: ClientState | null = null;
+
 	if (issuer_state) {
-		const clientState = await config.clientStateStore.create(
-			issuer,
-			issuer_state,
-		);
+		client_state = await config.clientStateStore.create(issuer, issuer_state);
 		await config.clientStateStore.setCredentialConfigurationIds(
-			clientState,
+			client_state,
 			credential_configuration_ids,
 		);
 	}
 
-	return { grant_types, issuer_state };
+	return { grant_types, issuer_state, client_state };
 }

@@ -72,6 +72,8 @@ export function authorizationHandlerFactory(
 					config,
 				);
 
+			config.clientStateStore.commitChanges(issuerMetadataClientState);
+
 			if (issuer_metadata.pushed_authorization_request_endpoint) {
 				const nextStep = "authorize";
 				const { authorize_url } = await fetchAuthorizationUrl(

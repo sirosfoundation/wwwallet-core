@@ -70,13 +70,15 @@ export async function handleAuthorizationCode(
 		config,
 	);
 
-	const { issuer_metadata, client_state: _issuerMetadataClientState } =
+	const { issuer_metadata, client_state: issuerMetadataClientState } =
 		await fetchIssuerMetadata(
 			{
 				client_state: initialClientState,
 			},
 			config,
 		);
+
+	config.clientStateStore.commitChanges(issuerMetadataClientState);
 
 	const { dpop: accessTokenDpop } = await generateDpop(
 		{ htm: issuer_metadata.token_endpoint, htu: "POST" },

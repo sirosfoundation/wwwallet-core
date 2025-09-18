@@ -21,9 +21,15 @@ export const clientStateStoreMock = (
 ) => {
 	const code_verifier = "code_verifier";
 	const state = "state";
-	return {
+	const clientStateStoreMock = {
+		_clientState: null,
 		async create(issuer: string, issuer_state: string) {
 			return { issuer, issuer_state, state, code_verifier };
+		},
+		async commitChanges(clientState: ClientState) {
+			// @ts-ignore
+			clientStateStoreMock._clientState = clientState;
+			return clientState;
 		},
 		async fromIssuerState(issuer: string, issuer_state: string) {
 			return { issuer, issuer_state, state, code_verifier, ...clientState };
@@ -51,5 +57,17 @@ export const clientStateStoreMock = (
 			client_state.issuer_metadata = issuerMetadata;
 			return client_state;
 		},
+	};
+
+	return clientStateStoreMock;
+};
+
+export const httpClientPostMock = (data?: unknown) => {
+	return async <T>(
+		_url: string,
+		_body?: unknown,
+		_config?: { headers: Record<string, string> },
+	) => {
+		return { data: data as T };
 	};
 };

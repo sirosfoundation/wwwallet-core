@@ -55,10 +55,14 @@ export async function handleCredentialOffer(
 		config,
 	);
 
-	const { grant_types, issuer_state } = await validateGrants(
+	const { grant_types, issuer_state, client_state } = await validateGrants(
 		{ credential_configuration_ids, issuer, grants },
 		config,
 	);
+
+	if (client_state) {
+		config.clientStateStore.commitChanges(client_state);
+	}
 
 	if (grant_types.includes("authorization_code")) {
 		return {

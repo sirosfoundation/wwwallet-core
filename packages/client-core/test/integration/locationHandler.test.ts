@@ -1,11 +1,11 @@
 import { decodeProtectedHeader, type JWK, jwtVerify, SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
-import type { ClientState } from "../../src";
 import { OauthError } from "../../src/errors";
 import { locationHandlerFactory } from "../../src/handlers";
 import {
 	clientStateStoreMock,
 	fetchIssuerMetadataMock,
+	httpClientPostMock,
 } from "../support/client";
 
 const locationHandler = locationHandlerFactory({
@@ -273,7 +273,7 @@ describe("location handler - authorization code", () => {
 		const c_nonce_expires_in = 10;
 		const nonce = "nonce";
 
-		const locationHandler = locationHandlerFactory({
+		const config = {
 			// @ts-ignore
 			httpClient: {
 				get: fetchIssuerMetadataMock({}),
@@ -317,7 +317,8 @@ describe("location handler - authorization code", () => {
 					issuer,
 				},
 			],
-		});
+		};
+		const locationHandler = locationHandlerFactory(config);
 		const code = "code";
 		const state = "state";
 		const location = {
@@ -326,6 +327,17 @@ describe("location handler - authorization code", () => {
 
 		// @ts-ignore
 		const response = await locationHandler(location);
+
+		expect(config.clientStateStore._clientState).to.deep.eq({
+			code_verifier: "code_verifier",
+			issuer: "http://issuer.url",
+			issuer_metadata: {
+				nonce_endpoint: "http://nonce.endpoint",
+				token_endpoint: "http://token.endpoint",
+			},
+			issuer_state: "issuer_state",
+			state: "state",
+		});
 
 		// token request
 		// @ts-ignore
@@ -410,28 +422,22 @@ describe("location handler - presentation success", () => {
 });
 
 describe("location handler - credential offer", () => {
-	let lastClientState: ClientState;
-	const locationHandler = locationHandlerFactory({
-		// @ts-expect-error
-		clientStateStore: {
-			async create(issuer: string, issuer_state: string) {
-				lastClientState = {
-					issuer,
-					issuer_state,
-					state: "state",
-					code_verifier: "code_verifier",
-				};
-				return lastClientState;
-			},
-			async setCredentialConfigurationIds(
-				clientState: ClientState,
-				credentialConfigurationIds: Array<string>,
-			) {
-				clientState.credential_configuration_ids = credentialConfigurationIds;
-				return clientState;
-			},
+	const config = {
+		httpClient: {
+			get: fetchIssuerMetadataMock({}),
+			post: httpClientPostMock(),
 		},
-	});
+		clientStateStore: clientStateStoreMock(),
+		static_clients: [
+			{
+				issuer: "http://issuer.url",
+				client_id: "client_id",
+				client_secret: "client_secret",
+			},
+		],
+		dpop_ttl_seconds: 10,
+	};
+	const locationHandler = locationHandlerFactory(config);
 
 	it("rejects with an invalid credential offer", async () => {
 		const credential_offer = "invalid";
@@ -688,7 +694,7 @@ describe("location handler - credential offer", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
-		expect(lastClientState).to.deep.eq({
+		expect(config.clientStateStore._clientState).to.deep.eq({
 			state: "state",
 			code_verifier: "code_verifier",
 			credential_configuration_ids: ["credential_configuration_ids"],
