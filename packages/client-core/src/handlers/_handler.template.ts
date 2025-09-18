@@ -1,37 +1,47 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
-import { OauthError, type OauthErrorResponse } from "../errors";
+import { OauthError } from "../errors";
 import { statementTemplate } from "../statements/_statementTemplate";
 import { handlerTemplateConfigSchema } from "./schemas/_handlerTemplateConfig.schema";
 
 const ajv = new Ajv();
 
+export type HandlerTemplateParams = {};
+
 export type HandlerTemplateConfig = {};
+
+type HandlerTemplateProtocol = "protocol";
+
+type HandlerTemplateNextStep = "next_step";
 
 type TemplateRequest = {};
 
 type TemplateResponse = {
-	protocol: string | null;
-	nextStep?: string;
+	protocol: HandlerTemplateProtocol;
+	nextStep?: HandlerTemplateNextStep;
 	data?: {};
 };
 
+const protocol = "protocol";
+const nextStep = "next_step";
+
 export function handlerTemplateFactory(config: HandlerTemplateConfig) {
 	return async function handlerTemplate(
-		params: unknown,
-	): Promise<TemplateResponse | OauthErrorResponse> {
+		params: HandlerTemplateParams,
+	): Promise<TemplateResponse> {
 		try {
 			const _request = await unit(params);
 
 			const _result = await statementTemplate({}, config);
 
 			return {
-				protocol: null,
+				protocol,
+				nextStep,
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = templateErrorData(params);
-				return error.toResponse(data);
+				const data = templateErrorData({ protocol, nextStep });
+				throw error.toResponse(data);
 			}
 
 			throw error;
@@ -54,6 +64,6 @@ async function unit(_params: unknown): Promise<TemplateRequest> {
 	return {};
 }
 
-function templateErrorData(_params: unknown) {
-	return {};
+function templateErrorData(params: { protocol: string; nextStep: string }) {
+	return params;
 }
