@@ -85,3 +85,8 @@ export type Grants = {
 		issuer_state?: string;
 	};
 };
+
+export type Proofs = {
+	jwt?: Array<string>;
+	attestation?: Array<string>;
+};

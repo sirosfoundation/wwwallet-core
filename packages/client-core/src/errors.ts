@@ -21,7 +21,7 @@ export class OauthError extends Error {
 	}
 
 	toResponse(data: { [key: string]: unknown } = {}) {
-		this.data = data;
+		Object.assign(this.data, data);
 		return this;
 	}
 }
