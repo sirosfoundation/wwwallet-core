@@ -30,7 +30,7 @@ export async function fetchNonce(
 
 		return { nonce };
 	} catch (error) {
-		throw new OauthError(400, "invalid_request", "could not fetch nonce", {
+		throw new OauthError("invalid_request", "could not fetch nonce", {
 			error,
 		});
 	}

@@ -113,7 +113,6 @@ async function doHandlePresentationRequest(
 		}
 	} catch (_error) {
 		throw new OauthError(
-			400,
 			"invalid_location",
 			"could not parse presentation request",
 		);
@@ -122,7 +121,6 @@ async function doHandlePresentationRequest(
 	for (const parameter of parameters) {
 		if (!request[parameter]) {
 			throw new OauthError(
-				400,
 				"invalid_location",
 				`${parameter.replace("_", " ")} parameter is missing`,
 			);

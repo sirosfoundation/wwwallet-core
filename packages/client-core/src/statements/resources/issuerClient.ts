@@ -18,7 +18,7 @@ export async function issuerClient(
 	);
 
 	if (!client) {
-		throw new OauthError(400, "invalid_client", "could not find issuer client");
+		throw new OauthError("invalid_client", "could not find issuer client");
 	}
 
 	return { client };

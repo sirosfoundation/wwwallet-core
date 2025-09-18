@@ -58,11 +58,8 @@ export async function fetchAccessToken(
 			refresh_token,
 		};
 	} catch (error) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"could not fetch access token",
-			{ error },
-		);
+		throw new OauthError("invalid_request", "could not fetch access token", {
+			error,
+		});
 	}
 }

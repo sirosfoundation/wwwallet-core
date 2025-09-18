@@ -17,11 +17,7 @@ export async function validateGrants(
 	config: ValidateGrantsConfig,
 ) {
 	if (!grants) {
-		throw new OauthError(
-			400,
-			"invalid_location",
-			"grants parameter is required",
-		);
+		throw new OauthError("invalid_location", "grants parameter is required");
 	}
 
 	const grant_types: Array<"authorization_code"> = [];
@@ -34,7 +30,6 @@ export async function validateGrants(
 
 	if (!grant_types.length) {
 		throw new OauthError(
-			400,
 			"invalid_location",
 			"given authorization grants are not supported",
 		);

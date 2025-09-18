@@ -25,12 +25,11 @@ export async function fetchCredentials(
 	config: FetchCredentialsConfig,
 ) {
 	if (!access_token) {
-		throw new OauthError(400, "invalid_parameters", "access token is missing");
+		throw new OauthError("invalid_parameters", "access token is missing");
 	}
 
 	if (!credential_configuration_id) {
 		throw new OauthError(
-			400,
 			"invalid_parameters",
 			"credential configuration id is missing",
 		);
@@ -38,7 +37,6 @@ export async function fetchCredentials(
 
 	if (!issuer_metadata.credential_endpoint) {
 		throw new OauthError(
-			400,
 			"invalid_parameters",
 			"credential endpoint is missing in issuer metadata",
 		);
@@ -65,7 +63,7 @@ export async function fetchCredentials(
 
 		return { credentials };
 	} catch (error) {
-		throw new OauthError(400, "invalid_request", "could not fetch credential", {
+		throw new OauthError("invalid_request", "could not fetch credential", {
 			error,
 		});
 	}

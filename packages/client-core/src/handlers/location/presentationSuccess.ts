@@ -41,7 +41,7 @@ async function doHandlePresentationSuccess(
 	_config: PresentationSuccessConfig,
 ): Promise<PresentationSuccessProtocolResponse> {
 	if (!location.code) {
-		throw new OauthError(400, "invalid_location", "code parameter is missing");
+		throw new OauthError("invalid_location", "code parameter is missing");
 	}
 
 	return {

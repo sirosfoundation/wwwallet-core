@@ -11,7 +11,7 @@ export async function statementTemplate(
 	const condition = true;
 
 	if (!condition) {
-		throw new OauthError(400, "invalid_request", "condition is not met");
+		throw new OauthError("invalid_request", "condition is not met");
 	}
 
 	return {};

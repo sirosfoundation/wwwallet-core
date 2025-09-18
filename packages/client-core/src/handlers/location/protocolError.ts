@@ -43,7 +43,7 @@ async function doHandleProtocolError(
 	_config: ProtocolErrorConfig,
 ): Promise<ProtocolErrorResponse> {
 	if (!location.error) {
-		throw new OauthError(400, "invalid_location", "error parameter is missing");
+		throw new OauthError("invalid_location", "error parameter is missing");
 	}
 
 	return {

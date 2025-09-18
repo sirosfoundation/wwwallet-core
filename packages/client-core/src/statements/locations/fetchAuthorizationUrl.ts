@@ -31,7 +31,6 @@ export async function fetchAuthorizationUrl(
 
 	if (!client_state.issuer_metadata?.pushed_authorization_request_endpoint) {
 		throw new OauthError(
-			400,
 			"invalid_client",
 			"pushed authorization request endpoint missing in issuer metadata ",
 		);
@@ -44,7 +43,6 @@ export async function fetchAuthorizationUrl(
 
 	if (!client) {
 		throw new OauthError(
-			400,
 			"invalid_client",
 			"pushed authorization requests require a client",
 		);
@@ -53,7 +51,6 @@ export async function fetchAuthorizationUrl(
 
 	if (!issuer_state) {
 		throw new OauthError(
-			400,
 			"invalid_request",
 			"pushed authorization requests require an issuer state",
 		);
@@ -86,7 +83,6 @@ export async function fetchAuthorizationUrl(
 		)
 		.catch((error) => {
 			throw new OauthError(
-				400,
 				"invalid_issuer",
 				"could not perform pushed authorization request",
 				{ error },
@@ -95,7 +91,6 @@ export async function fetchAuthorizationUrl(
 
 	if (!client_state.issuer_metadata?.authorization_endpoint) {
 		throw new OauthError(
-			400,
 			"invalid_client",
 			"authorization endpoint missing in issuer metadata ",
 		);

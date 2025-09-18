@@ -66,11 +66,11 @@ async function doHandleAuthorizationCode(
 	config: AuthorizationCodeConfig,
 ): Promise<AuthorizationCodeResponse> {
 	if (!state) {
-		throw new OauthError(400, "invalid_location", "state parameter is missing");
+		throw new OauthError("invalid_location", "state parameter is missing");
 	}
 
 	if (!code) {
-		throw new OauthError(400, "invalid_location", "code parameter is missing");
+		throw new OauthError("invalid_location", "code parameter is missing");
 	}
 
 	const { client_state: initialClientState } = await clientState(

@@ -53,7 +53,6 @@ async function doHandleCredentialOffer(
 ): Promise<CredentialOfferProtocolResponse> {
 	if (!location.credential_offer) {
 		throw new OauthError(
-			400,
 			"invalid_location",
 			"credential offer parameter is missing",
 		);
@@ -92,7 +91,6 @@ async function doHandleCredentialOffer(
 	}
 
 	throw new OauthError(
-		400,
 		"invalid_location",
 		"credential offer grants is not supported",
 	);

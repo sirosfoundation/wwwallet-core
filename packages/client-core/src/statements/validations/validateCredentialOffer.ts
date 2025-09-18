@@ -16,7 +16,6 @@ export async function validateCredentialOffer(
 
 		if (!credential_issuer) {
 			throw new OauthError(
-				400,
 				"invalid_location",
 				"credential offer must contain a credential issuer parameter",
 			);
@@ -24,7 +23,6 @@ export async function validateCredentialOffer(
 
 		if (!credential_configuration_ids) {
 			throw new OauthError(
-				400,
 				"invalid_location",
 				"credential offer must contain a credential configuration ids parameter",
 			);
@@ -32,7 +30,6 @@ export async function validateCredentialOffer(
 
 		if (!Array.isArray(credential_configuration_ids)) {
 			throw new OauthError(
-				400,
 				"invalid_location",
 				"credential offer credential configuration ids parameter is invalid",
 			);
@@ -45,7 +42,6 @@ export async function validateCredentialOffer(
 		}
 
 		throw new OauthError(
-			400,
 			"invalid_location",
 			"credential offer could not be parsed",
 			{ error },

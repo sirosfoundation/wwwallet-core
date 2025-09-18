@@ -63,7 +63,6 @@ export async function fetchIssuerMetadata(
 		};
 	} catch (error) {
 		throw new OauthError(
-			400,
 			"invalid_issuer",
 			"could not fetch issuer information",
 			{ error },

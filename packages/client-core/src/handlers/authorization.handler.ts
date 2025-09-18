@@ -107,7 +107,6 @@ export function authorizationHandlerFactory(
 			}
 
 			throw new OauthError(
-				400,
 				"invalid_request",
 				"authorization method not supported",
 			);

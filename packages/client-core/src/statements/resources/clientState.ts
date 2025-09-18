@@ -30,11 +30,7 @@ export async function clientState(
 	}
 
 	if (!client_state) {
-		throw new OauthError(
-			400,
-			"invalid_client",
-			"client state could not be found",
-		);
+		throw new OauthError("invalid_client", "client state could not be found");
 	}
 
 	return { client_state };
