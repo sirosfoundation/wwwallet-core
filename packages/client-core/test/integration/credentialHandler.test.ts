@@ -49,9 +49,6 @@ describe("credentialHandler", () => {
 			}
 			expect(error.error).to.eq("invalid_client");
 			expect(error.error_description).to.eq("client state could not be found");
-			assert(error.data.error);
-			// @ts-ignore
-			delete error.data.error;
 			expect(error.data).to.deep.eq({
 				proofs,
 				access_token,
@@ -84,9 +81,6 @@ describe("credentialHandler", () => {
 			}
 			expect(error.error).to.eq("invalid_parameters");
 			expect(error.error_description).to.eq("access token is missing");
-			assert(error.data.error);
-			// @ts-ignore
-			delete error.data.error;
 			expect(error.data).to.deep.eq({
 				proofs,
 				access_token,
@@ -121,9 +115,6 @@ describe("credentialHandler", () => {
 			expect(error.error_description).to.eq(
 				"credential configuration id is missing",
 			);
-			assert(error.data.error);
-			// @ts-ignore
-			delete error.data.error;
 			expect(error.data).to.deep.eq({
 				proofs,
 				access_token,
@@ -173,9 +164,6 @@ describe("credentialHandler", () => {
 			expect(error.error_description).to.eq(
 				"credential endpoint is missing in issuer metadata",
 			);
-			assert(error.data.error);
-			// @ts-ignore
-			delete error.data.error;
 			expect(error.data).to.deep.eq({
 				proofs,
 				access_token,
