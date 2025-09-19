@@ -44,7 +44,7 @@ export async function fetchCredentials(
 
 	try {
 		const { credentials } = await config.httpClient
-			.post<{ credentials: Array<string> }>(
+			.post<{ credentials: Array<{ credential: string }> }>(
 				issuer_metadata.credential_endpoint,
 				{
 					credential_configuration_id,

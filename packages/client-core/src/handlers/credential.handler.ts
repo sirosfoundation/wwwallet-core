@@ -36,7 +36,7 @@ type CredentialResponse = {
 	protocol: CredentialProtocol;
 	nextStep?: CredentialNextStep;
 	data?: {
-		credentials: Array<string>;
+		credentials: Array<{ credential: string }>;
 	};
 };
 
