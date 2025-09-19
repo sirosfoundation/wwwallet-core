@@ -17,5 +17,10 @@ export const locationHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["httpClient", "clientStateStore", "static_clients"],
+	required: [
+		"httpClient",
+		"clientStateStore",
+		"static_clients",
+		"dpop_ttl_seconds",
+	],
 };

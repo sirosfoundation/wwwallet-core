@@ -3,6 +3,7 @@ export const credentialHandlerConfigSchema = {
 	properties: {
 		httpClient: {},
 		clientStateStore: {},
+		dpop_ttl_seconds: { type: "number" },
 		static_clients: {
 			type: "array",
 			items: {
@@ -16,5 +17,10 @@ export const credentialHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["httpClient", "clientStateStore", "static_clients"],
+	required: [
+		"httpClient",
+		"clientStateStore",
+		"static_clients",
+		"dpop_ttl_seconds",
+	],
 };
