@@ -266,12 +266,13 @@ describe("location handler - authorization code", () => {
 			body: unknown;
 			config?: { headers: Record<string, string> };
 		}> = [];
+		const token_type = "bearer";
 		const access_token = "access_token";
 		const c_nonce = "c_nonce";
 		const refresh_token = "refresh_token";
 		const expires_in = 10;
 		const c_nonce_expires_in = 10;
-		const nonce = "nonce";
+		const redirect_uri = "http://redirect.uri";
 
 		const config = {
 			// @ts-ignore
@@ -286,17 +287,16 @@ describe("location handler - authorization code", () => {
 					if (url === "http://token.endpoint") {
 						return {
 							data: {
+								token_type,
 								access_token,
 								expires_in,
-								c_nonce,
-								c_nonce_expires_in,
 								refresh_token,
 							} as T,
 						};
 					}
 
 					if (url === "http://nonce.endpoint") {
-						return { data: { nonce } as T };
+						return { data: { c_nonce, c_nonce_expires_in } as T };
 					}
 
 					throw new Error("not found");
@@ -315,6 +315,7 @@ describe("location handler - authorization code", () => {
 					client_id: "id",
 					client_secret: "secret",
 					issuer,
+					redirect_uri,
 				},
 			],
 		};
@@ -328,6 +329,8 @@ describe("location handler - authorization code", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
+		// @ts-ignore
+		delete config.clientStateStore._clientState.dpopKeyPair;
 		expect(config.clientStateStore._clientState).to.deep.eq({
 			code_verifier: "code_verifier",
 			issuer: "http://issuer.url",
@@ -346,8 +349,10 @@ describe("location handler - authorization code", () => {
 		expect(lastRequest[0].body).to.deep.eq({
 			client_id: "id",
 			client_secret: "secret",
+			code_verifier: "code_verifier",
 			code: "code",
 			grant_type: "authorization_code",
+			redirect_uri: "http://redirect.uri",
 		});
 
 		// @ts-ignore
@@ -359,8 +364,8 @@ describe("location handler - authorization code", () => {
 		);
 
 		assert(accessTokenDpopPayload.exp);
-		expect(accessTokenDpopPayload.htm).to.eq("http://token.endpoint");
-		expect(accessTokenDpopPayload.htu).to.eq("POST");
+		expect(accessTokenDpopPayload.htu).to.eq("http://token.endpoint");
+		expect(accessTokenDpopPayload.htm).to.eq("POST");
 		assert(accessTokenDpopPayload.iat);
 		assert(accessTokenDpopPayload.jti);
 
@@ -386,12 +391,13 @@ describe("location handler - authorization code", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				access_token: "access_token",
-				c_nonce: "c_nonce",
-				c_nonce_expires_in: 10,
-				expires_in: 10,
-				refresh_token: "refresh_token",
-				nonce: "nonce",
+				state,
+				token_type,
+				access_token,
+				c_nonce,
+				c_nonce_expires_in,
+				expires_in,
+				refresh_token,
 			},
 			nextStep: "credential_request",
 			protocol: "oid4vci",
@@ -433,6 +439,7 @@ describe("location handler - credential offer", () => {
 				issuer: "http://issuer.url",
 				client_id: "client_id",
 				client_secret: "client_secret",
+				redirect_uri: "http://wallet.url",
 			},
 		],
 		dpop_ttl_seconds: 10,
@@ -694,6 +701,8 @@ describe("location handler - credential offer", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
+		// @ts-ignore
+		delete config.clientStateStore._clientState.dpopKeyPair;
 		expect(config.clientStateStore._clientState).to.deep.eq({
 			state: "state",
 			code_verifier: "code_verifier",

@@ -16,8 +16,8 @@ export async function fetchNonce(
 	config: FetchNonceConfig,
 ) {
 	try {
-		const { nonce } = await config.httpClient
-			.post<{ nonce: string }>(
+		const { c_nonce, c_nonce_expires_in } = await config.httpClient
+			.post<{ c_nonce: string; c_nonce_expires_in: number }>(
 				issuer_metadata.nonce_endpoint,
 				{},
 				{
@@ -28,7 +28,7 @@ export async function fetchNonce(
 			)
 			.then(({ data }) => data);
 
-		return { nonce };
+		return { c_nonce, c_nonce_expires_in };
 	} catch (error) {
 		throw new OauthError("invalid_request", "could not fetch nonce", {
 			error,

@@ -98,6 +98,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 		// @ts-ignore
 		expect(lastRequest).to.deep.eq({
 			body: {
+				response_type: "code",
 				client_id: "id",
 				issuer_state: "issuer_state",
 				redirect_uri: "http://wallet.url",
@@ -107,9 +108,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 				code_challenge_method: "S256",
 			},
 			config: {
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
+				headers: {},
 			},
 			url: "http://issuer.url/par",
 		});
@@ -177,6 +176,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 
 				expect(lastRequest).to.deep.eq({
 					body: {
+						response_type: "code",
 						client_id: "id",
 						issuer_state: "issuer_state",
 						redirect_uri: "http://wallet.url",
@@ -186,9 +186,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 						code_challenge_method: "S256",
 					},
 					config: {
-						headers: {
-							"Content-Type": "application/x-www-form-urlencoded",
-						},
+						headers: {},
 					},
 					url: "http://issuer.url/par",
 				});

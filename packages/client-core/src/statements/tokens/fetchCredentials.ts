@@ -55,7 +55,6 @@ export async function fetchCredentials(
 						// TODO use access token response token type
 						Authorization: `DPoP ${access_token}`,
 						DPoP: dpop,
-						"Content-Type": "application/json",
 					},
 				},
 			)

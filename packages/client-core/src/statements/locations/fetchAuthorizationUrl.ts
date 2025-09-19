@@ -21,6 +21,7 @@ type PushedAuthorizationRequestParams = {
 	state?: string;
 	code_challenge_method?: string;
 	code_challenge?: string;
+	response_type?: string;
 };
 
 export async function fetchAuthorizationUrl(
@@ -59,6 +60,8 @@ export async function fetchAuthorizationUrl(
 
 	pushedAuthorizationRequestParams.state = client_state.state;
 
+	pushedAuthorizationRequestParams.response_type = "code";
+
 	pushedAuthorizationRequestParams.code_challenge_method = "S256";
 	pushedAuthorizationRequestParams.code_challenge = await S256codeChallenge(
 		client_state.code_verifier,
@@ -76,9 +79,7 @@ export async function fetchAuthorizationUrl(
 			pushedAuthorizationRequestUrl.toString(),
 			pushedAuthorizationRequestParams,
 			{
-				headers: {
-					"Content-Type": "application/x-www-form-urlencoded",
-				},
+				headers: {},
 			},
 		)
 		.catch((error) => {
