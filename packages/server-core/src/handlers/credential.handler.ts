@@ -154,7 +154,11 @@ async function validateRequest(
 		);
 	}
 
-	const proofs = expressRequest.body.proofs || (proof && {});
+	let proofs = expressRequest.body.proofs || (proof && {});
+
+	if (typeof proofs === "string") {
+		proofs = JSON.parse(proofs);
+	}
 
 	if (proof?.jwt) {
 		proofs.jwt = [proof.jwt];
