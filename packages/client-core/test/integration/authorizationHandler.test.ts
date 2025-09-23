@@ -68,6 +68,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 			}
 
 			expect(error.error).to.eq("invalid_client");
+			expect(error.data.currentStep).to.eq("authorization_request");
+			expect(error.data.nextStep).to.eq("authorization_request");
 			expect(error.error_description).to.eq("could not find issuer client");
 		}
 	});
@@ -84,6 +86,8 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 			}
 
 			expect(error.error).to.eq("invalid_client");
+			expect(error.data.currentStep).to.eq("authorization_request");
+			expect(error.data.nextStep).to.eq("authorization_request");
 			expect(error.error_description).to.eq("client state could not be found");
 		}
 	});

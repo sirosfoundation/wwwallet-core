@@ -56,6 +56,11 @@ export function authorizationHandlerFactory(
 		issuer,
 		issuer_state,
 	}: AuthorizationHandlerParams): Promise<AuthorizationResponse> {
+		let nextStep:
+			| "authorize"
+			| "authorization_challenge"
+			| "authorization_request" = "authorization_request";
+
 		try {
 			const { client } = await issuerClient({ issuer }, config);
 
@@ -76,7 +81,7 @@ export function authorizationHandlerFactory(
 			config.clientStateStore.commitChanges(issuerMetadataClientState);
 
 			if (issuer_metadata.pushed_authorization_request_endpoint) {
-				const nextStep = "authorize";
+				nextStep = "authorize";
 				const { authorize_url } = await fetchAuthorizationUrl(
 					{
 						client_state: issuerMetadataClientState,
@@ -96,7 +101,7 @@ export function authorizationHandlerFactory(
 			}
 
 			if (issuer_metadata.authorization_challenge_endpoint) {
-				const nextStep = "authorization_challenge";
+				nextStep = "authorization_challenge";
 				return {
 					protocol,
 					nextStep,
@@ -115,6 +120,7 @@ export function authorizationHandlerFactory(
 				const data = authorizationHandlerErrorData({
 					protocol,
 					currentStep,
+					nextStep,
 					issuer,
 					issuer_state,
 				});
@@ -141,6 +147,7 @@ function authorizationHandlerErrorData(
 	params: {
 		protocol: string;
 		currentStep: string;
+		nextStep: string;
 	} & AuthorizationHandlerParams,
 ) {
 	return params;
