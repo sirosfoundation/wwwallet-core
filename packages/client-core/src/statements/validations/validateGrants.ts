@@ -37,13 +37,14 @@ export async function validateGrants(
 
 	let client_state: ClientState | null = null;
 
-	if (issuer_state) {
-		client_state = await config.clientStateStore.create(issuer, issuer_state);
-		await config.clientStateStore.setCredentialConfigurationIds(
-			client_state,
-			credential_configuration_ids,
-		);
-	}
+	client_state = await config.clientStateStore.create(
+		issuer,
+		issuer_state || "",
+	);
+	client_state = await config.clientStateStore.setCredentialConfigurationIds(
+		client_state,
+		credential_configuration_ids,
+	);
 
 	return { grant_types, issuer_state, client_state };
 }

@@ -36,7 +36,7 @@ type CredentialResponse = {
 	protocol: CredentialProtocol;
 	nextStep?: CredentialNextStep;
 	data?: {
-		credentials: Array<string>;
+		credentials: Array<{ credential: string }>;
 	};
 };
 
@@ -66,9 +66,10 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 
 			const { dpop: credentialsDpop } = await generateDpop(
 				{
+					client_state: initialClientState,
 					access_token,
-					htm: issuer_metadata.credential_endpoint,
-					htu: "POST",
+					htu: issuer_metadata.credential_endpoint,
+					htm: "POST",
 				},
 				config,
 			);

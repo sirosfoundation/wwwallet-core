@@ -1,7 +1,9 @@
+import type { JWK } from "jose";
 export type OauthClient = {
 	issuer: string;
 	client_id: string;
 	client_secret: string;
+	redirect_uri?: string;
 };
 
 export interface ClientState {
@@ -9,6 +11,10 @@ export interface ClientState {
 	issuer_state: string;
 	state: string;
 	code_verifier: string;
+	dpopKeyPair: {
+		publicKey: JWK;
+		privateKey: JWK;
+	};
 	credential_configuration_ids?: Array<string>;
 	issuer_metadata?: IssuerMetadata;
 	context?: unknown;

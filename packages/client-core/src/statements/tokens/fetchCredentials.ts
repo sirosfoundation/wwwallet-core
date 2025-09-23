@@ -44,7 +44,7 @@ export async function fetchCredentials(
 
 	try {
 		const { credentials } = await config.httpClient
-			.post<{ credentials: Array<string> }>(
+			.post<{ credentials: Array<{ credential: string }> }>(
 				issuer_metadata.credential_endpoint,
 				{
 					credential_configuration_id,
@@ -55,7 +55,6 @@ export async function fetchCredentials(
 						// TODO use access token response token type
 						Authorization: `DPoP ${access_token}`,
 						DPoP: dpop,
-						"Content-Type": "application/json",
 					},
 				},
 			)

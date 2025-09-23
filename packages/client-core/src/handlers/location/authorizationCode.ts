@@ -34,12 +34,13 @@ export type AuthorizationCodeResponse = {
 	protocol: AuthorizationCodeProtocol;
 	nextStep: AuthorizationCodeNextStep;
 	data: {
+		state: string;
+		token_type: string;
 		access_token: string;
 		expires_in: number;
 		c_nonce: string;
 		c_nonce_expires_in: number;
 		refresh_token: string;
-		nonce: string;
 	};
 };
 
@@ -96,28 +97,28 @@ async function doHandleAuthorizationCode(
 	config.clientStateStore.commitChanges(issuerMetadataClientState);
 
 	const { dpop: accessTokenDpop } = await generateDpop(
-		{ htm: issuer_metadata.token_endpoint, htu: "POST" },
-		config,
-	);
-
-	const {
-		access_token,
-		expires_in,
-		c_nonce,
-		c_nonce_expires_in,
-		refresh_token,
-	} = await fetchAccessToken(
 		{
-			client,
-			issuer_metadata,
-			dpop: accessTokenDpop,
-			code,
+			client_state: issuerMetadataClientState,
+			htu: issuer_metadata.token_endpoint,
+			htm: "POST",
 		},
 		config,
 	);
 
+	const { token_type, access_token, expires_in, refresh_token } =
+		await fetchAccessToken(
+			{
+				client,
+				client_state: issuerMetadataClientState,
+				dpop: accessTokenDpop,
+				code,
+			},
+			config,
+		);
+
 	const { dpop: nonceDpop } = await generateDpop(
 		{
+			client_state: issuerMetadataClientState,
 			access_token,
 			htm: issuer_metadata.nonce_endpoint,
 			htu: "POST",
@@ -125,7 +126,7 @@ async function doHandleAuthorizationCode(
 		config,
 	);
 
-	const { nonce } = await fetchNonce(
+	const { c_nonce, c_nonce_expires_in } = await fetchNonce(
 		{
 			dpop: nonceDpop,
 			issuer_metadata,
@@ -137,12 +138,13 @@ async function doHandleAuthorizationCode(
 		protocol,
 		nextStep,
 		data: {
+			state,
+			token_type,
 			access_token,
 			expires_in,
 			c_nonce,
 			c_nonce_expires_in,
 			refresh_token,
-			nonce,
 		},
 	};
 }

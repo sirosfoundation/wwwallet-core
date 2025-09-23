@@ -1,3 +1,4 @@
+import { exportJWK, generateKeyPair } from "jose";
 import type { ClientState, IssuerMetadata } from "../../src";
 
 export const fetchIssuerMetadataMock = (issuerMetadata: unknown) => {
@@ -24,7 +25,23 @@ export const clientStateStoreMock = (
 	const clientStateStoreMock = {
 		_clientState: null,
 		async create(issuer: string, issuer_state: string) {
-			return { issuer, issuer_state, state, code_verifier };
+			const { publicKey, privateKey } = await generateKeyPair("ES256", {
+				extractable: true,
+			});
+
+			return {
+				issuer,
+				issuer_state,
+				state,
+				code_verifier,
+				dpopKeyPair: {
+					publicKey: await exportJWK(publicKey),
+					privateKey: {
+						alg: "ES256",
+						...(await exportJWK(privateKey)),
+					},
+				},
+			};
 		},
 		async commitChanges(clientState: ClientState) {
 			// @ts-ignore
@@ -32,14 +49,42 @@ export const clientStateStoreMock = (
 			return clientState;
 		},
 		async fromIssuerState(issuer: string, issuer_state: string) {
-			return { issuer, issuer_state, state, code_verifier, ...clientState };
+			const { publicKey, privateKey } = await generateKeyPair("ES256", {
+				extractable: true,
+			});
+
+			return {
+				issuer,
+				issuer_state,
+				state,
+				code_verifier,
+				dpopKeyPair: {
+					publicKey: await exportJWK(publicKey),
+					privateKey: {
+						alg: "ES256",
+						...(await exportJWK(privateKey)),
+					},
+				},
+				...clientState,
+			};
 		},
 		async fromState(state: string) {
+			const { publicKey, privateKey } = await generateKeyPair("ES256", {
+				extractable: true,
+			});
+
 			return {
 				issuer: "http://issuer.url",
 				issuer_state: "issuer_state",
 				state,
 				code_verifier,
+				dpopKeyPair: {
+					publicKey: await exportJWK(publicKey),
+					privateKey: {
+						alg: "ES256",
+						...(await exportJWK(privateKey)),
+					},
+				},
 				...clientState,
 			};
 		},

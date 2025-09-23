@@ -4,9 +4,12 @@ import type { Config } from "./config";
 import {
 	type AuthorizationHandlerConfig,
 	authorizationHandlerFactory,
+	type CredentialHandlerConfig,
+	credentialHandlerFactory,
 	type LocationHandlerConfig,
 	locationHandlerFactory,
 	validateAuthorizationHandlerConfig,
+	validateCredentialHandlerConfig,
 	validateLocationHandlerConfig,
 } from "./handlers";
 
@@ -29,6 +32,12 @@ export class Core {
 		return authorizationHandlerFactory(
 			this.config as AuthorizationHandlerConfig,
 		);
+	}
+
+	get credential() {
+		validateCredentialHandlerConfig(this.config);
+
+		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
 	}
 }
 
