@@ -1,5 +1,11 @@
 # @wwwallet-private/core
 
+## 0.1.0-alpha.3
+
+### Minor Changes
+
+- [#75](https://github.com/malach-it/wwwallet-issuer-poc/pull/75) [`dc16562`](https://github.com/malach-it/wwwallet-issuer-poc/commit/dc165629e66378541e22c4016937bb120682a232) Thanks [@patatoid](https://github.com/patatoid)! - OpenID 4 Verifiable Credentials Issuance draft 16 compliance
+
 ## 0.1.0-alpha.2
 
 ### Minor Changes

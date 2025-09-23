@@ -1,5 +1,13 @@
 # @wwwallet-private/client-core
 
+## 0.1.0-alpha.6
+
+### Minor Changes
+
+- [`09c62db`](https://github.com/malach-it/wwwallet-issuer-poc/commit/09c62db70eaea85eb1d31cfdbc58159fe8c7b324) Thanks [@patatoid](https://github.com/patatoid)! - Credential handler implementation
+
+- [#75](https://github.com/malach-it/wwwallet-issuer-poc/pull/75) [`dc16562`](https://github.com/malach-it/wwwallet-issuer-poc/commit/dc165629e66378541e22c4016937bb120682a232) Thanks [@patatoid](https://github.com/patatoid)! - OpenID 4 Verifiable Credentials Issuance draft 16 compliance
+
 ## 0.1.0-alpha.5
 
 ### Minor Changes
