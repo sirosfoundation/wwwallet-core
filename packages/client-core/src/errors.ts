@@ -1,10 +1,17 @@
+type ErrorType =
+	| "invalid_location"
+	| "invalid_request"
+	| "invalid_issuer"
+	| "invalid_client"
+	| "invalid_parameters";
+
 export class OauthError extends Error {
-	error: string;
+	error: ErrorType;
 	error_description: string;
 	data: { [key: string]: unknown };
 
 	constructor(
-		error: string,
+		error: ErrorType,
 		error_description: string,
 		data: { [key: string]: unknown } = {},
 	) {
