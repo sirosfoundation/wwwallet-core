@@ -215,7 +215,7 @@ export const config = {
 		},
 	],
 	issuer_display: [{ name: "Test issuer" }],
-	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
+	token_encryption: "A256CBC-HS512", // see https://github.com/panva/jose/issues/210#jwe-enc
 	secret_base: "test",
 	rotate_secret: true,
 	issuer_client: {

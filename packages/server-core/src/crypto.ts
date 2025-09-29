@@ -10,7 +10,7 @@ export async function secretDerivation(
 	return new Promise((resolve, reject) => {
 		const rawCount = I2OSP(count, 8);
 
-		crypto.hkdf("sha256", secret, rawCount, "info", 16, (error, derivedKey) => {
+		crypto.hkdf("sha256", secret, rawCount, "info", 32, (error, derivedKey) => {
 			if (error) {
 				return reject(error);
 			}
