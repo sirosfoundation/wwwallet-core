@@ -111,10 +111,11 @@ async function doHandlePresentationRequest(
 				}
 			}
 		}
-	} catch (_error) {
+	} catch (error) {
 		throw new OauthError(
 			"invalid_location",
 			"could not parse presentation request",
+			{ error }
 		);
 	}
 
