@@ -87,8 +87,8 @@ async function doHandlePresentationRequest(
 		"state",
 	];
 
-	let request: PresentationRequest = {
-		client_id: "",
+	const request: PresentationRequest = {
+		client_id: location.client_id || "",
 		response_uri: "",
 		response_type: "",
 		response_mode: "",
@@ -97,13 +97,14 @@ async function doHandlePresentationRequest(
 	};
 	try {
 		if (location.request_uri) {
-			const payload = await config.httpClient
-				.get<PresentationRequest>(location.request_uri)
+			const response = await config.httpClient
+				.get<string>(location.request_uri)
 				.then(({ data }) => data);
-			request = payload;
+			const payload = decodeJwt<PresentationRequest>(response);
+			Object.assign(request, payload);
 		} else if (location.request) {
 			const payload = decodeJwt<PresentationRequest>(location.request);
-			request = payload;
+			Object.assign(request, payload);
 		} else {
 			for (const parameter of parameters) {
 				if (location[parameter]) {
@@ -115,7 +116,7 @@ async function doHandlePresentationRequest(
 		throw new OauthError(
 			"invalid_location",
 			"could not parse presentation request",
-			{ error }
+			{ error },
 		);
 	}
 
