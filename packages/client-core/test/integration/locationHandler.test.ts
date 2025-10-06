@@ -950,14 +950,16 @@ describe("location handler - presentation request", () => {
 						throw new Error("invalid request_uri");
 					}
 					return {
-						data: {
+						data: (await new SignJWT({
 							client_id,
 							response_uri,
 							response_type,
 							response_mode,
 							nonce,
 							state,
-						} as T,
+						})
+							.setProtectedHeader({ alg: "HS256" })
+							.sign(new TextEncoder().encode("secret"))) as T,
 					};
 				},
 			},
