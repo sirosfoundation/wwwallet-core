@@ -75,7 +75,7 @@ async function doHandleCredentialOffer(
 	);
 
 	if (client_state) {
-		config.clientStateStore.commitChanges(client_state);
+		await config.clientStateStore.commitChanges(client_state);
 	}
 
 	if (grant_types.includes("authorization_code")) {
