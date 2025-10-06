@@ -76,31 +76,26 @@ async function doHandleAuthorizationCode(
 		throw new OauthError("invalid_location", "code parameter is missing");
 	}
 
-	const { client_state: initialClientState } = await clientState(
-		{ state },
-		config,
-	);
+	const { client_state } = await clientState({ state }, config);
 
 	const { client } = await issuerClient(
 		{
-			issuer: initialClientState.issuer,
+			issuer: client_state.issuer,
 		},
 		config,
 	);
 
-	const { issuer_metadata, client_state: issuerMetadataClientState } =
-		await fetchIssuerMetadata(
-			{
-				client_state: initialClientState,
-			},
-			config,
-		);
-
-	config.clientStateStore.commitChanges(issuerMetadataClientState);
+	const { issuer_metadata } = await fetchIssuerMetadata(
+		{
+			client_state,
+			issuer: client_state.issuer,
+		},
+		config,
+	);
 
 	const { dpop: accessTokenDpop } = await generateDpop(
 		{
-			client_state: issuerMetadataClientState,
+			client_state,
 			htu: issuer_metadata.token_endpoint,
 			htm: "POST",
 		},
@@ -111,7 +106,8 @@ async function doHandleAuthorizationCode(
 		await fetchAccessToken(
 			{
 				client,
-				client_state: issuerMetadataClientState,
+				client_state,
+				issuer_metadata,
 				dpop: accessTokenDpop,
 				code,
 			},
@@ -120,7 +116,7 @@ async function doHandleAuthorizationCode(
 
 	const { dpop: nonceDpop } = await generateDpop(
 		{
-			client_state: issuerMetadataClientState,
+			client_state,
 			access_token,
 			htm: issuer_metadata.nonce_endpoint,
 			htu: "POST",

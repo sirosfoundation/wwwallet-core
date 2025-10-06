@@ -1,3 +1,4 @@
+import type { IssuerMetadata } from "../../../dist";
 import { OauthError } from "../../errors";
 import type { HttpClient } from "../../ports";
 import type { ClientState, OauthClient } from "../../resources";
@@ -5,6 +6,7 @@ import type { ClientState, OauthClient } from "../../resources";
 export type FetchAccessTokenParams = {
 	client: OauthClient;
 	client_state: ClientState;
+	issuer_metadata: IssuerMetadata;
 	code: string;
 	dpop: string;
 };
@@ -22,11 +24,11 @@ type TokenResponse = {
 };
 
 export async function fetchAccessToken(
-	{ client, client_state, code, dpop }: FetchAccessTokenParams,
+	{ client, client_state, issuer_metadata, code, dpop }: FetchAccessTokenParams,
 	config: FetchAccessTokenConfig,
 ) {
 	try {
-		if (!client_state.issuer_metadata?.token_endpoint) {
+		if (!issuer_metadata?.token_endpoint) {
 			throw new OauthError(
 				"invalid_issuer",
 				"token endpoint is missing from issuer metadata",
@@ -36,7 +38,7 @@ export async function fetchAccessToken(
 		const { token_type, access_token, expires_in, refresh_token } =
 			await config.httpClient
 				.post<TokenResponse>(
-					client_state.issuer_metadata.token_endpoint,
+					issuer_metadata.token_endpoint,
 					{
 						grant_type: "authorization_code",
 						code,

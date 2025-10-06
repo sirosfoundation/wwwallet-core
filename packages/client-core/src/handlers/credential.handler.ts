@@ -60,6 +60,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			const { issuer_metadata } = await fetchIssuerMetadata(
 				{
 					client_state: initialClientState,
+					issuer: initialClientState.issuer,
 				},
 				config,
 			);
