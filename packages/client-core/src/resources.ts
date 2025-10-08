@@ -5,7 +5,7 @@ export type OauthClient = {
 	client_secret: string;
 };
 
-export interface ClientState {
+export type ClientState = {
 	issuer: string;
 	issuer_state: string;
 	state: string;
@@ -17,7 +17,11 @@ export interface ClientState {
 	credential_configuration_ids?: Array<string>;
 	issuer_metadata?: IssuerMetadata;
 	context?: unknown;
-}
+};
+
+export type PresentationCredential = {
+	credential: string;
+};
 
 export type CredentialConfigurationSupported = {
 	format: string;

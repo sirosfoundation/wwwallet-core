@@ -1,9 +1,11 @@
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
-import type { HttpClient } from "../../ports";
+import type { HttpClient, PresentationCredentialsStore } from "../../ports";
+import type { PresentationCredential } from "../../resources";
 
 export type PresentationRequestConfig = {
 	httpClient: HttpClient;
+	presentationCredentialsStore: PresentationCredentialsStore;
 };
 
 type PresentationRequestProtocol = "oid4vp";
@@ -30,7 +32,7 @@ type PresentationRequest = {
 	response_mode: string;
 	nonce: string;
 	state: string;
-	dcql_query?: string;
+	dcql_query: string | null;
 	scope?: string;
 };
 
@@ -38,13 +40,14 @@ export type PresentationRequestResponse = {
 	protocol: PresentationRequestProtocol;
 	nextStep: PresentationRequestNextStep;
 	data: {
+		presentation_credentials: Array<PresentationCredential>;
 		client_id: string;
 		response_uri: string;
 		response_type: string;
 		response_mode: string;
 		nonce: string;
 		state: string;
-		dcql_query?: string;
+		dcql_query: string | null;
 		scope?: string;
 	};
 };
@@ -94,7 +97,9 @@ async function doHandlePresentationRequest(
 		response_mode: "",
 		nonce: "",
 		state: "",
+		dcql_query: null,
 	};
+
 	if (location.request_uri) {
 		try {
 			const response = await config.httpClient
@@ -137,9 +142,15 @@ async function doHandlePresentationRequest(
 		}
 	}
 
+	const presentation_credentials =
+		await config.presentationCredentialsStore.fromDcqlQuery(request.dcql_query);
+
 	return {
 		protocol,
 		nextStep,
-		data: request,
+		data: {
+			presentation_credentials,
+			...request,
+		},
 	};
 }

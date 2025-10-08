@@ -3,6 +3,7 @@ export const locationHandlerConfigSchema = {
 	properties: {
 		httpClient: {},
 		clientStateStore: {},
+		presentationCredentialsStore: {},
 		dpop_ttl_seconds: { type: "number" },
 		wallet_callback_url: { type: "string" },
 		static_clients: {
@@ -22,6 +23,7 @@ export const locationHandlerConfigSchema = {
 		"httpClient",
 		"wallet_callback_url",
 		"clientStateStore",
+		"presentationCredentialsStore",
 		"static_clients",
 		"dpop_ttl_seconds",
 	],

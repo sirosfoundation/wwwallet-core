@@ -6,6 +6,7 @@ import {
 	clientStateStoreMock,
 	fetchIssuerMetadataMock,
 	httpClientPostMock,
+	presentationCredentialsStoreMock,
 } from "../support/client";
 
 const locationHandler = locationHandlerFactory({
@@ -17,6 +18,7 @@ const locationHandler = locationHandlerFactory({
 	},
 	clientStateStore: clientStateStoreMock(),
 	wallet_callback_url: "http://redirect.uri",
+	presentationCredentialsStore: presentationCredentialsStoreMock(),
 	dpop_ttl_seconds: 10,
 	static_clients: [],
 });
@@ -860,12 +862,14 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
+				presentation_credentials: [],
 				client_id: "client_id",
 				nonce: "nonce",
 				response_mode: "response_mode",
 				response_type: "response_type",
 				response_uri: "response_uri",
 				state: "state",
+				dcql_query: null,
 			},
 			nextStep: "presentation",
 			protocol: "oid4vp",
@@ -902,6 +906,7 @@ describe("location handler - presentation request", () => {
 		const response_mode = "response_mode";
 		const nonce = "nonce";
 		const state = "state";
+		const dcql_query = "dcql_query";
 
 		const request = await new SignJWT({
 			client_id,
@@ -910,6 +915,7 @@ describe("location handler - presentation request", () => {
 			response_mode,
 			nonce,
 			state,
+			dcql_query,
 		})
 			.setProtectedHeader({ alg: "HS256" })
 			.sign(new TextEncoder().encode("secret"));
@@ -923,12 +929,14 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
+				presentation_credentials: [],
 				client_id: "client_id",
 				nonce: "nonce",
 				response_mode: "response_mode",
 				response_type: "response_type",
 				response_uri: "response_uri",
 				state: "state",
+				dcql_query: "dcql_query",
 			},
 			nextStep: "presentation",
 			protocol: "oid4vp",
@@ -965,6 +973,7 @@ describe("location handler - presentation request", () => {
 				},
 			},
 			clientStateStore: clientStateStoreMock(),
+			presentationCredentialsStore: presentationCredentialsStoreMock(),
 		});
 
 		it("returns a presentation request with request", async () => {
@@ -977,12 +986,14 @@ describe("location handler - presentation request", () => {
 
 			expect(response).to.deep.eq({
 				data: {
+					presentation_credentials: [],
 					client_id: "client_id",
 					nonce: "nonce",
 					response_mode: "response_mode",
 					response_type: "response_type",
 					response_uri: "response_uri",
 					state: "state",
+					dcql_query: null,
 				},
 				nextStep: "presentation",
 				protocol: "oid4vp",

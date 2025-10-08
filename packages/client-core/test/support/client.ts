@@ -1,5 +1,9 @@
 import { exportJWK, generateKeyPair } from "jose";
-import type { ClientState, IssuerMetadata } from "../../src";
+import type {
+	ClientState,
+	IssuerMetadata,
+	PresentationCredential,
+} from "../../src";
 
 export const fetchIssuerMetadataMock = (issuerMetadata: unknown) => {
 	return async <T>(url: string) => {
@@ -117,5 +121,15 @@ export const httpClientPostMock = (data?: unknown) => {
 		_config?: { headers: Record<string, string> },
 	) => {
 		return { data: data as T };
+	};
+};
+
+export const presentationCredentialsStoreMock = (
+	presentation_credentials: Array<PresentationCredential> = [],
+) => {
+	return {
+		async fromDcqlQuery(_dcql_query: unknown | null) {
+			return presentation_credentials;
+		},
 	};
 };

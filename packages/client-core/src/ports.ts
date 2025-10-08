@@ -1,4 +1,8 @@
-import type { ClientState, IssuerMetadata } from "./resources";
+import type {
+	ClientState,
+	IssuerMetadata,
+	PresentationCredential,
+} from "./resources";
 
 export type ClientStateStore = {
 	create(issuer: string, issuer_state: string): Promise<ClientState>;
@@ -14,6 +18,12 @@ export type ClientStateStore = {
 		clientState: ClientState,
 		issuerMetadata: IssuerMetadata,
 	): Promise<ClientState>;
+};
+
+export type PresentationCredentialsStore = {
+	fromDcqlQuery(
+		dcql_query: unknown | null,
+	): Promise<Array<PresentationCredential>>;
 };
 
 export type HttpClient = {
