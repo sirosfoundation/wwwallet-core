@@ -20,7 +20,7 @@ export async function validateDcqlQuery(
 
 		return { dcql_query: dcqlQuery };
 	} catch (error) {
-		throw new OauthError("invalid_location", "could not parse dcql query", {
+		throw new OauthError("invalid_query", "could not parse dcql query", {
 			error,
 		});
 	}

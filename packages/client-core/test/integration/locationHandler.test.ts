@@ -975,7 +975,7 @@ describe("location handler - presentation request", () => {
 			if (!(error instanceof OauthError)) {
 				throw error;
 			}
-			expect(error.error).to.eq("invalid_location");
+			expect(error.error).to.eq("invalid_query");
 			// @ts-ignore
 			expect(error.data.error?.message).to.eq(
 				"Expected input to be an array, but received 'undefined'",
