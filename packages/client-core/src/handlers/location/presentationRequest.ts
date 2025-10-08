@@ -95,29 +95,37 @@ async function doHandlePresentationRequest(
 		nonce: "",
 		state: "",
 	};
-	try {
-		if (location.request_uri) {
+	if (location.request_uri) {
+		try {
 			const response = await config.httpClient
 				.get<string>(location.request_uri)
 				.then(({ data }) => data);
 			const payload = decodeJwt<PresentationRequest>(response);
 			Object.assign(request, payload);
-		} else if (location.request) {
+		} catch (error) {
+			throw new OauthError(
+				"invalid_request",
+				"could not fetch presentation request",
+				{ error },
+			);
+		}
+	} else if (location.request) {
+		try {
 			const payload = decodeJwt<PresentationRequest>(location.request);
 			Object.assign(request, payload);
-		} else {
-			for (const parameter of parameters) {
-				if (location[parameter]) {
-					request[parameter] = location[parameter];
-				}
+		} catch (error) {
+			throw new OauthError(
+				"invalid_location",
+				"could not parse presentation request",
+				{ error },
+			);
+		}
+	} else {
+		for (const parameter of parameters) {
+			if (location[parameter]) {
+				request[parameter] = location[parameter];
 			}
 		}
-	} catch (error) {
-		throw new OauthError(
-			"invalid_location",
-			"could not parse presentation request",
-			{ error },
-		);
 	}
 
 	for (const parameter of parameters) {
