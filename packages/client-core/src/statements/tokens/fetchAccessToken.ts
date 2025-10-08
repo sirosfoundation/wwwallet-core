@@ -1,7 +1,6 @@
-import type { IssuerMetadata } from "../../../dist";
 import { OauthError } from "../../errors";
 import type { HttpClient } from "../../ports";
-import type { ClientState, OauthClient } from "../../resources";
+import type { ClientState, IssuerMetadata, OauthClient } from "../../resources";
 
 export type FetchAccessTokenParams = {
 	client: OauthClient;

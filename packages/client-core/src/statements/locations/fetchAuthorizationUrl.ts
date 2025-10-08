@@ -1,6 +1,5 @@
-import type { ClientStateStore } from "../../../dist";
 import { OauthError } from "../../errors";
-import type { HttpClient } from "../../ports";
+import type { ClientStateStore, HttpClient } from "../../ports";
 import type { ClientState, IssuerMetadata, OauthClient } from "../../resources";
 import { fetchIssuerMetadata } from "../resources";
 

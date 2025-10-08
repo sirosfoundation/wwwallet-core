@@ -3,6 +3,7 @@ import type { Config } from "../config";
 import { OauthError } from "../errors";
 import type { IssuerMetadata } from "../resources";
 import {
+	type ClientStateConfig,
 	clientState,
 	type FetchAuthorizationUrlConfig,
 	type FetchIssuerMetadataConfig,
@@ -10,7 +11,6 @@ import {
 	fetchIssuerMetadata,
 	type IssuerClientConfig,
 	issuerClient,
-	type ClientStateConfig,
 } from "../statements";
 import { authorizationHandlerConfigSchema } from "./schemas";
 

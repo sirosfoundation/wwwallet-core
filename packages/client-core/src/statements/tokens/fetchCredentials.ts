@@ -58,7 +58,15 @@ export async function fetchCredentials(
 					},
 				},
 			)
-			.then(({ data }) => data);
+			.then(({ data }) => ({
+				credentials: data.credentials.map(({ credential }) => ({
+					credential,
+					format:
+						issuer_metadata.credential_configurations_supported[
+							credential_configuration_id
+						].format,
+				})),
+			}));
 
 		return { credentials };
 	} catch (error) {
