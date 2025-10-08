@@ -11,7 +11,7 @@ export type PresentationRequestConfig = {
 
 type PresentationRequestProtocol = "oid4vp";
 
-type PresentationRequestNextStep = "presentation";
+type PresentationRequestNextStep = "generate_presentation";
 
 export type PresentationRequestLocation = {
 	client_id: string | null;
@@ -54,7 +54,7 @@ export type PresentationRequestResponse = {
 };
 
 const protocol = "oid4vp";
-const nextStep = "presentation";
+const nextStep = "generate_presentation";
 
 export async function handlePresentationRequest(
 	location: PresentationRequestLocation,

@@ -23,7 +23,7 @@ export type ClientStateStore = {
 
 export type PresentationCredentialsStore = {
 	fromDcqlQuery(
-		dcql_query: DcqlQuery.Input | null,
+		dcql_query: DcqlQuery.Output | null,
 	): Promise<Array<PresentationCredential>>;
 };
 

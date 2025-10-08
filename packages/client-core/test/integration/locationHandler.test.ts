@@ -871,7 +871,7 @@ describe("location handler - presentation request", () => {
 				state: "state",
 				dcql_query: null,
 			},
-			nextStep: "presentation",
+			nextStep: "generate_presentation",
 			protocol: "oid4vp",
 		});
 	});
@@ -936,7 +936,7 @@ describe("location handler - presentation request", () => {
 				state: "state",
 				dcql_query: null,
 			},
-			nextStep: "presentation",
+			nextStep: "generate_presentation",
 			protocol: "oid4vp",
 		});
 	});
@@ -1062,7 +1062,7 @@ describe("location handler - presentation request", () => {
 					],
 				},
 			},
-			nextStep: "presentation",
+			nextStep: "generate_presentation",
 			protocol: "oid4vp",
 		});
 	});
@@ -1119,7 +1119,7 @@ describe("location handler - presentation request", () => {
 					state: "state",
 					dcql_query: null,
 				},
-				nextStep: "presentation",
+				nextStep: "generate_presentation",
 				protocol: "oid4vp",
 			});
 		});
