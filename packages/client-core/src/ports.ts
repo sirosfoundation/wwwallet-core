@@ -1,3 +1,4 @@
+import type { DcqlQuery } from "dcql";
 import type {
 	ClientState,
 	IssuerMetadata,
@@ -22,7 +23,7 @@ export type ClientStateStore = {
 
 export type PresentationCredentialsStore = {
 	fromDcqlQuery(
-		dcql_query: unknown | null,
+		dcql_query: DcqlQuery.Input | null,
 	): Promise<Array<PresentationCredential>>;
 };
 

@@ -2,6 +2,7 @@ import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
 import type { HttpClient, PresentationCredentialsStore } from "../../ports";
 import type { PresentationCredential } from "../../resources";
+import { validateDcqlQuery } from "../../statements";
 
 export type PresentationRequestConfig = {
 	httpClient: HttpClient;
@@ -142,8 +143,15 @@ async function doHandlePresentationRequest(
 		}
 	}
 
+	const { dcql_query } = await validateDcqlQuery(
+		{
+			dcql_query: request.dcql_query,
+		},
+		config,
+	);
+
 	const presentation_credentials =
-		await config.presentationCredentialsStore.fromDcqlQuery(request.dcql_query);
+		await config.presentationCredentialsStore.fromDcqlQuery(dcql_query);
 
 	return {
 		protocol,

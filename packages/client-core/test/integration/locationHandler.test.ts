@@ -899,14 +899,131 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("returns a presentation request with request", async () => {
+	it("resolves a presentation request with request", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
 		const response_mode = "response_mode";
 		const nonce = "nonce";
 		const state = "state";
-		const dcql_query = "dcql_query";
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+		})
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(new TextEncoder().encode("secret"));
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response).to.deep.eq({
+			data: {
+				presentation_credentials: [],
+				client_id: "client_id",
+				nonce: "nonce",
+				response_mode: "response_mode",
+				response_type: "response_type",
+				response_uri: "response_uri",
+				state: "state",
+				dcql_query: null,
+			},
+			nextStep: "presentation",
+			protocol: "oid4vp",
+		});
+	});
+
+	it("rejects with an invalid dcql query", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const dcql_query = {};
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			dcql_query,
+		})
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(new TextEncoder().encode("secret"));
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_location");
+			// @ts-ignore
+			expect(error.data.error?.message).to.eq(
+				"Expected input to be an array, but received 'undefined'",
+			);
+			// @ts-ignore
+			expect(error.data.error?.issues).to.deep.eq([
+				{
+					abortEarly: undefined,
+					abortPipeEarly: undefined,
+					expected: "Array",
+					input: undefined,
+					issues: undefined,
+					kind: "schema",
+					lang: undefined,
+					message: "Expected input to be an array, but received 'undefined'",
+					path: [
+						{
+							input: {},
+							key: "credentials",
+							origin: "value",
+							type: "object",
+							value: undefined,
+						},
+					],
+					received: "undefined",
+					requirement: undefined,
+					type: "array",
+				},
+			]);
+			expect(error.error_description).to.eq("could not parse dcql query");
+		}
+	});
+
+	it("resolves with a valid dcql query", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const dcql_query = {
+			credentials: [
+				{
+					id: "credential_id",
+					format: "dc+sd-jwt",
+				},
+			],
+		};
 
 		const request = await new SignJWT({
 			client_id,
@@ -936,7 +1053,14 @@ describe("location handler - presentation request", () => {
 				response_type: "response_type",
 				response_uri: "response_uri",
 				state: "state",
-				dcql_query: "dcql_query",
+				dcql_query: {
+					credentials: [
+						{
+							format: "dc+sd-jwt",
+							id: "credential_id",
+						},
+					],
+				},
 			},
 			nextStep: "presentation",
 			protocol: "oid4vp",
