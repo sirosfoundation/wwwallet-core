@@ -160,6 +160,12 @@ async function parseLocation(
 	};
 }
 
-function locationErrorData(params: { currentStep: string; location: string }) {
-	return params;
+function locationErrorData({
+	currentStep,
+	location,
+}: {
+	currentStep: string;
+	location: string;
+}) {
+	return { currentStep, location };
 }

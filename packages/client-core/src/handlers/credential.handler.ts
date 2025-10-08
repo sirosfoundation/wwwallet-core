@@ -122,12 +122,26 @@ export function validateCredentialHandlerConfig(config: Config) {
 	}
 }
 
-function credentialErrorData(
-	params: {
-		protocol: string;
-		currentStep: string;
-		nextStep: string;
-	} & CredentialHandlerParams,
-) {
-	return params;
+function credentialErrorData({
+	protocol,
+	currentStep,
+	nextStep,
+	state,
+	access_token,
+	credential_configuration_id,
+	proofs,
+}: {
+	protocol: string;
+	currentStep: string;
+	nextStep: string;
+} & CredentialHandlerParams) {
+	return {
+		protocol,
+		currentStep,
+		nextStep,
+		state,
+		access_token,
+		credential_configuration_id,
+		proofs,
+	};
 }
