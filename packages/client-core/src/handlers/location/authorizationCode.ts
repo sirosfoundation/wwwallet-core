@@ -1,4 +1,5 @@
 import { OauthError } from "../../errors";
+import type { ClientState } from "../../resources";
 import {
 	type ClientStateConfig,
 	clientState,
@@ -35,6 +36,7 @@ export type AuthorizationCodeResponse = {
 	nextStep: AuthorizationCodeNextStep;
 	data: {
 		state: string;
+		client_state: ClientState;
 		token_type: string;
 		access_token: string;
 		expires_in: number;
@@ -139,6 +141,7 @@ async function doHandleAuthorizationCode(
 		nextStep,
 		data: {
 			state,
+			client_state: issuerMetadataClientState,
 			token_type,
 			access_token,
 			expires_in,

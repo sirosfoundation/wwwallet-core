@@ -392,6 +392,16 @@ describe("location handler - authorization code", () => {
 		expect(response).to.deep.eq({
 			data: {
 				state,
+				client_state: {
+					code_verifier: "code_verifier",
+					issuer: "http://issuer.url",
+					issuer_metadata: {
+						nonce_endpoint: "http://nonce.endpoint",
+						token_endpoint: "http://token.endpoint",
+					},
+					issuer_state: "issuer_state",
+					state: "state",
+				},
 				token_type,
 				access_token,
 				c_nonce,
