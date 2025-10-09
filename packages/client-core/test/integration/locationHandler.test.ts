@@ -18,7 +18,9 @@ const locationHandler = locationHandlerFactory({
 	},
 	clientStateStore: clientStateStoreMock(),
 	wallet_callback_url: "http://redirect.uri",
-	presentationCredentialsStore: presentationCredentialsStoreMock(),
+	presentationCredentialsStore: presentationCredentialsStoreMock([
+		{ credential: "credential" }
+	]),
 	dpop_ttl_seconds: 10,
 	static_clients: [],
 });
@@ -1046,7 +1048,12 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				presentation_credentials: [],
+				presentation_credentials: [
+					{
+						credential: "credential",
+						credential_id: "credential_id",
+					}
+				],
 				client_id: "client_id",
 				nonce: "nonce",
 				response_mode: "response_mode",

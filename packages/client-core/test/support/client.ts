@@ -1,3 +1,4 @@
+import type { DcqlQuery } from "dcql";
 import { exportJWK, generateKeyPair } from "jose";
 import type {
 	ClientState,
@@ -128,8 +129,16 @@ export const presentationCredentialsStoreMock = (
 	presentation_credentials: Array<PresentationCredential> = [],
 ) => {
 	return {
-		async fromDcqlQuery(_dcql_query: unknown | null) {
-			return presentation_credentials;
+		async fromDcqlQuery(dcql_query: DcqlQuery.Output | null) {
+			if (!dcql_query) return [];
+			return dcql_query.credentials.flatMap(({ id }) => {
+				return presentation_credentials.map(credential => {
+					return {
+						credential_id: id,
+						credential: credential.credential,
+					}
+				})
+			})
 		},
 	};
 };

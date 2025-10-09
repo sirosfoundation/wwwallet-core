@@ -21,6 +21,7 @@ export type ClientState = {
 
 export type PresentationCredential = {
 	credential: string;
+	credential_id?: string;
 	context?: unknown;
 };
 
