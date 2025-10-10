@@ -132,13 +132,13 @@ export const presentationCredentialsStoreMock = (
 		async fromDcqlQuery(dcql_query: DcqlQuery.Output | null) {
 			if (!dcql_query) return [];
 			return dcql_query.credentials.flatMap(({ id }) => {
-				return presentation_credentials.map(credential => {
+				return presentation_credentials.map((credential) => {
 					return {
 						credential_id: id,
 						credential: credential.credential,
-					}
-				})
-			})
+					};
+				});
+			});
 		},
 	};
 };

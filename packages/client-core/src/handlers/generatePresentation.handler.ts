@@ -1,24 +1,28 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
 import { OauthError } from "../errors";
+import type { PresentationCredential } from "../resources";
+import { type GenerateVpTokenConfig, generateVpToken } from "../statements";
 import { generatePresentationConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 
-export type GeneratePresentationParams = {};
+export type GeneratePresentationParams = {
+	presentation_credentials: Array<PresentationCredential>;
+};
 
-export type GeneratePresentationConfig = {};
+export type GeneratePresentationConfig = GenerateVpTokenConfig;
 
 type GeneratePresentationProtocol = "oid4vp";
 
 type GeneratePresentationNextStep = "send_presentation";
 
-type GeneratePresentationRequest = {};
-
-type TemplateResponse = {
+type GeneratePresentationResponse = {
 	protocol: GeneratePresentationProtocol;
 	nextStep: GeneratePresentationNextStep;
-	data?: {};
+	data: {
+		vp_token: string;
+	};
 };
 
 const protocol = "oid4vp";
@@ -26,17 +30,25 @@ const currentStep = "generate_presentation";
 const nextStep = "send_presentation";
 
 export function generatePresentationHandlerFactory(
-	_config: GeneratePresentationConfig,
+	config: GeneratePresentationConfig,
 ) {
-	return async function generatePresentation(
-		params: GeneratePresentationParams,
-	): Promise<TemplateResponse> {
+	return async function generatePresentation({
+		presentation_credentials,
+	}: GeneratePresentationParams): Promise<GeneratePresentationResponse> {
 		try {
-			const _request = await unit(params);
+			const { vp_token } = await generateVpToken(
+				{
+					presentation_credentials,
+				},
+				config,
+			);
 
 			return {
 				protocol,
 				nextStep,
+				data: {
+					vp_token,
+				},
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
@@ -62,10 +74,6 @@ export function validateGeneratePresentationHandlerConfig(config: Config) {
 			`Could not validate handler generate presentation configuration - ${errorText}`,
 		);
 	}
-}
-
-async function unit(_params: unknown): Promise<GeneratePresentationRequest> {
-	return {};
 }
 
 function generatePresentationErrorData({

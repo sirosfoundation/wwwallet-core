@@ -19,7 +19,7 @@ const locationHandler = locationHandlerFactory({
 	clientStateStore: clientStateStoreMock(),
 	wallet_callback_url: "http://redirect.uri",
 	presentationCredentialsStore: presentationCredentialsStoreMock([
-		{ credential: "credential" }
+		{ credential: "credential" },
 	]),
 	dpop_ttl_seconds: 10,
 	static_clients: [],
@@ -1052,7 +1052,7 @@ describe("location handler - presentation request", () => {
 					{
 						credential: "credential",
 						credential_id: "credential_id",
-					}
+					},
 				],
 				client_id: "client_id",
 				nonce: "nonce",

@@ -27,6 +27,10 @@ export type PresentationCredentialsStore = {
 	): Promise<Array<PresentationCredential>>;
 };
 
+export type VpTokenSigner = {
+	sign(payload: Record<string, Array<string>>): Promise<string>;
+};
+
 export type HttpClient = {
 	get: <T>(url: string) => Promise<{ data: T }>;
 	post: <T>(
