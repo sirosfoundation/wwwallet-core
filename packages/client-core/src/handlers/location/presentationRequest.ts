@@ -1,7 +1,10 @@
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
 import type { HttpClient, PresentationCredentialsStore } from "../../ports";
-import type { PresentationCredential } from "../../resources";
+import type {
+	PresentationCredential,
+	PresentationRequest,
+} from "../../resources";
 import { validateDcqlQuery } from "../../statements";
 
 export type PresentationRequestConfig = {
@@ -24,17 +27,6 @@ export type PresentationRequestLocation = {
 	scope: string | null;
 	request: string | null;
 	request_uri: string | null;
-};
-
-type PresentationRequest = {
-	client_id: string;
-	response_uri: string;
-	response_type: string;
-	response_mode: string;
-	nonce: string;
-	state: string;
-	dcql_query: string | null;
-	scope?: string;
 };
 
 export type PresentationRequestResponse = {

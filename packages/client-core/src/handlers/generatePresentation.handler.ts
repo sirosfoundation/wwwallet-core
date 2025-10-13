@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
 import { OauthError } from "../errors";
-import type { PresentationCredential } from "../resources";
+import type { PresentationCredential, PresentationRequest } from "../resources";
 import { type GenerateVpTokenConfig, generateVpToken } from "../statements";
 import { generatePresentationConfigSchema } from "./schemas";
 
@@ -9,6 +9,7 @@ const ajv = new Ajv();
 
 export type GeneratePresentationParams = {
 	presentation_credentials: Array<PresentationCredential>;
+	presentation_request: PresentationRequest;
 };
 
 export type GeneratePresentationConfig = GenerateVpTokenConfig;
@@ -22,6 +23,7 @@ type GeneratePresentationResponse = {
 	nextStep: GeneratePresentationNextStep;
 	data: {
 		vp_token: string;
+		presentation_request: PresentationRequest;
 	};
 };
 
@@ -34,6 +36,7 @@ export function generatePresentationHandlerFactory(
 ) {
 	return async function generatePresentation({
 		presentation_credentials,
+		presentation_request,
 	}: GeneratePresentationParams): Promise<GeneratePresentationResponse> {
 		try {
 			const { vp_token } = await generateVpToken(
@@ -48,6 +51,7 @@ export function generatePresentationHandlerFactory(
 				nextStep,
 				data: {
 					vp_token,
+					presentation_request,
 				},
 			};
 		} catch (error) {

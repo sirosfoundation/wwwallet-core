@@ -6,6 +6,16 @@ import { generatePresentationHandlerFactory } from "../../src/handlers";
 
 describe("generatePresentationHandler", () => {
 	const vpTokenSecret = new TextEncoder().encode("secret");
+	const presentation_request = {
+		client_id: "client_id",
+		response_uri: "response_uri",
+		response_type: "response_type",
+		response_mode: "response_mode",
+		nonce: "nonce",
+		state: "state",
+		dcql_query: "dcql_query",
+		scope: "scope",
+	};
 	const config = {
 		vpTokenSigner: {
 			sign: async (payload: Record<string, Array<string>>) => {
@@ -22,11 +32,13 @@ describe("generatePresentationHandler", () => {
 		const presentation_credentials: Array<PresentationCredential> = [];
 
 		const response = await generatePresentationHandler({
+			presentation_request,
 			presentation_credentials,
 		});
 
 		expect(response).to.deep.eq({
 			data: {
+				presentation_request,
 				vp_token:
 					"eyJhbGciOiJIUzI1NiJ9.e30.XmNK3GpH3Ys_7wsYBfq4C3M6goz71I7dTgUkuIa5lyQ",
 			},
@@ -48,11 +60,13 @@ describe("generatePresentationHandler", () => {
 		];
 
 		const response = await generatePresentationHandler({
+			presentation_request,
 			presentation_credentials,
 		});
 
 		expect(response).to.deep.eq({
 			data: {
+				presentation_request,
 				vp_token:
 					"eyJhbGciOiJIUzI1NiJ9.eyJjcmVkZW50aWFsX2lkIjpbImNyZWRlbnRpYWwiXX0.qMo0az-o1HFLi1zBibemaEDhbf6QuL0sgsEmNfw-pow",
 			},
@@ -85,6 +99,7 @@ describe("generatePresentationHandler", () => {
 
 			try {
 				await generatePresentationHandler({
+					presentation_request,
 					presentation_credentials,
 				});
 

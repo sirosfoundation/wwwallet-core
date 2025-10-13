@@ -1,4 +1,5 @@
 import type { JWK } from "jose";
+
 export type OauthClient = {
 	issuer: string;
 	client_id: string;
@@ -23,6 +24,17 @@ export type PresentationCredential = {
 	credential: string;
 	credential_id?: string;
 	context?: unknown;
+};
+
+export type PresentationRequest = {
+	client_id: string;
+	response_uri: string;
+	response_type: string;
+	response_mode: string;
+	nonce: string;
+	state: string;
+	dcql_query: string | null;
+	scope?: string;
 };
 
 export type CredentialConfigurationSupported = {
