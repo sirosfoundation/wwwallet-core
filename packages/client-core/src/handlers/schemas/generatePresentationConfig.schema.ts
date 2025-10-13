@@ -1,5 +1,7 @@
 export const generatePresentationConfigSchema = {
 	type: "object",
-	properties: {},
-	required: [],
+	properties: {
+		vpTokenSigner: {},
+	},
+	required: ["vpTokenSigner"],
 };
