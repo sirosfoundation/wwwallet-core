@@ -864,13 +864,15 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				presentation_credentials: [],
-				client_id: "client_id",
-				nonce: "nonce",
-				response_mode: "response_mode",
-				response_type: "response_type",
-				response_uri: "response_uri",
-				state: "state",
+				presentation_request: {
+					client_id: "client_id",
+					nonce: "nonce",
+					response_mode: "response_mode",
+					response_type: "response_type",
+					response_uri: "response_uri",
+					state: "state",
+					dcql_query: null,
+				},
 				dcql_query: null,
 			},
 			nextStep: "generate_presentation",
@@ -929,13 +931,15 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				presentation_credentials: [],
-				client_id: "client_id",
-				nonce: "nonce",
-				response_mode: "response_mode",
-				response_type: "response_type",
-				response_uri: "response_uri",
-				state: "state",
+				presentation_request: {
+					client_id: "client_id",
+					nonce: "nonce",
+					response_mode: "response_mode",
+					response_type: "response_type",
+					response_uri: "response_uri",
+					state: "state",
+					dcql_query: null,
+				},
 				dcql_query: null,
 			},
 			nextStep: "generate_presentation",
@@ -1048,23 +1052,29 @@ describe("location handler - presentation request", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				presentation_credentials: [
-					{
-						credential: "credential",
-						credential_id: "credential_id",
+				presentation_request: {
+					client_id: "client_id",
+					nonce: "nonce",
+					response_mode: "response_mode",
+					response_type: "response_type",
+					response_uri: "response_uri",
+					state: "state",
+					dcql_query: {
+						credentials: [
+							{
+								format: "dc+sd-jwt",
+								id: "credential_id",
+							},
+						],
 					},
-				],
-				client_id: "client_id",
-				nonce: "nonce",
-				response_mode: "response_mode",
-				response_type: "response_type",
-				response_uri: "response_uri",
-				state: "state",
+				},
 				dcql_query: {
 					credentials: [
 						{
 							format: "dc+sd-jwt",
 							id: "credential_id",
+							multiple: false,
+							require_cryptographic_holder_binding: true,
 						},
 					],
 				},
@@ -1117,13 +1127,15 @@ describe("location handler - presentation request", () => {
 
 			expect(response).to.deep.eq({
 				data: {
-					presentation_credentials: [],
-					client_id: "client_id",
-					nonce: "nonce",
-					response_mode: "response_mode",
-					response_type: "response_type",
-					response_uri: "response_uri",
-					state: "state",
+					presentation_request: {
+						client_id: "client_id",
+						nonce: "nonce",
+						response_mode: "response_mode",
+						response_type: "response_type",
+						response_uri: "response_uri",
+						state: "state",
+						dcql_query: null,
+					},
 					dcql_query: null,
 				},
 				nextStep: "generate_presentation",

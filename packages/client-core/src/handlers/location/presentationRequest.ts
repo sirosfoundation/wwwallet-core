@@ -1,10 +1,8 @@
+import type { DcqlQuery } from "dcql";
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
 import type { HttpClient, PresentationCredentialsStore } from "../../ports";
-import type {
-	PresentationCredential,
-	PresentationRequest,
-} from "../../resources";
+import type { PresentationRequest } from "../../resources";
 import { validateDcqlQuery } from "../../statements";
 
 export type PresentationRequestConfig = {
@@ -33,15 +31,8 @@ export type PresentationRequestResponse = {
 	protocol: PresentationRequestProtocol;
 	nextStep: PresentationRequestNextStep;
 	data: {
-		presentation_credentials: Array<PresentationCredential>;
-		client_id: string;
-		response_uri: string;
-		response_type: string;
-		response_mode: string;
-		nonce: string;
-		state: string;
-		dcql_query: string | null;
-		scope?: string;
+		dcql_query: DcqlQuery.Output | null;
+		presentation_request: PresentationRequest;
 	};
 };
 
@@ -83,7 +74,7 @@ async function doHandlePresentationRequest(
 		"state",
 	];
 
-	const request: PresentationRequest = {
+	const presentation_request: PresentationRequest = {
 		client_id: location.client_id || "",
 		response_uri: "",
 		response_type: "",
@@ -99,7 +90,7 @@ async function doHandlePresentationRequest(
 				.get<string>(location.request_uri)
 				.then(({ data }) => data);
 			const payload = decodeJwt<PresentationRequest>(response);
-			Object.assign(request, payload);
+			Object.assign(presentation_request, payload);
 		} catch (error) {
 			throw new OauthError(
 				"invalid_request",
@@ -110,7 +101,7 @@ async function doHandlePresentationRequest(
 	} else if (location.request) {
 		try {
 			const payload = decodeJwt<PresentationRequest>(location.request);
-			Object.assign(request, payload);
+			Object.assign(presentation_request, payload);
 		} catch (error) {
 			throw new OauthError(
 				"invalid_location",
@@ -121,13 +112,13 @@ async function doHandlePresentationRequest(
 	} else {
 		for (const parameter of parameters) {
 			if (location[parameter]) {
-				request[parameter] = location[parameter];
+				presentation_request[parameter] = location[parameter];
 			}
 		}
 	}
 
 	for (const parameter of parameters) {
-		if (!request[parameter]) {
+		if (!presentation_request[parameter]) {
 			throw new OauthError(
 				"invalid_location",
 				`${parameter.replace("_", " ")} parameter is missing`,
@@ -137,20 +128,17 @@ async function doHandlePresentationRequest(
 
 	const { dcql_query } = await validateDcqlQuery(
 		{
-			dcql_query: request.dcql_query,
+			dcql_query: presentation_request.dcql_query,
 		},
 		config,
 	);
-
-	const presentation_credentials =
-		await config.presentationCredentialsStore.fromDcqlQuery(dcql_query);
 
 	return {
 		protocol,
 		nextStep,
 		data: {
-			presentation_credentials,
-			...request,
+			dcql_query,
+			presentation_request,
 		},
 	};
 }
