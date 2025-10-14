@@ -33,8 +33,8 @@ const protocol = "oid4vp";
 const currentStep = "send_presentation";
 const nextStep = "presentation_success";
 
-export function sendPresentationFactory(config: SendPresentationConfig) {
-	return async function sendPresentation({
+export function sendPresentationHandlerFactory(config: SendPresentationConfig) {
+	return async function sendPresentationHandler({
 		presentation_request,
 		vp_token,
 	}: SendPresentationParams): Promise<SendPresentationResponse> {
@@ -69,7 +69,7 @@ export function sendPresentationFactory(config: SendPresentationConfig) {
 	};
 }
 
-export function validateSendPresentationConfig(config: Config) {
+export function validateSendPresentationHandlerConfig(config: Config) {
 	const validate = ajv.compile(sendPresentationConfigSchema);
 	if (!validate(config)) {
 		const errorText = ajv.errorsText(validate.errors);

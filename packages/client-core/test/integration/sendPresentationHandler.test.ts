@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from "vitest";
 import { OauthError } from "../../src/errors";
-import { sendPresentationFactory } from "../../src/handlers";
+import { sendPresentationHandlerFactory } from "../../src/handlers";
 import { fetchIssuerMetadataMock, httpClientPostMock } from "../support/client";
 
 describe("sendPresentation", () => {
@@ -21,7 +21,7 @@ describe("sendPresentation", () => {
 			get: fetchIssuerMetadataMock({}),
 		},
 	};
-	const sendPresentation = sendPresentationFactory(config);
+	const sendPresentation = sendPresentationHandlerFactory(config);
 
 	it("resolves with empty presentation credentials", async () => {
 		const vp_token = "vp_token";
@@ -55,7 +55,7 @@ describe("sendPresentation", () => {
 				get: fetchIssuerMetadataMock({}),
 			},
 		};
-		const sendPresentation = sendPresentationFactory(config);
+		const sendPresentation = sendPresentationHandlerFactory(config);
 
 		it("resolves with empty presentation credentials", async () => {
 			try {

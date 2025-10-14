@@ -1,13 +1,12 @@
 import type { DcqlQuery } from "dcql";
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
-import type { HttpClient, PresentationCredentialsStore } from "../../ports";
+import type { HttpClient } from "../../ports";
 import type { PresentationRequest } from "../../resources";
 import { validateDcqlQuery } from "../../statements";
 
 export type PresentationRequestConfig = {
 	httpClient: HttpClient;
-	presentationCredentialsStore: PresentationCredentialsStore;
 };
 
 type PresentationRequestProtocol = "oid4vp";
