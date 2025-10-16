@@ -48,6 +48,7 @@ type ProtocolLocation = {
 	nonce: string | null;
 	state: string | null;
 	dcql_query: string | null;
+	client_metadata: string | null;
 	scope: string | null;
 	request: string | null;
 	request_uri: string | null;
@@ -138,6 +139,7 @@ async function parseLocation(
 	const nonce = searchParams.get("nonce");
 	const state = searchParams.get("state");
 	const dcql_query = searchParams.get("dcql_query");
+	const client_metadata = searchParams.get("client_metadata");
 	const scope = searchParams.get("scope");
 	const request = searchParams.get("request");
 	const request_uri = searchParams.get("request_uri");
@@ -154,6 +156,7 @@ async function parseLocation(
 		nonce,
 		state,
 		dcql_query,
+		client_metadata,
 		scope,
 		request,
 		request_uri,

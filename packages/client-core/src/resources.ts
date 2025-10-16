@@ -1,3 +1,4 @@
+import type { DcqlQuery } from "dcql";
 import type { JWK } from "jose";
 
 export type OauthClient = {
@@ -26,6 +27,14 @@ export type PresentationCredential = {
 	context?: unknown;
 };
 
+export type ClientMetadata = {
+	jwks?: {
+		keys: Array<JWK>;
+	};
+	encrypted_response_enc_values_supported?: Array<string>;
+	vp_formats_supported: Record<string, unknown>;
+};
+
 export type PresentationRequest = {
 	client_id: string;
 	response_uri: string;
@@ -33,7 +42,8 @@ export type PresentationRequest = {
 	response_mode: string;
 	nonce: string;
 	state: string;
-	dcql_query: string | null;
+	dcql_query: DcqlQuery.Output | null;
+	client_metadata: ClientMetadata | null;
 	scope?: string;
 };
 

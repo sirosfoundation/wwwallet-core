@@ -872,8 +872,10 @@ describe("location handler - presentation request", () => {
 					response_uri: "response_uri",
 					state: "state",
 					dcql_query: null,
+					client_metadata: null,
 				},
 				dcql_query: null,
+				client_metadata: null,
 			},
 			nextStep: "generate_presentation",
 			protocol: "oid4vp",
@@ -939,8 +941,136 @@ describe("location handler - presentation request", () => {
 					response_uri: "response_uri",
 					state: "state",
 					dcql_query: null,
+					client_metadata: null,
 				},
 				dcql_query: null,
+				client_metadata: null,
+			},
+			nextStep: "generate_presentation",
+			protocol: "oid4vp",
+		});
+	});
+
+	it("rejects with invalid client metadata", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {};
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(new TextEncoder().encode("secret"));
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"could not validate client metadata",
+			);
+			expect(error.data).to.deep.eq({
+				currentStep: "parse_location",
+				error: [
+					{
+						instancePath: "",
+						keyword: "required",
+						message: "must have required property 'vp_formats_supported'",
+						params: {
+							missingProperty: "vp_formats_supported",
+						},
+						schemaPath: "#/required",
+					},
+				],
+				location: undefined,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		}
+	});
+
+	it("resolves with client metadata", async () => {
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {
+			jwks: { keys: [{}] },
+			encrypted_response_enc_values_supported: ["ECDH-ES"],
+			vp_formats_supported: { "vc+jpt": {} },
+		};
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(new TextEncoder().encode("secret"));
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response).to.deep.eq({
+			data: {
+				presentation_request: {
+					client_id: "client_id",
+					nonce: "nonce",
+					response_mode: "response_mode",
+					response_type: "response_type",
+					response_uri: "response_uri",
+					state: "state",
+					dcql_query: null,
+					client_metadata: {
+						encrypted_response_enc_values_supported: ["ECDH-ES"],
+						jwks: {
+							keys: [{}],
+						},
+						vp_formats_supported: {
+							"vc+jpt": {},
+						},
+					},
+				},
+				dcql_query: null,
+				client_metadata: {
+					encrypted_response_enc_values_supported: ["ECDH-ES"],
+					jwks: {
+						keys: [{}],
+					},
+					vp_formats_supported: {
+						"vc+jpt": {},
+					},
+				},
 			},
 			nextStep: "generate_presentation",
 			protocol: "oid4vp",
@@ -1067,6 +1197,7 @@ describe("location handler - presentation request", () => {
 							},
 						],
 					},
+					client_metadata: null,
 				},
 				dcql_query: {
 					credentials: [
@@ -1078,6 +1209,7 @@ describe("location handler - presentation request", () => {
 						},
 					],
 				},
+				client_metadata: null,
 			},
 			nextStep: "generate_presentation",
 			protocol: "oid4vp",
@@ -1135,8 +1267,10 @@ describe("location handler - presentation request", () => {
 						response_uri: "response_uri",
 						state: "state",
 						dcql_query: null,
+						client_metadata: null,
 					},
 					dcql_query: null,
+					client_metadata: null,
 				},
 				nextStep: "generate_presentation",
 				protocol: "oid4vp",

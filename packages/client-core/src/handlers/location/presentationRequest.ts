@@ -2,8 +2,8 @@ import type { DcqlQuery } from "dcql";
 import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
 import type { HttpClient } from "../../ports";
-import type { PresentationRequest } from "../../resources";
-import { validateDcqlQuery } from "../../statements";
+import type { ClientMetadata, PresentationRequest } from "../../resources";
+import { validateClientMetadata, validateDcqlQuery } from "../../statements";
 
 export type PresentationRequestConfig = {
 	httpClient: HttpClient;
@@ -20,7 +20,8 @@ export type PresentationRequestLocation = {
 	response_mode: string | null;
 	nonce: string | null;
 	state: string | null;
-	dcql_query: string | null;
+	client_metadata: unknown | null;
+	dcql_query: unknown | null;
 	scope: string | null;
 	request: string | null;
 	request_uri: string | null;
@@ -31,6 +32,7 @@ export type PresentationRequestResponse = {
 	nextStep: PresentationRequestNextStep;
 	data: {
 		dcql_query: DcqlQuery.Output | null;
+		client_metadata: ClientMetadata | null;
 		presentation_request: PresentationRequest;
 	};
 };
@@ -80,6 +82,7 @@ async function doHandlePresentationRequest(
 		response_mode: "",
 		nonce: "",
 		state: "",
+		client_metadata: null,
 		dcql_query: null,
 	};
 
@@ -132,11 +135,19 @@ async function doHandlePresentationRequest(
 		config,
 	);
 
+	const { client_metadata } = await validateClientMetadata(
+		{
+			client_metadata: presentation_request.client_metadata,
+		},
+		config,
+	);
+
 	return {
 		protocol,
 		nextStep,
 		data: {
 			dcql_query,
+			client_metadata,
 			presentation_request,
 		},
 	};
