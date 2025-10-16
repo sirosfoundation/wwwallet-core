@@ -313,14 +313,13 @@ describe("location handler - authorization code", () => {
 					nonce_endpoint: "http://nonce.endpoint",
 				},
 			}),
-			wallet_callback_url: "http://redirect.uri",
+			wallet_callback_url: redirect_uri,
 			dpop_ttl_seconds: 10,
 			static_clients: [
 				{
 					client_id: "id",
 					client_secret: "secret",
 					issuer,
-					redirect_uri,
 				},
 			],
 		};
@@ -454,7 +453,6 @@ describe("location handler - credential offer", () => {
 				issuer: "http://issuer.url",
 				client_id: "client_id",
 				client_secret: "client_secret",
-				redirect_uri: "http://wallet.url",
 			},
 		],
 		wallet_callback_url: "http://redirect.uri",
