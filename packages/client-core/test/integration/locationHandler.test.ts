@@ -16,6 +16,7 @@ const locationHandler = locationHandlerFactory({
 		},
 	},
 	clientStateStore: clientStateStoreMock(),
+	wallet_callback_url: "http://redirect.uri",
 	dpop_ttl_seconds: 10,
 	static_clients: [],
 });
@@ -118,6 +119,7 @@ describe("location handler - authorization code", () => {
 				},
 			},
 			clientStateStore: clientStateStoreMock({ issuer }),
+			wallet_callback_url: "http://redirect.uri",
 			dpop_ttl_seconds: 10,
 			static_clients: [
 				{
@@ -159,6 +161,7 @@ describe("location handler - authorization code", () => {
 				issuer,
 				issuer_metadata: {},
 			}),
+			wallet_callback_url: "http://redirect.uri",
 			dpop_ttl_seconds: 10,
 			static_clients: [
 				{
@@ -231,6 +234,7 @@ describe("location handler - authorization code", () => {
 					token_endpoint: "http://token.endpoint",
 				},
 			}),
+			wallet_callback_url: "http://redirect.uri",
 			dpop_ttl_seconds: 10,
 			static_clients: [
 				{
@@ -309,6 +313,7 @@ describe("location handler - authorization code", () => {
 					nonce_endpoint: "http://nonce.endpoint",
 				},
 			}),
+			wallet_callback_url: "http://redirect.uri",
 			dpop_ttl_seconds: 10,
 			static_clients: [
 				{
@@ -452,6 +457,7 @@ describe("location handler - credential offer", () => {
 				redirect_uri: "http://wallet.url",
 			},
 		],
+		wallet_callback_url: "http://redirect.uri",
 		dpop_ttl_seconds: 10,
 	};
 	const locationHandler = locationHandlerFactory(config);

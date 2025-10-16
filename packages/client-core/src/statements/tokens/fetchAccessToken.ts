@@ -11,6 +11,7 @@ export type FetchAccessTokenParams = {
 
 export type FetchAccessTokenConfig = {
 	httpClient: HttpClient;
+	wallet_callback_url: string;
 };
 
 type TokenResponse = {
@@ -41,7 +42,7 @@ export async function fetchAccessToken(
 						code,
 						client_id: client.client_id,
 						client_secret: client.client_secret,
-						redirect_uri: client.redirect_uri,
+						redirect_uri: config.wallet_callback_url,
 						code_verifier: client_state.code_verifier,
 					},
 					{

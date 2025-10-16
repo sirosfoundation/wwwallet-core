@@ -4,6 +4,7 @@ export const locationHandlerConfigSchema = {
 		httpClient: {},
 		clientStateStore: {},
 		dpop_ttl_seconds: { type: "number" },
+		wallet_callback_url: { type: "string" },
 		static_clients: {
 			type: "array",
 			items: {
@@ -19,6 +20,7 @@ export const locationHandlerConfigSchema = {
 	},
 	required: [
 		"httpClient",
+		"wallet_callback_url",
 		"clientStateStore",
 		"static_clients",
 		"dpop_ttl_seconds",
