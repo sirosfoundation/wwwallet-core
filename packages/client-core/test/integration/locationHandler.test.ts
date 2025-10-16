@@ -732,10 +732,15 @@ describe("location handler - credential offer", () => {
 });
 
 describe("location handler - presentation request", () => {
-	it("rejects without response uri", async () => {
+	it("rejects with query parameters", async () => {
 		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
 		const location = {
-			search: `?client_id=${client_id}`,
+			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}&nonce=${nonce}&state=${state}`,
 		};
 
 		try {
@@ -752,134 +757,6 @@ describe("location handler - presentation request", () => {
 				"response uri parameter is missing",
 			);
 		}
-	});
-
-	it("rejects without response type", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const location = {
-			search: `?client_id=${client_id}&response_uri=${response_uri}`,
-		};
-
-		try {
-			// @ts-ignore
-			await locationHandler(location);
-
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				throw error;
-			}
-			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq(
-				"response type parameter is missing",
-			);
-		}
-	});
-
-	it("rejects without response mode", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const location = {
-			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}`,
-		};
-
-		try {
-			// @ts-ignore
-			await locationHandler(location);
-
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				throw error;
-			}
-			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq(
-				"response mode parameter is missing",
-			);
-		}
-	});
-
-	it("rejects without nonce", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const location = {
-			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}`,
-		};
-
-		try {
-			// @ts-ignore
-			await locationHandler(location);
-
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				throw error;
-			}
-			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq("nonce parameter is missing");
-		}
-	});
-
-	it("rejects without state", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const location = {
-			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}&nonce=${nonce}`,
-		};
-
-		try {
-			// @ts-ignore
-			await locationHandler(location);
-
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				throw error;
-			}
-			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq("state parameter is missing");
-		}
-	});
-
-	it("returns a presentation request", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const location = {
-			search: `?client_id=${client_id}&response_uri=${response_uri}&response_type=${response_type}&response_mode=${response_mode}&nonce=${nonce}&state=${state}`,
-		};
-
-		// @ts-ignore
-		const response = await locationHandler(location);
-
-		expect(response).to.deep.eq({
-			data: {
-				presentation_request: {
-					client_id: "client_id",
-					nonce: "nonce",
-					response_mode: "response_mode",
-					response_type: "response_type",
-					response_uri: "response_uri",
-					state: "state",
-					dcql_query: null,
-					client_metadata: null,
-				},
-				dcql_query: null,
-				client_metadata: null,
-			},
-			nextStep: "generate_presentation",
-			protocol: "oid4vp",
-		});
 	});
 
 	it("rejects with invalid request", async () => {

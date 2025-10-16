@@ -15,14 +15,6 @@ type PresentationRequestNextStep = "generate_presentation";
 
 export type PresentationRequestLocation = {
 	client_id: string | null;
-	response_uri: string | null;
-	response_type: string | null;
-	response_mode: string | null;
-	nonce: string | null;
-	state: string | null;
-	client_metadata: unknown | null;
-	dcql_query: unknown | null;
-	scope: string | null;
 	request: string | null;
 	request_uri: string | null;
 };
@@ -110,12 +102,6 @@ async function doHandlePresentationRequest(
 				"could not parse presentation request",
 				{ error },
 			);
-		}
-	} else {
-		for (const parameter of parameters) {
-			if (location[parameter]) {
-				presentation_request[parameter] = location[parameter];
-			}
 		}
 	}
 
