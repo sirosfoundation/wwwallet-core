@@ -1,24 +1,46 @@
 import { jwtVerify, SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
-import type { PresentationCredential } from "../../src";
+import type { PresentationCredential, PresentationRequest } from "../../src";
 import { OauthError } from "../../src/errors";
 import { generatePresentationHandlerFactory } from "../../src/handlers";
 
 describe("generatePresentationHandler", () => {
 	const vpTokenSecret = new TextEncoder().encode("secret");
-	const presentation_request = {
+	const client_metadata = {
+		jwks: { keys: [{}] },
+		encrypted_response_enc_values_supported: ["ECDH-ES"],
+		vp_formats_supported: { "vc+jpt": {} },
+	};
+	const dcql_query = {
+		credentials: [
+			{
+				id: "credential_id",
+				require_cryptographic_holder_binding: true,
+				format: "vc+sd-jwt",
+				multiple: false,
+			},
+		],
+	};
+	const presentation_request: PresentationRequest = {
 		client_id: "client_id",
 		response_uri: "response_uri",
 		response_type: "response_type",
 		response_mode: "response_mode",
 		nonce: "nonce",
 		state: "state",
-		dcql_query: "dcql_query",
+		client_metadata,
+		// @ts-expect-error
+		dcql_query,
 		scope: "scope",
 	};
 	const config = {
 		vpTokenSigner: {
-			sign: async (payload: Record<string, Array<string>>) => {
+			sign: async (
+				payload: Record<string, Array<string>>,
+				presentationRequest: PresentationRequest,
+			) => {
+				expect(presentationRequest).to.deep.eq(presentation_request);
+
 				return await new SignJWT(payload)
 					.setProtectedHeader({ alg: "HS256" })
 					.sign(vpTokenSecret);

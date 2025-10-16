@@ -42,6 +42,7 @@ export function generatePresentationHandlerFactory(
 			const { vp_token } = await generateVpToken(
 				{
 					presentation_credentials,
+					presentation_request,
 				},
 				config,
 			);

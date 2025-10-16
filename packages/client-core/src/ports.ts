@@ -3,6 +3,7 @@ import type {
 	ClientState,
 	IssuerMetadata,
 	PresentationCredential,
+	PresentationRequest,
 } from "./resources";
 
 export type ClientStateStore = {
@@ -28,7 +29,10 @@ export type PresentationCredentialsStore = {
 };
 
 export type VpTokenSigner = {
-	sign(payload: Record<string, Array<string>>): Promise<string>;
+	sign(
+		payload: Record<string, Array<string>>,
+		presentation_request: PresentationRequest,
+	): Promise<string>;
 };
 
 export type HttpClient = {

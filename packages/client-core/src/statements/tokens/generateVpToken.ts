@@ -1,9 +1,13 @@
 import { OauthError } from "../../errors";
 import type { VpTokenSigner } from "../../ports";
-import type { PresentationCredential } from "../../resources";
+import type {
+	PresentationCredential,
+	PresentationRequest,
+} from "../../resources";
 
 export type GenerateVpTokenParams = {
 	presentation_credentials: Array<PresentationCredential>;
+	presentation_request: PresentationRequest;
 };
 
 export type GenerateVpTokenConfig = {
@@ -11,7 +15,7 @@ export type GenerateVpTokenConfig = {
 };
 
 export async function generateVpToken(
-	{ presentation_credentials }: GenerateVpTokenParams,
+	{ presentation_credentials, presentation_request }: GenerateVpTokenParams,
 	config: GenerateVpTokenConfig,
 ) {
 	const vpTokenPayload: Record<string, Array<string>> = {};
@@ -27,7 +31,10 @@ export async function generateVpToken(
 	});
 
 	try {
-		const vp_token = await config.vpTokenSigner.sign(vpTokenPayload);
+		const vp_token = await config.vpTokenSigner.sign(
+			vpTokenPayload,
+			presentation_request,
+		);
 
 		return { vp_token };
 	} catch (error) {
