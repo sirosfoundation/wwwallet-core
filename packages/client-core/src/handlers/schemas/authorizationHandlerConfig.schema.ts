@@ -3,7 +3,7 @@ export const authorizationHandlerConfigSchema = {
 	properties: {
 		httpClient: {},
 		clientStateStore: {},
-		wallet_url: { type: "string" },
+		wallet_callback_url: { type: "string" },
 		static_clients: {
 			type: "array",
 			items: {
@@ -17,5 +17,10 @@ export const authorizationHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["httpClient", "clientStateStore", "wallet_url", "static_clients"],
+	required: [
+		"httpClient",
+		"clientStateStore",
+		"wallet_callback_url",
+		"static_clients",
+	],
 };

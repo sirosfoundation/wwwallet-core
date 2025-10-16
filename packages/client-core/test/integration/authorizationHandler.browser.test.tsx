@@ -12,7 +12,7 @@ import {
 const issuer = "http://issuer.url";
 const issuer_state = "issuer_state";
 const config = {
-	wallet_url: "http://wallet.url",
+	wallet_callback_url: "http://wallet.url",
 	httpClient: {
 		post: async (url: string) => {
 			return { data: { request_uri: url } };

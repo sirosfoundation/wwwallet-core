@@ -9,7 +9,7 @@ export type FetchAuthorizationUrlParams = {
 };
 
 export type FetchAuthorizationUrlConfig = {
-	wallet_url: string;
+	wallet_callback_url: string;
 	httpClient: HttpClient;
 };
 
@@ -40,7 +40,7 @@ export async function fetchAuthorizationUrl(
 		client_state.issuer_metadata.pushed_authorization_request_endpoint,
 	);
 
-	pushedAuthorizationRequestParams.redirect_uri = config.wallet_url;
+	pushedAuthorizationRequestParams.redirect_uri = config.wallet_callback_url;
 
 	if (!client) {
 		throw new OauthError(

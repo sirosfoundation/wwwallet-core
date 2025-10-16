@@ -6,5 +6,6 @@ export type Config = {
 	clientStateStore?: ClientStateStore;
 	static_clients?: Array<OauthClient>;
 	wallet_url?: string;
+	wallet_callback_url?: string;
 	dpop_ttl_seconds?: number;
 };

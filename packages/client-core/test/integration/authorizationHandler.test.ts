@@ -14,7 +14,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 		config: unknown;
 	} | null = null;
 	const config = {
-		wallet_url: "http://wallet.url",
+		wallet_callback_url: "http://wallet.url",
 		httpClient: {
 			post: async <T>(
 				url: string,
@@ -132,7 +132,7 @@ describe("authorizationRequestHandler - pushed authorization requests", () => {
 			issuer,
 		).toString();
 		const config = {
-			wallet_url: "http://wallet.url",
+			wallet_callback_url: "http://wallet.url",
 			httpClient: {
 				post: async <T>(
 					url: string,
@@ -219,7 +219,7 @@ describe("authorizationRequestHandler - authorization challenge", () => {
 		config: unknown;
 	} | null = null;
 	const config = {
-		wallet_url: "http://wallet.url",
+		wallet_callback_url: "http://wallet.url",
 		httpClient: {
 			post: async <T>(
 				url: string,
@@ -278,7 +278,7 @@ describe("authorizationRequestHandler - no authorization method", () => {
 		authorization_endpoint: new URL("/authorize", issuer).toString(),
 	};
 	const config = {
-		wallet_url: "http://wallet.url",
+		wallet_callback_url: "http://wallet.url",
 		httpClient: {
 			post: async <T>(url: string) => {
 				return { data: { request_uri: url } as T };
