@@ -28,6 +28,7 @@ export type PresentationCredential = {
 };
 
 export type ClientMetadata = {
+	jwks_uri?: string;
 	jwks?: {
 		keys: Array<JWK>;
 	};
