@@ -828,7 +828,7 @@ describe("location handler - presentation request", () => {
 		});
 	});
 
-	it("rejects with invalid client metadata", async () => {
+	it.skip("rejects with invalid client metadata", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";

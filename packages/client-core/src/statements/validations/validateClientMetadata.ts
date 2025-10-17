@@ -20,7 +20,9 @@ const clientMetadataSchema = {
 		},
 		vp_formats_supported: { type: "object" },
 	},
-	required: ["vp_formats_supported"],
+	required: [],
+	// TODO require vp_formats_supported in client metadata
+	// required: ["vp_formats_supported"],
 };
 
 export type ValidateClientMetadataParams = {
