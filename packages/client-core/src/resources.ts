@@ -47,6 +47,12 @@ export type PresentationRequest = {
 	scope?: string;
 };
 
+export type PresentationResponse = {
+	vp_token: string;
+	presentation_submission?: unknown;
+	state?: string;
+};
+
 export type CredentialConfigurationSupported = {
 	format: string;
 	vct?: string;

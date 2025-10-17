@@ -4,6 +4,7 @@ import type {
 	IssuerMetadata,
 	PresentationCredential,
 	PresentationRequest,
+	PresentationResponse,
 } from "./resources";
 
 export type ClientStateStore = {
@@ -29,8 +30,12 @@ export type PresentationCredentialsStore = {
 };
 
 export type VpTokenSigner = {
-	sign(
+	sign?(
 		payload: Record<string, Array<string>>,
+		presentation_request: PresentationRequest,
+	): Promise<string>;
+	encryptResponse?(
+		response: PresentationResponse,
 		presentation_request: PresentationRequest,
 	): Promise<string>;
 };

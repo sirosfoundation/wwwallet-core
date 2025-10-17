@@ -1,4 +1,5 @@
 import { assert, describe, expect, it } from "vitest";
+import type { PresentationRequest, PresentationResponse } from "../../src";
 import { OauthError } from "../../src/errors";
 import { sendPresentationHandlerFactory } from "../../src/handlers";
 import { fetchIssuerMetadataMock, httpClientPostMock } from "../support/client";
@@ -11,7 +12,8 @@ describe("sendPresentation", () => {
 		response_mode: "response_mode",
 		nonce: "nonce",
 		state: "state",
-		dcql_query: "dcql_query",
+		client_metadata: null,
+		dcql_query: null,
 		scope: "scope",
 	};
 	const redirect_uri = "http://redirect.uri";
@@ -19,6 +21,14 @@ describe("sendPresentation", () => {
 		httpClient: {
 			post: httpClientPostMock({ redirect_uri }),
 			get: fetchIssuerMetadataMock({}),
+		},
+		vpTokenSigner: {
+			encryptResponse: async (
+				response: PresentationResponse,
+				_presentation_request: PresentationRequest,
+			) => {
+				return JSON.stringify(response);
+			},
 		},
 	};
 	const sendPresentation = sendPresentationHandlerFactory(config);
@@ -47,12 +57,23 @@ describe("sendPresentation", () => {
 				post: async <T>(url: string, body: unknown): Promise<{ data: T }> => {
 					expect(url).to.eq(presentation_request.response_uri);
 					expect(body).to.deep.eq({
-						vp_token,
+						response: JSON.stringify({
+							vp_token,
+							state: presentation_request.state,
+						}),
 						state: presentation_request.state,
 					});
 					throw new Error("reject");
 				},
 				get: fetchIssuerMetadataMock({}),
+			},
+			vpTokenSigner: {
+				encryptResponse: async (
+					response: PresentationResponse,
+					_presentation_request: PresentationRequest,
+				) => {
+					return JSON.stringify(response);
+				},
 			},
 		};
 		const sendPresentation = sendPresentationHandlerFactory(config);

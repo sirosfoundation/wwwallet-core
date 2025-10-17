@@ -18,6 +18,13 @@ export async function generateVpToken(
 	{ presentation_credentials, presentation_request }: GenerateVpTokenParams,
 	config: GenerateVpTokenConfig,
 ) {
+	if (!config.vpTokenSigner.sign) {
+		throw new OauthError(
+			"invalid_client",
+			"client configuration must contain vpTokenSigner#sign",
+		);
+	}
+
 	const vpTokenPayload: Record<string, Array<string>> = {};
 
 	presentation_credentials.forEach((presentation_credential) => {
