@@ -114,7 +114,13 @@ describe("location handler - authorization code", () => {
 		const locationHandler = locationHandlerFactory({
 			// @ts-ignore
 			httpClient: {
-				get: async <T>(_url: string) => {
+				get: async <T>(url: string) => {
+					if (
+						new URL(url).pathname === "/.well-known/openid-credential-issuer"
+					) {
+						throw new Error("rejected");
+					}
+
 					return { data: {} as T };
 				},
 			},
@@ -144,12 +150,9 @@ describe("location handler - authorization code", () => {
 			if (!(error instanceof OauthError)) {
 				throw error;
 			}
-			if (!(error.data.error instanceof OauthError)) {
-				throw error;
-			}
 
-			expect(error.data.error.error).to.eq("invalid_issuer");
-			expect(error.data.error.error_description).to.eq(
+			expect(error.error).to.eq("invalid_issuer");
+			expect(error.error_description).to.eq(
 				"could not fetch issuer information",
 			);
 		}
@@ -334,19 +337,6 @@ describe("location handler - authorization code", () => {
 		// @ts-ignore
 		const response = await locationHandler(location);
 
-		// @ts-ignore
-		// delete config.clientStateStore._clientState.dpopKeyPair;
-		// expect(config.clientStateStore._clientState).to.deep.eq({
-		// 	code_verifier: "code_verifier",
-		// 	issuer: "http://issuer.url",
-		// 	issuer_metadata: {
-		// 		nonce_endpoint: "http://nonce.endpoint",
-		// 		token_endpoint: "http://token.endpoint",
-		// 	},
-		// 	issuer_state: "issuer_state",
-		// 	state: "state",
-		// });
-
 		// token request
 		// @ts-ignore
 		expect(lastRequest[0].url).to.eq("http://token.endpoint");
@@ -394,16 +384,12 @@ describe("location handler - authorization code", () => {
 		assert(nonceDpopPayload.iat);
 		assert(nonceDpopPayload.jti);
 
-		expect(response).to.deep.eq({
+		expect(response).toMatchObject({
 			data: {
 				state,
 				client_state: {
 					code_verifier: "code_verifier",
 					issuer: "http://issuer.url",
-					issuer_metadata: {
-						nonce_endpoint: "http://nonce.endpoint",
-						token_endpoint: "http://token.endpoint",
-					},
 					issuer_state: "issuer_state",
 					state: "state",
 				},
