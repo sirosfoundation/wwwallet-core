@@ -3,7 +3,7 @@ import type { ClientState, IssuerMetadata } from "./resources";
 export type ClientStateStore = {
 	create(issuer: string, issuer_state: string): Promise<ClientState>;
 	commitChanges(clientState: ClientState): Promise<ClientState>;
-	cleanupExpired(): Promise<void>;
+	cleanupExpired?(): Promise<void>;
 	fromIssuerState(issuer: string, issuer_state: string): Promise<ClientState>;
 	fromState(state: string): Promise<ClientState>;
 	setCredentialConfigurationIds(
