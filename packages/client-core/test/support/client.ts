@@ -43,6 +43,9 @@ export const clientStateStoreMock = (
 				},
 			};
 		},
+
+		async cleanupExpired() {},
+
 		async commitChanges(clientState: ClientState) {
 			// @ts-ignore
 			clientStateStoreMock._clientState = clientState;

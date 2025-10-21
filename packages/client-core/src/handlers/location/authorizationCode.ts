@@ -137,7 +137,7 @@ async function doHandleAuthorizationCode(
 		nextStep,
 		data: {
 			state,
-			client_state: issuerMetadataClientState,
+			client_state,
 			token_type,
 			access_token,
 			expires_in,

@@ -15,14 +15,11 @@ describe("credentialHandler", () => {
 			post: httpClientPostMock(),
 			get: fetchIssuerMetadataMock({
 				credential_endpoint: new URL("/credential", issuer).toString(),
+				issuer,
 			}),
 		},
 		clientStateStore: clientStateStoreMock({
 			state,
-			issuer_metadata: {
-				issuer,
-				credential_endpoint: new URL("/credential", issuer).toString(),
-			},
 		}),
 		dpop_ttl_seconds: 10,
 	};
@@ -131,13 +128,12 @@ describe("credentialHandler", () => {
 		const config = {
 			httpClient: {
 				post: httpClientPostMock(),
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
@@ -183,14 +179,13 @@ describe("credentialHandler", () => {
 				post: async (..._params) => {
 					throw new Error("rejected");
 				},
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-					credential_endpoint: new URL("/credential", issuer).toString(),
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
@@ -229,25 +224,30 @@ describe("credentialHandler", () => {
 	});
 
 	it("resolves with a successful credential request", async () => {
-		const credentials = ["credential"];
+		const credentials = [{ credential: "credential" }];
+		const credential_configuration_id = "credential_configuration_id";
+
 		const config = {
 			httpClient: {
 				post: httpClientPostMock({ credentials }),
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+					credential_configurations_supported: {
+						[credential_configuration_id]: {
+							format: "format",
+						},
+					},
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-					credential_endpoint: new URL("/credential", issuer).toString(),
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
 
 		const credentialHandler = credentialHandlerFactory(config);
 		const access_token = "access_token";
-		const credential_configuration_id = "credential_configuration_id";
 		const proofs = {};
 
 		const response = await credentialHandler({
@@ -259,7 +259,12 @@ describe("credentialHandler", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				credentials: ["credential"],
+				credentials: [
+					{
+						credential: "credential",
+						format: "format",
+					},
+				],
 			},
 			nextStep: "credential_success",
 			protocol: "oid4vci",
