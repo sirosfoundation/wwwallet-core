@@ -110,7 +110,7 @@ describe("location handler - authorization code", () => {
 		}
 	});
 
-	it("rejects when issuer client is configured", async () => {
+	it("rejects when issuer metadata cannot be retrieved", async () => {
 		const locationHandler = locationHandlerFactory({
 			// @ts-ignore
 			httpClient: {
