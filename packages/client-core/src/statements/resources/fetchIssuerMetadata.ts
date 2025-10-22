@@ -52,14 +52,9 @@ export async function fetchIssuerMetadata(
 			...openidCredentialIssuer,
 		};
 
-		const newClientState = await config.clientStateStore.setIssuerMetadata(
-			client_state,
-			issuer_metadata,
-		);
-
 		return {
 			issuer_metadata,
-			client_state: newClientState,
+			client_state,
 		};
 	} catch (error) {
 		throw new OauthError(

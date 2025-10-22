@@ -36,7 +36,7 @@ type CredentialResponse = {
 	protocol: CredentialProtocol;
 	nextStep?: CredentialNextStep;
 	data?: {
-		credentials: Array<{ credential: string }>;
+		credentials: Array<{ credential: string; format: string }>;
 	};
 };
 
@@ -52,21 +52,19 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 		proofs,
 	}: CredentialHandlerParams): Promise<CredentialResponse> {
 		try {
-			const { client_state: initialClientState } = await clientState(
-				{ state },
-				config,
-			);
+			const { client_state } = await clientState({ state }, config);
 
 			const { issuer_metadata } = await fetchIssuerMetadata(
 				{
-					client_state: initialClientState,
+					client_state,
+					issuer: client_state.issuer,
 				},
 				config,
 			);
 
 			const { dpop: credentialsDpop } = await generateDpop(
 				{
-					client_state: initialClientState,
+					client_state,
 					access_token,
 					htu: issuer_metadata.credential_endpoint,
 					htm: "POST",

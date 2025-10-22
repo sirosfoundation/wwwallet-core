@@ -1,6 +1,7 @@
 import { OauthError } from "../../errors";
-import type { HttpClient } from "../../ports";
+import type { ClientStateStore, HttpClient } from "../../ports";
 import type { ClientState, IssuerMetadata, OauthClient } from "../../resources";
+import { fetchIssuerMetadata } from "../resources";
 
 export type FetchAuthorizationUrlParams = {
 	client: OauthClient;
@@ -11,6 +12,7 @@ export type FetchAuthorizationUrlParams = {
 export type FetchAuthorizationUrlConfig = {
 	wallet_callback_url: string;
 	httpClient: HttpClient;
+	clientStateStore: ClientStateStore;
 };
 
 type PushedAuthorizationRequestParams = {
@@ -30,14 +32,22 @@ export async function fetchAuthorizationUrl(
 ) {
 	const pushedAuthorizationRequestParams: PushedAuthorizationRequestParams = {};
 
-	if (!client_state.issuer_metadata?.pushed_authorization_request_endpoint) {
+	const { issuer_metadata } = await fetchIssuerMetadata(
+		{
+			client_state,
+			issuer: client_state.issuer,
+		},
+		config,
+	);
+
+	if (!issuer_metadata?.pushed_authorization_request_endpoint) {
 		throw new OauthError(
 			"invalid_client",
 			"pushed authorization request endpoint missing in issuer metadata ",
 		);
 	}
 	const pushedAuthorizationRequestUrl = new URL(
-		client_state.issuer_metadata.pushed_authorization_request_endpoint,
+		issuer_metadata.pushed_authorization_request_endpoint,
 	);
 
 	pushedAuthorizationRequestParams.redirect_uri = config.wallet_callback_url;
@@ -69,7 +79,7 @@ export async function fetchAuthorizationUrl(
 
 	pushedAuthorizationRequestParams.scope = getScopeFromIssuerMetadata(
 		client_state.credential_configuration_ids || [],
-		client_state.issuer_metadata,
+		issuer_metadata,
 	);
 
 	const {
@@ -90,16 +100,14 @@ export async function fetchAuthorizationUrl(
 			);
 		});
 
-	if (!client_state.issuer_metadata?.authorization_endpoint) {
+	if (!issuer_metadata?.authorization_endpoint) {
 		throw new OauthError(
 			"invalid_client",
 			"authorization endpoint missing in issuer metadata ",
 		);
 	}
 
-	const authorizeUrl = new URL(
-		client_state.issuer_metadata.authorization_endpoint,
-	);
+	const authorizeUrl = new URL(issuer_metadata.authorization_endpoint);
 	const authorizeParams = new URLSearchParams();
 	authorizeParams.append("client_id", client.client_id);
 	authorizeParams.append("request_uri", request_uri);

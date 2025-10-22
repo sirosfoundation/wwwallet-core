@@ -15,14 +15,11 @@ describe("credentialHandler", () => {
 			post: httpClientPostMock(),
 			get: fetchIssuerMetadataMock({
 				credential_endpoint: new URL("/credential", issuer).toString(),
+				issuer,
 			}),
 		},
 		clientStateStore: clientStateStoreMock({
 			state,
-			issuer_metadata: {
-				issuer,
-				credential_endpoint: new URL("/credential", issuer).toString(),
-			},
 		}),
 		dpop_ttl_seconds: 10,
 	};
@@ -131,13 +128,12 @@ describe("credentialHandler", () => {
 		const config = {
 			httpClient: {
 				post: httpClientPostMock(),
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
@@ -177,27 +173,32 @@ describe("credentialHandler", () => {
 	});
 
 	it("rejects when credential request rejects", async () => {
+		const credential_configuration_id = "credential_configuration_id";
+
 		const config = {
 			httpClient: {
 				// @ts-ignore
 				post: async (..._params) => {
 					throw new Error("rejected");
 				},
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+					credential_configurations_supported: {
+						[credential_configuration_id]: {
+							format: "format",
+						},
+					},
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-					credential_endpoint: new URL("/credential", issuer).toString(),
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
 
 		const credentialHandler = credentialHandlerFactory(config);
 		const access_token = "access_token";
-		const credential_configuration_id = "credential_configuration_id";
 		const proofs = {};
 
 		try {
@@ -228,26 +229,138 @@ describe("credentialHandler", () => {
 		}
 	});
 
-	it("resolves with a successful credential request", async () => {
-		const credentials = ["credential"];
+	it("rejects when supported credential configurations are missing", async () => {
+		const credentials = [{ credential: "credential" }];
+		const credential_configuration_id = "credential_configuration_id";
+
 		const config = {
 			httpClient: {
 				post: httpClientPostMock({ credentials }),
-				get: fetchIssuerMetadataMock({}),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+				}),
 			},
 			clientStateStore: clientStateStoreMock({
 				state,
-				issuer_metadata: {
-					issuer,
-					credential_endpoint: new URL("/credential", issuer).toString(),
-				},
 			}),
 			dpop_ttl_seconds: 10,
 		};
 
 		const credentialHandler = credentialHandlerFactory(config);
 		const access_token = "access_token";
+		const proofs = {};
+
+		try {
+			await credentialHandler({
+				state,
+				access_token,
+				credential_configuration_id,
+				proofs,
+			});
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_parameters");
+			expect(error.error_description).to.eq(
+				"credential configurations supported is missing in issuer metadata",
+			);
+			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
+				nextStep: "credential_success",
+				protocol: "oid4vci",
+			});
+		}
+	});
+
+	it("rejects when credential configuration id is missing from supported credential configurations", async () => {
+		const credentials = [{ credential: "credential" }];
+		const credential_configuration_id = "invalid_id";
+
+		const config = {
+			httpClient: {
+				post: httpClientPostMock({ credentials }),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+					credential_configurations_supported: {
+						credential_configuration_id: {
+							format: "format",
+						},
+					},
+				}),
+			},
+			clientStateStore: clientStateStoreMock({
+				state,
+			}),
+			dpop_ttl_seconds: 10,
+		};
+
+		const credentialHandler = credentialHandlerFactory(config);
+		const access_token = "access_token";
+		const proofs = {};
+
+		try {
+			await credentialHandler({
+				state,
+				access_token,
+				credential_configuration_id,
+				proofs,
+			});
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_parameters");
+			expect(error.error_description).to.eq(
+				"credential configuration id is not present in credential configurations supported",
+			);
+			expect(error.data).to.deep.eq({
+				proofs,
+				access_token,
+				credential_configuration_id,
+				state,
+				currentStep: "credential_request",
+				nextStep: "credential_success",
+				protocol: "oid4vci",
+			});
+		}
+	});
+
+	it("resolves with a successful credential request", async () => {
+		const credentials = [{ credential: "credential" }];
 		const credential_configuration_id = "credential_configuration_id";
+
+		const config = {
+			httpClient: {
+				post: httpClientPostMock({ credentials }),
+				get: fetchIssuerMetadataMock({
+					issuer,
+					credential_endpoint: new URL("/credential", issuer).toString(),
+					credential_configurations_supported: {
+						[credential_configuration_id]: {
+							format: "format",
+						},
+					},
+				}),
+			},
+			clientStateStore: clientStateStoreMock({
+				state,
+			}),
+			dpop_ttl_seconds: 10,
+		};
+
+		const credentialHandler = credentialHandlerFactory(config);
+		const access_token = "access_token";
 		const proofs = {};
 
 		const response = await credentialHandler({
@@ -259,7 +372,12 @@ describe("credentialHandler", () => {
 
 		expect(response).to.deep.eq({
 			data: {
-				credentials: ["credential"],
+				credentials: [
+					{
+						credential: "credential",
+						format: "format",
+					},
+				],
 			},
 			nextStep: "credential_success",
 			protocol: "oid4vci",
