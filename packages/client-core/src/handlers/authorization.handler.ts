@@ -142,12 +142,18 @@ export function validateAuthorizationHandlerConfig(config: Config) {
 	}
 }
 
-function authorizationHandlerErrorData(
-	params: {
-		protocol: string;
-		currentStep: string;
-		nextStep: string;
-	} & AuthorizationHandlerParams,
-) {
-	return params;
+function authorizationHandlerErrorData({
+	protocol,
+	currentStep,
+	nextStep,
+}: {
+	protocol: string;
+	currentStep: string;
+	nextStep: string;
+} & AuthorizationHandlerParams) {
+	return {
+		protocol,
+		currentStep,
+		nextStep,
+	};
 }
