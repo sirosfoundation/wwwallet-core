@@ -57,7 +57,7 @@ export async function fetchCredentials(
 	if (!format) {
 		throw new OauthError(
 			"invalid_parameters",
-			`credential_configuration_id '${credential_configuration_id}' is not present in credential configurations supported`,
+			"credential configuration id is not present in credential configurations supported",
 		);
 	}
 

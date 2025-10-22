@@ -322,7 +322,7 @@ describe("credentialHandler", () => {
 			}
 			expect(error.error).to.eq("invalid_parameters");
 			expect(error.error_description).to.eq(
-				"credential_configuration_id 'invalid_id' is not present in credential configurations supported",
+				"credential configuration id is not present in credential configurations supported",
 			);
 			expect(error.data).to.deep.eq({
 				proofs,
