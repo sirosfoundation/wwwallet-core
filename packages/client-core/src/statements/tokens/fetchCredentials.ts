@@ -42,6 +42,25 @@ export async function fetchCredentials(
 		);
 	}
 
+	if (!issuer_metadata.credential_configurations_supported) {
+		throw new OauthError(
+			"invalid_parameters",
+			"credential configurations supported is missing in issuer metadata",
+		);
+	}
+
+	const format =
+		issuer_metadata.credential_configurations_supported[
+			credential_configuration_id
+		]?.format;
+
+	if (!format) {
+		throw new OauthError(
+			"invalid_parameters",
+			`credential_configuration_id '${credential_configuration_id}' is not present in credential configurations supported`,
+		);
+	}
+
 	try {
 		const { credentials } = await config.httpClient
 			.post<{ credentials: Array<{ credential: string }> }>(
@@ -61,10 +80,7 @@ export async function fetchCredentials(
 			.then(({ data }) => ({
 				credentials: data.credentials.map(({ credential }) => ({
 					credential,
-					format:
-						issuer_metadata.credential_configurations_supported[
-							credential_configuration_id
-						].format,
+					format,
 				})),
 			}));
 
