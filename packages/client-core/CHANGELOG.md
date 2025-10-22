@@ -1,5 +1,11 @@
 # @wwwallet-private/client-core
 
+## 0.1.0-alpha.7
+
+### Patch Changes
+
+- [#76](https://github.com/sirosfoundation/wwwallet-core/pull/76) [`253c40b`](https://github.com/sirosfoundation/wwwallet-core/commit/253c40bce62440eb621cc096dbeb2d3e2bca7bfe) Thanks [@smncd](https://github.com/smncd)! - Fixes for frontend privateData/client state storage
+
 ## 0.1.0-alpha.6
 
 ### Minor Changes
