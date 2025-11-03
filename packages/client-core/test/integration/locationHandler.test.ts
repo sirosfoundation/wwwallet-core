@@ -386,6 +386,7 @@ describe("location handler - authorization code", () => {
 
 		expect(response).toMatchObject({
 			data: {
+				issuer_metadata: {},
 				state,
 				client_state: {
 					code_verifier: "code_verifier",
