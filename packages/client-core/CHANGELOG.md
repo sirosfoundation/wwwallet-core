@@ -1,5 +1,11 @@
 # @wwwallet-private/client-core
 
+## 0.1.0-alpha.8
+
+### Patch Changes
+
+- 79a9c1f: Expose issuer metadata in location authorization code handler
+
 ## 0.1.0-alpha.7
 
 ### Patch Changes
