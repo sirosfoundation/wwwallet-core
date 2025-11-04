@@ -313,7 +313,7 @@ describe("authorizationRequestHandler - no authorization method", () => {
 
 			expect(error.error).to.eq("invalid_request");
 			expect(error.error_description).to.eq(
-				"authorization method not supported",
+				"no authorization method found in issuer metadata",
 			);
 		}
 	});

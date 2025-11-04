@@ -112,7 +112,8 @@ export function authorizationHandlerFactory(
 
 			throw new OauthError(
 				"invalid_request",
-				"authorization method not supported",
+				"no authorization method found in issuer metadata",
+				{ issuer_metadata },
 			);
 		} catch (error) {
 			if (error instanceof OauthError) {
