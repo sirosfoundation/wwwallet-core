@@ -69,6 +69,7 @@ async function doHandleAuthorizationCode(
 	{ state, code }: AuthorizationCodeLocation,
 	config: AuthorizationCodeConfig,
 ): Promise<AuthorizationCodeResponse> {
+	// TODO open an issue according to the presence of the state along with the code
 	if (!state) {
 		throw new OauthError("invalid_location", "state parameter is missing");
 	}

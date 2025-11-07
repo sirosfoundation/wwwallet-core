@@ -63,6 +63,7 @@ export function authorizationHandlerFactory(
 			| "authorization_challenge"
 			| "authorization_request" = "authorization_request";
 
+		// TODO access token management to fetch active access token
 		try {
 			const { client } = await issuerClient({ issuer }, config);
 

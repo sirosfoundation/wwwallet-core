@@ -51,6 +51,7 @@ async function doHandleCredentialOffer(
 	location: CredentialOfferLocation,
 	config: CredentialOfferLocationConfig,
 ): Promise<CredentialOfferProtocolResponse> {
+	// TODO implement fetch credential_offer_uri if present
 	if (!location.credential_offer) {
 		throw new OauthError(
 			"invalid_location",

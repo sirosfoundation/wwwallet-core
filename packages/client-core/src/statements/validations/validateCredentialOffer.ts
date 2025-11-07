@@ -28,6 +28,7 @@ export async function validateCredentialOffer(
 			);
 		}
 
+		// TODO validate credential offer credential configuration id is present in issuer metadata
 		if (!Array.isArray(credential_configuration_ids)) {
 			throw new OauthError(
 				"invalid_location",
