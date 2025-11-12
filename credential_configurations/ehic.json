@@ -9,7 +9,10 @@
 			"name": "EHIC (dc+sd-jwt)",
 			"description": "European Health Insurance Card",
 			"background_image": {
-				"uri": "https://demo-issuer.wwwallet.org/images/background-image.png"
+				"uri": ""
+			},
+			"logo": {
+				"uri": "https://avatars.githubusercontent.com/u/179488767?s=200&v=4"
 			},
 			"background_color": "#1b263b",
 			"text_color": "#FFFFFF",
