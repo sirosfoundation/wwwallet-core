@@ -32,7 +32,7 @@ type PushedAuthorizationRequest = {
 	issuer_state: string;
 };
 
-type PushedAuthorizationRequestResponse = {
+export type PushedAuthorizationRequestResponse = {
 	status: 200;
 	body: {
 		request_uri: string;

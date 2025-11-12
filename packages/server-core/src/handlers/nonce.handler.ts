@@ -16,7 +16,7 @@ export type NonceHandlerConfig = {
 	secret: string;
 };
 
-type NonceResponse = {
+export type NonceResponse = {
 	status: 200;
 	body: {
 		c_nonce: string;

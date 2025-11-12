@@ -12,7 +12,7 @@ export type OauthAuthorizationServerHandlerConfig = {
 	issuer_client: { scopes: Array<string> };
 };
 
-type OauthAuthorizationServerResponse = {
+export type OauthAuthorizationServerResponse = {
 	status: 200;
 	body: OauthAuthorizationServer;
 };

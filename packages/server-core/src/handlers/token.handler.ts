@@ -23,7 +23,7 @@ export type TokenHandlerConfig = {
 } & ClientCredentialsHandlerConfig &
 	AuthorizationCodeHandlerConfig;
 
-type TokenResponse = {
+export type TokenResponse = {
 	status: 200;
 	body: {
 		access_token: string;
