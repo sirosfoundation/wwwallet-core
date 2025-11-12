@@ -1,5 +1,3 @@
-import type { AuthorizationServerState } from "./resources";
-
 type BusinessEvent =
 	| "authorize"
 	| "authenticate"
@@ -27,16 +25,15 @@ export interface Logger {
 	debug: (message: string) => void;
 }
 
+export interface DatabaseOperations {
+	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
+}
+
 export type Config = {
 	issuer_url?: string;
 	wallet_url?: string;
 	logger?: Logger;
-	databaseOperations?: {
-		insertAuthorizationServerState?: (
-			authorizationServerState: AuthorizationServerState,
-		) => Promise<AuthorizationServerState>;
-		resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
-	};
+	databaseOperations?: DatabaseOperations;
 	issuer_display?: Array<{
 		locale?: string;
 		logo?: {

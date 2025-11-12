@@ -21,7 +21,7 @@ export type AuthorizationHandlerConfig = FetchIssuerMetadataConfig &
 	IssuerClientConfig &
 	ClientStateConfig;
 
-type AuthorizationHandlerParams = {
+export type AuthorizationHandlerParams = {
 	issuer: string;
 	issuer_state: string;
 };
@@ -44,7 +44,7 @@ type AuthorizationChallengeResponse = {
 	};
 };
 
-type AuthorizationResponse =
+export type AuthorizationResponse =
 	| PushedAuthorizationRequestResponse
 	| AuthorizationChallengeResponse;
 
