@@ -11,12 +11,12 @@ import {
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "@wwwallet-private/server-core";
-import express from "express";
+import express, { type Express } from "express";
 import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
 
-export function server(core: Core) {
+export function server(core: Core): Express {
 	const app = express();
 
 	app.use(morgan("combined"));
