@@ -42,7 +42,7 @@ type CredentialRequest = {
 	};
 };
 
-type CredentialResponse = {
+export type CredentialResponse = {
 	status: 200;
 	body: {
 		credentials: Array<{ credential: string }>;
