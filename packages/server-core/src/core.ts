@@ -44,9 +44,6 @@ export class Core {
 		this.rotateSecret();
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get oauthAuthorizationServer() {
 		validateOauthAuthorizationServerHandlerConfig(this.config);
 
@@ -55,9 +52,6 @@ export class Core {
 		);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get openidCredentialIssuer() {
 		validateOauthAuthorizationServerHandlerConfig(this.config);
 
@@ -66,18 +60,12 @@ export class Core {
 		);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get nonce() {
 		validateNonceHandlerConfig(this.config);
 
 		return nonceHandlerFactory(this.config as NonceHandlerConfig);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get pushedAuthorizationRequest() {
 		validatePushedAuthorizationRequestHandlerConfig(this.config);
 
@@ -86,36 +74,24 @@ export class Core {
 		);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get authorize() {
 		validateAuthorizeHandlerConfig(this.config);
 
 		return authorizeHandlerFactory(this.config as AuthorizeHandlerConfig);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get token() {
 		validateTokenHandlerConfig(this.config);
 
 		return tokenHandlerFactory(this.config as TokenHandlerConfig);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get credential() {
 		validateCredentialHandlerConfig(this.config);
 
 		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
 	}
 
-	/**
-	 * @throws {OauthError} An {@link OauthError} error
-	 */
 	get credentialOffer() {
 		validateCredentialOfferHandlerConfig(this.config);
 
