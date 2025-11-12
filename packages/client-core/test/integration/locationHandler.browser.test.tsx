@@ -48,7 +48,7 @@ describe.skip("location handler - integration", () => {
 		render(<LocationHandler />);
 
 		return waitFor(() => {
-			const success = screen.getByTestId("success") as HTMLAnchorElement;
+			const success = screen.getByTestId("success") as HTMLElement;
 			assert(success);
 			expect(success.innerHTML).to.eq("");
 		});
@@ -61,7 +61,7 @@ describe.skip("location handler - integration", () => {
 		render(<LocationHandler />);
 
 		return waitFor(() => {
-			const error = screen.getByTestId("error") as HTMLAnchorElement;
+			const error = screen.getByTestId("error") as HTMLElement;
 			assert(error);
 			expect(error.innerHTML).to.eq("credential offer could not be parsed");
 		});
@@ -83,12 +83,12 @@ describe.skip("location handler - integration", () => {
 		render(<LocationHandler />);
 
 		return waitFor(() => {
-			screen.getByTestId("success") as HTMLAnchorElement;
+			screen.getByTestId("success") as HTMLElement;
 
-			const protocol = screen.getByTestId("protocol") as HTMLAnchorElement;
+			const protocol = screen.getByTestId("protocol") as HTMLElement;
 			expect(protocol.innerHTML).to.eq("oid4vci");
 
-			const nextStep = screen.getByTestId("nextStep") as HTMLAnchorElement;
+			const nextStep = screen.getByTestId("nextStep") as HTMLElement;
 			expect(nextStep.innerHTML).to.eq("pushed_authorization_request");
 		});
 	});

@@ -1,19 +1,21 @@
 {
-	"extends": "@tsconfig/node22/tsconfig.json",
-
-	"ts-node": {
-		"transpileOnly": true,
-
-		"files": true,
-
-		"compilerOptions": {
-			"strict": true,
-			"esModuleInterop": true,
-			"jsx": "react",
-			"moduleResolution": "nodenext",
-			"target": "esnext",
-			"rootDir": "./src",
-			"outDir": "./dist"
-		}
-	}
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"target": "es2022",
+		"checkJs": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"strict": true,
+		"noImplicitOverride": true,
+		"module": "es2022",
+		"moduleResolution": "bundler",
+		"lib": ["es2024"],
+		"declaration": true,
+		"noEmit": true,
+		"jsx": "react"
+	},
+	"include": ["./apps/**/*.ts", "./packages/**/*.ts", "./packages/**/*.tsx"],
+	"exclude": ["node_modules"]
 }

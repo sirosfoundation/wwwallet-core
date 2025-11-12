@@ -36,6 +36,8 @@ export type LocationHandlerConfig = CredentialOfferLocationConfig &
 	AuthorizationCodeConfig &
 	ProtocolErrorConfig;
 
+export type LocationHandlerParams = Location;
+
 type ProtocolLocation = {
 	credential_offer: string | null;
 	code: string | null;
@@ -51,7 +53,7 @@ type NoProtocol = {
 	protocol: null;
 };
 
-type ProtocolResponse =
+export type LocationResponse =
 	| CredentialOfferProtocolResponse
 	| PresentationSuccessProtocolResponse
 	| PresentationRequestResponse
@@ -63,8 +65,8 @@ const currentStep = "parse_location";
 
 export function locationHandlerFactory(config: LocationHandlerConfig) {
 	return async function locationHandler(
-		windowLocation: Location,
-	): Promise<ProtocolResponse> {
+		windowLocation: LocationHandlerParams,
+	): Promise<LocationResponse> {
 		try {
 			const location = await parseLocation(windowLocation);
 

@@ -18,7 +18,7 @@ type GeneratePresentationProtocol = "oid4vp";
 
 type GeneratePresentationNextStep = "send_presentation";
 
-type GeneratePresentationResponse = {
+export type GeneratePresentationResponse = {
 	protocol: GeneratePresentationProtocol;
 	nextStep: GeneratePresentationNextStep;
 	data: {

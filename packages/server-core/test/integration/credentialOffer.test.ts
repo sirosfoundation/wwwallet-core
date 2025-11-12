@@ -55,7 +55,7 @@ describe("credential offer endpoint", () => {
 			core.config.wallet_url || "",
 		);
 		expect(response.body.credential_offer_url).toMatch(
-			encodeURIComponent(core.config.issuer_url),
+			encodeURIComponent(core.config.issuer_url || ""),
 		);
 		expect(response.body.credential_offer_url).toMatch("full"); // credential_configuration_id
 		expect(response.body.credential_offer_url).toMatch("issuer_state"); // credential_configuration_id
@@ -80,7 +80,7 @@ describe("credential offer endpoint", () => {
 			core.config.wallet_url || "",
 		);
 		expect(response.body.credential_offer_url).toMatch(
-			encodeURIComponent(core.config.issuer_url),
+			encodeURIComponent(core.config.issuer_url || ""),
 		);
 		expect(response.body.credential_offer_url).toMatch("full"); // credential_configuration_id
 		expect(response.body.credential_offer_url).toMatch("issuer_state"); // credential_configuration_id
@@ -104,7 +104,9 @@ describe("credential offer endpoint", () => {
 		expect(response.status).toBe(200);
 		expect(response.text).toMatch("Full (dc+sd-jwt)");
 		expect(response.text).toMatch(core.config.wallet_url || "");
-		expect(response.text).toMatch(encodeURIComponent(core.config.issuer_url));
+		expect(response.text).toMatch(
+			encodeURIComponent(core.config.issuer_url || ""),
+		);
 		expect(response.text).toMatch("full"); // credential_configuration_id
 		expect(response.text).toMatch("issuer_state"); // credential_configuration_id
 		expect(response.text).toMatch("data:image/png;base64");

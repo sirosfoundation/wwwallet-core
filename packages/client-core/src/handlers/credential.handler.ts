@@ -32,7 +32,7 @@ type CredentialProtocol = "oid4vci";
 
 type CredentialNextStep = "credential_success";
 
-type CredentialResponse = {
+export type CredentialResponse = {
 	protocol: CredentialProtocol;
 	nextStep?: CredentialNextStep;
 	data?: {
