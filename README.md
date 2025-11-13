@@ -28,9 +28,9 @@ This server exposes a token endpoint implementing client credentials, those are 
 
 ```sh
 curl -X POST http://localhost:5000/token \
-	--data '{"client_id": "id", "client_secret": "secret", "scope": "client:scope"}' \
+	--data '{"client_id": "CLIENT123", "client_secret": "321TNEILC", "scope": "client:scope", "grant_type": "client_credentials"}' \
 	-H 'Content-Type: application/json'
-{"access_token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpZCIsImlhdCI6MTc1MzQ2NzE4OSwiZXhwIjoxNzUzNDc0Mzg5Ljg2NX0.7E1obwrXsIwe3WeUDcoJR7voVqn2WlTOru9c6yfdLaw","expires_in":7200,"token_type":"bearer"
+{"access_token":"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0..BkXrAwHsE0Br1nxUkvezLw.Bq3JWgmHgZfI-RVK_NVu79PJqB0cqqqO9GBc5uMmMLekxmEEnGe1wetR6jAHFSjSVFVUZ2SNXBoe49eeucHfYPOrdKg-j-v1AVx8EKvl4CUhX6F_Z09d_ZYJ1Yw_d3Cnd9rND1nCbv0DLi56w8h6VN7GBDLfAwikCB6RHAHJNMwfinLo6LHqnY1fBde1dPkh.YH3pGiwkHRaNmG14tGdimjWmR66ixHsZ1QTjmUz0_24","expires_in":60,"token_type":"bearer"}
 ```
 
 ## Run tests
