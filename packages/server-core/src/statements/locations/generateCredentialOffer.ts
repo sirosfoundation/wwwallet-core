@@ -7,7 +7,7 @@ import type {
 	IssuerGrants,
 } from "../../resources";
 
-type GenerateCredentialOfferParams = {
+export type GenerateCredentialOfferParams = {
 	authorizationServerState: AuthorizationServerState;
 	grants: IssuerGrants;
 	scope: string;
