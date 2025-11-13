@@ -41,5 +41,7 @@
 		"jose": "^6.1.0",
 		"qrcode": "^1.5.4",
 		"ts-deepmerge": "^7.0.3"
-	}
+	},
+	"author": "Pascal Knoth <pascal@malach.it> (patatoid)",
+	"contributors": []
 }

@@ -46,5 +46,6 @@
 		"ts-deepmerge": "^7.0.3",
 		"uuid": "^13.0.0"
 	},
-	"packageManager": "pnpm@10.15.0"
+	"author": "Pascal Knoth <pascal@malach.it> (patatoid)",
+	"contributors": []
 }
