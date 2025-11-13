@@ -32,7 +32,27 @@ export class Core {
 	}
 
 	/**
+	 * Handle parse location step
+	 *
 	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * 1. protocol error
+	 * 2. credential offer
+	 * - {@link "client-core/src/statements".validateCredentialOffer | validateCredentialOffer}
+	 * - {@link "client-core/src/statements".validateGrants | validateGrants}
+	 * 3. authorization code
+	 * - {@link "client-core/src/statements".clientState | clientState}
+	 * - {@link "client-core/src/statements".issuerClient | issuerClient}
+	 * - {@link "client-core/src/statements".fetchIssuerMetadata | fetchIssuerMetadata}
+	 * - {@link "client-core/src/statements".generateDpop | generateDpop}
+	 * - {@link "client-core/src/statements".fetchAccessToken | fetchAccessToken}
+	 * - {@link "client-core/src/statements".fetchNonce | fetchNonce}
+	 * 4. presentation request
+	 * - {@link "client-core/src/statements".validateDcqlQuery | validateDcqlQuery}
+	 * - {@link "client-core/src/statements".validateClientMetadata | validateClientMetadata}
+	 * 5. presentation success
 	 */
 	get location() {
 		validateLocationHandlerConfig(this.config);
@@ -41,7 +61,20 @@ export class Core {
 	}
 
 	/**
+	 * Handle authorization request step
+	 *
 	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "client-core/src/statements".issuerClient | issuerClient}
+	 * - {@link "client-core/src/statements".clientState | clientState}
+	 * - {@link "client-core/src/statements".fetchIssuerMetadata | fetchIssuerMetadata}
+	 *
+	 * 1. pushed authorizations
+	 * - {@link "client-core/src/statements".fetchAuthorizationUrl | fetchAuthorizationUrl}
+	 *
+	 * 2. authorization challenges
 	 */
 	get authorization() {
 		validateAuthorizationHandlerConfig(this.config);
@@ -52,7 +85,16 @@ export class Core {
 	}
 
 	/**
+	 * Handle credential request step
+	 *
 	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "client-core/src/statements".clientState | clientState}
+	 * - {@link "client-core/src/statements".fetchIssuerMetadata | fetchIssuerMetadata}
+	 * - {@link "client-core/src/statements".generateDpop | generateDpop}
+	 * - {@link "client-core/src/statements".fetchCredentials | fetchCredentials}
 	 */
 	get credential() {
 		validateCredentialHandlerConfig(this.config);
@@ -61,7 +103,13 @@ export class Core {
 	}
 
 	/**
+	 * Handle generate presentation step
+	 *
 	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "client-core/src/statements".generateVpToken | generateVpToken}
 	 */
 	get generatePresentation() {
 		validateGeneratePresentationHandlerConfig(this.config);
@@ -72,7 +120,13 @@ export class Core {
 	}
 
 	/**
+	 * Handle send presentation step
+	 *
 	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "client-core/src/statements".presentationResponse | presentationResponse}
 	 */
 	get sendPresentation() {
 		validateSendPresentationHandlerConfig(this.config);
