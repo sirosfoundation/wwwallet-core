@@ -8,7 +8,7 @@ import {
 } from "./location/authorizationCode";
 import {
 	type CredentialOfferLocationConfig,
-	type CredentialOfferProtocolResponse,
+	type CredentialOfferResponse,
 	handleCredentialOffer,
 } from "./location/credentialOffer";
 import {
@@ -19,7 +19,7 @@ import {
 import {
 	handlePresentationSuccess,
 	type PresentationSuccessConfig,
-	type PresentationSuccessProtocolResponse,
+	type PresentationSuccessResponse,
 } from "./location/presentationSuccess";
 import {
 	handleProtocolError,
@@ -49,17 +49,17 @@ type ProtocolLocation = {
 	state: string | null;
 };
 
-type NoProtocol = {
+export type NoProtocolResponse = {
 	protocol: null;
 };
 
 export type LocationResponse =
-	| CredentialOfferProtocolResponse
-	| PresentationSuccessProtocolResponse
+	| CredentialOfferResponse
+	| PresentationSuccessResponse
 	| PresentationRequestResponse
 	| AuthorizationCodeResponse
 	| ProtocolErrorResponse
-	| NoProtocol;
+	| NoProtocolResponse;
 
 const currentStep = "parse_location";
 

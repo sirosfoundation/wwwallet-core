@@ -10,7 +10,7 @@ export type PresentationSuccessLocation = {
 	code: string | null;
 };
 
-export type PresentationSuccessProtocolResponse = {
+export type PresentationSuccessResponse = {
 	protocol: PresentationSuccessProtocol;
 	nextStep: PresentationSuccessNextStep;
 	data: {
@@ -24,7 +24,7 @@ const nextStep = "presentation_success";
 export async function handlePresentationSuccess(
 	location: PresentationSuccessLocation,
 	config: PresentationSuccessConfig,
-): Promise<PresentationSuccessProtocolResponse> {
+): Promise<PresentationSuccessResponse> {
 	try {
 		return await doHandlePresentationSuccess(location, config);
 	} catch (error) {
@@ -39,7 +39,7 @@ export async function handlePresentationSuccess(
 async function doHandlePresentationSuccess(
 	location: PresentationSuccessLocation,
 	_config: PresentationSuccessConfig,
-): Promise<PresentationSuccessProtocolResponse> {
+): Promise<PresentationSuccessResponse> {
 	if (!location.code) {
 		throw new OauthError("invalid_location", "code parameter is missing");
 	}
