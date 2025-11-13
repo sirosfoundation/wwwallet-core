@@ -4,7 +4,7 @@
 		"prepare": "sh -c 'if [ \"$CI\" != \"true\" ]; then husky; fi'",
 		"dev": "concurrently --kill-others 'pnpm:core:dev' 'pnpm:start:client'",
 		"build": "pnpm run -r build",
-		"docs": "pnpm exec typedoc",
+		"docs": "pnpm exec typedoc --plugin typedoc-plugin-markdown",
 		"start:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/main.ts",
 		"config:validate:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/validateConfig.ts",
 		"core:dev": "pnpm --filter @wwwallet-private/server-core dev",
@@ -31,7 +31,8 @@
 		"dotenv-cli": "^10.0.0",
 		"husky": "^9.1.7",
 		"madge": "^8.0.0",
-		"typedoc": "^0.28.14"
+		"typedoc": "^0.28.14",
+		"typedoc-plugin-markdown": "^4.9.0"
 	},
 	"dependencies": {
 		"@tsconfig/node22": "^22.0.2",
