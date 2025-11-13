@@ -58,7 +58,7 @@ docker compose up k6 --no-log-prefix
 A reference documentation can be generated from command line which would be accessible at `docs/index.html`
 
 ```sh
-pnpm documentation
+pnpm documentation:start
 ```
 
 ## Running pnpm commands for a individual package
