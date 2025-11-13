@@ -78,18 +78,4 @@ Please read [./.changeset/README.md](./.changeset/README.md) For information abo
 pnpm dependency-tree
 ```
 
-### Client application
-
-![dependency tree](images/apps-client-dependency-tree.svg)
-
----
-
-### Server core package
-
-![dependency tree](images/packages-server-core-dependency-tree.svg)
-
----
-
-### Client core package
-
-![dependency tree](images/packages-client-core-dependency-tree.svg)
+Generated dependency trees are available [here](./dependency-tree/README.md)
