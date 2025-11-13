@@ -1,7 +1,7 @@
 import { OauthError } from "../../errors";
 import type { ResourceOwner } from "../../resources";
 
-type ValidateResourceOwnerParams = {
+export type ValidateResourceOwnerParams = {
 	resource_owner: ResourceOwner;
 };
 
