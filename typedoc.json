@@ -1,0 +1,10 @@
+{
+	"entryPoints": [
+		"packages/server-core/src/index.ts",
+		"packages/server-core/src/statements/index.ts",
+		"packages/client-core/src/index.ts",
+		"packages/client-core/src/statements/index.ts"
+	],
+	"out": "./docs",
+	"theme": "default"
+}
