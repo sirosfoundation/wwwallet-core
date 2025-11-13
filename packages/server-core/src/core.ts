@@ -44,6 +44,9 @@ export class Core {
 		this.rotateSecret();
 	}
 
+	/**
+	 * Handle well-known oauth-authorization-server requests
+	 */
 	get oauthAuthorizationServer() {
 		validateOauthAuthorizationServerHandlerConfig(this.config);
 
@@ -52,6 +55,9 @@ export class Core {
 		);
 	}
 
+	/**
+	 * Handle well-known openid-credential-issuer requests
+	 */
 	get openidCredentialIssuer() {
 		validateOauthAuthorizationServerHandlerConfig(this.config);
 
@@ -60,12 +66,29 @@ export class Core {
 		);
 	}
 
+	/**
+	 * Handle nonce requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".generateCNonce | generateCNonce}
+	 */
 	get nonce() {
 		validateNonceHandlerConfig(this.config);
 
 		return nonceHandlerFactory(this.config as NonceHandlerConfig);
 	}
 
+	/**
+	 * Handle pushed authorization requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
+	 * - {@link "server-core/src/statements".validateScope | validateScope}
+	 * - {@link "server-core/src/statements".validateIssuerState | validateIssuerState}
+	 * - {@link "server-core/src/statements".generateAuthorizationRequestUri | generateAuthorizationRequestUri}
+	 */
 	get pushedAuthorizationRequest() {
 		validatePushedAuthorizationRequestHandlerConfig(this.config);
 
@@ -74,24 +97,72 @@ export class Core {
 		);
 	}
 
+	/**
+	 * Handle authorization requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateRequestUri | validateRequestUri}
+	 * - {@link "server-core/src/statements".validateScope | validateScope}
+	 * - {@link "server-core/src/statements".validateIssuerState | validateIssuerState}
+	 * - {@link "server-core/src/statements".validateResourceOwner | validateResourceOwner}
+	 * - {@link "server-core/src/statements".generateAuthorizationCode | generateAuthorizationCode}
+	 * - {@link "server-core/src/statements".authorizationCodeRedirection | authorizationCodeRedirection}
+	 */
 	get authorize() {
 		validateAuthorizeHandlerConfig(this.config);
 
 		return authorizeHandlerFactory(this.config as AuthorizeHandlerConfig);
 	}
 
+	/**
+	 * Handle token requests
+	 *
+	 * #### Statements
+	 *
+	 * 1. client credentials
+	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
+	 * - {@link "server-core/src/statements".validateScope | validateScope}
+	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 *
+	 * 2. authorization code
+	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
+	 * - {@link "server-core/src/statements".validateAuthorizationCode | validateAuthorizationCode}
+	 * - {@link "server-core/src/statements".validateCodeVerifier | validateCodeVerifier}
+	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 */
 	get token() {
 		validateTokenHandlerConfig(this.config);
 
 		return tokenHandlerFactory(this.config as TokenHandlerConfig);
 	}
 
+	/**
+	 * Handle credential requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateAccessToken | validateAccessToken}
+	 * - {@link "server-core/src/statements".validateDpop | validateDpop}
+	 * - {@link "server-core/src/statements".validateProofs | validateProofs}
+	 * - {@link "server-core/src/statements".generateCredentials | generateCredentials}
+	 */
 	get credential() {
 		validateCredentialHandlerConfig(this.config);
 
 		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
 	}
 
+	/**
+	 * Handle credential offer requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".issuerClient | issuerClient}
+	 * - {@link "server-core/src/statements".validateScope | validateScope}
+	 * - {@link "server-core/src/statements".generateIssuerGrants | generateIssuerGrants}
+	 * - {@link "server-core/src/statements".generateCredentialOffer | generateCredentialOffer}
+	 */
 	get credentialOffer() {
 		validateCredentialOfferHandlerConfig(this.config);
 
