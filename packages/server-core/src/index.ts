@@ -3,6 +3,7 @@ export * from "./core";
 export * from "./errors";
 export type {
 	AuthorizeResponse,
+	CredentialOfferResponse,
 	CredentialResponse,
 	NonceResponse,
 	OauthAuthorizationServerResponse,
