@@ -1,4 +1,4 @@
-type BusinessEvent =
+export type BusinessEvent =
 	| "authorize"
 	| "authenticate"
 	| "authorize_error"
