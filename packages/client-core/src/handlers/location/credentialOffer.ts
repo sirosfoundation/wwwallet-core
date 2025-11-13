@@ -17,16 +17,14 @@ export type CredentialOfferLocation = {
 	credential_offer: string | null;
 };
 
-type PushedAuthorizationRequestMetadata = {
-	issuer: string;
-	credential_configuration_ids: Array<string>;
-	issuer_state: string | undefined;
-};
-
-export type CredentialOfferProtocolResponse = {
+export type CredentialOfferResponse = {
 	protocol: CredentialOfferProtocol;
-	nextStep?: CredentialOfferNextStep;
-	data?: PushedAuthorizationRequestMetadata;
+	nextStep: CredentialOfferNextStep;
+	data: {
+		issuer: string;
+		credential_configuration_ids: Array<string>;
+		issuer_state: string | undefined;
+	};
 };
 
 const protocol = "oid4vci";
@@ -35,7 +33,7 @@ const nextStep = "authorization_request";
 export async function handleCredentialOffer(
 	location: CredentialOfferLocation,
 	config: CredentialOfferLocationConfig,
-): Promise<CredentialOfferProtocolResponse> {
+): Promise<CredentialOfferResponse> {
 	try {
 		return await doHandleCredentialOffer(location, config);
 	} catch (error) {
@@ -50,7 +48,7 @@ export async function handleCredentialOffer(
 async function doHandleCredentialOffer(
 	location: CredentialOfferLocation,
 	config: CredentialOfferLocationConfig,
-): Promise<CredentialOfferProtocolResponse> {
+): Promise<CredentialOfferResponse> {
 	if (!location.credential_offer) {
 		throw new OauthError(
 			"invalid_location",
