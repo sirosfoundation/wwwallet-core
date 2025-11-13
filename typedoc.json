@@ -6,5 +6,6 @@
 		"packages/client-core/src/statements/index.ts"
 	],
 	"out": "./docs",
-	"theme": "default"
+	"theme": "default",
+	"plugin": ["typedoc-plugin-markdown"]
 }
