@@ -139,4 +139,6 @@ export class Core {
 
 export const defaultConfig = {
 	httpClient: axios,
+	dpop_ttl_seconds: 60,
+	static_clients: [],
 };
