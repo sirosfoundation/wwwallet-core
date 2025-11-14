@@ -54,7 +54,7 @@ importers:
       '@types/morgan':
         specifier: ^1.9.10
         version: 1.9.10
-      '@wwwallet-private/server-core':
+      '@wwwallet/server-core':
         specifier: workspace:*
         version: link:../../packages/server-core
       express:

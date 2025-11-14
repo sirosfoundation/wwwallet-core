@@ -63,7 +63,7 @@ $ docker compose up k6 --no-log-prefix
 ```sh
 $ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # Example:
-# pnpm --filter @wwwallet-private/server-core add -D vitest
+# pnpm --filter @wwwallet/server-core add -D vitest
 ```
 
 ## Changelog and versioning

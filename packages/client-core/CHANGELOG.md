@@ -1,4 +1,4 @@
-# @wwwallet-private/client-core
+# @wwwallet/client-core
 
 ## 0.1.0-alpha.8
 

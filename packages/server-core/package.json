@@ -1,5 +1,5 @@
 {
-	"name": "@wwwallet-private/server-core",
+	"name": "@wwwallet/server-core",
 	"version": "0.1.0-alpha.3",
 	"type": "module",
 	"main": "./dist/index.cjs",

@@ -8,7 +8,7 @@ import {
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
-} from "@wwwallet-private/server-core";
+} from "@wwwallet/server-core";
 import { core } from "./container";
 
 setTimeout(() => {
