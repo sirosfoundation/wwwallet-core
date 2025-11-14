@@ -38,7 +38,7 @@ type AuthorizeRequest = {
 	request_uri: string;
 };
 
-type AuthorizeResponse =
+export type AuthorizeResponse =
 	| {
 			status: 200;
 			data: {

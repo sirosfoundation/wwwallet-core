@@ -1,4 +1,4 @@
-type ErrorType =
+export type ErrorType =
 	| "invalid_location"
 	| "invalid_request"
 	| "invalid_query"

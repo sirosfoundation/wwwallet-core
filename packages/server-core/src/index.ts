@@ -1,5 +1,16 @@
 export * from "./config";
 export * from "./core";
+export * from "./errors";
+export type {
+	AuthorizeResponse,
+	CredentialOfferResponse,
+	CredentialResponse,
+	NonceResponse,
+	OauthAuthorizationServerResponse,
+	OpenidCredentialIssuerResponse,
+	PushedAuthorizationRequestResponse,
+	TokenResponse,
+} from "./handlers";
 export {
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,

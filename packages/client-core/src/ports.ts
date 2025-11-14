@@ -7,7 +7,7 @@ import type {
 	PresentationResponse,
 } from "./resources";
 
-export type ClientStateStore = {
+export interface ClientStateStore {
 	create(issuer: string, issuer_state: string): Promise<ClientState>;
 	commitChanges(clientState: ClientState): Promise<ClientState>;
 	cleanupExpired?(): Promise<void>;
@@ -21,15 +21,15 @@ export type ClientStateStore = {
 		clientState: ClientState,
 		issuerMetadata: IssuerMetadata,
 	): Promise<ClientState>;
-};
+}
 
-export type PresentationCredentialsStore = {
+export interface PresentationCredentialsStore {
 	fromDcqlQuery(
 		dcql_query: DcqlQuery.Output | null,
 	): Promise<Array<PresentationCredential>>;
-};
+}
 
-export type VpTokenSigner = {
+export interface VpTokenSigner {
 	sign?(
 		payload: Record<string, Array<string>>,
 		presentation_request: PresentationRequest,
@@ -38,13 +38,13 @@ export type VpTokenSigner = {
 		response: PresentationResponse,
 		presentation_request: PresentationRequest,
 	): Promise<string>;
-};
+}
 
-export type HttpClient = {
+export interface HttpClient {
 	get: <T>(url: string) => Promise<{ data: T }>;
 	post: <T>(
 		url: string,
 		body?: unknown,
 		config?: { headers: Record<string, string> },
 	) => Promise<{ data: T }>;
-};
+}

@@ -1,0 +1,13 @@
+{
+	"name": "wwWallet core documentation",
+	"githubPages": true,
+	"favicon": "./images/favicon.ico",
+	"entryPoints": [
+		"packages/server-core/src/statements/index.ts",
+		"packages/server-core/src/index.ts",
+		"packages/client-core/src/statements/index.ts",
+		"packages/client-core/src/index.ts"
+	],
+	"out": "./docs",
+	"theme": "default"
+}

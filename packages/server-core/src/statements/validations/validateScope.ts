@@ -1,7 +1,7 @@
 import { OauthError } from "../../errors";
 import type { IssuerClient, OauthClient } from "../../resources";
 
-type validateScopeParams = {
+export type validateScopeParams = {
 	client: OauthClient | IssuerClient;
 };
 

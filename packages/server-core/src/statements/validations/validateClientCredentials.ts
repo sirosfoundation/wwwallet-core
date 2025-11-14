@@ -1,7 +1,7 @@
 import { OauthError } from "../../errors";
 import type { AuthorizationRequest, OauthClient } from "../../resources";
 
-type validateClientCredentialsParams = {
+export type validateClientCredentialsParams = {
 	client_id: string;
 	client_secret?: string;
 	redirect_uri?: string;

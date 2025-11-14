@@ -4,6 +4,8 @@
 		"prepare": "sh -c 'if [ \"$CI\" != \"true\" ]; then husky; fi'",
 		"dev": "concurrently --kill-others 'pnpm:core:dev' 'pnpm:start:client'",
 		"build": "pnpm run -r build",
+		"documentation": "typedoc",
+		"documentation:start": "typedoc && http-server ./docs",
 		"start:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/main.ts",
 		"config:validate:client": "ts-node --typeCheck --transpileOnly --project ./apps/client/tsconfig.json ./apps/client/validateConfig.ts",
 		"core:dev": "pnpm --filter @wwwallet-private/server-core dev",
@@ -23,11 +25,15 @@
 		"@biomejs/biome": "2.1.2",
 		"@changesets/changelog-github": "^0.5.1",
 		"@changesets/cli": "^2.29.6",
+		"@microsoft/tsdoc": "^0.16.0",
+		"@types/web": "^0.0.265",
 		"@vitest/coverage-v8": "^3.2.4",
 		"concurrently": "^9.2.1",
 		"dotenv-cli": "^10.0.0",
+		"http-server": "^14.1.1",
 		"husky": "^9.1.7",
-		"madge": "^8.0.0"
+		"madge": "^8.0.0",
+		"typedoc": "^0.28.14"
 	},
 	"dependencies": {
 		"@tsconfig/node22": "^22.0.2",
