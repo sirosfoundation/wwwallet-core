@@ -1,6 +1,6 @@
 # wwWallet client-core
 
-This package aims to implement OAuth 2.0 family protocols at client level. It exposes the logic behind the protocols to apply the required security rules for a safe interaction with the authorization server in a federated point of view or an issuer (resp. verifier) within decentralized identity infrastructures.
+This package aims to implement OAuth 2.0 family protocols at client level. It exposes the logic behind the protocols to apply the required security rules for a safe interaction with an authorization server in a federated point of view or an issuer (resp. verifier) within decentralized identity infrastructures.
 
 ## Installation
 
