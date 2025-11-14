@@ -1,6 +1,7 @@
 {
 	"name": "client",
 	"private": true,
+	"license": "BSD-2-Clause",
 	"scripts": {
 		"start": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./main.ts",
 		"config:validate": "ts-node --typeCheck --transpileOnly --project ./tsconfig.json ./validateConfig.ts",

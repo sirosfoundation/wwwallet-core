@@ -1,5 +1,6 @@
 {
 	"private": true,
+	"license": "BSD-2-Clause",
 	"scripts": {
 		"prepare": "sh -c 'if [ \"$CI\" != \"true\" ]; then husky; fi'",
 		"dev": "concurrently --kill-others 'pnpm:core:dev' 'pnpm:start:client'",
