@@ -1,6 +1,6 @@
 # wwWallet server-core
 
-This package aims to implement OAuth 2.0 family protocols at server level. It exposes the logic behind the protocols to apply the required security rules for a safe interaction with client in a federated point of view or a wallet (resp. verifier) within decentralized identity infrastructures.
+This package aims to implement OAuth 2.0 family protocols at server level. It exposes the logic behind the protocols to apply the required security rules for a safe interaction with a client in a federated point of view or a wallet within decentralized identity infrastructures.
 
 ## Installation
 
