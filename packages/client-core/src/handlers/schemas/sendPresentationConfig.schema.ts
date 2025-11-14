@@ -1,5 +1,8 @@
 export const sendPresentationConfigSchema = {
 	type: "object",
-	properties: {},
-	required: [],
+	properties: {
+		httpClient: {},
+		vpTokenSigner: {},
+	},
+	required: ["httpClient", "vpTokenSigner"],
 };
