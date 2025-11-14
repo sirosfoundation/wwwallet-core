@@ -1,4 +1,11 @@
-import type { ClientState, IssuerMetadata } from "./resources";
+import type { DcqlQuery } from "dcql";
+import type {
+	ClientState,
+	IssuerMetadata,
+	PresentationCredential,
+	PresentationRequest,
+	PresentationResponse,
+} from "./resources";
 
 export type ClientStateStore = {
 	create(issuer: string, issuer_state: string): Promise<ClientState>;
@@ -14,6 +21,23 @@ export type ClientStateStore = {
 		clientState: ClientState,
 		issuerMetadata: IssuerMetadata,
 	): Promise<ClientState>;
+};
+
+export type PresentationCredentialsStore = {
+	fromDcqlQuery(
+		dcql_query: DcqlQuery.Output | null,
+	): Promise<Array<PresentationCredential>>;
+};
+
+export type VpTokenSigner = {
+	sign?(
+		payload: Record<string, Array<string>>,
+		presentation_request: PresentationRequest,
+	): Promise<string>;
+	encryptResponse?(
+		response: PresentationResponse,
+		presentation_request: PresentationRequest,
+	): Promise<string>;
 };
 
 export type HttpClient = {

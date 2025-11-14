@@ -6,11 +6,17 @@ import {
 	authorizationHandlerFactory,
 	type CredentialHandlerConfig,
 	credentialHandlerFactory,
+	type GeneratePresentationConfig,
+	generatePresentationHandlerFactory,
 	type LocationHandlerConfig,
 	locationHandlerFactory,
+	type SendPresentationConfig,
+	sendPresentationHandlerFactory,
 	validateAuthorizationHandlerConfig,
 	validateCredentialHandlerConfig,
+	validateGeneratePresentationHandlerConfig,
 	validateLocationHandlerConfig,
+	validateSendPresentationHandlerConfig,
 } from "./handlers";
 
 export class Core {
@@ -38,6 +44,22 @@ export class Core {
 		validateCredentialHandlerConfig(this.config);
 
 		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
+	}
+
+	get generatePresentation() {
+		validateGeneratePresentationHandlerConfig(this.config);
+
+		return generatePresentationHandlerFactory(
+			this.config as GeneratePresentationConfig,
+		);
+	}
+
+	get sendPresentation() {
+		validateSendPresentationHandlerConfig(this.config);
+
+		return sendPresentationHandlerFactory(
+			this.config as SendPresentationConfig,
+		);
 	}
 }
 

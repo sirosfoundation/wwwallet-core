@@ -42,15 +42,9 @@ type ProtocolLocation = {
 	error: string | null;
 	error_description: string | null;
 	client_id: string | null;
-	response_uri: string | null;
-	response_type: string | null;
-	response_mode: string | null;
-	nonce: string | null;
-	state: string | null;
-	dcql_query: string | null;
-	scope: string | null;
 	request: string | null;
 	request_uri: string | null;
+	state: string | null;
 };
 
 type NoProtocol = {
@@ -132,15 +126,9 @@ async function parseLocation(
 	const error_description = searchParams.get("error_description");
 	const code = searchParams.get("code");
 	const client_id = searchParams.get("client_id");
-	const response_uri = searchParams.get("response_uri");
-	const response_type = searchParams.get("response_type");
-	const response_mode = searchParams.get("response_mode");
-	const nonce = searchParams.get("nonce");
-	const state = searchParams.get("state");
-	const dcql_query = searchParams.get("dcql_query");
-	const scope = searchParams.get("scope");
 	const request = searchParams.get("request");
 	const request_uri = searchParams.get("request_uri");
+	const state = searchParams.get("state");
 
 	return {
 		credential_offer,
@@ -148,15 +136,9 @@ async function parseLocation(
 		error,
 		error_description,
 		client_id,
-		response_uri,
-		response_type,
-		response_mode,
-		nonce,
-		state,
-		dcql_query,
-		scope,
 		request,
 		request_uri,
+		state,
 	};
 }
 
