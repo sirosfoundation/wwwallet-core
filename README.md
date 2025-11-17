@@ -75,7 +75,7 @@ pnpm --filter [PACKAGE NAME] [COMMAND ...]
 
 ## Changelog and versioning
 
-Please read [./.changeset/README.md](./.changeset/README.md) For information about changelog and versioning.
+Please read [./.changeset/README.md](https://github.com/sirosfoundation/wwwallet-core/blob/master/.changeset/README.md) For information about changelog and versioning.
 
 ## Dependency tree
 
@@ -83,7 +83,7 @@ Please read [./.changeset/README.md](./.changeset/README.md) For information abo
 pnpm run dependency-tree
 ```
 
-Generated dependency trees are available [here](./dependency-tree/README.md)
+Generated dependency trees are available [here](https://github.com/sirosfoundation/wwwallet-core/blob/master/dependency-tree/README.md)
 
 ## License
 
