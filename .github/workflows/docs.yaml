@@ -26,6 +26,7 @@ jobs:
       with:
         version: ${{ matrix.pnpm-version }}
     - run: pnpm install --frozen-lockfile
+    - run: pnpm run build
     - run: pnpm run documentation
 
     - name: Setup Pages
