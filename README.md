@@ -60,7 +60,7 @@ docker compose up k6 --no-log-prefix
 
 ## Documentation
 
-A reference documentation can be generated from command line which would be accessible at `docs/index.html`
+A reference documentation can be generated from command line which would be accessible at `docs/index.html`. The master branch doccumentation is available at [https://sirosfoundation.github.io/wwwallet-core/](https://sirosfoundation.github.io/wwwallet-core/)
 
 ```sh
 pnpm run documentation:start
