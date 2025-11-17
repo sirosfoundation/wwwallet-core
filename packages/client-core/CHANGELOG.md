@@ -1,5 +1,11 @@
 # @wwwallet/client-core
 
+## 0.1.0-alpha.9
+
+### Patch Changes
+
+- 620c8b5: Implements OpenID 4 Verifiable Presentations
+
 ## 0.1.0-alpha.8
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
 	"name": "@wwwallet/client-core",
-	"version": "0.1.0-alpha.8",
+	"version": "0.1.0-alpha.9",
 	"license": "BSD-2-Clause",
 	"type": "module",
 	"main": "./dist/index.cjs",
