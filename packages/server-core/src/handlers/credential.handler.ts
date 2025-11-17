@@ -79,7 +79,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 					config,
 				);
 
-			const { proofs: _proofs } = await validateProofs(
+			const { proofs: _proofs, jwks } = await validateProofs(
 				{
 					proofs: request.proofs,
 				},
@@ -90,6 +90,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				{
 					sub,
 					credential_configuration_ids,
+					jwks,
 				},
 				config,
 			);

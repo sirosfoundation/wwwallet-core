@@ -21,12 +21,16 @@ export async function validateProofs(
 	{ proofs }: ValidateProofsParams,
 	config: ValidateProofsConfig,
 ) {
+	let jwks: Array<JWK> = [];
+
 	for (const proofType of Object.keys(proofs)) {
 		if (proofType === "jwt" && proofs.jwt) {
-			const { proofs: _jwtProofs } = await validateJwtProofs(
+			const { proofs: _jwtProofs, jwks: jwtJwks } = await validateJwtProofs(
 				{ proofs: proofs.jwt },
 				config,
 			);
+
+			jwks = jwks.concat(jwtJwks);
 			continue;
 		}
 
@@ -41,13 +45,14 @@ export async function validateProofs(
 		throw new OauthError(400, "invalid_request", "unknown proof type");
 	}
 
-	return { proofs };
+	return { proofs, jwks };
 }
 
 async function validateJwtProofs(
 	{ proofs }: { proofs: Array<string> },
 	config: ValidateProofsConfig,
 ) {
+	const jwks = [];
 	let i = 0;
 	for (const proof of proofs) {
 		try {
@@ -66,6 +71,7 @@ async function validateJwtProofs(
 			} = await jwtVerify<{ nonce: string | undefined }>(proof, jwk);
 
 			await validateNonce({ nonce, type: "jwt", index: i }, config);
+			jwks.push(jwk);
 		} catch (error) {
 			if (error instanceof OauthError) {
 				throw error;
@@ -81,7 +87,7 @@ async function validateJwtProofs(
 		i++;
 	}
 
-	return { proofs };
+	return { proofs, jwks };
 }
 
 async function validateAttestationProofs(

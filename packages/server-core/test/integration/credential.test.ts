@@ -498,6 +498,7 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+					cnf: {},
 				});
 			});
 
@@ -519,6 +520,7 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+					cnf: {},
 				});
 			});
 
@@ -540,14 +542,16 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+					cnf: {},
 				});
 			});
 
 			it("returns credentials with proofs", async () => {
 				const credential_configuration_id = "full";
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
 				const proof = await new SignJWT({ nonce: c_nonce })
-					.setProtectedHeader({ alg: "ES256", jwk: await exportJWK(publicKey) })
+					.setProtectedHeader({ alg: "ES256", jwk })
 					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
@@ -565,14 +569,16 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+					cnf: { jwk },
 				});
 			});
 
 			it("returns credentials with a proof", async () => {
 				const credential_configuration_id = "full";
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
 				const proof = await new SignJWT({ nonce: c_nonce })
-					.setProtectedHeader({ alg: "ES256", jwk: await exportJWK(publicKey) })
+					.setProtectedHeader({ alg: "ES256", jwk })
 					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
@@ -590,6 +596,7 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
+					cnf: { jwk },
 				});
 			});
 		});
