@@ -380,9 +380,12 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
+			const publicKey = new crypto.X509Certificate(
+				Buffer.from(trustedCertificate, "base64"),
+			).publicKey;
 			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { attestation: [proof] },
-				jwks: [],
+				jwks: [await exportJWK(publicKey)],
 			});
 		});
 	});
