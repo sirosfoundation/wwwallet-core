@@ -80,7 +80,7 @@ Please read [./.changeset/README.md](./.changeset/README.md) For information abo
 ## Dependency tree
 
 ```sh
-pnpm dependency-tree
+pnpm run dependency-tree
 ```
 
 Generated dependency trees are available [here](./dependency-tree/README.md)
