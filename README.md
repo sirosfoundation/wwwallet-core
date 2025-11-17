@@ -79,3 +79,7 @@ pnpm dependency-tree
 ```
 
 Generated dependency trees are available [here](./dependency-tree/README.md)
+
+## License
+
+The source code is released under a [BSD-2 clause license](./LICENSE)

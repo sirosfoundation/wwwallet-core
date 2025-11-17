@@ -14,4 +14,4 @@ This package is part of a repository containing multiple sources https://github.
 
 ## License
 
-This code is released under a BSD-2 clause license
+The source code is released under a BSD-2 clause license
