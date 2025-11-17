@@ -1,6 +1,7 @@
 {
 	"name": "@wwwallet/server-core",
 	"version": "0.1.0-alpha.3",
+	"license": "BSD-2-Clause",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
