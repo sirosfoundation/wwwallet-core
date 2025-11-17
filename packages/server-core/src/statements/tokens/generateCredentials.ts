@@ -9,7 +9,7 @@ import type { CredentialConfiguration } from "../../resources";
 export type GenerateCredentialsParams = {
 	sub: string;
 	credential_configuration_ids: Array<string>;
-	jwks?: Array<JWK>;
+	jwks: Array<JWK>;
 };
 
 export type GenerateCredentialsConfig = {
@@ -46,12 +46,11 @@ export async function generateCredentials(
 		credentialConfiguration.vct,
 	)) as Claims;
 
-	if (jwks) {
-		claims.cnf = { jwk: jwks[0] };
-	}
+	const cnf = { jwk: jwks[0] };
 
 	const credential = await generateAndSign(
 		claims,
+		cnf,
 		credentialConfiguration,
 		config,
 	);
@@ -63,6 +62,7 @@ export async function generateCredentials(
 
 async function generateAndSign(
 	claims: Claims,
+	cnf: { jwk: JWK },
 	credentialConfiguration: CredentialConfiguration,
 	config: GenerateCredentialsConfig,
 ) {
@@ -83,6 +83,7 @@ async function generateAndSign(
 				}),
 			),
 		),
+		cnf,
 		iss: config.issuer_url,
 		vct: credentialConfiguration.vct,
 	};
