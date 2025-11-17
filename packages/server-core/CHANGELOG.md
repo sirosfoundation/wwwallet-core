@@ -1,4 +1,4 @@
-# @wwwallet-private/core
+# @wwwallet/core
 
 ## 0.1.0-alpha.3
 

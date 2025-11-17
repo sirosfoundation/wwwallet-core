@@ -1,5 +1,5 @@
 ---
-"@wwwallet-private/client-core": minor
+"@wwwallet/client-core": minor
 ---
 
 Credential handler implementation

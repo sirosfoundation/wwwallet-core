@@ -2,9 +2,9 @@
   "mode": "pre",
   "tag": "alpha",
   "initialVersions": {
-    "@wwwallet-private/core": "0.0.0",
-    "@wwwallet-private/client-core": "0.0.0",
-    "@wwwallet-private/server-core": "0.0.0"
+    "@wwwallet/core": "0.0.0",
+    "@wwwallet/client-core": "0.0.0",
+    "@wwwallet/server-core": "0.0.0"
   },
   "changesets": [
     "angry-books-reply",

@@ -1,5 +1,5 @@
 ---
-"@wwwallet-private/client-core": minor
+"@wwwallet/client-core": minor
 ---
 
 Add authorization chanllenge method to authorization handler
