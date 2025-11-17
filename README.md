@@ -15,7 +15,7 @@ pnpm install
 
 Server static configuration can be edited given the example `config.yml` [file](./apps/client/config.yml).
 
-## Run a development server
+## Run an example issuer
 
 ```sh
 pnpm run start:client
