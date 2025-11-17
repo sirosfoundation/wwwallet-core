@@ -1,5 +1,10 @@
 # wwWallet core
 
+wwWallet core is a set of packages to suppport the implementation of issuers / wallets / verifiers required logic to manage authorization grants up to verifiable credentials in a secure and privacy preserving way.
+
+- [@wwwallet/client-core](./packages/client-core/README.md)
+- [@wwwallet/server-core](./packages/server-core/README.md)
+
 ## Installation
 
 ```sh
