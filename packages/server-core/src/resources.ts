@@ -104,10 +104,10 @@ export type CredentialConfigurationSupported = {
 	cryptographic_binding_methods_supported: Array<string>;
 	credential_signing_alg_values_supported: Array<string>;
 	proof_types_supported: {
-		jwt: {
+		jwt?: {
 			proof_signing_alg_values_supported: Array<string>;
 		};
-		attestation: {
+		attestation?: {
 			proof_signing_alg_values_supported: Array<string>;
 			key_attestations_required: {};
 		};

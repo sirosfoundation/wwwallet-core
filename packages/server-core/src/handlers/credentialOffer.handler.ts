@@ -40,7 +40,7 @@ type CredentialOfferRequest = {
 	authorizationServerState: AuthorizationServerState;
 };
 
-type CredentialOfferResponse = {
+export type CredentialOfferResponse = {
 	status: 200;
 	data: {
 		credentialOfferUrl: string;

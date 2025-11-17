@@ -1,5 +1,18 @@
 {
-	"extends": "../../tsconfig.json",
-	"include": ["*.ts", "test/**/*"],
-	"exclude": ["node_modules/"]
+	"extends": "@tsconfig/node22/tsconfig.json",
+	"ts-node": {
+		"transpileOnly": true,
+
+		"files": true,
+
+		"compilerOptions": {
+			"strict": true,
+			"esModuleInterop": true,
+			"jsx": "react",
+			"moduleResolution": "nodenext",
+			"target": "esnext",
+			"rootDir": ".",
+			"outDir": "./dist"
+		}
+	}
 }

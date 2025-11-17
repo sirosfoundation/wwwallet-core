@@ -2,7 +2,7 @@ import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AuthorizationCode } from "../../resources";
 
-type validateAuthorizationCodeParams = {
+export type validateAuthorizationCodeParams = {
 	authorization_code: string;
 	redirect_uri: string;
 };

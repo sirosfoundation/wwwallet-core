@@ -3,7 +3,7 @@ import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AuthorizationRequest } from "../../resources";
 
-type validateRequestUriParams = {
+export type validateRequestUriParams = {
 	request_uri: string | undefined;
 };
 

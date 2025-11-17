@@ -1,31 +1,25 @@
-# wwWallet issuer proof of concept
+# wwWallet core
 
 ## Installation
 
 ```sh
-$ pnpm install
+pnpm install
 ```
 
 ### Configuration
 
-Server static configuration can be edited given the example `config.ts` [file](./apps/client/config.ts).
+Server static configuration can be edited given the example `config.yml` [file](./apps/client/config.yml).
 
 ## Run a development server
 
 ```sh
-$ pnpm run dev
+pnpm run start:client
 ```
-
-> [!NOTE]
-> If you're working with a fresh clone of the repo or haven't run any builds, you need to run an initial build of all [packages](./packages):
-> ```sh
-> $ pnpm run build
-> ```
 
 Or with Docker:
 
 ```sh
-$ docker compose up
+docker compose up
 ```
 
 ### client credentials implementation
@@ -33,16 +27,16 @@ $ docker compose up
 This server exposes a token endpoint implementing client credentials, those are checked against the clients registered in the configuration. Requesting the server using cURL, you obtain an access token (or an error) following the OAuth 2.0 specification.
 
 ```sh
-$ curl -X POST http://localhost:5000/token \
-	--data '{"client_id": "id", "client_secret": "secret", "scope": "client:scope"}' \
+curl -X POST http://localhost:5000/token \
+	--data '{"client_id": "CLIENT123", "client_secret": "321TNEILC", "scope": "client:scope", "grant_type": "client_credentials"}' \
 	-H 'Content-Type: application/json'
-{"access_token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpZCIsImlhdCI6MTc1MzQ2NzE4OSwiZXhwIjoxNzUzNDc0Mzg5Ljg2NX0.7E1obwrXsIwe3WeUDcoJR7voVqn2WlTOru9c6yfdLaw","expires_in":7200,"token_type":"bearer"
+{"access_token":"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0..BkXrAwHsE0Br1nxUkvezLw.Bq3JWgmHgZfI-RVK_NVu79PJqB0cqqqO9GBc5uMmMLekxmEEnGe1wetR6jAHFSjSVFVUZ2SNXBoe49eeucHfYPOrdKg-j-v1AVx8EKvl4CUhX6F_Z09d_ZYJ1Yw_d3Cnd9rND1nCbv0DLi56w8h6VN7GBDLfAwikCB6RHAHJNMwfinLo6LHqnY1fBde1dPkh.YH3pGiwkHRaNmG14tGdimjWmR66ixHsZ1QTjmUz0_24","expires_in":60,"token_type":"bearer"}
 ```
 
 ## Run tests
 
 ```sh
-$ pnpm test
+pnpm test
 ```
 
 ## Run load tests
@@ -50,18 +44,26 @@ $ pnpm test
 In order to perform load tests, here [k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) is used to simulate user requests.
 
 ```sh
-$ k6 run scripts/loadtest.oid4vci.k6.js
+k6 run scripts/loadtest.oid4vci.k6.js
 ```
 
 Or with Docker:
 
 ```sh
-$ docker compose up k6 --no-log-prefix
+docker compose up k6 --no-log-prefix
+```
+
+## Documentation
+
+A reference documentation can be generated from command line which would be accessible at `docs/index.html`
+
+```sh
+pnpm documentation:start
 ```
 
 ## Running pnpm commands for a individual package
 ```sh
-$ pnpm --filter [PACKAGE NAME] [COMMAND ...]
+pnpm --filter [PACKAGE NAME] [COMMAND ...]
 # Example:
 # pnpm --filter @wwwallet/server-core add -D vitest
 ```
@@ -73,19 +75,7 @@ Please read [./.changeset/README.md](./.changeset/README.md) For information abo
 ## Dependency tree
 
 ```sh
-$ pnpm dependency-tree
+pnpm dependency-tree
 ```
 
-### Client application
-
-![dependency tree](images/apps-client-dependency-tree.svg)
-
----
-
-### Server core package
-
-![dependency tree](images/packages-server-core-dependency-tree.svg)
-
-### Client core package
-
-![dependency tree](images/packages-client-core-dependency-tree.svg)
+Generated dependency trees are available [here](./dependency-tree/README.md)

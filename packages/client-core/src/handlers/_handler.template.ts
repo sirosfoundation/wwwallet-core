@@ -23,6 +23,7 @@ type TemplateResponse = {
 };
 
 const protocol = "protocol";
+const currentStep = "current_step";
 const nextStep = "next_step";
 
 export function handlerTemplateFactory(config: HandlerTemplateConfig) {
@@ -40,7 +41,7 @@ export function handlerTemplateFactory(config: HandlerTemplateConfig) {
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
-				const data = templateErrorData({ protocol, nextStep });
+				const data = templateErrorData({ protocol, currentStep, nextStep });
 				throw error.toResponse(data);
 			}
 
@@ -64,6 +65,14 @@ async function unit(_params: unknown): Promise<TemplateRequest> {
 	return {};
 }
 
-function templateErrorData(params: { protocol: string; nextStep: string }) {
-	return params;
+function templateErrorData({
+	protocol,
+	currentStep,
+	nextStep,
+}: {
+	protocol: string;
+	currentStep: string;
+	nextStep: string;
+}) {
+	return { protocol, currentStep, nextStep };
 }

@@ -1,5 +1,10 @@
+import type { DcqlQuery } from "dcql";
 import { exportJWK, generateKeyPair } from "jose";
-import type { ClientState, IssuerMetadata } from "../../src";
+import type {
+	ClientState,
+	IssuerMetadata,
+	PresentationCredential,
+} from "../../src";
 
 export const fetchIssuerMetadataMock = (issuerMetadata: unknown) => {
 	return async <T>(url: string) => {
@@ -117,5 +122,23 @@ export const httpClientPostMock = (data?: unknown) => {
 		_config?: { headers: Record<string, string> },
 	) => {
 		return { data: data as T };
+	};
+};
+
+export const presentationCredentialsStoreMock = (
+	presentation_credentials: Array<PresentationCredential> = [],
+) => {
+	return {
+		async fromDcqlQuery(dcql_query: DcqlQuery.Output | null) {
+			if (!dcql_query) return [];
+			return dcql_query.credentials.flatMap(({ id }) => {
+				return presentation_credentials.map((credential) => {
+					return {
+						credential_id: id,
+						credential: credential.credential,
+					};
+				});
+			});
+		},
 	};
 };

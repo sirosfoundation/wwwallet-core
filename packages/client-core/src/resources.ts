@@ -1,11 +1,13 @@
+import type { DcqlQuery } from "dcql";
 import type { JWK } from "jose";
+
 export type OauthClient = {
 	issuer: string;
 	client_id: string;
 	client_secret: string;
 };
 
-export interface ClientState {
+export type ClientState = {
 	issuer: string;
 	issuer_state: string;
 	state: string;
@@ -17,7 +19,40 @@ export interface ClientState {
 	credential_configuration_ids?: Array<string>;
 	issuer_metadata?: IssuerMetadata;
 	context?: unknown;
-}
+};
+
+export type PresentationCredential = {
+	credential: string;
+	credential_id?: string;
+	context?: unknown;
+};
+
+export type ClientMetadata = {
+	jwks_uri?: string;
+	jwks?: {
+		keys: Array<JWK>;
+	};
+	encrypted_response_enc_values_supported?: Array<string>;
+	vp_formats_supported: Record<string, unknown>;
+};
+
+export type PresentationRequest = {
+	client_id: string;
+	response_uri: string;
+	response_type: string;
+	response_mode: string;
+	nonce: string;
+	state: string;
+	dcql_query: DcqlQuery.Output | null;
+	client_metadata: ClientMetadata | null;
+	scope?: string;
+};
+
+export type PresentationResponse = {
+	vp_token: string;
+	presentation_submission?: unknown;
+	state?: string;
+};
 
 export type CredentialConfigurationSupported = {
 	format: string;

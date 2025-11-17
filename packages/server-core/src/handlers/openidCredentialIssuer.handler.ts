@@ -41,7 +41,7 @@ export type OpenidCredentialIssuerHandlerConfig = {
 	}>;
 };
 
-type OpenidCredentialIssuerResponse = {
+export type OpenidCredentialIssuerResponse = {
 	status: 200;
 	body: OpenidCredentialIssuer;
 };

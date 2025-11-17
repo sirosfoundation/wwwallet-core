@@ -1,6 +1,6 @@
 import type { AuthorizationRequest } from "../../resources";
 
-type AuthorizationCodeRedirectionParams = {
+export type AuthorizationCodeRedirectionParams = {
 	authorization_request: AuthorizationRequest;
 	authorization_code: string;
 };

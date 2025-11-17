@@ -2,7 +2,7 @@ import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { AccessToken, OauthClient } from "../../resources";
 
-type validateAccessTokenParams = {
+export type validateAccessTokenParams = {
 	access_token: string | undefined;
 };
 
