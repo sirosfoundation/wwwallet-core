@@ -2,8 +2,8 @@
 
 wwWallet core is a set of packages to suppport the implementation of issuers / wallets / verifiers required logic to manage authorization grants up to verifiable credentials in a secure and privacy preserving way.
 
-- [@wwwallet/client-core](./packages/client-core/README.md)
-- [@wwwallet/server-core](./packages/server-core/README.md)
+- [@wwwallet/client-core](https://sirosfoundation.github.io/wwwallet-core/modules/client-core_src.html)
+- [@wwwallet/server-core](https://sirosfoundation.github.io/wwwallet-core/modules/server-core_src.html)
 
 ## Installation
 
@@ -80,7 +80,7 @@ Please read [./.changeset/README.md](./.changeset/README.md) For information abo
 ## Dependency tree
 
 ```sh
-pnpm dependency-tree
+pnpm run dependency-tree
 ```
 
 Generated dependency trees are available [here](./dependency-tree/README.md)
