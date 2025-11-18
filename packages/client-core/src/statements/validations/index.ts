@@ -1,3 +1,4 @@
+export * from "./validateClientId";
 export * from "./validateClientMetadata";
 export * from "./validateCredentialOffer";
 export * from "./validateDcqlQuery";
