@@ -3,7 +3,11 @@ import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
 import type { HttpClient } from "../../ports";
 import type { ClientMetadata, PresentationRequest } from "../../resources";
-import { validateClientMetadata, validateDcqlQuery } from "../../statements";
+import {
+	validateClientId,
+	validateClientMetadata,
+	validateDcqlQuery,
+} from "../../statements";
 
 export type PresentationRequestConfig = {
 	httpClient: HttpClient;
@@ -52,6 +56,7 @@ async function doHandlePresentationRequest(
 	config: PresentationRequestConfig,
 ): Promise<PresentationRequestResponse> {
 	const parameters: Array<
+		| "request"
 		| "client_id"
 		| "response_uri"
 		| "response_type"
@@ -59,6 +64,7 @@ async function doHandlePresentationRequest(
 		| "nonce"
 		| "state"
 	> = [
+		"request",
 		"client_id",
 		"response_uri",
 		"response_type",
@@ -67,7 +73,9 @@ async function doHandlePresentationRequest(
 		"state",
 	];
 
+	// TODO validate presentation request statement
 	const presentation_request: PresentationRequest = {
+		request: location.request || "",
 		client_id: location.client_id || "",
 		response_uri: "",
 		response_type: "",
@@ -83,6 +91,8 @@ async function doHandlePresentationRequest(
 			const response = await config.httpClient
 				.get<string>(location.request_uri)
 				.then(({ data }) => data);
+			presentation_request.request = response;
+			// TODO manage raw presentation requests
 			const payload = decodeJwt<PresentationRequest>(response);
 			Object.assign(presentation_request, payload);
 		} catch (error) {
@@ -113,6 +123,13 @@ async function doHandlePresentationRequest(
 			);
 		}
 	}
+
+	const { client_id: _client_id } = await validateClientId(
+		{
+			presentation_request,
+		},
+		config,
+	);
 
 	const { dcql_query } = await validateDcqlQuery(
 		{
