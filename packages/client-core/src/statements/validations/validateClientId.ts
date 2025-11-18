@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { decodeProtectedHeader } from "jose";
+import { decodeProtectedHeader, jwtVerify } from "jose";
 import { OauthError } from "../../errors";
 import type { PresentationRequest } from "../../resources";
 
@@ -54,6 +54,16 @@ async function validateX509ClientId(
 		throw new OauthError(
 			"invalid_client",
 			"client host does not match presentation request",
+		);
+	}
+
+	try {
+		await jwtVerify(presentation_request.request, clientCert.publicKey);
+	} catch (error) {
+		throw new OauthError(
+			"invalid_client",
+			"presentation request signature does not match x5c header",
+			{ error },
 		);
 	}
 
