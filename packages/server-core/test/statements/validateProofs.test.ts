@@ -25,6 +25,7 @@ describe("validate Proofs", () => {
 
 		return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 			proofs: {},
+			jwks: [],
 		});
 	});
 
@@ -42,6 +43,7 @@ describe("validate Proofs", () => {
 
 			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { jwt: [] },
+				jwks: [],
 			});
 		});
 
@@ -171,14 +173,16 @@ describe("validate Proofs", () => {
 				.setExpirationTime(now + (core.config.access_token_ttl || 0))
 				.encrypt(secret);
 			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const jwk = await exportJWK(publicKey);
 
 			const proof = await new SignJWT({ nonce: c_nonce })
-				.setProtectedHeader({ alg: "ES256", jwk: await exportJWK(publicKey) })
+				.setProtectedHeader({ alg: "ES256", jwk })
 				.sign(privateKey);
 			const proofs = { jwt: [proof] };
 
 			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { jwt: [proof] },
+				jwks: [jwk],
 			});
 		});
 	});
@@ -189,6 +193,7 @@ describe("validate Proofs", () => {
 
 			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { attestation: [] },
+				jwks: [],
 			});
 		});
 
@@ -375,8 +380,12 @@ describe("validate Proofs", () => {
 				.sign(crypto.createPrivateKey(privateKey));
 			const proofs = { attestation: [proof] };
 
+			const publicKey = new crypto.X509Certificate(
+				Buffer.from(trustedCertificate, "base64"),
+			).publicKey;
 			return expect(validateProofs({ proofs }, config)).resolves.to.deep.eq({
 				proofs: { attestation: [proof] },
+				jwks: [await exportJWK(publicKey)],
 			});
 		});
 	});

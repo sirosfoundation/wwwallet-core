@@ -2,12 +2,14 @@ import crypto from "node:crypto";
 import { Jwt, SDJwt } from "@sd-jwt/core";
 import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { Disclosure } from "@sd-jwt/utils";
+import type { JWK } from "jose";
 import { OauthError } from "../../errors";
 import type { CredentialConfiguration } from "../../resources";
 
 export type GenerateCredentialsParams = {
 	sub: string;
 	credential_configuration_ids: Array<string>;
+	jwks: Array<JWK>;
 };
 
 export type GenerateCredentialsConfig = {
@@ -23,7 +25,7 @@ type Claims = {
 };
 
 export async function generateCredentials(
-	{ sub, credential_configuration_ids }: GenerateCredentialsParams,
+	{ sub, credential_configuration_ids, jwks }: GenerateCredentialsParams,
 	config: GenerateCredentialsConfig,
 ) {
 	const credentialConfiguration =
@@ -43,8 +45,12 @@ export async function generateCredentials(
 		sub,
 		credentialConfiguration.vct,
 	)) as Claims;
+
+	const cnf = { jwk: jwks[0] };
+
 	const credential = await generateAndSign(
 		claims,
+		cnf,
 		credentialConfiguration,
 		config,
 	);
@@ -56,6 +62,7 @@ export async function generateCredentials(
 
 async function generateAndSign(
 	claims: Claims,
+	cnf: { jwk: JWK },
 	credentialConfiguration: CredentialConfiguration,
 	config: GenerateCredentialsConfig,
 ) {
@@ -76,6 +83,7 @@ async function generateAndSign(
 				}),
 			),
 		),
+		cnf,
 		iss: config.issuer_url,
 		vct: credentialConfiguration.vct,
 	};

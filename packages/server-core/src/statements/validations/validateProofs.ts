@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { decodeProtectedHeader, type JWK, jwtVerify } from "jose";
+import { decodeProtectedHeader, exportJWK, type JWK, jwtVerify } from "jose";
 import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
 import type { IssuerClient } from "../../resources";
@@ -21,33 +21,37 @@ export async function validateProofs(
 	{ proofs }: ValidateProofsParams,
 	config: ValidateProofsConfig,
 ) {
+	let jwks: Array<JWK> = [];
+
 	for (const proofType of Object.keys(proofs)) {
 		if (proofType === "jwt" && proofs.jwt) {
-			const { proofs: _jwtProofs } = await validateJwtProofs(
+			const { proofs: _jwtProofs, jwks: jwtJwks } = await validateJwtProofs(
 				{ proofs: proofs.jwt },
 				config,
 			);
+
+			jwks = jwks.concat(jwtJwks);
 			continue;
 		}
 
 		if (proofType === "attestation" && proofs.attestation) {
-			const { proofs: _attestationProofs } = await validateAttestationProofs(
-				{ proofs: proofs.attestation },
-				config,
-			);
+			const { proofs: _attestationProofs, jwks: attestationJwks } =
+				await validateAttestationProofs({ proofs: proofs.attestation }, config);
+			jwks = jwks.concat(attestationJwks);
 			continue;
 		}
 
 		throw new OauthError(400, "invalid_request", "unknown proof type");
 	}
 
-	return { proofs };
+	return { proofs, jwks };
 }
 
 async function validateJwtProofs(
 	{ proofs }: { proofs: Array<string> },
 	config: ValidateProofsConfig,
 ) {
+	const jwks = [];
 	let i = 0;
 	for (const proof of proofs) {
 		try {
@@ -66,6 +70,7 @@ async function validateJwtProofs(
 			} = await jwtVerify<{ nonce: string | undefined }>(proof, jwk);
 
 			await validateNonce({ nonce, type: "jwt", index: i }, config);
+			jwks.push(jwk);
 		} catch (error) {
 			if (error instanceof OauthError) {
 				throw error;
@@ -81,7 +86,7 @@ async function validateJwtProofs(
 		i++;
 	}
 
-	return { proofs };
+	return { proofs, jwks };
 }
 
 async function validateAttestationProofs(
@@ -89,6 +94,7 @@ async function validateAttestationProofs(
 	config: ValidateProofsConfig,
 ) {
 	let i = 0;
+	const jwks: Array<JWK> = [];
 	for (const proof of proofs) {
 		try {
 			const header: { x5c?: Array<string> } = decodeProtectedHeader(proof);
@@ -104,14 +110,15 @@ async function validateAttestationProofs(
 			const { x5c } = await validateX5c({ x5c: header.x5c, index: i }, config);
 
 			try {
+				const publicKey = new crypto.X509Certificate(
+					Buffer.from(x5c[0], "base64"),
+				).publicKey;
 				const {
 					payload: { nonce },
-				} = await jwtVerify<{ nonce: string | undefined }>(
-					proof,
-					new crypto.X509Certificate(Buffer.from(x5c[0], "base64")).publicKey,
-				);
+				} = await jwtVerify<{ nonce: string | undefined }>(proof, publicKey);
 
 				await validateNonce({ nonce, type: "attestation", index: i }, config);
+				jwks.push(await exportJWK(publicKey));
 			} catch (error) {
 				if (error instanceof OauthError) {
 					throw error;
@@ -138,7 +145,7 @@ async function validateAttestationProofs(
 		i++;
 	}
 
-	return { proofs };
+	return { proofs, jwks };
 }
 
 async function validateNonce(
