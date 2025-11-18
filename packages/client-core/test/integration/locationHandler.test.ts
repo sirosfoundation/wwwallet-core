@@ -804,8 +804,8 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -853,8 +853,8 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -902,8 +902,8 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -956,8 +956,8 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256", x5c: [rawCertificate] })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256", x5c: [rawCertificate] })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -1006,8 +1006,8 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256", x5c: [rawCertificate] })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256", x5c: [rawCertificate] })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -1119,8 +1119,8 @@ describe("location handler - presentation request", () => {
 				state,
 				client_metadata,
 			})
-				.setProtectedHeader({ alg: "HS256", x5c })
-				.sign(new TextEncoder().encode("secret"));
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
 
 			const location = {
 				search: `?client_id=${client_id}&request=${request}`,
@@ -1181,8 +1181,8 @@ describe("location handler - presentation request", () => {
 				nonce,
 				state,
 			})
-				.setProtectedHeader({ alg: "HS256", x5c })
-				.sign(new TextEncoder().encode("secret"));
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
 
 			const location = {
 				search: `?client_id=${client_id}&request=${request}`,
@@ -1229,8 +1229,8 @@ describe("location handler - presentation request", () => {
 				state,
 				dcql_query,
 			})
-				.setProtectedHeader({ alg: "HS256", x5c })
-				.sign(new TextEncoder().encode("secret"));
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
 
 			const location = {
 				search: `?client_id=${client_id}&request=${request}`,
@@ -1303,8 +1303,8 @@ describe("location handler - presentation request", () => {
 				state,
 				dcql_query,
 			})
-				.setProtectedHeader({ alg: "HS256", x5c })
-				.sign(new TextEncoder().encode("secret"));
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
 
 			const location = {
 				search: `?client_id=${client_id}&request=${request}`,
@@ -1462,6 +1462,8 @@ describe("location handler - presentation request", () => {
 			const nonce = "nonce";
 			const state = "state";
 
+			it.skip("rejects with an invalid x5c presentation request header")
+
 			it("resolves a presentation request with request", async () => {
 				const request = await new SignJWT({
 					client_id,
@@ -1471,8 +1473,8 @@ describe("location handler - presentation request", () => {
 					nonce,
 					state,
 				})
-				.setProtectedHeader({ alg: "HS256", x5c })
-				.sign(new TextEncoder().encode("secret"));
+					.setProtectedHeader({ alg: "ES256", x5c })
+					.sign(testKey);
 				const locationHandler = locationHandlerFactory({
 					// @ts-ignore
 					httpClient: {
@@ -1539,3 +1541,9 @@ Z4IZbG9jYWwtaXNzdWVyLnd3d2FsbGV0Lm9yZ4IbbG9jYWwtdmVyaWZpZXIud3d3
 YWxsZXQub3JnMAoGCCqGSM49BAMCA0gAMEUCIQCQ8h+5krhO+f4woReDY1D7CaM6
 qCda3m814e6DLvOphAIgHQL+Wm7WFRwxgjzMLN37RojJGrZbF4OFChIkmm0uu5o=
 -----END CERTIFICATE-----`;
+
+const testKey = crypto.createPrivateKey(`-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgtfEWwPl5+13fqLPw
+j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
+7xvm/X6v3xyjPjRk/mt7J14j8FO1+46zhVscMo2Xnmp+NPr8ehstOlX6
+-----END PRIVATE KEY-----`);
