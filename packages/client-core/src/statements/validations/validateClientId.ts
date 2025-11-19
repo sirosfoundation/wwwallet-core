@@ -48,17 +48,28 @@ async function validateX509ClientId(
 			"presentation request must contain a x5c header",
 		);
 	}
-	const asn1 = asn1js.fromBER(Buffer.from(x5c[0], "base64"));
-	const certificate = new Certificate({ schema: asn1.result });
-	const commonName = certificate.subject.typesAndValues
-		.find((t) => t.type === "2.5.4.3")
-		?.value.valueBlock.value.toLowerCase();
+	let certificate: Certificate;
+	try {
+		const asn1 = asn1js.fromBER(rawToArrayBuffer(x5c[0]));
+		certificate = new Certificate({ schema: asn1.result });
+		const commonName = certificate.subject.typesAndValues
+			.find((t) => t.type === "2.5.4.3")
+			?.value.valueBlock.value.toLowerCase();
 
-	if (commonName !== client.toLowerCase()) {
-		throw new OauthError(
-			"invalid_client",
-			"client host does not match presentation request",
-		);
+		if (commonName !== client.toLowerCase()) {
+			throw new OauthError(
+				"invalid_client",
+				"client host does not match presentation request",
+			);
+		}
+	} catch (error) {
+		if (error instanceof OauthError) {
+			throw error;
+		}
+
+		throw new OauthError("invalid_client", "x5c certificate is invalid", {
+			error,
+		});
 	}
 
 	try {
@@ -75,4 +86,14 @@ async function validateX509ClientId(
 	}
 
 	return { client_id: client };
+}
+
+function rawToArrayBuffer(raw: string) {
+	const binary = atob(raw);
+	const len = binary.length;
+	const bytes = new Uint8Array(len);
+	for (let i = 0; i < len; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	return bytes.buffer;
 }
