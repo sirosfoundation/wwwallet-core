@@ -1,5 +1,6 @@
-import crypto from "node:crypto";
+import * as asn1js from "asn1js";
 import { decodeProtectedHeader, jwtVerify } from "jose";
+import { Certificate } from "pkijs";
 import { OauthError } from "../../errors";
 import type { PresentationRequest } from "../../resources";
 
@@ -43,21 +44,24 @@ async function validateX509ClientId(
 		if (!presentation_request.request_uri?.startsWith("https")) {
 			throw new OauthError(
 				"invalid_request",
-				"request uri must have a https scheme"
-			)
+				"request uri must have a https scheme",
+			);
 		}
 		if (new URL(presentation_request.request_uri).hostname !== client) {
 			throw new OauthError(
 				"invalid_request",
-				"request uri does not match client host"
-			)
+				"request uri does not match client host",
+			);
 		}
 
-		return { client_id: client }
+		return { client_id: client };
 	}
 
 	if (!presentation_request.request) {
-		throw new OauthError("invalid_client", "x509 san dns presentation requests require a request parameter")
+		throw new OauthError(
+			"invalid_client",
+			"x509 san dns presentation requests require a request parameter",
+		);
 	}
 
 	try {
@@ -70,27 +74,34 @@ async function validateX509ClientId(
 			);
 		}
 
-		const clientCert = new crypto.X509Certificate(Buffer.from(x5c[0], "base64"));
+		const asn1 = asn1js.fromBER(Buffer.from(x5c[0], "base64"));
+		const certificate = new Certificate({ schema: asn1.result });
+		const commonName = certificate.subject.typesAndValues
+			.find((t) => t.type === "2.5.4.3")
+			?.value.valueBlock.value.toLowerCase();
 
-		if (!clientCert.checkHost(client)) {
+		if (commonName !== client.toLowerCase()) {
 			throw new OauthError(
 				"invalid_client",
 				"client host does not match presentation request",
 			);
 		}
 
-		await jwtVerify(presentation_request.request, clientCert.publicKey);
+		await jwtVerify(
+			presentation_request.request,
+			await certificate.getPublicKey(),
+		);
 	} catch (error) {
 		if (error instanceof OauthError) {
-			throw error
+			throw error;
 		}
 
 		throw new OauthError(
 			"invalid_client",
 			"presentation request signature does not match x5c header",
 			{ error },
-		)
+		);
 	}
 
-	return { client_id: client }
+	return { client_id: client };
 }

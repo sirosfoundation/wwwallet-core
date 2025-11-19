@@ -755,7 +755,9 @@ describe("location handler - presentation request", () => {
 				throw error;
 			}
 			expect(error.error).to.eq("invalid_location");
-			expect(error.error_description).to.eq("response uri parameter is missing");
+			expect(error.error_description).to.eq(
+				"response uri parameter is missing",
+			);
 		}
 	});
 
@@ -1081,12 +1083,14 @@ describe("location handler - presentation request", () => {
 
 			assert(false);
 		} catch (error) {
-			if(!(error instanceof OauthError)) {
-				throw error
+			if (!(error instanceof OauthError)) {
+				throw error;
 			}
 
 			expect(error.error).to.eq("invalid_client");
-			expect(error.error_description).to.eq("presentation request must contain a x5c header");
+			expect(error.error_description).to.eq(
+				"presentation request must contain a x5c header",
+			);
 		}
 	});
 
@@ -1363,9 +1367,11 @@ describe("location handler - presentation request", () => {
 				// @ts-ignore
 				httpClient: {
 					get: async <T>(url: string) => {
-						if (url === request_uri ||
+						if (
+							url === request_uri ||
 							url === invalid_request_uri ||
-							url === http_request_uri) {
+							url === http_request_uri
+						) {
 							return {
 								data: {
 									client_id,
@@ -1395,12 +1401,14 @@ describe("location handler - presentation request", () => {
 
 					assert(false);
 				} catch (error) {
-					if(!(error instanceof OauthError)) {
-						throw error
+					if (!(error instanceof OauthError)) {
+						throw error;
 					}
 
 					expect(error.error).to.eq("invalid_request");
-					expect(error.error_description).to.eq("request uri must have a https scheme");
+					expect(error.error_description).to.eq(
+						"request uri must have a https scheme",
+					);
 				}
 			});
 
@@ -1415,12 +1423,14 @@ describe("location handler - presentation request", () => {
 
 					assert(false);
 				} catch (error) {
-					if(!(error instanceof OauthError)) {
-						throw error
+					if (!(error instanceof OauthError)) {
+						throw error;
 					}
 
 					expect(error.error).to.eq("invalid_request");
-					expect(error.error_description).to.eq("request uri does not match client host");
+					expect(error.error_description).to.eq(
+						"request uri does not match client host",
+					);
 				}
 			});
 
@@ -1462,7 +1472,7 @@ describe("location handler - presentation request", () => {
 			const nonce = "nonce";
 			const state = "state";
 
-			it.skip("rejects with an invalid x5c presentation request header")
+			it.skip("rejects with an invalid x5c presentation request header");
 
 			it("resolves a presentation request with request", async () => {
 				const request = await new SignJWT({
@@ -1494,29 +1504,29 @@ describe("location handler - presentation request", () => {
 					search: `?client_id=${client_id}&request_uri=${request_uri}`,
 				};
 
-					// @ts-ignore
-					const response = await locationHandler(location);
+				// @ts-ignore
+				const response = await locationHandler(location);
 
-					expect(response).to.deep.eq({
-						data: {
-							presentation_request: {
-								request_uri,
-								request,
-								client_id,
-								nonce: "nonce",
-								response_mode: "response_mode",
-								response_type: "response_type",
-								response_uri: "response_uri",
-								state: "state",
-								dcql_query: null,
-								client_metadata: null,
-							},
+				expect(response).to.deep.eq({
+					data: {
+						presentation_request: {
+							request_uri,
+							request,
+							client_id,
+							nonce: "nonce",
+							response_mode: "response_mode",
+							response_type: "response_type",
+							response_uri: "response_uri",
+							state: "state",
 							dcql_query: null,
 							client_metadata: null,
 						},
-						nextStep: "generate_presentation",
-						protocol: "oid4vp",
-					});
+						dcql_query: null,
+						client_metadata: null,
+					},
+					nextStep: "generate_presentation",
+					protocol: "oid4vp",
+				});
 			});
 
 			it.skip("resolves a presentation request with a request uri");

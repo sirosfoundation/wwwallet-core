@@ -29,7 +29,7 @@ export async function validatePresentationRequest(
 	};
 
 	if (request_uri) {
-		presentation_request.request_uri = request_uri
+		presentation_request.request_uri = request_uri;
 
 		try {
 			const response = await config.httpClient
@@ -37,7 +37,7 @@ export async function validatePresentationRequest(
 				.then(({ data }) => data);
 			if (typeof response === "string") {
 				const payload = decodeJwt<PresentationRequest>(response);
-				presentation_request.request = response
+				presentation_request.request = response;
 				Object.assign(presentation_request, payload);
 			} else if (typeof response === "object") {
 				Object.assign(presentation_request, {
@@ -58,7 +58,7 @@ export async function validatePresentationRequest(
 			);
 		}
 	} else if (request) {
-		presentation_request.request = request
+		presentation_request.request = request;
 
 		try {
 			const payload = decodeJwt<PresentationRequest>(request);
