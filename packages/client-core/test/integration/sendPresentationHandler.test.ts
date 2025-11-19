@@ -6,6 +6,7 @@ import { fetchIssuerMetadataMock, httpClientPostMock } from "../support/client";
 
 describe("sendPresentation", () => {
 	const presentation_request = {
+		request: "",
 		client_id: "client_id",
 		response_uri: "response_uri",
 		response_type: "response_type",

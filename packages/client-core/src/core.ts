@@ -50,6 +50,7 @@ export class Core {
 	 * - {@link "client-core/src/statements".fetchAccessToken | fetchAccessToken}
 	 * - {@link "client-core/src/statements".fetchNonce | fetchNonce}
 	 * 4. presentation request
+	 * - {@link "client-core/src/statements".validateClientId | validateClientId}
 	 * - {@link "client-core/src/statements".validateDcqlQuery | validateDcqlQuery}
 	 * - {@link "client-core/src/statements".validateClientMetadata | validateClientMetadata}
 	 * 5. presentation success
