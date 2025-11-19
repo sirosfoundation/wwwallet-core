@@ -1,5 +1,6 @@
-import crypto from "node:crypto";
+import * as asn1js from "asn1js";
 import { decodeProtectedHeader, jwtVerify } from "jose";
+import { Certificate } from "pkijs";
 import { OauthError } from "../../errors";
 import type { PresentationRequest } from "../../resources";
 
@@ -47,10 +48,13 @@ async function validateX509ClientId(
 			"presentation request must contain a x5c header",
 		);
 	}
+	const asn1 = asn1js.fromBER(Buffer.from(x5c[0], "base64"));
+	const certificate = new Certificate({ schema: asn1.result });
+	const commonName = certificate.subject.typesAndValues
+		.find((t) => t.type === "2.5.4.3")
+		?.value.valueBlock.value.toLowerCase();
 
-	const clientCert = new crypto.X509Certificate(Buffer.from(x5c[0], "base64"));
-
-	if (!clientCert.checkHost(client)) {
+	if (commonName !== client.toLowerCase()) {
 		throw new OauthError(
 			"invalid_client",
 			"client host does not match presentation request",
@@ -58,7 +62,10 @@ async function validateX509ClientId(
 	}
 
 	try {
-		await jwtVerify(presentation_request.request, clientCert.publicKey);
+		await jwtVerify(
+			presentation_request.request,
+			await certificate.getPublicKey(),
+		);
 	} catch (error) {
 		throw new OauthError(
 			"invalid_client",
