@@ -74,7 +74,7 @@ async function validateX509ClientId(
 			);
 		}
 
-		const asn1 = asn1js.fromBER(Buffer.from(x5c[0], "base64"));
+		const asn1 = asn1js.fromBER(rawToArrayBuffer(x5c[0]));
 		const certificate = new Certificate({ schema: asn1.result });
 		const commonName = certificate.subject.typesAndValues
 			.find((t) => t.type === "2.5.4.3")
@@ -104,4 +104,14 @@ async function validateX509ClientId(
 	}
 
 	return { client_id: client };
+}
+
+function rawToArrayBuffer(raw: string) {
+	const binary = atob(raw);
+	const len = binary.length;
+	const bytes = new Uint8Array(len);
+	for (let i = 0; i < len; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	return bytes.buffer;
 }
