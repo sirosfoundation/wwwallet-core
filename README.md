@@ -9,6 +9,7 @@ wwWallet core is a set of packages to suppport the implementation of issuers / w
 
 ```sh
 pnpm install
+pnpm build
 ```
 
 ### Configuration
