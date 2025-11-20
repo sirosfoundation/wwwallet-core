@@ -2,10 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
-import type {
-	AuthorizationServerState,
-	CredentialConfiguration,
-} from "../../resources";
+import type { CredentialConfiguration } from "../../resources";
 import {
 	generateCredentialOffer,
 	generateIssuerGrants,
@@ -18,11 +15,6 @@ const ajv = new Ajv();
 
 export type CredentialOfferHandlerConfig = {
 	logger: Logger;
-	databaseOperations: {
-		insertAuthorizationServerState: (
-			authorizationServerState: AuthorizationServerState,
-		) => Promise<AuthorizationServerState>;
-	};
 	issuer_url: string;
 	wallet_url: string;
 	issuer_client: {
@@ -37,7 +29,6 @@ export type CredentialOfferHandlerConfig = {
 
 type CredentialOfferRequest = {
 	scope: string;
-	authorizationServerState: AuthorizationServerState;
 };
 
 export type CredentialOfferResponse = {
@@ -74,7 +65,6 @@ export function credentialOfferHandlerFactory(
 				credentialConfigurations,
 			} = await generateCredentialOffer(
 				{
-					authorizationServerState: request.authorizationServerState,
 					grants,
 					scope,
 				},
@@ -136,8 +126,6 @@ async function validateRequest(
 	}
 
 	const { scope } = expressRequest.params;
-	// @ts-ignore
-	let authorizationServerState = expressRequest.authorizationServerState;
 
 	if (!scope) {
 		throw new OauthError(
@@ -147,14 +135,5 @@ async function validateRequest(
 		);
 	}
 
-	if (!authorizationServerState) {
-		authorizationServerState = {
-			id: 0,
-			credential_configuration_ids: [],
-			scope: "",
-			format: "",
-		};
-	}
-
-	return { scope, authorizationServerState };
+	return { scope };
 }

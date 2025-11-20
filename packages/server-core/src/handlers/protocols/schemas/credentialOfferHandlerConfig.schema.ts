@@ -1,13 +1,6 @@
 export const credentialOfferHandlerConfigSchema = {
 	type: "object",
 	properties: {
-		databaseOperations: {
-			type: "object",
-			properties: {
-				insertAuthorizationServerState: {},
-			},
-			required: ["insertAuthorizationServerState"],
-		},
 		issuer_url: { type: "string" },
 		wallet_url: { type: "string" },
 		issuer_client: {
@@ -37,7 +30,7 @@ export const credentialOfferHandlerConfigSchema = {
 		},
 	},
 	required: [
-		"databaseOperations",
+		"dataOperations",
 		"issuer_url",
 		"wallet_url",
 		"issuer_client",

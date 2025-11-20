@@ -1,7 +1,7 @@
 export const credentialHandlerConfigSchema = {
 	type: "object",
 	properties: {
-		databaseOperations: {
+		dataOperations: {
 			type: "object",
 			properties: {
 				resourceOwnerData: {},
@@ -31,5 +31,5 @@ export const credentialHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["databaseOperations", "secret"],
+	required: ["dataOperations", "secret"],
 };

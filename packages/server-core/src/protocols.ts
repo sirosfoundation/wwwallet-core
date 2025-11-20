@@ -229,7 +229,7 @@ export const defaultConfig = {
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
-	databaseOperations: {},
+	dataOperations: {},
 	issuer_client: {
 		id: "",
 		scopes: [],

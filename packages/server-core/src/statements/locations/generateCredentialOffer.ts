@@ -1,31 +1,24 @@
 import qrcode from "qrcode";
 import { OauthError } from "../../errors";
 import type {
-	AuthorizationServerState,
 	CredentialConfiguration,
 	CredentialOffer,
 	IssuerGrants,
 } from "../../resources";
 
 export type GenerateCredentialOfferParams = {
-	authorizationServerState: AuthorizationServerState;
 	grants: IssuerGrants;
 	scope: string;
 };
 
 export type GenerateCredentialOfferConfig = {
-	databaseOperations: {
-		insertAuthorizationServerState: (
-			authorizationServerState: AuthorizationServerState,
-		) => Promise<AuthorizationServerState>;
-	};
 	issuer_url: string;
 	wallet_url: string;
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
 export async function generateCredentialOffer(
-	{ authorizationServerState, grants, scope }: GenerateCredentialOfferParams,
+	{ grants, scope }: GenerateCredentialOfferParams,
 	config: GenerateCredentialOfferConfig,
 ) {
 	const credentialConfigurations =
@@ -47,11 +40,6 @@ export async function generateCredentialOffer(
 		},
 	);
 
-	authorizationServerState.credential_configuration_ids =
-		credential_configuration_ids;
-	authorizationServerState.issuer_state =
-		grants.authorization_code.issuer_state;
-
 	const credentialOffer = {
 		credential_issuer: config.issuer_url,
 		credential_configuration_ids,
@@ -65,10 +53,6 @@ export async function generateCredentialOffer(
 	const credentialOfferQrCode = await generateCredentialOfferQrCode(
 		credentialOfferUrl,
 		config,
-	);
-
-	await config.databaseOperations.insertAuthorizationServerState(
-		authorizationServerState,
 	);
 
 	return {

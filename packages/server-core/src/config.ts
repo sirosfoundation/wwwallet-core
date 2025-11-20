@@ -27,7 +27,7 @@ export interface Logger {
 	debug: (message: string) => void;
 }
 
-export interface DatabaseOperations {
+export interface DataOperations {
 	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 }
 
@@ -35,7 +35,7 @@ export type Config = {
 	issuer_url?: string;
 	wallet_url?: string;
 	logger?: Logger;
-	databaseOperations?: DatabaseOperations;
+	dataOperations?: DataOperations;
 	issuer_display?: Array<{
 		locale?: string;
 		logo?: {

@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import express from "express";
 import {
-	type AuthorizationServerState,
 	Protocols,
 	type ResourceOwner,
 	validateAuthorizeHandlerConfig,
@@ -193,15 +192,7 @@ export const config = {
 	},
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
-	databaseOperations: {
-		async insertAuthorizationServerState(
-			authorizationServerState: AuthorizationServerState,
-		) {
-			// @ts-ignore
-			this.__authorizationServerState = authorizationServerState;
-			return authorizationServerState;
-		},
-		__authorizationServerState: null,
+	dataOperations: {
 		async resourceOwnerData(sub: string, vct?: string) {
 			return { sub, vct };
 		},
