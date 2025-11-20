@@ -4,7 +4,7 @@ import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { Disclosure } from "@sd-jwt/utils";
 import type { JWK } from "jose";
 import { OauthError } from "../../errors";
-import type { CredentialConfiguration } from "../../resources";
+import type { SupportedCredentialConfiguration } from "../../resources";
 
 export type GenerateCredentialsParams = {
 	sub: string;
@@ -17,7 +17,7 @@ export type GenerateCredentialsConfig = {
 	databaseOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
-	supported_credential_configurations: Array<CredentialConfiguration>;
+	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
 };
 
 type Claims = {
@@ -30,7 +30,7 @@ export async function generateCredentials(
 ) {
 	const credentialConfiguration =
 		config.supported_credential_configurations.find(
-			(configuration: CredentialConfiguration) => {
+			(configuration: SupportedCredentialConfiguration) => {
 				return credential_configuration_ids.includes(
 					configuration.credential_configuration_id,
 				);
@@ -48,6 +48,12 @@ export async function generateCredentials(
 
 	const cnf = { jwk: jwks[0] };
 
+	if (credentialConfiguration.deferred) {
+		const transaction_id = "transaction_id";
+
+		return { transaction_id };
+	}
+
 	const credential = await generateAndSign(
 		claims,
 		cnf,
@@ -63,7 +69,7 @@ export async function generateCredentials(
 async function generateAndSign(
 	claims: Claims,
 	cnf: { jwk: JWK },
-	credentialConfiguration: CredentialConfiguration,
+	credentialConfiguration: SupportedCredentialConfiguration,
 	config: GenerateCredentialsConfig,
 ) {
 	const alg = "sha-256";

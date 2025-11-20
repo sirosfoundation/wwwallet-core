@@ -110,7 +110,7 @@ describe("credential endpoint", () => {
 
 	describe("with a valid access token", () => {
 		const sub = "sub";
-		const scope = "full:scope";
+		const scope = "full:scope deferred:scope";
 		let access_token: string;
 		let c_nonce: string;
 		beforeEach(async () => {
@@ -598,6 +598,23 @@ describe("credential endpoint", () => {
 					vct: "urn:test:full",
 					cnf: { jwk },
 				});
+			});
+
+			it("returns deferred credentials", async () => {
+				const credential_configuration_id = "deferred";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proof: { jwt: proof } });
+
+				expect(response.status).toBe(200);
+				expect(response.body).to.deep.eq({ transaction_id: "transaction_id" });
 			});
 		});
 	});

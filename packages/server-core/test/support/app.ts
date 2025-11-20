@@ -225,10 +225,16 @@ export const config = {
 	secret_base: "test",
 	rotate_secret: true,
 	issuer_client: {
-		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
+		scopes: [
+			"not_found:scope",
+			"full:scope",
+			"deferred:scope",
+			"full:scope:mso_mdoc",
+		],
 	},
 	supported_credential_configurations: [
 		"./credential_configurations/full.sd-jwt.json",
+		"./credential_configurations/deferred.sd-jwt.json",
 		"./credential_configurations/full.mso_mdoc.json",
 	].map((credentialConfigurationPath) => {
 		const credential = fs

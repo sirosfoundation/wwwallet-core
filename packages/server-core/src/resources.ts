@@ -19,6 +19,26 @@ export type OauthClient = {
 	scopes: Array<string>;
 };
 
+export type SupportedCredentialConfiguration = {
+	deferred?: boolean;
+	credential_configuration_id: string;
+	label?: string;
+	scope: string;
+	format: string;
+	vct?: string;
+	doctype?: string;
+	display: Array<{
+		name: string;
+		description?: string;
+		background_image?: {
+			uri: string;
+		};
+		background_color?: string;
+		text_color?: string;
+		locale: string;
+	}>;
+};
+
 export type CredentialConfiguration = {
 	credential_configuration_id: string;
 	scope: string;

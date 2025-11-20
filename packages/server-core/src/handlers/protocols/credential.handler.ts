@@ -39,7 +39,8 @@ type CredentialRequest = {
 export type CredentialResponse = {
 	status: 200;
 	body: {
-		credentials: Array<{ credential: string }>;
+		credentials?: Array<{ credential: string }>;
+		transaction_id?: string;
 	};
 };
 
@@ -80,7 +81,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { credentials } = await generateCredentials(
+			const { credentials, transaction_id } = await generateCredentials(
 				{
 					sub,
 					credential_configuration_ids,
@@ -100,6 +101,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				status: 200,
 				body: {
 					credentials,
+					transaction_id,
 				},
 			};
 		} catch (error) {
