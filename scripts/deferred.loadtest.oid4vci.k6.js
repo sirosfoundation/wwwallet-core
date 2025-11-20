@@ -4,8 +4,9 @@ import { b64encode } from "k6/encoding";
 import http from "k6/http";
 
 export const options = {
-	vus: 10,
-	duration: "30s",
+	vus: 1,
+	// duration: "30s",
+	iterations: 10,
 };
 
 async function generateDpop(access_token) {
