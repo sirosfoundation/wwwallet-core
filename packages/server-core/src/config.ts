@@ -1,3 +1,5 @@
+import type { SupportedCredentialConfiguration } from "./resources";
+
 export type BusinessEvent =
 	| "authorize"
 	| "authenticate"
@@ -52,24 +54,7 @@ export type Config = {
 		scopes: Array<string>;
 	};
 	supported_credential_configuration_paths?: Array<string>;
-	supported_credential_configurations?: Array<{
-		credential_configuration_id: string;
-		label?: string;
-		scope: string;
-		format: string;
-		vct?: string;
-		doctype?: string;
-		display: Array<{
-			name: string;
-			description?: string;
-			background_image?: {
-				uri: string;
-			};
-			background_color?: string;
-			text_color?: string;
-			locale: string;
-		}>;
-	}>;
+	supported_credential_configurations?: Array<SupportedCredentialConfiguration>;
 	access_token_ttl?: number;
 	pushed_authorization_request_ttl?: number;
 	authorization_code_ttl?: number;
