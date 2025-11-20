@@ -37,6 +37,7 @@ export type ClientMetadata = {
 };
 
 export type PresentationRequest = {
+	request: string;
 	client_id: string;
 	response_uri: string;
 	response_type: string;
