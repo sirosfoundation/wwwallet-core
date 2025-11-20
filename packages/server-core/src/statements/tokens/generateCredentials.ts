@@ -4,7 +4,10 @@ import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { Disclosure } from "@sd-jwt/utils";
 import type { JWK } from "jose";
 import { OauthError } from "../../errors";
-import type { SupportedCredentialConfiguration } from "../../resources";
+import type {
+	DeferredCredential,
+	SupportedCredentialConfiguration,
+} from "../../resources";
 
 export type GenerateCredentialsParams = {
 	sub: string;
@@ -15,6 +18,10 @@ export type GenerateCredentialsParams = {
 export type GenerateCredentialsConfig = {
 	issuer_url: string;
 	dataOperations: {
+		deferredResourceOwnerData: (
+			sub: string,
+			vct?: string,
+		) => Promise<DeferredCredential>;
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
 	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
@@ -49,7 +56,11 @@ export async function generateCredentials(
 	const cnf = { jwk: jwks[0] };
 
 	if (credentialConfiguration.deferred) {
-		const transaction_id = "transaction_id";
+		const { transaction_id } =
+			await config.dataOperations.deferredResourceOwnerData(
+				sub,
+				credentialConfiguration.vct,
+			);
 
 		return { transaction_id };
 	}

@@ -76,6 +76,10 @@ export type CredentialOffer = {
 	grants: IssuerGrants;
 };
 
+export type DeferredCredential = {
+	transaction_id: string;
+};
+
 export type AuthorizationRequest = {
 	response_type: string;
 	client_id: string;
