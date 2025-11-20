@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Config } from "@wwwallet/server-core";
+import {
+	type Config,
+	type EncryptConfig,
+	secretDerivation,
+} from "@wwwallet/server-core";
+import { EncryptJWT } from "jose";
 import { merge } from "ts-deepmerge";
 import { parse } from "yaml";
 import { Logger } from "./logger";
@@ -13,9 +18,39 @@ const ymlConfig = parse(
 	fs.readFileSync(path.join(process.cwd(), configPath)).toString(),
 ) as Config;
 
+const deferred_credentials_path = "./deferred_credentials";
+
 const baseConfig = {
 	logger: logger,
 	dataOperations: {
+		async deferredResourceOwnerData(
+			sub: string,
+			vct: string,
+			config: EncryptConfig,
+		) {
+			const data = { sub, vct };
+
+			const secret = new TextEncoder().encode(config.secret);
+			const encryptedData = await new EncryptJWT(data)
+				.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
+				.setIssuedAt()
+				.encrypt(secret);
+			const transaction_id = await secretDerivation(
+				JSON.stringify(data),
+				Date.now(),
+			);
+
+			fs.writeFileSync(
+				path.join(
+					process.cwd(),
+					deferred_credentials_path,
+					`${transaction_id}.jwe`,
+				),
+				encryptedData,
+			);
+
+			return { transaction_id };
+		},
 		async resourceOwnerData(sub: string, vct: string) {
 			return { sub, vct };
 		},

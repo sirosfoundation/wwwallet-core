@@ -3,6 +3,7 @@ import { Jwt, SDJwt } from "@sd-jwt/core";
 import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { Disclosure } from "@sd-jwt/utils";
 import type { JWK } from "jose";
+import type { EncryptConfig } from "../../crypto";
 import { OauthError } from "../../errors";
 import type {
 	DeferredCredential,
@@ -21,11 +22,12 @@ export type GenerateCredentialsConfig = {
 		deferredResourceOwnerData: (
 			sub: string,
 			vct?: string,
+			config?: EncryptConfig,
 		) => Promise<DeferredCredential>;
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
 	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
-};
+} & EncryptConfig;
 
 type Claims = {
 	[key: string]: unknown | Claims;
@@ -60,6 +62,7 @@ export async function generateCredentials(
 			await config.dataOperations.deferredResourceOwnerData(
 				sub,
 				credentialConfiguration.vct,
+				config,
 			);
 
 		return { transaction_id };
