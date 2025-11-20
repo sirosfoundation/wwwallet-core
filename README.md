@@ -5,6 +5,11 @@ wwWallet core is a set of packages to suppport the implementation of issuers / w
 - [@wwwallet/client-core](https://sirosfoundation.github.io/wwwallet-core/modules/client-core_src.html)
 - [@wwwallet/server-core](https://sirosfoundation.github.io/wwwallet-core/modules/server-core_src.html)
 
+## Requirements
+
+- node v22+
+- browser TBD
+
 ## Installation
 
 ```sh
