@@ -1,4 +1,7 @@
-import type { SupportedCredentialConfiguration } from "./resources";
+import type {
+	DeferredCredential,
+	SupportedCredentialConfiguration,
+} from "./resources";
 
 export type BusinessEvent =
 	| "authorize"
@@ -28,6 +31,10 @@ export interface Logger {
 }
 
 export interface DataOperations {
+	defereredResourceOwnerData?: (
+		sub: string,
+		vct?: string,
+	) => Promise<DeferredCredential>;
 	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 }
 

@@ -196,6 +196,9 @@ export const config = {
 		async resourceOwnerData(sub: string, vct?: string) {
 			return { sub, vct };
 		},
+		async deferredResourceOwnerData(_sub: string, _vct?: string) {
+			return { transaction_id: "transaction_id" };
+		},
 	},
 	clients: [
 		{
