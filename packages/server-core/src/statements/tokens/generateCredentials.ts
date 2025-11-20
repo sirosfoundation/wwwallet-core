@@ -14,7 +14,7 @@ export type GenerateCredentialsParams = {
 
 export type GenerateCredentialsConfig = {
 	issuer_url: string;
-	databaseOperations: {
+	dataOperations: {
 		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
 	};
 	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
@@ -41,7 +41,7 @@ export async function generateCredentials(
 		throw new OauthError(404, "invalid_credential", "credential not found");
 	}
 
-	const claims = (await config.databaseOperations.resourceOwnerData(
+	const claims = (await config.dataOperations.resourceOwnerData(
 		sub,
 		credentialConfiguration.vct,
 	)) as Claims;

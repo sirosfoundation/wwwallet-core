@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AuthorizationServerState, Config } from "@wwwallet/server-core";
+import type { Config } from "@wwwallet/server-core";
 import { merge } from "ts-deepmerge";
 import { parse } from "yaml";
 import { Logger } from "./logger";
@@ -15,13 +15,7 @@ const ymlConfig = parse(
 
 const baseConfig = {
 	logger: logger,
-	databaseOperations: {
-		async insertAuthorizationServerState(
-			authorizationServerState: AuthorizationServerState,
-		) {
-			logger.debug("insertAuthorizationServerState not implemented");
-			return authorizationServerState;
-		},
+	dataOperations: {
 		async resourceOwnerData(sub: string, vct: string) {
 			return { sub, vct };
 		},
