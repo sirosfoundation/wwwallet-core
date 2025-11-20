@@ -29,6 +29,11 @@ export function I2OSP(a: bigint | number, length: number): Uint8Array {
 	}
 }
 
+export type EncryptConfig = {
+	secret: string;
+	token_encryption: string;
+};
+
 export type DecryptConfig = {
 	secret: string;
 	previous_secrets: Array<string>;

@@ -9,6 +9,8 @@ services:
       - 127.0.0.1:5000:5000
     volumes:
       - "./config.yml:/app/config.yml"
+      - "./credential_configurations:/app/credential_configurations"
+      - "./deferred_credentials:/app/deferred_credentials"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
       interval: 30s

@@ -1,3 +1,4 @@
+import type { EncryptConfig } from "./crypto";
 import type {
 	DeferredCredential,
 	SupportedCredentialConfiguration,
@@ -34,6 +35,7 @@ export interface DataOperations {
 	defereredResourceOwnerData?: (
 		sub: string,
 		vct?: string,
+		config?: EncryptConfig,
 	) => Promise<DeferredCredential>;
 	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 }
