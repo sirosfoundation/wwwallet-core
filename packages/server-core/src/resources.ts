@@ -1,3 +1,12 @@
+export type BearerCredentials = {
+	access_token?: string;
+	dpop?: string | string[];
+	dpopRequest?: {
+		method: string;
+		uri: string;
+	};
+};
+
 export type IssuerClient = {
 	id: string;
 	scopes: Array<string>;

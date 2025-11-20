@@ -33,6 +33,7 @@ export type DecryptConfig = {
 	secret: string;
 	previous_secrets: Array<string>;
 };
+
 export async function jwtDecryptWithConfigKeys<T>(
 	jwt: string | Uint8Array,
 	config: DecryptConfig,
