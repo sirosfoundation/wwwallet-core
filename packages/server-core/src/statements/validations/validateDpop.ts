@@ -7,9 +7,9 @@ import {
 import { OauthError } from "../../errors";
 
 export type ValidateDpopParams = {
-	dpop?: string | string[] | undefined;
 	access_token: string;
-	dpopRequest: {
+	dpop?: string | string[] | undefined;
+	dpopRequest?: {
 		method: string;
 		uri: string;
 	};
@@ -23,7 +23,7 @@ export async function validateDpop(
 	{ dpop, dpopRequest, access_token }: ValidateDpopParams,
 	config: ValidateDpopConfig,
 ): Promise<unknown> {
-	if (!dpop) {
+	if (!dpop || !dpopRequest) {
 		throw new OauthError(
 			400,
 			"invalid_request",

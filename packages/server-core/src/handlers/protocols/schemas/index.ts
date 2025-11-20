@@ -1,6 +1,7 @@
 export * from "./authorizeHandlerConfig.schema";
 export * from "./credentialHandlerConfig.schema";
 export * from "./credentialOfferHandlerConfig.schema";
+export * from "./deferredCredentialHandlerConfig.schema";
 export * from "./nonceHandlerConfig.schema";
 export * from "./oauthAuthorizationServerHandlerConfig.schema";
 export * from "./openidCredentialIssuerHandlerConfig.schema";

@@ -8,6 +8,8 @@ import {
 	type CredentialOfferHandlerConfig,
 	credentialHandlerFactory,
 	credentialOfferHandlerFactory,
+	type DeferredCredentialHandlerConfig,
+	deferredCredentialHandlerFactory,
 	type NonceHandlerConfig,
 	nonceHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
@@ -21,6 +23,7 @@ import {
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateDeferredCredentialHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
@@ -151,6 +154,22 @@ export class Protocols {
 		validateCredentialHandlerConfig(this.config);
 
 		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
+	}
+
+	/**
+	 * Handle deferred credential requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateAccessToken | validateAccessToken}
+	 * - {@link "server-core/src/statements".validateDpop | validateDpop}
+	 */
+	get deferredCredential() {
+		validateDeferredCredentialHandlerConfig(this.config);
+
+		return deferredCredentialHandlerFactory(
+			this.config as DeferredCredentialHandlerConfig,
+		);
 	}
 
 	/**

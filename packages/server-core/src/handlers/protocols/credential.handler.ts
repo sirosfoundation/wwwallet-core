@@ -2,6 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
+import type { BearerCredentials } from "../../resources";
 import {
 	type GenerateCredentialsConfig,
 	generateCredentials,
@@ -28,17 +29,10 @@ export type CredentialHandlerConfig = {
 
 type CredentialRequest = {
 	credential_configuration_ids: Array<string>;
-	credentials: {
-		access_token?: string;
-		dpop?: string | string[];
-	};
+	credentials: BearerCredentials;
 	proofs: {
 		jwt?: Array<string>;
 		attestation?: Array<string>;
-	};
-	dpopRequest: {
-		method: string;
-		uri: string;
 	};
 };
 
@@ -66,7 +60,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			await validateDpop(
 				{
 					access_token,
-					dpopRequest: request.dpopRequest,
+					dpopRequest: request.credentials.dpopRequest,
 					dpop: request.credentials.dpop,
 				},
 				config,
@@ -188,7 +182,7 @@ async function validateRequest(
 
 	credentials.dpop = expressRequest.headers.dpop;
 
-	const dpopRequest = {
+	credentials.dpopRequest = {
 		method: expressRequest.method,
 		uri: expressRequest.originalUrl,
 	};
@@ -196,7 +190,6 @@ async function validateRequest(
 	return {
 		credential_configuration_ids,
 		proofs,
-		dpopRequest,
 		credentials,
 	};
 }
