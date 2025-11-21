@@ -1,12 +1,12 @@
-export const credentialHandlerConfigSchema = {
+export const deferredCredentialHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		dataOperations: {
 			type: "object",
 			properties: {
-				resourceOwnerData: {},
+				fetchDeferredResourceOwnerData: {},
 			},
-			required: ["resourceOwnerData"],
+			required: ["fetchDeferredResourceOwnerData"],
 		},
 		secret: { type: "string" },
 		previous_secrets: { type: "array", items: { type: "string" } },
@@ -31,5 +31,5 @@ export const credentialHandlerConfigSchema = {
 			},
 		},
 	},
-	required: ["dataOperations", "secret"],
+	required: [],
 };

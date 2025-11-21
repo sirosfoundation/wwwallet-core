@@ -1,4 +1,7 @@
-import type { CredentialConfiguration, OauthClient } from "../../resources";
+import type {
+	OauthClient,
+	SupportedCredentialConfiguration,
+} from "../../resources";
 
 export type ValidateCredentialConfigurationsParams = {
 	client: OauthClient;
@@ -6,7 +9,7 @@ export type ValidateCredentialConfigurationsParams = {
 };
 
 export type ValidateCredentialConfigurationsConfig = {
-	supported_credential_configurations: Array<CredentialConfiguration>;
+	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
 };
 
 export async function validateCredentialConfigurations(
@@ -14,9 +17,9 @@ export async function validateCredentialConfigurations(
 	{ client, scope: requestedScope }: ValidateCredentialConfigurationsParams,
 	config: ValidateCredentialConfigurationsConfig,
 ) {
-	const filteredCredentialConfigurationIds =
+	const filteredCredentialConfigurations =
 		config.supported_credential_configurations
-			.filter((credential_configuration: CredentialConfiguration) => {
+			.filter((credential_configuration: SupportedCredentialConfiguration) => {
 				return credential_configuration_ids.includes(
 					credential_configuration.credential_configuration_id,
 				);
@@ -24,8 +27,7 @@ export async function validateCredentialConfigurations(
 			// client allows the according credential configuration
 			.filter(({ scope }) => client.scopes.includes(scope))
 			// given scope allows the credential configuration
-			.filter(({ scope }) => requestedScope?.split(" ").includes(scope))
-			.map(({ credential_configuration_id }) => credential_configuration_id);
+			.filter(({ scope }) => requestedScope?.split(" ").includes(scope));
 
-	return { credential_configuration_ids: filteredCredentialConfigurationIds };
+	return { credential_configurations: filteredCredentialConfigurations };
 }

@@ -1,3 +1,14 @@
+import type { JWK } from "jose";
+
+export type BearerCredentials = {
+	access_token?: string;
+	dpop?: string | string[];
+	dpopRequest?: {
+		method: string;
+		uri: string;
+	};
+};
+
 export type IssuerClient = {
 	id: string;
 	scopes: Array<string>;
@@ -8,6 +19,26 @@ export type OauthClient = {
 	secret?: string;
 	redirect_uris?: Array<string>;
 	scopes: Array<string>;
+};
+
+export type SupportedCredentialConfiguration = {
+	deferred?: boolean;
+	credential_configuration_id: string;
+	label?: string;
+	scope: string;
+	format: string;
+	vct?: string;
+	doctype?: string;
+	display: Array<{
+		name: string;
+		description?: string;
+		background_image?: {
+			uri: string;
+		};
+		background_color?: string;
+		text_color?: string;
+		locale: string;
+	}>;
 };
 
 export type CredentialConfiguration = {
@@ -30,14 +61,6 @@ export type CredentialConfiguration = {
 
 export type OauthScope = string;
 
-export type AuthorizationServerState = {
-	id: number;
-	credential_configuration_ids: Array<string>;
-	issuer_state: string;
-	user_pin: string;
-	user_pin_required: boolean;
-};
-
 export type IssuerGrants = {
 	authorization_code: {
 		issuer_state: string;
@@ -49,10 +72,29 @@ export type ResourceOwner = {
 	username?: string;
 };
 
+export type ResourceOwnerData = {
+	claims?: Claims;
+	credential_configuration: SupportedCredentialConfiguration;
+};
+
 export type CredentialOffer = {
 	credential_issuer: string;
 	credential_configuration_ids: Array<string>;
 	grants: IssuerGrants;
+};
+
+export type Claims = {
+	[key: string]: unknown | Claims;
+};
+
+export type DeferredCredential = {
+	transaction_id: string;
+};
+
+export type DeferredResourceOwnerData = {
+	sub: string;
+	jwks: Array<JWK>;
+	data: Array<ResourceOwnerData>;
 };
 
 export type AuthorizationRequest = {
@@ -122,6 +164,7 @@ export type OpenidCredentialIssuer = {
 	credential_issuer: string;
 	nonce_endpoint: string;
 	credential_endpoint: string;
+	deferred_credential_endpoint: string;
 	display: Array<{
 		locale: string;
 		logo?: {
