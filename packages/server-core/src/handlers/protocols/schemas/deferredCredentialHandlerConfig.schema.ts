@@ -1,6 +1,12 @@
 export const deferredCredentialHandlerConfigSchema = {
 	type: "object",
 	properties: {
+		dataOperations: {
+			type: "object",
+			properties: {
+				fetchDeferredResourceOwnerData: {},
+			},
+		},
 		secret: { type: "string" },
 		previous_secrets: { type: "array", items: { type: "string" } },
 		issuer_url: { type: "string" },

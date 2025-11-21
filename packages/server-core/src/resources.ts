@@ -1,3 +1,5 @@
+import type { JWK } from "jose";
+
 export type BearerCredentials = {
 	access_token?: string;
 	dpop?: string | string[];
@@ -70,14 +72,29 @@ export type ResourceOwner = {
 	username?: string;
 };
 
+export type ResourceOwnerData = {
+	claims?: Claims;
+	credential_configuration: SupportedCredentialConfiguration;
+};
+
 export type CredentialOffer = {
 	credential_issuer: string;
 	credential_configuration_ids: Array<string>;
 	grants: IssuerGrants;
 };
 
+export type Claims = {
+	[key: string]: unknown | Claims;
+};
+
 export type DeferredCredential = {
 	transaction_id: string;
+};
+
+export type DeferredResourceOwnerData = {
+	sub: string;
+	jwks: Array<JWK>;
+	data: Array<ResourceOwnerData>;
 };
 
 export type AuthorizationRequest = {

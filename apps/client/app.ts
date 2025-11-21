@@ -158,6 +158,12 @@ export function server(protocols: Protocols): Express {
 		return res.status(response.status).send(response.body);
 	});
 
+	app.post("/deferred-credential", async (req, res) => {
+		const response = await core.deferredCredential(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	app.get("/offer/:scope", async (req, res) => {
 		const response = await protocols.credentialOffer(req);
 

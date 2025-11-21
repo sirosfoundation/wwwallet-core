@@ -1,9 +1,17 @@
 import Ajv from "ajv";
 import type { Request } from "express";
+import type { JWK } from "jose";
 import type { Config } from "../../config";
+import type { DecryptConfig } from "../../crypto";
 import { OauthError, type OauthErrorResponse } from "../../errors";
-import type { BearerCredentials } from "../../resources";
+import type {
+	BearerCredentials,
+	DeferredCredential,
+	ResourceOwnerData,
+} from "../../resources";
 import {
+	type GenerateCredentialsConfig,
+	generateCredentials,
 	type ValidateAccessTokenConfig,
 	type ValidateDpopConfig,
 	validateAccessToken,
@@ -14,17 +22,33 @@ import { deferredCredentialHandlerConfigSchema } from "./schemas";
 const ajv = new Ajv();
 
 export type DeferredCredentialHandlerConfig = ValidateAccessTokenConfig &
-	ValidateDpopConfig;
+	ValidateDpopConfig &
+	GenerateCredentialsConfig & {
+		dataOperations: {
+			fetchDeferredResourceOwnerData: (
+				defered_credential: DeferredCredential,
+				config: DecryptConfig,
+			) => Promise<{
+				resource_owner_data: {
+					sub: string;
+					data: Array<ResourceOwnerData>;
+					jwks: Array<JWK>;
+				};
+			}>;
+		};
+	};
 
 type DeferredCredentialRequest = {
 	credentials: BearerCredentials;
+	transaction_id: string;
 };
 
 type DefferedCredentialResponse = {
 	status: 200;
 	data: {};
 	body: {
-		credentials: [];
+		credentials?: Array<{ credential: string }>;
+		transaction_id?: string;
 	};
 };
 
@@ -53,11 +77,26 @@ export function deferredCredentialHandlerFactory(
 				config,
 			);
 
+			const { resource_owner_data } =
+				await config.dataOperations.fetchDeferredResourceOwnerData(
+					{
+						transaction_id: request.transaction_id,
+					},
+					config,
+				);
+
+			const { credentials } = await generateCredentials(
+				{
+					resource_owner_data,
+				},
+				config,
+			);
+
 			return {
 				status: 200,
 				data: {},
 				body: {
-					credentials: [],
+					credentials,
 				},
 			};
 		} catch (error) {
@@ -122,6 +161,7 @@ async function validateRequest(
 
 	return {
 		credentials,
+		transaction_id,
 	};
 }
 

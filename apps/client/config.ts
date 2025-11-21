@@ -2,10 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import {
 	type Config,
+	type DecryptConfig,
+	type DeferredCredential,
 	type EncryptConfig,
+	jwtDecryptWithConfigKeys,
+	type SupportedCredentialConfiguration,
 	secretDerivation,
 } from "@wwwallet/server-core";
-import { EncryptJWT } from "jose";
+import { EncryptJWT, type JWK } from "jose";
 import { merge } from "ts-deepmerge";
 import { parse } from "yaml";
 import { Logger } from "./logger";
@@ -20,16 +24,22 @@ const ymlConfig = parse(
 
 const deferred_credentials_path = "./deferred_credentials";
 
+type ResourceOwnerData = {
+	sub: string;
+	vct: string;
+};
+
 const baseConfig = {
 	logger: logger,
 	dataOperations: {
 		async deferredResourceOwnerData(
-			sub: string,
-			vct: string,
+			data: {
+				sub: string;
+				data: Array<ResourceOwnerData>;
+				jwks: Array<JWK>;
+			},
 			config: EncryptConfig,
 		) {
-			const data = { sub, vct };
-
 			const secret = new TextEncoder().encode(config.secret);
 			const encryptedData = await new EncryptJWT(data)
 				.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
@@ -51,8 +61,35 @@ const baseConfig = {
 
 			return { transaction_id };
 		},
-		async resourceOwnerData(sub: string, vct: string) {
-			return { sub, vct };
+		async fetchDeferredResourceOwnerData(
+			{ transaction_id }: DeferredCredential,
+			config: DecryptConfig,
+		) {
+			const jwe = fs.readFileSync(
+				path.join(
+					process.cwd(),
+					deferred_credentials_path,
+					`${transaction_id}.jwe`,
+				),
+			);
+			const { payload: resource_owner_data } =
+				await jwtDecryptWithConfigKeys<ResourceOwnerData>(jwe, config);
+
+			return { resource_owner_data };
+		},
+		async resourceOwnerData({
+			sub,
+			credential_configurations,
+		}: {
+			sub: string;
+			credential_configurations: Array<SupportedCredentialConfiguration>;
+		}) {
+			return credential_configurations.map((credential_configuration) => {
+				return {
+					claims: { sub, vct: credential_configuration.vct },
+					credential_configuration,
+				};
+			});
 		},
 	},
 	supported_credential_configuration_paths: [],

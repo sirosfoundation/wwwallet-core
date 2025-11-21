@@ -67,7 +67,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { credential_configuration_ids } =
+			const { credential_configurations } =
 				await validateCredentialConfigurations(
 					request.credential_configuration_ids,
 					{ client, scope },
@@ -84,7 +84,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			const { credentials, transaction_id } = await generateCredentials(
 				{
 					sub,
-					credential_configuration_ids,
+					credential_configurations,
 					jwks,
 				},
 				config,
@@ -94,7 +94,9 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				access_token,
 				sub,
 				scope,
-				credential_configuration_ids: credential_configuration_ids.join(","),
+				credential_configuration_ids: credential_configurations
+					.map(({ credential_configuration_id }) => credential_configuration_id)
+					.join(","),
 			});
 
 			return {

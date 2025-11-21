@@ -433,7 +433,7 @@ describe("deferred credential endpoint", () => {
 					.sign(privateKey);
 			});
 
-			it("returns empty credential list with unknown transaction id", async () => {
+			it("returns not found with unknown transaction id", async () => {
 				const transaction_id = "unknown_transaction_id";
 				const response = await request(app)
 					.post("/deferred-credential")
@@ -441,9 +441,31 @@ describe("deferred credential endpoint", () => {
 					.set("DPoP", dpop)
 					.send({ transaction_id });
 
-				expect(response.status).toBe(200);
+				expect(response.status).toBe(404);
 				expect(response.body).to.deep.eq({
-					credentials: [],
+					error: "invalid_credential",
+					error_description: "credential not found",
+				});
+			});
+
+			it("returns credentials with valid transaction id", async () => {
+				const transaction_id = "transaction_id";
+				const response = await request(app)
+					.post("/deferred-credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ transaction_id });
+
+				expect(response.status).toBe(200);
+				assert(response.body.credentials[0].credential);
+
+				const credential = response.body.credentials[0].credential;
+				const sdjwt = await SDJwt.fromEncode(credential, hasher);
+				const claims = await sdjwt.getClaims(hasher);
+				expect(claims).toMatchObject({
+					iss: "http://localhost:5000",
+					sub: "sub",
+					vct: "deferred:vct",
 				});
 			});
 

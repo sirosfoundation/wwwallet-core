@@ -6,84 +6,142 @@ import type { JWK } from "jose";
 import type { EncryptConfig } from "../../crypto";
 import { OauthError } from "../../errors";
 import type {
+	Claims,
 	DeferredCredential,
+	DeferredResourceOwnerData,
+	ResourceOwnerData,
 	SupportedCredentialConfiguration,
 } from "../../resources";
 
 export type GenerateCredentialsParams = {
-	sub: string;
-	credential_configuration_ids: Array<string>;
-	jwks: Array<JWK>;
+	sub?: string;
+	credential_configurations?: Array<SupportedCredentialConfiguration>;
+	jwks?: Array<JWK>;
+	resource_owner_data?: DeferredResourceOwnerData;
 };
 
 export type GenerateCredentialsConfig = {
 	issuer_url: string;
 	dataOperations: {
 		deferredResourceOwnerData: (
-			sub: string,
-			vct?: string,
-			config?: EncryptConfig,
+			data: {
+				sub: string;
+				data: Array<ResourceOwnerData>;
+				jwks: Array<JWK>;
+			},
+			config: EncryptConfig,
 		) => Promise<DeferredCredential>;
-		resourceOwnerData: (sub: string, vct?: string) => Promise<unknown>;
+		resourceOwnerData: (data: {
+			sub: string;
+			credential_configurations: Array<SupportedCredentialConfiguration>;
+		}) => Promise<Array<ResourceOwnerData>>;
 	};
-	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
 } & EncryptConfig;
 
-type Claims = {
-	[key: string]: unknown | Claims;
-};
-
 export async function generateCredentials(
-	{ sub, credential_configuration_ids, jwks }: GenerateCredentialsParams,
+	{
+		sub: inputSub,
+		credential_configurations: inputCredentialConfigurations,
+		jwks: inputJwks,
+		resource_owner_data,
+	}: GenerateCredentialsParams,
 	config: GenerateCredentialsConfig,
 ) {
-	const credentialConfiguration =
-		config.supported_credential_configurations.find(
-			(configuration: SupportedCredentialConfiguration) => {
-				return credential_configuration_ids.includes(
-					configuration.credential_configuration_id,
-				);
-			},
-		);
+	const { sub, data, jwks } = resource_owner_data || {
+		sub: inputSub,
+		data:
+			inputSub &&
+			(await config.dataOperations.resourceOwnerData({
+				sub: inputSub,
+				credential_configurations: inputCredentialConfigurations || [],
+			})),
+		jwks: inputJwks,
+	};
 
-	if (!credentialConfiguration) {
+	if (!Array.isArray(data) || !data?.length) {
 		throw new OauthError(404, "invalid_credential", "credential not found");
 	}
 
-	const claims = (await config.dataOperations.resourceOwnerData(
-		sub,
-		credentialConfiguration.vct,
-	)) as Claims;
+	if (!sub) {
+		throw new OauthError(
+			404,
+			"invalid_credential",
+			"credential must have a subject",
+		);
+	}
 
-	const cnf = { jwk: jwks[0] };
+	if (!jwks?.length) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"holder ownership proof is required",
+		);
+	}
 
-	if (credentialConfiguration.deferred) {
+	if (resource_owner_data) {
+		const cnf = { jwk: jwks[0] };
+
+		const credentials = await Promise.all(
+			resource_owner_data.data.map(
+				async ({ claims, credential_configuration }) => {
+					if (!claims) return { credential: "" };
+					return {
+						credential: await generateAndSign(
+							claims,
+							cnf,
+							credential_configuration,
+							config,
+						),
+					};
+				},
+			),
+		);
+
+		return {
+			credentials: credentials.filter((credential) => credential),
+		};
+	}
+
+	if (data.some(({ credential_configuration: { deferred } }) => deferred)) {
 		const { transaction_id } =
 			await config.dataOperations.deferredResourceOwnerData(
-				sub,
-				credentialConfiguration.vct,
+				{
+					sub,
+					data,
+					jwks: jwks || [],
+				},
 				config,
 			);
 
 		return { transaction_id };
 	}
 
-	const credential = await generateAndSign(
-		claims,
-		cnf,
-		credentialConfiguration,
-		config,
+	const cnf = { jwk: jwks[0] };
+
+	const credentials = await Promise.all(
+		data.map(async ({ claims, credential_configuration }) => {
+			if (!claims) return { credential: "" };
+
+			return {
+				credential: await generateAndSign(
+					claims,
+					cnf,
+					credential_configuration,
+					config,
+				),
+			};
+		}),
 	);
 
 	return {
-		credentials: [{ credential }],
+		credentials: credentials,
 	};
 }
 
 async function generateAndSign(
 	claims: Claims,
 	cnf: { jwk: JWK },
-	credentialConfiguration: SupportedCredentialConfiguration,
+	credential_configuration: SupportedCredentialConfiguration,
 	config: GenerateCredentialsConfig,
 ) {
 	const alg = "sha-256";
@@ -105,11 +163,11 @@ async function generateAndSign(
 		),
 		cnf,
 		iss: config.issuer_url,
-		vct: credentialConfiguration.vct,
+		vct: credential_configuration.vct,
 	};
 
 	const jwt = new Jwt({
-		header: { alg: "ES256", typ: credentialConfiguration.format },
+		header: { alg: "ES256", typ: credential_configuration.format },
 		payload,
 	});
 	await jwt.sign(signer());

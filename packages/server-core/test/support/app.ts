@@ -1,9 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import express from "express";
+import { exportJWK, generateKeyPair, type JWK } from "jose";
 import {
 	Protocols,
 	type ResourceOwner,
+	type ResourceOwnerData,
+	type SupportedCredentialConfiguration,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
@@ -193,11 +196,57 @@ export const config = {
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
 	dataOperations: {
-		async resourceOwnerData(sub: string, vct?: string) {
-			return { sub, vct };
+		async resourceOwnerData({
+			sub,
+			credential_configurations,
+		}: {
+			sub: string;
+			credential_configurations: Array<SupportedCredentialConfiguration>;
+		}) {
+			return credential_configurations.map((credential_configuration) => {
+				return {
+					credential_configuration,
+					claims: { sub, vct: credential_configuration.vct },
+				};
+			});
 		},
-		async deferredResourceOwnerData(_sub: string, _vct?: string) {
+		async deferredResourceOwnerData({
+			sub: _sub,
+			data: _data,
+			jwks: _jwks,
+		}: {
+			sub: string;
+			data: Array<ResourceOwnerData>;
+			jwks: Array<JWK>;
+		}) {
 			return { transaction_id: "transaction_id" };
+		},
+		async fetchDeferredResourceOwnerData({
+			transaction_id,
+		}: {
+			transaction_id: string;
+		}) {
+			const { publicKey } = await generateKeyPair("ES256");
+
+			if (transaction_id === "transaction_id") {
+				return {
+					resource_owner_data: {
+						sub: "sub",
+						jwks: [await exportJWK(publicKey)],
+						data: [
+							{
+								credential_configuration: {},
+								claims: {
+									sub: "sub",
+									vct: "deferred:vct",
+								},
+							},
+						],
+					},
+				};
+			}
+
+			return { resource_owner_data: [] };
 		},
 	},
 	clients: [
