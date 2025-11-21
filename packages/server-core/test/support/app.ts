@@ -182,6 +182,18 @@ export function server(protocols: Protocols): express.Express {
 	return app;
 }
 
+const supported_credential_configurations = [
+	"./credential_configurations/full.sd-jwt.json",
+	"./credential_configurations/deferred.sd-jwt.json",
+	"./credential_configurations/full.mso_mdoc.json",
+].map((credentialConfigurationPath) => {
+	const credential = fs
+		.readFileSync(path.join(__dirname, credentialConfigurationPath))
+		.toString();
+
+	return JSON.parse(credential);
+}) as Array<SupportedCredentialConfiguration>;
+
 export const config = {
 	logger: {
 		business: (
@@ -236,10 +248,13 @@ export const config = {
 						jwks: [await exportJWK(publicKey)],
 						data: [
 							{
-								credential_configuration: {},
+								credential_configuration:
+									supported_credential_configurations.find(
+										({ vct }) => vct === "urn:test:deferred",
+									) as SupportedCredentialConfiguration,
 								claims: {
 									sub: "sub",
-									vct: "deferred:vct",
+									vct: "urn:test:deferred",
 								},
 							},
 						],
@@ -276,17 +291,7 @@ export const config = {
 			"full:scope:mso_mdoc",
 		],
 	},
-	supported_credential_configurations: [
-		"./credential_configurations/full.sd-jwt.json",
-		"./credential_configurations/deferred.sd-jwt.json",
-		"./credential_configurations/full.mso_mdoc.json",
-	].map((credentialConfigurationPath) => {
-		const credential = fs
-			.readFileSync(path.join(__dirname, credentialConfigurationPath))
-			.toString();
-
-		return JSON.parse(credential);
-	}),
+	supported_credential_configurations,
 	trusted_root_certificates: [
 		`-----BEGIN CERTIFICATE-----
 MIICQDCCAeegAwIBAgIUa5v+g+yHrVdDFEfRy8GyoGtcT4YwCgYIKoZIzj0EAwIw

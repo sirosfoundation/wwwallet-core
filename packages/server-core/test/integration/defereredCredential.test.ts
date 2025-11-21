@@ -465,7 +465,7 @@ describe("deferred credential endpoint", () => {
 				expect(claims).toMatchObject({
 					iss: "http://localhost:5000",
 					sub: "sub",
-					vct: "deferred:vct",
+					vct: "urn:test:deferred",
 				});
 			});
 
