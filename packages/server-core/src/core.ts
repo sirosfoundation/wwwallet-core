@@ -163,6 +163,7 @@ export class Core {
 	 *
 	 * - {@link "server-core/src/statements".validateAccessToken | validateAccessToken}
 	 * - {@link "server-core/src/statements".validateDpop | validateDpop}
+	 * - {@link "server-core/src/statements".generateCredentials | generateCredentials}
 	 */
 	get deferredCredential() {
 		validateDeferredCredentialHandlerConfig(this.config);
