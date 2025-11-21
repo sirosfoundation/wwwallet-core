@@ -103,19 +103,37 @@ const baseConfig = {
 
 			return { defer_data: null };
 		},
-		async resourceOwnerData({
-			sub,
-			credential_configurations,
-		}: {
-			sub: string;
-			credential_configurations: Array<SupportedCredentialConfiguration>;
-		}) {
-			return credential_configurations.map((credential_configuration) => {
+		async resourceOwnerData(
+			{
+				sub,
+				credential_configurations,
+				jwks,
+			}: {
+				sub: string;
+				credential_configurations: Array<SupportedCredentialConfiguration>;
+				jwks: Array<JWK>;
+			},
+			config: EncryptConfig,
+		) {
+			const data = credential_configurations.map((credential_configuration) => {
 				return {
 					claims: { sub, vct: credential_configuration.vct },
 					credential_configuration,
 				};
 			});
+
+			if (credential_configurations.some(({ deferred }) => deferred)) {
+				return this.deferredResourceOwnerData(
+					{
+						sub,
+						data,
+						jwks,
+					},
+					config,
+				);
+			}
+
+			return data;
 		},
 	},
 	supported_credential_configuration_paths: [],

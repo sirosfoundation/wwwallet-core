@@ -3,7 +3,7 @@ import { Jwt, SDJwt } from "@sd-jwt/core";
 import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { Disclosure } from "@sd-jwt/utils";
 import type { JWK } from "jose";
-import type { EncryptConfig } from "../../crypto";
+import type { DecryptConfig, EncryptConfig } from "../../crypto";
 import { OauthError } from "../../errors";
 import type {
 	Claims,
@@ -17,56 +17,78 @@ export type GenerateCredentialsParams = {
 	sub?: string;
 	credential_configurations?: Array<SupportedCredentialConfiguration>;
 	jwks?: Array<JWK>;
-	defer_data?: DeferredResourceOwnerData | null;
+	transaction_id?: string;
 };
 
 export type GenerateCredentialsConfig = {
 	issuer_url: string;
 	dataOperations: {
-		deferredResourceOwnerData: (
+		resourceOwnerData: (
 			data: {
 				sub: string;
-				data: Array<ResourceOwnerData>;
+				credential_configurations: Array<SupportedCredentialConfiguration>;
 				jwks: Array<JWK>;
 			},
 			config: EncryptConfig,
-		) => Promise<DeferredCredential>;
-		resourceOwnerData: (data: {
-			sub: string;
-			credential_configurations: Array<SupportedCredentialConfiguration>;
-		}) => Promise<Array<ResourceOwnerData>>;
+		) => Promise<Array<ResourceOwnerData> | DeferredCredential>;
+		fetchDeferredResourceOwnerData: (
+			defered_credential: DeferredCredential,
+			config: DecryptConfig,
+		) => Promise<{
+			defer_data: DeferredResourceOwnerData | null;
+		}>;
 	};
-} & EncryptConfig;
+} & EncryptConfig &
+	DecryptConfig;
 
 export async function generateCredentials(
 	{
 		sub: inputSub,
 		credential_configurations: inputCredentialConfigurations,
 		jwks: inputJwks,
-		defer_data,
+		transaction_id,
 	}: GenerateCredentialsParams,
 	config: GenerateCredentialsConfig,
 ) {
-	const { sub, data, jwks } = defer_data || {
-		sub: inputSub,
-		data:
-			inputSub &&
-			(await config.dataOperations.resourceOwnerData({
-				sub: inputSub,
+	let sub = inputSub;
+	let jwks = inputJwks;
+	let data: Array<ResourceOwnerData>;
+	if (transaction_id) {
+		const { defer_data } =
+			await config.dataOperations.fetchDeferredResourceOwnerData(
+				{
+					transaction_id: transaction_id,
+				},
+				config,
+			);
+
+		if (!defer_data) {
+			throw new OauthError(404, "invalid_credential", "credential not found");
+		}
+
+		sub = defer_data.sub;
+		jwks = defer_data.jwks;
+		data = defer_data.data;
+	} else if (sub) {
+		const resourceOwnerData = await config.dataOperations.resourceOwnerData(
+			{
+				sub,
 				credential_configurations: inputCredentialConfigurations || [],
-			})),
-		jwks: inputJwks,
-	};
+				jwks: jwks || [],
+			},
+			config,
+		);
 
-	if (!Array.isArray(data) || !data?.length) {
-		throw new OauthError(404, "invalid_credential", "credential not found");
-	}
-
-	if (!sub) {
+		if (Array.isArray(resourceOwnerData)) {
+			data = resourceOwnerData;
+		} else {
+			return { transaction_id: resourceOwnerData.transaction_id };
+		}
+	} else {
 		throw new OauthError(
 			404,
 			"invalid_credential",
-			"credential must have a subject",
+			"could not fetch resource owner data",
 		);
 	}
 
@@ -76,42 +98,6 @@ export async function generateCredentials(
 			"invalid_request",
 			"holder ownership proof is required",
 		);
-	}
-
-	if (defer_data) {
-		const cnf = { jwk: jwks[0] };
-
-		const credentials = await Promise.all(
-			defer_data.data.map(async ({ claims, credential_configuration }) => {
-				if (!claims) return { credential: "" };
-				return {
-					credential: await generateAndSign(
-						claims,
-						cnf,
-						credential_configuration,
-						config,
-					),
-				};
-			}),
-		);
-
-		return {
-			credentials: credentials.filter((credential) => credential),
-		};
-	}
-
-	if (data.some(({ credential_configuration: { deferred } }) => deferred)) {
-		const { transaction_id } =
-			await config.dataOperations.deferredResourceOwnerData(
-				{
-					sub,
-					data,
-					jwks: jwks || [],
-				},
-				config,
-			);
-
-		return { transaction_id };
 	}
 
 	const cnf = { jwk: jwks[0] };

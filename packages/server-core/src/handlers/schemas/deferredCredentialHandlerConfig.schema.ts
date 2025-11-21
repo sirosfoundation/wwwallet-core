@@ -6,6 +6,7 @@ export const deferredCredentialHandlerConfigSchema = {
 			properties: {
 				fetchDeferredResourceOwnerData: {},
 			},
+			required: ["fetchDeferredResourceOwnerData"],
 		},
 		secret: { type: "string" },
 		previous_secrets: { type: "array", items: { type: "string" } },
