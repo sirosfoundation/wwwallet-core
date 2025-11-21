@@ -9,7 +9,7 @@ export const options = {
 	iterations: 10,
 };
 
-async function generateDpop(access_token) {
+async function generateDpop(access_token, htu) {
 	const { privateKey, publicKey } = await crypto.subtle.generateKey(
 		{
 			name: "ECDSA",
@@ -28,7 +28,7 @@ async function generateDpop(access_token) {
 	const payload = {
 		jti: "jti",
 		htm: "POST",
-		htu: "http://localhost:5000/credential",
+		htu,
 		iat: Math.floor(Date.now() / 1000),
 		ath,
 	};
@@ -180,7 +180,11 @@ export default async function () {
 	});
 
 	// credential
-	const dpop = await generateDpop(access_token);
+
+	const credentialDpop = await generateDpop(
+		access_token,
+		`http://localhost:5000/credential`,
+	);
 
 	const credential = http.post(
 		`http://localhost:5000/credential`,
@@ -194,12 +198,37 @@ export default async function () {
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${access_token}`,
-				DPoP: dpop,
+				DPoP: credentialDpop,
 			},
 		},
 	);
 
 	check(credential, {
 		"credential is status 200": (r) => r.status === 200,
+	});
+
+	const transaction_id = JSON.parse(credential.body).transaction_id;
+
+	// deferred credential
+
+	const deferredCredentialDpop = await generateDpop(
+		access_token,
+		`http://localhost:5000/deferred-credential`,
+	);
+
+	const deferredCredential = http.post(
+		`http://localhost:5000/deferred-credential`,
+		JSON.stringify({ transaction_id }),
+		{
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${access_token}`,
+				DPoP: deferredCredentialDpop,
+			},
+		},
+	);
+
+	check(deferredCredential, {
+		"deferred credential is status 200": (r) => r.status === 200,
 	});
 }

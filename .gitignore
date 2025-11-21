@@ -6,4 +6,6 @@ coverage
 dist
 docs
 
+deferred_credentials
+
 .env
