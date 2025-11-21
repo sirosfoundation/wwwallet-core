@@ -1,13 +1,8 @@
 import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../../config";
-import type { DecryptConfig } from "../../crypto";
 import { OauthError, type OauthErrorResponse } from "../../errors";
-import type {
-	BearerCredentials,
-	DeferredCredential,
-	DeferredResourceOwnerData,
-} from "../../resources";
+import type { BearerCredentials } from "../../resources";
 import {
 	type GenerateCredentialsConfig,
 	generateCredentials,
@@ -22,16 +17,7 @@ const ajv = new Ajv();
 
 export type DeferredCredentialHandlerConfig = ValidateAccessTokenConfig &
 	ValidateDpopConfig &
-	GenerateCredentialsConfig & {
-		dataOperations: {
-			fetchDeferredResourceOwnerData: (
-				defered_credential: DeferredCredential,
-				config: DecryptConfig,
-			) => Promise<{
-				defer_data: DeferredResourceOwnerData | null;
-			}>;
-		};
-	};
+	GenerateCredentialsConfig;
 
 type DeferredCredentialRequest = {
 	credentials: BearerCredentials;
@@ -72,17 +58,9 @@ export function deferredCredentialHandlerFactory(
 				config,
 			);
 
-			const { defer_data } =
-				await config.dataOperations.fetchDeferredResourceOwnerData(
-					{
-						transaction_id: request.transaction_id,
-					},
-					config,
-				);
-
 			const { credentials } = await generateCredentials(
 				{
-					defer_data,
+					transaction_id: request.transaction_id,
 				},
 				config,
 			);

@@ -1,11 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import express from "express";
-import { exportJWK, generateKeyPair, type JWK } from "jose";
+import { exportJWK, generateKeyPair } from "jose";
+import type { DecryptConfig, EncryptConfig } from "../../src";
 import {
 	Protocols,
 	type ResourceOwner,
-	type ResourceOwnerData,
 	type SupportedCredentialConfiguration,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
@@ -196,13 +196,22 @@ export const config = {
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
 	dataOperations: {
-		async resourceOwnerData({
-			sub,
-			credential_configurations,
-		}: {
-			sub: string;
-			credential_configurations: Array<SupportedCredentialConfiguration>;
-		}) {
+		async resourceOwnerData(
+			{
+				sub,
+				credential_configurations,
+			}: {
+				sub: string;
+				credential_configurations: Array<SupportedCredentialConfiguration>;
+			},
+			_config: EncryptConfig,
+		) {
+			if (
+				credential_configurations.some(({ scope }) => scope.match("deferred"))
+			) {
+				return { transaction_id: "transaction_id" };
+			}
+
 			return credential_configurations.map((credential_configuration) => {
 				return {
 					credential_configuration,
@@ -210,25 +219,17 @@ export const config = {
 				};
 			});
 		},
-		async deferredResourceOwnerData({
-			sub: _sub,
-			data: _data,
-			jwks: _jwks,
-		}: {
-			sub: string;
-			data: Array<ResourceOwnerData>;
-			jwks: Array<JWK>;
-		}) {
-			return { transaction_id: "transaction_id" };
-		},
-		async fetchDeferredResourceOwnerData({
-			transaction_id,
-		}: {
-			transaction_id: string;
-		}) {
-			const { publicKey } = await generateKeyPair("ES256");
-
+		async fetchDeferredResourceOwnerData(
+			{
+				transaction_id,
+			}: {
+				transaction_id: string;
+			},
+			_config: DecryptConfig,
+		) {
 			if (transaction_id === "transaction_id") {
+				const { publicKey } = await generateKeyPair("ES256");
+
 				return {
 					defer_data: {
 						sub: "sub",
@@ -246,7 +247,7 @@ export const config = {
 				};
 			}
 
-			return { defer_data: [] };
+			return { defer_data: null };
 		},
 	},
 	clients: [
