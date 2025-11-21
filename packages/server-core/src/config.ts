@@ -1,7 +1,7 @@
-import type { JWK } from "jose";
 import type { DecryptConfig, EncryptConfig } from "./crypto";
 import type {
 	DeferredCredential,
+	DeferredResourceOwnerData,
 	ResourceOwnerData,
 	SupportedCredentialConfiguration,
 } from "./resources";
@@ -35,11 +35,7 @@ export interface Logger {
 
 export interface DataOperations {
 	deferredResourceOwnerData?: (
-		deferred_data: {
-			sub: string;
-			data: Array<ResourceOwnerData>;
-			jwks: Array<JWK>;
-		},
+		defer_data: DeferredResourceOwnerData,
 		config: EncryptConfig,
 	) => Promise<DeferredCredential>;
 	resourceOwnerData?: (data: {
@@ -50,11 +46,7 @@ export interface DataOperations {
 		defered_credential: DeferredCredential,
 		config: DecryptConfig,
 	) => Promise<{
-		resource_owner_data: {
-			sub: string;
-			data: Array<ResourceOwnerData>;
-			jwks: Array<JWK>;
-		};
+		defer_data: DeferredResourceOwnerData | null;
 	}>;
 }
 

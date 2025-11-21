@@ -17,7 +17,7 @@ export type GenerateCredentialsParams = {
 	sub?: string;
 	credential_configurations?: Array<SupportedCredentialConfiguration>;
 	jwks?: Array<JWK>;
-	resource_owner_data?: DeferredResourceOwnerData;
+	defer_data?: DeferredResourceOwnerData | null;
 };
 
 export type GenerateCredentialsConfig = {
@@ -43,11 +43,11 @@ export async function generateCredentials(
 		sub: inputSub,
 		credential_configurations: inputCredentialConfigurations,
 		jwks: inputJwks,
-		resource_owner_data,
+		defer_data,
 	}: GenerateCredentialsParams,
 	config: GenerateCredentialsConfig,
 ) {
-	const { sub, data, jwks } = resource_owner_data || {
+	const { sub, data, jwks } = defer_data || {
 		sub: inputSub,
 		data:
 			inputSub &&
@@ -78,23 +78,21 @@ export async function generateCredentials(
 		);
 	}
 
-	if (resource_owner_data) {
+	if (defer_data) {
 		const cnf = { jwk: jwks[0] };
 
 		const credentials = await Promise.all(
-			resource_owner_data.data.map(
-				async ({ claims, credential_configuration }) => {
-					if (!claims) return { credential: "" };
-					return {
-						credential: await generateAndSign(
-							claims,
-							cnf,
-							credential_configuration,
-							config,
-						),
-					};
-				},
-			),
+			defer_data.data.map(async ({ claims, credential_configuration }) => {
+				if (!claims) return { credential: "" };
+				return {
+					credential: await generateAndSign(
+						claims,
+						cnf,
+						credential_configuration,
+						config,
+					),
+				};
+			}),
 		);
 
 		return {

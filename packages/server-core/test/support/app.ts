@@ -230,7 +230,7 @@ export const config = {
 
 			if (transaction_id === "transaction_id") {
 				return {
-					resource_owner_data: {
+					defer_data: {
 						sub: "sub",
 						jwks: [await exportJWK(publicKey)],
 						data: [
@@ -246,7 +246,7 @@ export const config = {
 				};
 			}
 
-			return { resource_owner_data: [] };
+			return { defer_data: [] };
 		},
 	},
 	clients: [

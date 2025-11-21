@@ -4,8 +4,10 @@ import {
 	type Config,
 	type DecryptConfig,
 	type DeferredCredential,
+	type DeferredResourceOwnerData,
 	type EncryptConfig,
 	jwtDecryptWithConfigKeys,
+	type ResourceOwnerData,
 	type SupportedCredentialConfiguration,
 	secretDerivation,
 } from "@wwwallet/server-core";
@@ -24,16 +26,16 @@ const ymlConfig = parse(
 
 const deferred_credentials_path = "./deferred_credentials";
 
-type ResourceOwnerData = {
-	sub: string;
-	vct: string;
+type StoredResourceOwnerData = {
+	defer_data: DeferredResourceOwnerData;
+	commit: boolean;
 };
 
 const baseConfig = {
 	logger: logger,
 	dataOperations: {
 		async deferredResourceOwnerData(
-			data: {
+			defer_data: {
 				sub: string;
 				data: Array<ResourceOwnerData>;
 				jwks: Array<JWK>;
@@ -41,12 +43,20 @@ const baseConfig = {
 			config: EncryptConfig,
 		) {
 			const secret = new TextEncoder().encode(config.secret);
-			const encryptedData = await new EncryptJWT(data)
+			const encryptedData = await new EncryptJWT({
+				defer_data,
+				commit: true,
+			})
 				.setProtectedHeader({ alg: "dir", enc: config.token_encryption })
 				.setIssuedAt()
 				.encrypt(secret);
 			const transaction_id = await secretDerivation(
-				JSON.stringify(data),
+				JSON.stringify({
+					sub: defer_data.sub,
+					credential_configurations: defer_data.data.map(
+						({ credential_configuration }) => credential_configuration,
+					),
+				}),
 				Date.now(),
 			);
 
@@ -65,17 +75,33 @@ const baseConfig = {
 			{ transaction_id }: DeferredCredential,
 			config: DecryptConfig,
 		) {
-			const jwe = fs.readFileSync(
-				path.join(
-					process.cwd(),
-					deferred_credentials_path,
-					`${transaction_id}.jwe`,
-				),
-			);
-			const { payload: resource_owner_data } =
-				await jwtDecryptWithConfigKeys<ResourceOwnerData>(jwe, config);
+			const jwes = fs
+				.readFileSync(
+					path.join(
+						process.cwd(),
+						deferred_credentials_path,
+						`${transaction_id}.jwe`,
+					),
+				)
+				.toString()
+				.split("\n");
 
-			return { resource_owner_data };
+			let jwe = jwes.shift();
+			while (jwe) {
+				const {
+					payload: { defer_data: currentDeferData, commit: currentCommit },
+				} = await jwtDecryptWithConfigKeys<StoredResourceOwnerData>(
+					jwe,
+					config,
+				);
+
+				if (currentCommit) {
+					return { defer_data: currentDeferData };
+				}
+				jwe = jwes.shift();
+			}
+
+			return { defer_data: null };
 		},
 		async resourceOwnerData({
 			sub,
@@ -102,7 +128,7 @@ const config = merge(baseConfig, ymlConfig) as Config;
 config.supported_credential_configurations =
 	config.supported_credential_configurations?.concat(
 		config.supported_credential_configuration_paths?.map(
-			(credentialConfigurationPath) => {
+			(credentialConfigurationPath: string) => {
 				const credential = fs
 					.readFileSync(path.join(process.cwd(), credentialConfigurationPath))
 					.toString();
@@ -113,7 +139,7 @@ config.supported_credential_configurations =
 	);
 
 config.trusted_root_certificates = config.trusted_root_certificates?.concat(
-	config.trusted_root_certificate_paths?.map((certificatePath) => {
+	config.trusted_root_certificate_paths?.map((certificatePath: string) => {
 		return fs
 			.readFileSync(path.join(process.cwd(), certificatePath))
 			.toString();
