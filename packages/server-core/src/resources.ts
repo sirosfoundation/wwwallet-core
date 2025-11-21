@@ -164,6 +164,7 @@ export type OpenidCredentialIssuer = {
 	credential_issuer: string;
 	nonce_endpoint: string;
 	credential_endpoint: string;
+	deferred_credential_endpoint: string;
 	display: Array<{
 		locale: string;
 		logo?: {

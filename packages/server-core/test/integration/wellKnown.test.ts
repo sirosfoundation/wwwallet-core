@@ -48,6 +48,7 @@ describe("well-known endpoints", () => {
 
 		expect(response.body).to.deep.eq({
 			credential_endpoint: "http://localhost:5000/credential",
+			deferred_credential_endpoint: "http://localhost:5000/deferred-credential",
 			credential_issuer: "http://localhost:5000",
 			nonce_endpoint: "http://localhost:5000/nonce",
 			display: [
