@@ -19,7 +19,7 @@ pnpm build
 
 ### Configuration
 
-Server static configuration can be edited given the example `config.yml` [file](./apps/client/config.yml).
+Server static configuration can be edited given the example `config.yml` [file](https://github.com/sirosfoundation/wwwallet-core/blob/master/config.yml).
 
 ## Run an example issuer
 
