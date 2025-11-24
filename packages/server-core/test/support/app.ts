@@ -239,30 +239,30 @@ export const config = {
 			},
 			_config: DecryptConfig,
 		) {
-			if (transaction_id === "transaction_id") {
-				const { publicKey } = await generateKeyPair("ES256");
-
-				return {
-					defer_data: {
-						sub: "sub",
-						jwks: [await exportJWK(publicKey)],
-						data: [
-							{
-								credential_configuration:
-									supported_credential_configurations.find(
-										({ vct }) => vct === "urn:test:deferred",
-									) as SupportedCredentialConfiguration,
-								claims: {
-									sub: "sub",
-									vct: "urn:test:deferred",
-								},
-							},
-						],
-					},
-				};
+			if (transaction_id !== "transaction_id") {
+				return { defer_data: null };
 			}
 
-			return { defer_data: null };
+			const { publicKey } = await generateKeyPair("ES256");
+
+			return {
+				defer_data: {
+					sub: "sub",
+					jwks: [await exportJWK(publicKey)],
+					data: [
+						{
+							credential_configuration:
+								supported_credential_configurations.find(
+									({ vct }) => vct === "urn:test:deferred",
+								) as SupportedCredentialConfiguration,
+							claims: {
+								sub: "sub",
+								vct: "urn:test:deferred",
+							},
+						},
+					],
+				},
+			};
 		},
 	},
 	clients: [
