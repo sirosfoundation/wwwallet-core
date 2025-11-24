@@ -118,7 +118,7 @@ export async function generateCredentials(
 	);
 
 	return {
-		credentials: credentials,
+		credentials,
 	};
 }
 
