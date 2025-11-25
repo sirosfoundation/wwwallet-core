@@ -1,20 +1,22 @@
 import type { DcqlQuery } from "dcql";
-import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
-import type { HttpClient } from "../../ports";
 import type { ClientMetadata, PresentationRequest } from "../../resources";
-import { validateClientMetadata, validateDcqlQuery } from "../../statements";
+import {
+	type ValidatePresentationRequestConfig,
+	type ValidatePresentationRequestParams,
+	validateClientMetadata,
+	validateDcqlQuery,
+	validatePresentationRequest,
+} from "../../statements";
 
-export type PresentationRequestConfig = {
-	httpClient: HttpClient;
-};
+export type PresentationRequestConfig = ValidatePresentationRequestConfig;
 
 type PresentationRequestProtocol = "oid4vp";
 
 type PresentationRequestNextStep = "generate_presentation";
 
 export type PresentationRequestLocation = {
-	client_id: string | null;
+	client_id: string;
 	request: string | null;
 	request_uri: string | null;
 };
@@ -51,69 +53,17 @@ async function doHandlePresentationRequest(
 	location: PresentationRequestLocation,
 	config: PresentationRequestConfig,
 ): Promise<PresentationRequestResponse> {
-	const parameters: Array<
-		| "client_id"
-		| "response_uri"
-		| "response_type"
-		| "response_mode"
-		| "nonce"
-		| "state"
-	> = [
-		"client_id",
-		"response_uri",
-		"response_type",
-		"response_mode",
-		"nonce",
-		"state",
-	];
-
-	const presentation_request: PresentationRequest = {
-		client_id: location.client_id || "",
-		response_uri: "",
-		response_type: "",
-		response_mode: "",
-		nonce: "",
-		state: "",
-		client_metadata: null,
-		dcql_query: null,
+	const presentationRequestParams: ValidatePresentationRequestParams = {
+		client_id: location.client_id,
 	};
+	if (location.request) presentationRequestParams.request = location.request;
+	if (location.request_uri)
+		presentationRequestParams.request_uri = location.request_uri;
 
-	if (location.request_uri) {
-		try {
-			const response = await config.httpClient
-				.get<string>(location.request_uri)
-				.then(({ data }) => data);
-			const payload = decodeJwt<PresentationRequest>(response);
-			Object.assign(presentation_request, payload);
-		} catch (error) {
-			throw new OauthError(
-				"invalid_request",
-				"could not fetch presentation request",
-				{ error },
-			);
-		}
-	} else if (location.request) {
-		try {
-			const payload = decodeJwt<PresentationRequest>(location.request);
-			Object.assign(presentation_request, payload);
-		} catch (error) {
-			throw new OauthError(
-				"invalid_location",
-				"could not parse presentation request",
-				{ error },
-			);
-		}
-	}
-
-	for (const parameter of parameters) {
-		if (!presentation_request[parameter]) {
-			throw new OauthError(
-				"invalid_location",
-				`${parameter.replace("_", " ")} parameter is missing`,
-			);
-		}
-	}
-
+	const { presentation_request } = await validatePresentationRequest(
+		presentationRequestParams,
+		config,
+	);
 	const { dcql_query } = await validateDcqlQuery(
 		{
 			dcql_query: presentation_request.dcql_query,

@@ -14,6 +14,7 @@ import {
 import {
 	handlePresentationRequest,
 	type PresentationRequestConfig,
+	type PresentationRequestLocation,
 	type PresentationRequestResponse,
 } from "./location/presentationRequest";
 import {
@@ -87,7 +88,11 @@ export function locationHandlerFactory(config: LocationHandlerConfig) {
 			}
 
 			if (location.client_id) {
-				return await handlePresentationRequest(location, config);
+				return await handlePresentationRequest(
+					// NOTE client id being present types should match
+					location as PresentationRequestLocation,
+					config,
+				);
 			}
 
 			return {
