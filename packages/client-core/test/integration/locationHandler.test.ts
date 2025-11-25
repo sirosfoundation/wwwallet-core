@@ -1156,5 +1156,65 @@ describe("location handler - presentation request", () => {
 		});
 	});
 
+	describe("with a raw presentation request uri", () => {
+		const request_uri = "http://request.uri";
+		const client_id = "client_id";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const locationHandler = locationHandlerFactory({
+			// @ts-ignore
+			httpClient: {
+				get: async <T>(url: string) => {
+					if (url !== request_uri) {
+						throw new Error("invalid request_uri");
+					}
+					return {
+						data: {
+							client_id,
+							response_uri,
+							response_type,
+							response_mode,
+							nonce,
+							state,
+						} as T,
+					};
+				},
+			},
+			clientStateStore: clientStateStoreMock(),
+			presentationCredentialsStore: presentationCredentialsStoreMock(),
+		});
+
+		it("returns a presentation request with request", async () => {
+			const location = {
+				search: `?client_id=${client_id}&request_uri=${request_uri}`,
+			};
+
+			// @ts-ignore
+			const response = await locationHandler(location);
+
+			expect(response).to.deep.eq({
+				data: {
+					presentation_request: {
+						client_id: "client_id",
+						nonce: "nonce",
+						response_mode: "response_mode",
+						response_type: "response_type",
+						response_uri: "response_uri",
+						state: "state",
+						dcql_query: null,
+						client_metadata: null,
+					},
+					dcql_query: null,
+					client_metadata: null,
+				},
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		});
+	});
+
 	it.skip("returns a presentation request with a request uri");
 });

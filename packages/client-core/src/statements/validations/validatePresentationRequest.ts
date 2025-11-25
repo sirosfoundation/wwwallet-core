@@ -31,10 +31,22 @@ export async function validatePresentationRequest(
 	if (request_uri) {
 		try {
 			const response = await config.httpClient
-				.get<string>(request_uri)
+				.get<string | PresentationRequest>(request_uri)
 				.then(({ data }) => data);
-			const payload = decodeJwt<PresentationRequest>(response);
-			Object.assign(presentation_request, payload);
+			if (typeof response === "string") {
+				const payload = decodeJwt<PresentationRequest>(response);
+				Object.assign(presentation_request, payload);
+			} else {
+				Object.assign(presentation_request, {
+					response_uri: response.response_uri,
+					response_type: response.response_type,
+					response_mode: response.response_mode,
+					nonce: response.nonce,
+					state: response.state,
+					client_metadata: response.client_metadata || null,
+					dcql_query: response.dcql_query || null,
+				});
+			}
 		} catch (error) {
 			throw new OauthError(
 				"invalid_request",
