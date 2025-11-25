@@ -41,9 +41,11 @@
 	"dependencies": {
 		"@types/web": "^0.0.265",
 		"ajv": "^8.17.1",
+		"asn1js": "^3.0.6",
 		"axios": "^1.11.0",
 		"dcql": "^1.0.1",
 		"jose": "^6.1.0",
+		"pkijs": "^3.3.3",
 		"ts-deepmerge": "^7.0.3",
 		"uuid": "^13.0.0"
 	},
