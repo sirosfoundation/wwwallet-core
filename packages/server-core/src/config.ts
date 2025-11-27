@@ -46,9 +46,11 @@ export interface DataOperations {
 	fetchDeferredResourceOwnerData?: (
 		defered_credential: DeferredCredential,
 		config: DecryptConfig,
-	) => Promise<{
-		defer_data: DeferredResourceOwnerData | null;
-	}>;
+	) => Promise<
+		| DeferredResourceOwnerData
+		| { transaction_id: string; interval: number }
+		| null
+	>;
 }
 
 export type Config = {

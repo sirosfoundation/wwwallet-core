@@ -34,9 +34,11 @@ export type GenerateCredentialsConfig = {
 		fetchDeferredResourceOwnerData: (
 			defered_credential: DeferredCredential,
 			config: DecryptConfig,
-		) => Promise<{
-			defer_data: DeferredResourceOwnerData | null;
-		}>;
+		) => Promise<
+			| DeferredResourceOwnerData
+			| { transaction_id: string; interval: number }
+			| null
+		>;
 	};
 } & EncryptConfig &
 	DecryptConfig;
@@ -54,21 +56,27 @@ export async function generateCredentials(
 	let jwks = inputJwks;
 	let data: Array<ResourceOwnerData>;
 	if (transaction_id) {
-		const { defer_data } =
-			await config.dataOperations.fetchDeferredResourceOwnerData(
-				{
-					transaction_id: transaction_id,
-				},
-				config,
-			);
+		const response = await config.dataOperations.fetchDeferredResourceOwnerData(
+			{
+				transaction_id: transaction_id,
+			},
+			config,
+		);
 
-		if (!defer_data) {
-			throw new OauthError(404, "invalid_credential", "credential not found");
+		if (!response) {
+			throw new OauthError(404, "invalid_request", "transaction not found");
 		}
 
-		sub = defer_data.sub;
-		jwks = defer_data.jwks;
-		data = defer_data.data;
+		if ("transaction_id" in response) {
+			return {
+				transaction_id: response.transaction_id,
+				interval: response.interval,
+			};
+		}
+
+		sub = response.sub;
+		jwks = response.jwks;
+		data = response.data;
 	} else if (sub) {
 		const resourceOwnerData = await config.dataOperations.resourceOwnerData(
 			{
@@ -79,10 +87,10 @@ export async function generateCredentials(
 			config,
 		);
 
-		if (Array.isArray(resourceOwnerData)) {
-			data = resourceOwnerData;
-		} else {
+		if ("transaction_id" in resourceOwnerData) {
 			return { transaction_id: resourceOwnerData.transaction_id };
+		} else {
+			data = resourceOwnerData;
 		}
 	} else {
 		throw new OauthError(

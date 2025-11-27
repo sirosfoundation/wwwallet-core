@@ -96,12 +96,12 @@ const baseConfig = {
 				);
 
 				if (currentCommit) {
-					return { defer_data: currentDeferData };
+					return currentDeferData;
 				}
 				jwe = jwes.shift();
 			}
 
-			return { defer_data: null };
+			return null;
 		},
 		async resourceOwnerData(
 			{
