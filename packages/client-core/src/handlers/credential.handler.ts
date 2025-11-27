@@ -1,7 +1,12 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
 import { OauthError } from "../errors";
-import type { ClientState, IssuerMetadata, Proofs } from "../resources";
+import type {
+	ClientState,
+	DeferredCredential,
+	IssuerMetadata,
+	Proofs,
+} from "../resources";
 import {
 	type ClientStateConfig,
 	clientState,
@@ -39,7 +44,7 @@ export type CredentialResponse = {
 		issuer_metadata: IssuerMetadata;
 		client_state: ClientState;
 		credentials?: Array<{ credential: string; format?: string }>;
-		transaction_id?: string;
+		deferred_credential?: DeferredCredential;
 	};
 };
 
@@ -75,7 +80,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { credentials, transaction_id } = await fetchCredentials(
+			const { credentials, transaction_id, interval } = await fetchCredentials(
 				{
 					issuer_metadata,
 					access_token,
@@ -86,15 +91,28 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
+			const data: CredentialResponse["data"] = {
+				issuer_metadata,
+				client_state,
+				credentials,
+			};
+
+			if (credentials) {
+				data.credentials = credentials;
+			}
+
+			if (transaction_id && interval) {
+				data.deferred_credential = {
+					client_state,
+					transaction_id,
+					interval,
+				};
+			}
+
 			return {
 				protocol,
 				nextStep,
-				data: {
-					issuer_metadata,
-					client_state,
-					credentials,
-					transaction_id,
-				},
+				data,
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
