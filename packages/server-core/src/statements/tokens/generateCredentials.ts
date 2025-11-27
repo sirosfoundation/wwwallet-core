@@ -78,7 +78,7 @@ export async function generateCredentials(
 		jwks = response.jwks;
 		data = response.data;
 	} else if (sub) {
-		const resourceOwnerData = await config.dataOperations.resourceOwnerData(
+		const response = await config.dataOperations.resourceOwnerData(
 			{
 				sub,
 				credential_configurations: inputCredentialConfigurations || [],
@@ -87,10 +87,13 @@ export async function generateCredentials(
 			config,
 		);
 
-		if ("transaction_id" in resourceOwnerData) {
-			return { transaction_id: resourceOwnerData.transaction_id };
+		if ("transaction_id" in response) {
+			return {
+				transaction_id: response.transaction_id,
+				interval: response.interval,
+			};
 		} else {
-			data = resourceOwnerData;
+			data = response;
 		}
 	} else {
 		throw new OauthError(
