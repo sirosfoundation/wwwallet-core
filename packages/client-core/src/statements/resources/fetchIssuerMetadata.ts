@@ -7,8 +7,8 @@ import type {
 } from "../../resources";
 
 export type FetchIssuerMetadataParams = {
-	issuer?: string;
-	client_state: ClientState;
+	issuer: string;
+	client_state?: ClientState;
 };
 
 export type FetchIssuerMetadataConfig = {
@@ -20,7 +20,7 @@ export async function fetchIssuerMetadata(
 	{ client_state, issuer }: FetchIssuerMetadataParams,
 	config: FetchIssuerMetadataConfig,
 ) {
-	if (client_state.issuer_metadata) {
+	if (client_state?.issuer_metadata) {
 		return {
 			issuer_metadata: client_state.issuer_metadata,
 			client_state,
