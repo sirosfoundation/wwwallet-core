@@ -221,7 +221,7 @@ export const config = {
 			if (
 				credential_configurations.some(({ scope }) => scope.match("deferred"))
 			) {
-				return { transaction_id: "transaction_id" };
+				return { transaction_id: "transaction_id", interval: 3600 };
 			}
 
 			return credential_configurations.map((credential_configuration) => {

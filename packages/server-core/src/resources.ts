@@ -89,6 +89,7 @@ export type Claims = {
 
 export type DeferredCredential = {
 	transaction_id: string;
+	interval?: number;
 };
 
 export type DeferredResourceOwnerData = {

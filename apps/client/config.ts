@@ -69,7 +69,7 @@ const baseConfig = {
 				encryptedData,
 			);
 
-			return { transaction_id };
+			return { transaction_id, interval: 10 };
 		},
 		async fetchDeferredResourceOwnerData(
 			{ transaction_id }: DeferredCredential,
