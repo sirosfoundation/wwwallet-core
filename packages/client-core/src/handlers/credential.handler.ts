@@ -14,8 +14,6 @@ import {
 	type FetchIssuerMetadataConfig,
 	fetchCredentials,
 	fetchIssuerMetadata,
-	type GenerateDpopConfig,
-	generateDpop,
 } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas";
 
@@ -30,7 +28,6 @@ export type CredentialHandlerParams = {
 
 export type CredentialHandlerConfig = ClientStateConfig &
 	FetchIssuerMetadataConfig &
-	GenerateDpopConfig &
 	FetchCredentialsConfig;
 
 type CredentialProtocol = "oid4vci";
@@ -70,21 +67,11 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { dpop: credentialsDpop } = await generateDpop(
-				{
-					client_state,
-					access_token,
-					htu: issuer_metadata.credential_endpoint,
-					htm: "POST",
-				},
-				config,
-			);
-
 			const { credentials, transaction_id, interval } = await fetchCredentials(
 				{
+					client_state,
 					issuer_metadata,
 					access_token,
-					dpop: credentialsDpop,
 					credential_configuration_id,
 					proofs,
 				},
