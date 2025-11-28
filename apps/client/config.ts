@@ -69,7 +69,7 @@ const baseConfig = {
 				encryptedData,
 			);
 
-			return { transaction_id };
+			return { transaction_id, interval: 10 };
 		},
 		async fetchDeferredResourceOwnerData(
 			{ transaction_id }: DeferredCredential,
@@ -96,12 +96,12 @@ const baseConfig = {
 				);
 
 				if (currentCommit) {
-					return { defer_data: currentDeferData };
+					return currentDeferData;
 				}
 				jwe = jwes.shift();
 			}
 
-			return { defer_data: null };
+			return null;
 		},
 		async resourceOwnerData(
 			{

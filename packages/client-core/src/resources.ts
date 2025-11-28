@@ -27,6 +27,12 @@ export type PresentationCredential = {
 	context?: unknown;
 };
 
+export type DeferredCredential = {
+	client_state: ClientState;
+	transaction_id: string;
+	interval: number;
+};
+
 export type ClientMetadata = {
 	jwks_uri?: string;
 	jwks?: {
@@ -91,6 +97,7 @@ export type OpenidCredentialIssuer = {
 	credential_issuer: string;
 	nonce_endpoint: string;
 	credential_endpoint: string;
+	deferred_credential_endpoint?: string;
 	display: Array<{
 		locale: string;
 		logo?: {

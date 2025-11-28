@@ -41,6 +41,7 @@ export type CredentialResponse = {
 	body: {
 		credentials?: Array<{ credential: string }>;
 		transaction_id?: string;
+		interval?: number;
 	};
 };
 
@@ -81,14 +82,15 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { credentials, transaction_id } = await generateCredentials(
-				{
-					sub,
-					credential_configurations,
-					jwks,
-				},
-				config,
-			);
+			const { credentials, transaction_id, interval } =
+				await generateCredentials(
+					{
+						sub,
+						credential_configurations,
+						jwks,
+					},
+					config,
+				);
 
 			config.logger.business("credential", {
 				access_token,
@@ -104,6 +106,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				body: {
 					credentials,
 					transaction_id,
+					interval,
 				},
 			};
 		} catch (error) {
