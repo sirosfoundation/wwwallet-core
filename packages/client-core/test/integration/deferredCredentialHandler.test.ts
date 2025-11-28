@@ -10,6 +10,7 @@ import {
 describe("credentialHandler", () => {
 	const issuer = "http://issuer.url";
 	const state = "state";
+	const access_token = "access_token";
 
 	it("rejects without deferred credential endpoint in issuer metadata", async () => {
 		const config = {
@@ -29,10 +30,12 @@ describe("credentialHandler", () => {
 		const deferred_credential = {
 			client_state: await config.clientStateStore.fromState(state),
 			transaction_id: "transaction_id",
+			interval: 60,
 		};
 
 		try {
 			await credentialHandler({
+				access_token,
 				deferred_credential,
 			});
 
@@ -93,12 +96,14 @@ describe("credentialHandler", () => {
 		const deferred_credential = {
 			client_state: await config.clientStateStore.fromState(state),
 			transaction_id: "transaction_id",
+			interval: 60,
 		};
 
 		const credentialHandler = deferredCredentialHandlerFactory(config);
 
 		try {
 			await credentialHandler({
+				access_token,
 				deferred_credential,
 			});
 
@@ -160,11 +165,13 @@ describe("credentialHandler", () => {
 		const deferred_credential = {
 			client_state: await config.clientStateStore.fromState(state),
 			transaction_id: "transaction_id",
+			interval: 60,
 		};
 
 		const credentialHandler = deferredCredentialHandlerFactory(config);
 
 		const response = await credentialHandler({
+			access_token,
 			deferred_credential,
 		});
 

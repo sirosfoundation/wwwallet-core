@@ -13,6 +13,7 @@ import { deferredCredentialHandlerConfigSchema } from "./schemas/deferredCredent
 const ajv = new Ajv();
 
 export type DeferredCredentialHandlerParams = {
+	access_token: string;
 	deferred_credential: DeferredCredential;
 };
 
@@ -40,6 +41,7 @@ export function deferredCredentialHandlerFactory(
 	config: DeferredCredentialHandlerConfig,
 ) {
 	return async function deferredCredentialHandler({
+		access_token,
 		deferred_credential,
 	}: DeferredCredentialHandlerParams): Promise<DeferredCredentialResponse> {
 		try {
@@ -52,8 +54,6 @@ export function deferredCredentialHandlerFactory(
 				},
 				config,
 			);
-
-			const access_token = "access_token";
 
 			const { credentials } = await fetchCredentials(
 				{
