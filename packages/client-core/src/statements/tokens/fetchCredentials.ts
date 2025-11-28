@@ -1,39 +1,73 @@
 import { OauthError } from "../../errors";
 import type { HttpClient } from "../../ports";
 import type {
+	ClientState,
 	DeferredCredential,
 	IssuerMetadata,
 	Proofs,
 } from "../../resources";
+import { type GenerateDpopConfig, generateDpop } from "./generateDpop";
 
 export type FetchCredentialsParams =
 	| {
+			client_state: ClientState;
 			issuer_metadata: IssuerMetadata;
 			access_token: string;
-			dpop: string;
 			credential_configuration_id: string;
 			proofs: Proofs | undefined;
 	  }
 	| {
+			client_state: ClientState;
 			issuer_metadata: IssuerMetadata;
 			access_token: string;
-			dpop: string;
 			deferred_credential: DeferredCredential;
 	  };
 
 export type FetchCredentialsConfig = {
 	httpClient: HttpClient;
-};
+} & GenerateDpopConfig;
 
 export async function fetchCredentials(
 	params: FetchCredentialsParams,
 	config: FetchCredentialsConfig,
 ) {
 	if ("deferred_credential" in params) {
-		return await fetchDeferredCredentials(params, config);
+		const { dpop } = await generateDpop(
+			{
+				client_state: params.client_state,
+				access_token: params.access_token,
+				htu: params.issuer_metadata.deferred_credential_endpoint || "",
+				htm: "POST",
+			},
+			config,
+		);
+
+		return await fetchDeferredCredentials(
+			{
+				dpop,
+				...params,
+			},
+			config,
+		);
 	}
 
-	return await doFetchCredentials(params, config);
+	const { dpop } = await generateDpop(
+		{
+			client_state: params.client_state,
+			access_token: params.access_token,
+			htu: params.issuer_metadata.credential_endpoint || "",
+			htm: "POST",
+		},
+		config,
+	);
+
+	return await doFetchCredentials(
+		{
+			dpop,
+			...params,
+		},
+		config,
+	);
 }
 
 async function fetchDeferredCredentials(
@@ -68,7 +102,7 @@ async function fetchDeferredCredentials(
 				transaction_id?: string;
 				interval?: number;
 			}>(
-				issuer_metadata.credential_endpoint,
+				issuer_metadata.deferred_credential_endpoint,
 				{
 					transaction_id: deferred_credential.transaction_id,
 				},

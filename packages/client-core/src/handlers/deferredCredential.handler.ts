@@ -7,8 +7,6 @@ import {
 	type FetchIssuerMetadataConfig,
 	fetchCredentials,
 	fetchIssuerMetadata,
-	type GenerateDpopConfig,
-	generateDpop,
 } from "../statements";
 import { deferredCredentialHandlerConfigSchema } from "./schemas/deferredCredentialHandlerConfig.schema";
 
@@ -19,8 +17,7 @@ export type DeferredCredentialHandlerParams = {
 };
 
 export type DeferredCredentialHandlerConfig = FetchCredentialsConfig &
-	FetchIssuerMetadataConfig &
-	GenerateDpopConfig;
+	FetchIssuerMetadataConfig;
 
 type DeferredCredentialHandlerProtocol = "oid4vci";
 
@@ -56,24 +53,13 @@ export function deferredCredentialHandlerFactory(
 				config,
 			);
 
-			// TODO access token management
 			const access_token = "access_token";
-
-			const { dpop: credentialsDpop } = await generateDpop(
-				{
-					client_state,
-					access_token,
-					htu: issuer_metadata.credential_endpoint,
-					htm: "POST",
-				},
-				config,
-			);
 
 			const { credentials } = await fetchCredentials(
 				{
+					client_state,
 					issuer_metadata,
 					access_token,
-					dpop: credentialsDpop,
 					deferred_credential,
 				},
 				config,
