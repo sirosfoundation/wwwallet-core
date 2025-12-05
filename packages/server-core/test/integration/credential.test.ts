@@ -4,7 +4,7 @@ import { digest as hasher } from "@sd-jwt/crypto-nodejs";
 import { EncryptJWT, exportJWK, generateKeyPair, SignJWT } from "jose";
 import request from "supertest";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("credential endpoint", () => {
 	it("returns an error without body", async () => {
@@ -85,15 +85,15 @@ describe("credential endpoint", () => {
 		const sub = "sub";
 		const credential_configuration_id = "unknwown:configuration:id";
 
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const now = Date.now() / 1000;
 		const access_token = await new EncryptJWT({ sub, token_type: "invalid" })
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.access_token_ttl || 0))
+			.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -114,32 +114,32 @@ describe("credential endpoint", () => {
 		let access_token: string;
 		let c_nonce: string;
 		beforeEach(async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			access_token = await new EncryptJWT({
-				client_id: core.config.issuer_client?.id,
+				client_id: protocols.config.issuer_client?.id,
 				sub,
 				token_type: "access_token",
 				scope,
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			c_nonce = await new EncryptJWT({
 				token_type: "c_nonce",
-				sub: core.config.issuer_client?.id,
+				sub: protocols.config.issuer_client?.id,
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 		});
 
@@ -607,7 +607,7 @@ describe("credential endpoint", () => {
 		const sub = "sub";
 		let access_token: string;
 		beforeEach(async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			access_token = await new EncryptJWT({
 				client_id,
@@ -616,10 +616,10 @@ describe("credential endpoint", () => {
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 		});
 
@@ -670,7 +670,7 @@ describe("credential endpoint", () => {
 		const sub = "sub";
 		let access_token: string;
 		beforeEach(async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			access_token = await new EncryptJWT({
 				client_id,
@@ -680,10 +680,10 @@ describe("credential endpoint", () => {
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 		});
 

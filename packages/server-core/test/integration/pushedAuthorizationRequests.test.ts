@@ -1,22 +1,24 @@
 import { EncryptJWT, jwtDecrypt } from "jose";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
 	let issuer_state: string;
 	beforeEach(async () => {
 		const now = Date.now() / 1000;
 
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 
-		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+		issuer_state = await new EncryptJWT({
+			sub: protocols.config.issuer_client?.id,
+		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 	});
 
@@ -139,7 +141,7 @@ describe("pushshed authorization request endpoint", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body.expires_in).to.eq(
-			core.config.pushed_authorization_request_ttl,
+			protocols.config.pushed_authorization_request_ttl,
 		);
 		expect(response.body.request_uri).toMatch(
 			"urn:wwwallet:authorization_request:ey",
@@ -150,7 +152,7 @@ describe("pushshed authorization request endpoint", () => {
 				"urn:wwwallet:authorization_request:",
 				"",
 			),
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
 
 		expect(payload.token_type).to.eq("authorization_request");
@@ -170,7 +172,7 @@ describe("pushshed authorization request endpoint", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body.expires_in).to.eq(
-			core.config.pushed_authorization_request_ttl,
+			protocols.config.pushed_authorization_request_ttl,
 		);
 		expect(response.body.request_uri).toMatch(
 			"urn:wwwallet:authorization_request:ey",
@@ -181,7 +183,7 @@ describe("pushshed authorization request endpoint", () => {
 				"urn:wwwallet:authorization_request:",
 				"",
 			),
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
 
 		expect(payload.token_type).to.eq("authorization_request");

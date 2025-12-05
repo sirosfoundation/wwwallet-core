@@ -1,6 +1,6 @@
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { Core } from "../../src";
+import { Protocols } from "../../src";
 import { app, server } from "../support/app";
 
 describe("hello world", () => {
@@ -15,7 +15,7 @@ describe("hello world", () => {
 describe("healthz", () => {
 	it("returns an error", async () => {
 		// @ts-ignore
-		const unconfiguredApp = server(new Core({}));
+		const unconfiguredApp = server(new Protocols({}));
 		const response = await request(unconfiguredApp).get("/healthz");
 
 		expect(response.status).toBe(500);

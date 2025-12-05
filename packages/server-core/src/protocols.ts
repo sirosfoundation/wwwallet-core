@@ -29,12 +29,12 @@ import {
 
 const SECRET_MEMORY = 10;
 
-/** wwWallet server Core class.
+/** wwWallet server Protocols class.
  *
- * Core is the entrypoint of OAuth 2.0 family protocols server implementation.
- * It exposes the request handlers to be used to manage protocols at server level.
+ * Core is the entrypoint of OAuth 2.0 family protocolss server implementation.
+ * It exposes the request handlers to be used to manage protocolss at server level.
  */
-export class Core {
+export class Protocols {
 	config: Config;
 
 	constructor(config: Config) {

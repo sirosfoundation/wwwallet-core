@@ -1,22 +1,24 @@
 import { EncryptJWT, jwtDecrypt } from "jose";
 import request from "supertest";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("authorization code - authorize", () => {
 	let issuer_state: string;
 	beforeEach(async () => {
 		const now = Date.now() / 1000;
 
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 
-		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+		issuer_state = await new EncryptJWT({
+			sub: protocols.config.issuer_client?.id,
+		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 	});
 
@@ -80,15 +82,17 @@ describe("authorization code - authenticate", () => {
 	beforeEach(async () => {
 		const now = Date.now() / 1000;
 
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 
-		issuer_state = await new EncryptJWT({ sub: core.config.issuer_client?.id })
+		issuer_state = await new EncryptJWT({
+			sub: protocols.config.issuer_client?.id,
+		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 	});
 
@@ -169,7 +173,7 @@ describe("authorization code - authenticate", () => {
 
 			const { payload } = await jwtDecrypt(
 				authorization_code,
-				new TextEncoder().encode(core.config.secret),
+				new TextEncoder().encode(protocols.config.secret),
 			);
 
 			expect(payload.scope).to.eq(scope);
@@ -333,14 +337,14 @@ describe("authorization code - token", () => {
 		const sub = "sub";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({ sub, token_type: "invalid" })
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -361,7 +365,7 @@ describe("authorization code - token", () => {
 		const sub = "sub";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -369,10 +373,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -393,7 +397,7 @@ describe("authorization code - token", () => {
 		const sub = "sub";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -401,10 +405,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -426,7 +430,7 @@ describe("authorization code - token", () => {
 		const code_challenge = "test";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -435,10 +439,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -462,7 +466,7 @@ describe("authorization code - token", () => {
 		const code_challenge_method = "invalid";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -472,10 +476,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -498,7 +502,7 @@ describe("authorization code - token", () => {
 		const code_challenge_method = "S256";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -508,10 +512,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -536,7 +540,7 @@ describe("authorization code - token", () => {
 		const code_verifier = "invalid";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -546,10 +550,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -573,7 +577,7 @@ describe("authorization code - token", () => {
 		const code_verifier = "invalid";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -583,10 +587,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -610,7 +614,7 @@ describe("authorization code - token", () => {
 		const code_verifier = "test";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
@@ -620,10 +624,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -637,10 +641,12 @@ describe("authorization code - token", () => {
 
 		const { payload } = await jwtDecrypt(
 			response.body.access_token,
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
 
-		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		assert(
+			protocols.config.clients?.find(({ id }) => id === payload.client_id),
+		);
 		expect(payload.sub).to.eq(sub);
 	});
 
@@ -655,7 +661,7 @@ describe("authorization code - token", () => {
 		const code_verifier = "test";
 
 		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(core.config.secret);
+		const secret = new TextEncoder().encode(protocols.config.secret);
 		const code = await new EncryptJWT({
 			sub,
 			scope,
@@ -666,10 +672,10 @@ describe("authorization code - token", () => {
 		})
 			.setProtectedHeader({
 				alg: "dir",
-				enc: core.config.token_encryption || "",
+				enc: protocols.config.token_encryption || "",
 			})
 			.setIssuedAt()
-			.setExpirationTime(now + (core.config.issuer_state_ttl || 0))
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
 			.encrypt(secret);
 
 		const response = await request(app)
@@ -683,10 +689,12 @@ describe("authorization code - token", () => {
 
 		const { payload } = await jwtDecrypt(
 			response.body.access_token,
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
 
-		assert(core.config.clients?.find(({ id }) => id === payload.client_id));
+		assert(
+			protocols.config.clients?.find(({ id }) => id === payload.client_id),
+		);
 		expect(payload.sub).to.eq(sub);
 		expect(payload.scope).to.eq(scope);
 	});
