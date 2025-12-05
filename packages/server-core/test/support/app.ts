@@ -1,6 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
-import express from "express";
+import express, { type Request, type Response, type Router } from "express";
+import {
+	calculateJwkThumbprint,
+	decodeProtectedHeader,
+	EncryptJWT,
+	importJWK,
+	jwtVerify,
+	SignJWT,
+} from "jose";
 import {
 	type AuthorizationServerState,
 	Protocols,
@@ -20,6 +28,167 @@ export function server(protocols: Protocols): express.Express {
 
 	app.use(express.json());
 	app.use(express.urlencoded());
+
+	// ---
+
+	const eventStorage: Router = express.Router();
+
+	eventStorage.get("/events/:keyid", getEvents);
+	eventStorage.put("/events/:hash", storeEvent);
+
+	async function getEvents(req: Request, res: Response) {
+		const keyid = req.params.keyid;
+		if (!keyid) return res.status(404).send();
+
+		const eventDirPath = path.join(process.cwd(), config.events_path, keyid);
+
+		// authorize client to access the data associated to keyid
+		const secret = new TextEncoder().encode(config.secret_base);
+		try {
+			const authorizationCapture = /[B|b]earer (.+)/.exec(
+				req.headers.authorization || "",
+			);
+
+			if (!authorizationCapture || !authorizationCapture[1])
+				throw new Error("authorization bearer is required");
+
+			const { payload } = await jwtVerify(authorizationCapture[1], secret);
+
+			if (payload.keyid !== keyid) return res.send({ events: {} });
+		} catch (error) {
+			return res
+				.status(401)
+				.send({ error: (error as Error).message.toLowerCase() });
+		}
+
+		// fetch event data
+		const events: Record<string, string> = {};
+		try {
+			const eventFiles = fs.readdirSync(eventDirPath);
+
+			await Promise.all(
+				eventFiles.map(async (eventFilename) => {
+					const eventPath = path.join(eventDirPath, eventFilename);
+
+					const event = await fs.promises.readFile(eventPath);
+					events[eventFilename] = event.toString();
+				}),
+			);
+		} catch (_error) {
+			res.send({ events: {} });
+		}
+
+		res.send({ events });
+	}
+
+	async function storeEvent(req: Request, res: Response) {
+		const hash = req.params.hash;
+		if (!hash) return res.status(404).send();
+
+		// authorize client to put the data associated to keyid
+		const secret = new TextEncoder().encode(config.secret_base);
+		let keyid: string;
+		try {
+			const authorizationCapture = /[B|b]earer (.+)/.exec(
+				req.headers.authorization || "",
+			);
+
+			if (!authorizationCapture || !authorizationCapture[1])
+				throw new Error("authorization bearer is required");
+
+			const { payload } = await jwtVerify(authorizationCapture[1], secret);
+			keyid = payload.keyid as string;
+		} catch (error) {
+			return res.status(401).send({ error: (error as Error).message });
+		}
+
+		// payload validation
+		if (req.headers["content-type"] !== "application/jose") {
+			return res
+				.status(400)
+				.send({ error: "application/jose body is required" });
+		}
+
+		const payload = req.body;
+		try {
+			const { alg, enc } = decodeProtectedHeader(payload);
+			if (!alg || !enc) throw new Error("jwe header parameters are missing");
+		} catch (error) {
+			return res
+				.status(400)
+				.send({ error: (error as Error).message.toLowerCase() });
+		}
+
+		// write payload within keyid folder
+		const eventDirPath = path.join(process.cwd(), config.events_path, keyid);
+		try {
+			if (!fs.existsSync(eventDirPath)) {
+				fs.mkdirSync(eventDirPath);
+			}
+			fs.writeFileSync(path.join(eventDirPath, hash), Buffer.from(payload));
+		} catch (error) {
+			return res
+				.status(500)
+				.send({ error: (error as Error).message.toLowerCase() });
+		}
+
+		res.status(200).send({ [hash]: payload });
+	}
+
+	app.use(express.text({ type: ["application/jose"] }));
+	app.use("/event-store", eventStorage);
+
+	// ---
+
+	const keyAuthentication: Router = express.Router();
+
+	keyAuthentication.post("/challenge", challenge);
+
+	async function challenge(req: Request, res: Response) {
+		if (req.headers["content-type"] !== "application/jwk+json") {
+			return res
+				.status(400)
+				.send({ error: "application/jwk+json body is required" });
+		}
+
+		const jwk = req.body;
+
+		let publicKey: CryptoKey | Uint8Array;
+		try {
+			publicKey = await importJWK(jwk, "RSA-OAEP-256");
+		} catch (error) {
+			return res
+				.status(400)
+				.send({ error: (error as Error).message.toLowerCase() });
+		}
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(config.secret_base);
+
+		let challenge: string;
+		try {
+			const appToken = await new SignJWT({
+				keyid: await calculateJwkThumbprint(jwk),
+			})
+				.setExpirationTime(now + 900)
+				.setProtectedHeader({ alg: "HS256" })
+				.sign(secret);
+
+			challenge = await new EncryptJWT({ appToken })
+				.setExpirationTime(now + 900)
+				.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
+				.encrypt(publicKey);
+		} catch (error) {
+			return res
+				.status(400)
+				.send({ error: (error as Error).message.toLowerCase() });
+		}
+
+		return res.send({ challenge });
+	}
+
+	app.use(express.json({ type: ["application/jwk+json"] }));
+	app.use("/key-auth", keyAuthentication);
 
 	app.get("/", (_req, res) => {
 		res.redirect("/offer/select-a-credential");
@@ -175,6 +344,7 @@ export function server(protocols: Protocols): express.Express {
 }
 
 export const config = {
+	events_path: "./test/support/events",
 	logger: {
 		business: (
 			_event: string,
