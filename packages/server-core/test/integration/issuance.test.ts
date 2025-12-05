@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { exportJWK, generateKeyPair, SignJWT } from "jose";
 import request from "supertest";
 import { assert, describe, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("issuance flow", () => {
 	it("issues a credential", async () => {
@@ -119,8 +119,10 @@ describe("issuance flow", () => {
 				steps.indexOf("credentialOffer") % steps.length ===
 				steps.indexOf(step)
 			) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const scope = "full:scope";
 			const credentialOffer = await request(app)
@@ -136,8 +138,10 @@ describe("issuance flow", () => {
 				steps.indexOf("pushedAuthorizationRequest") % steps.length ===
 				steps.indexOf(step)
 			) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const response_type = "code";
 			const client_id = "id";
@@ -160,8 +164,10 @@ describe("issuance flow", () => {
 
 			// ----------
 			if (steps.indexOf("authorize") % steps.length === steps.indexOf(step)) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const _authorize = await request(app)
 				.get("/authorize")
@@ -171,8 +177,10 @@ describe("issuance flow", () => {
 				steps.indexOf("authenticate") % steps.length ===
 				steps.indexOf(step)
 			) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const username = "wwwallet";
 			const password = "tellawww";
@@ -186,8 +194,10 @@ describe("issuance flow", () => {
 
 			// ----------
 			if (steps.indexOf("token") % steps.length === steps.indexOf(step)) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const grant_type = "authorization_code";
 			const code_verifier = "test";
@@ -200,8 +210,10 @@ describe("issuance flow", () => {
 
 			// ----------
 			if (steps.indexOf("nonce") % steps.length === steps.indexOf(step)) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const nonce = await request(app).post("/nonce");
 
@@ -209,8 +221,10 @@ describe("issuance flow", () => {
 
 			// ----------
 			if (steps.indexOf("credential") % steps.length === steps.indexOf(step)) {
-				core.config.previous_secrets?.unshift(core.config.secret || "");
-				core.config.secret = crypto.randomBytes(32).toString("hex");
+				protocols.config.previous_secrets?.unshift(
+					protocols.config.secret || "",
+				);
+				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const credential_configuration_id = "full";
 			const { publicKey, privateKey } = await generateKeyPair("ES256");

@@ -6,7 +6,7 @@ import {
 	type ValidateProofsConfig,
 	validateProofs,
 } from "../../src/statements";
-import { core } from "../support/app";
+import { protocols } from "../support/app";
 
 const trustedCertificate = `MIICyzCCAnGgAwIBAgIULnrxux9sI34oqbby3M4lSKOs8owwCgYIKoZIzj0EAwIwPzELMAkGA1UEBhMCRVUxFTATBgNVBAoMDHd3V2FsbGV0Lm9yZzEZMBcGA1UEAwwQd3dXYWxsZXQgUm9vdCBDQTAeFw0yNTA0MjkxMDI5NTNaFw0yNjA0MjkxMDI5NTNaMEExCzAJBgNVBAYTAkVVMRUwEwYDVQQKDAx3d1dhbGxldC5vcmcxGzAZBgNVBAMMEmxvY2FsLnd3d2FsbGV0Lm9yZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFVivGt53M4qEP06QT20BSlGiMIdzLLvG+b9fq/fHKM+NGT+a3snXiPwU7X7jrOFWxwyjZeean40+vx6Gy06VfqjggFHMIIBQzAdBgNVHQ4EFgQUM/A3FTQLjww5/9u01MX/SRyVqaUwHwYDVR0jBBgwFoAU0HGu3T+/Wqh3yNifz9sNd+HPBS4wDgYDVR0PAQH/BAQDAgeAMDIGA1UdEgQrMCmBEWluZm9Ad3d3YWxsZXQub3JnhhRodHRwczovL3d3d2FsbGV0Lm9yZzASBgNVHSUECzAJBgcogYxdBQECMAwGA1UdEwEB/wQCMAAwRAYDVR0fBD0wOzA5oDegNYYzaHR0cHM6Ly93d3dhbGxldC5vcmcvaWFjYS9jcmwvd3d3YWxsZXRfb3JnX2lhY2EuY3JsMFUGA1UdEQROMEyCEmxvY2FsLnd3d2FsbGV0Lm9yZ4IZbG9jYWwtaXNzdWVyLnd3d2FsbGV0Lm9yZ4IbbG9jYWwtdmVyaWZpZXIud3d3YWxsZXQub3JnMAoGCCqGSM49BAMCA0gAMEUCIQCQ8h+5krhO+f4woReDY1D7CaM6qCda3m814e6DLvOphAIgHQL+Wm7WFRwxgjzMLN37RojJGrZbF4OFChIkmm0uu5o=`;
 const privateKey = `
@@ -18,7 +18,7 @@ j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
 `;
 
 describe("validate Proofs", () => {
-	const config: ValidateProofsConfig = core.config as ValidateProofsConfig;
+	const config: ValidateProofsConfig = protocols.config as ValidateProofsConfig;
 
 	it("resolves empty proofs", async () => {
 		const proofs = {};
@@ -100,17 +100,17 @@ describe("validate Proofs", () => {
 		});
 
 		it("rejects with an invalid nonce (token type)", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "invalid",
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			const { publicKey, privateKey } = await generateKeyPair("ES256");
@@ -129,7 +129,7 @@ describe("validate Proofs", () => {
 		});
 
 		it("rejects with an invalid nonce (sub)", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "c_nonce",
@@ -137,10 +137,10 @@ describe("validate Proofs", () => {
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			const { publicKey, privateKey } = await generateKeyPair("ES256");
@@ -159,18 +159,18 @@ describe("validate Proofs", () => {
 		});
 
 		it("resolves with a valid nonce", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "c_nonce",
-				sub: core.config.issuer_client?.id,
+				sub: protocols.config.issuer_client?.id,
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 			const { publicKey, privateKey } = await generateKeyPair("ES256");
 			const jwk = await exportJWK(publicKey);
@@ -304,17 +304,17 @@ describe("validate Proofs", () => {
 		});
 
 		it("rejects with an invalid nonce (token type)", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "invalid",
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			const proof = await new SignJWT({ nonce: c_nonce })
@@ -332,7 +332,7 @@ describe("validate Proofs", () => {
 		});
 
 		it("rejects with an invalid nonce (sub)", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "c_nonce",
@@ -340,10 +340,10 @@ describe("validate Proofs", () => {
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			const proof = await new SignJWT({ nonce: c_nonce })
@@ -361,18 +361,18 @@ describe("validate Proofs", () => {
 		});
 
 		it("resolves with a valid nonce", async () => {
-			const secret = new TextEncoder().encode(core.config.secret);
+			const secret = new TextEncoder().encode(protocols.config.secret);
 			const now = Date.now() / 1000;
 			const c_nonce = await new EncryptJWT({
 				token_type: "c_nonce",
-				sub: core.config.issuer_client?.id,
+				sub: protocols.config.issuer_client?.id,
 			})
 				.setProtectedHeader({
 					alg: "dir",
-					enc: core.config.token_encryption || "",
+					enc: protocols.config.token_encryption || "",
 				})
 				.setIssuedAt()
-				.setExpirationTime(now + (core.config.access_token_ttl || 0))
+				.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 				.encrypt(secret);
 
 			const proof = await new SignJWT({ nonce: c_nonce })

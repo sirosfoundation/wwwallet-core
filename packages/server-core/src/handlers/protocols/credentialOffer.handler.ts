@@ -1,17 +1,17 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config, Logger } from "../config";
-import { OauthError, type OauthErrorResponse } from "../errors";
+import type { Config, Logger } from "../../config";
+import { OauthError, type OauthErrorResponse } from "../../errors";
 import type {
 	AuthorizationServerState,
 	CredentialConfiguration,
-} from "../resources";
+} from "../../resources";
 import {
 	generateCredentialOffer,
 	generateIssuerGrants,
 	issuerClient,
 	validateScope,
-} from "../statements";
+} from "../../statements";
 import { credentialOfferHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();

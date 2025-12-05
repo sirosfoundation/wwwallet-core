@@ -1,11 +1,11 @@
-import { Core } from "@wwwallet/server-core";
+import { Protocols } from "@wwwallet/server-core";
 import { Container } from "inversify";
 import { config } from "./config";
 
 const container = new Container();
 
-container.bind<Core>("Core").toConstantValue(new Core(config));
+container.bind<Protocols>("Protocols").toConstantValue(new Protocols(config));
 
-const core = container.get<Core>("Core");
+const protocols = container.get<Protocols>("Protocols");
 
-export { container, core };
+export { container, protocols };

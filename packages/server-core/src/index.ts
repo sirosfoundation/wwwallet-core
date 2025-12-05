@@ -1,5 +1,4 @@
 export * from "./config";
-export * from "./core";
 export * from "./errors";
 export type {
 	AuthorizeResponse,
@@ -21,4 +20,5 @@ export {
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "./handlers";
+export * from "./protocols";
 export * from "./resources";

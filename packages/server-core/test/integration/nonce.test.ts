@@ -1,7 +1,7 @@
 import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { assert, describe, expect, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("nonce endpoint", () => {
 	it("returns a token", async () => {
@@ -11,8 +11,8 @@ describe("nonce endpoint", () => {
 		assert(response.body.c_nonce);
 		const { payload } = await jwtDecrypt(
 			response.body.c_nonce,
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
-		expect(payload.sub).to.eq(core.config.issuer_client?.id);
+		expect(payload.sub).to.eq(protocols.config.issuer_client?.id);
 	});
 });

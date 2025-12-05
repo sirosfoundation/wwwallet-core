@@ -1,6 +1,6 @@
 import path from "node:path";
 import {
-	type Core,
+	type Protocols,
 	type ResourceOwner,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
@@ -16,7 +16,7 @@ import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
 
-export function server(core: Core): Express {
+export function server(protocols: Protocols): Express {
 	const app = express();
 
 	app.use(morgan("combined"));
@@ -38,14 +38,14 @@ export function server(core: Core): Express {
 	app.get("/healthz", (_req, res) => {
 		try {
 			// trigger handlers configuration validation
-			validateAuthorizeHandlerConfig(core.config);
-			validateCredentialHandlerConfig(core.config);
-			validateCredentialOfferHandlerConfig(core.config);
-			validateNonceHandlerConfig(core.config);
-			validateOauthAuthorizationServerHandlerConfig(core.config);
-			validateOpenidCredentialIssuerHandlerConfig(core.config);
-			validatePushedAuthorizationRequestHandlerConfig(core.config);
-			validateTokenHandlerConfig(core.config);
+			validateAuthorizeHandlerConfig(protocols.config);
+			validateCredentialHandlerConfig(protocols.config);
+			validateCredentialOfferHandlerConfig(protocols.config);
+			validateNonceHandlerConfig(protocols.config);
+			validateOauthAuthorizationServerHandlerConfig(protocols.config);
+			validateOpenidCredentialIssuerHandlerConfig(protocols.config);
+			validatePushedAuthorizationRequestHandlerConfig(protocols.config);
+			validateTokenHandlerConfig(protocols.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
@@ -54,38 +54,38 @@ export function server(core: Core): Express {
 	});
 
 	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
-		const response = await core.oauthAuthorizationServer(req);
+		const response = await protocols.oauthAuthorizationServer(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
-		const response = await core.openidCredentialIssuer(req);
+		const response = await protocols.openidCredentialIssuer(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.post("/nonce", async (req, res) => {
-		const response = await core.nonce(req);
+		const response = await protocols.nonce(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.post("/pushed-authorization-request", async (req, res) => {
-		const response = await core.pushedAuthorizationRequest(req);
+		const response = await protocols.pushedAuthorizationRequest(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.get("/authorize", async (req, res) => {
-		const response = await core.authorize(req);
+		const response = await protocols.authorize(req);
 
 		if (response.status === 302) {
 			return res.redirect(response.location);
 		}
 
 		const credentialConfigurations =
-			core.config.supported_credential_configurations?.filter(
+			protocols.config.supported_credential_configurations?.filter(
 				(configuration) => {
 					if (response.status === 200) {
 						return response.data.authorizationRequest.scope
@@ -120,14 +120,14 @@ export function server(core: Core): Express {
 			authenticationError.errorMessage = "invalid username or password";
 		}
 
-		const response = await core.authorize(req, resourceOwner);
+		const response = await protocols.authorize(req, resourceOwner);
 
 		if (response.status === 302) {
 			return res.redirect(response.location);
 		}
 
 		const credentialConfigurations =
-			core.config.supported_credential_configurations?.filter(
+			protocols.config.supported_credential_configurations?.filter(
 				(configuration) => {
 					if (response.status === 200) {
 						return response.data.authorizationRequest.scope
@@ -147,19 +147,19 @@ export function server(core: Core): Express {
 	});
 
 	app.post("/token", async (req, res) => {
-		const response = await core.token(req);
+		const response = await protocols.token(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.post("/credential", async (req, res) => {
-		const response = await core.credential(req);
+		const response = await protocols.credential(req);
 
 		return res.status(response.status).send(response.body);
 	});
 
 	app.get("/offer/:scope", async (req, res) => {
-		const response = await core.credentialOffer(req);
+		const response = await protocols.credentialOffer(req);
 
 		if (req.get("accept")?.match("application/json")) {
 			return res.status(response.status).send(response.body);
@@ -169,7 +169,7 @@ export function server(core: Core): Express {
 			return res.status(response.status).render("issuance/credential_offer", {
 				data: {
 					supportedCredentialConfigurations:
-						core.config.supported_credential_configurations,
+						protocols.config.supported_credential_configurations,
 					...response.data,
 				},
 			});

@@ -2,13 +2,13 @@ import crypto from "node:crypto";
 import Ajv from "ajv";
 import type { Request } from "express";
 import { SignJWT } from "jose";
-import type { Config } from "../config";
+import type { Config } from "../../config";
 import type {
 	CredentialConfiguration,
 	CredentialConfigurationSupported,
 	CredentialConfigurationsSupported,
 	OpenidCredentialIssuer,
-} from "../resources";
+} from "../../resources";
 import { openidCredentialIssuerHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();

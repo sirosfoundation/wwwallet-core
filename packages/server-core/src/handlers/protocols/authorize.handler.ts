@@ -1,8 +1,8 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import type { Config, Logger } from "../config";
-import { OauthError, type OauthErrorResponse } from "../errors";
-import type { AuthorizationRequest, ResourceOwner } from "../resources";
+import type { Config, Logger } from "../../config";
+import { OauthError, type OauthErrorResponse } from "../../errors";
+import type { AuthorizationRequest, ResourceOwner } from "../../resources";
 import {
 	type AuthorizationCodeRedirectionConfig,
 	authorizationCodeRedirection,
@@ -18,7 +18,7 @@ import {
 	validateRequestUri,
 	validateResourceOwner,
 	validateScope,
-} from "../statements";
+} from "../../statements";
 import { authorizeHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();

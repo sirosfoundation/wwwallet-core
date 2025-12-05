@@ -1,7 +1,7 @@
 import { jwtDecrypt } from "jose";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
-import { app, core } from "../support/app";
+import { app, protocols } from "../support/app";
 
 describe("credential offer endpoint", () => {
 	it("returns an error with no accept header", async () => {
@@ -52,10 +52,10 @@ describe("credential offer endpoint", () => {
 			"data:image/png;base64",
 		);
 		expect(response.body.credential_offer_url).toMatch(
-			core.config.wallet_url || "",
+			protocols.config.wallet_url || "",
 		);
 		expect(response.body.credential_offer_url).toMatch(
-			encodeURIComponent(core.config.issuer_url || ""),
+			encodeURIComponent(protocols.config.issuer_url || ""),
 		);
 		expect(response.body.credential_offer_url).toMatch("full"); // credential_configuration_id
 		expect(response.body.credential_offer_url).toMatch("issuer_state"); // credential_configuration_id
@@ -65,9 +65,9 @@ describe("credential offer endpoint", () => {
 
 		const { payload } = await jwtDecrypt(
 			issuer_state,
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
-		expect(payload.sub).to.eq(core.config.issuer_client?.id);
+		expect(payload.sub).to.eq(protocols.config.issuer_client?.id);
 	});
 
 	it("returns a credential offer (mso_mdoc)", async () => {
@@ -77,10 +77,10 @@ describe("credential offer endpoint", () => {
 			.set("Accept", "application/json");
 
 		expect(response.body.credential_offer_url).toMatch(
-			core.config.wallet_url || "",
+			protocols.config.wallet_url || "",
 		);
 		expect(response.body.credential_offer_url).toMatch(
-			encodeURIComponent(core.config.issuer_url || ""),
+			encodeURIComponent(protocols.config.issuer_url || ""),
 		);
 		expect(response.body.credential_offer_url).toMatch("full"); // credential_configuration_id
 		expect(response.body.credential_offer_url).toMatch("issuer_state"); // credential_configuration_id
@@ -90,9 +90,9 @@ describe("credential offer endpoint", () => {
 
 		const { payload } = await jwtDecrypt(
 			issuer_state,
-			new TextEncoder().encode(core.config.secret),
+			new TextEncoder().encode(protocols.config.secret),
 		);
-		expect(payload.sub).to.eq(core.config.issuer_client?.id);
+		expect(payload.sub).to.eq(protocols.config.issuer_client?.id);
 	});
 
 	it("returns a credential offer (text/html)", async () => {
@@ -103,9 +103,9 @@ describe("credential offer endpoint", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.text).toMatch("Full (dc+sd-jwt)");
-		expect(response.text).toMatch(core.config.wallet_url || "");
+		expect(response.text).toMatch(protocols.config.wallet_url || "");
 		expect(response.text).toMatch(
-			encodeURIComponent(core.config.issuer_url || ""),
+			encodeURIComponent(protocols.config.issuer_url || ""),
 		);
 		expect(response.text).toMatch("full"); // credential_configuration_id
 		expect(response.text).toMatch("issuer_state"); // credential_configuration_id

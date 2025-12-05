@@ -9,18 +9,18 @@ import {
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
 } from "@wwwallet/server-core";
-import { core } from "./container";
+import { protocols } from "./container";
 
 setTimeout(() => {
 	try {
-		validateAuthorizeHandlerConfig(core.config);
-		validateCredentialHandlerConfig(core.config);
-		validateCredentialOfferHandlerConfig(core.config);
-		validateNonceHandlerConfig(core.config);
-		validateOauthAuthorizationServerHandlerConfig(core.config);
-		validateOpenidCredentialIssuerHandlerConfig(core.config);
-		validatePushedAuthorizationRequestHandlerConfig(core.config);
-		validateTokenHandlerConfig(core.config);
+		validateAuthorizeHandlerConfig(protocols.config);
+		validateCredentialHandlerConfig(protocols.config);
+		validateCredentialOfferHandlerConfig(protocols.config);
+		validateNonceHandlerConfig(protocols.config);
+		validateOauthAuthorizationServerHandlerConfig(protocols.config);
+		validateOpenidCredentialIssuerHandlerConfig(protocols.config);
+		validatePushedAuthorizationRequestHandlerConfig(protocols.config);
+		validateTokenHandlerConfig(protocols.config);
 
 		console.info(
 			"    \x1b[32m%s\x1b[0m",
