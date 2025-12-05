@@ -1,6 +1,6 @@
 import type { Request } from "express";
-import type { Logger } from "../../config";
-import { OauthError } from "../../errors";
+import type { Logger } from "../../../config";
+import { OauthError } from "../../../errors";
 import {
 	type GenerateAccessTokenConfig,
 	generateAccessToken,
@@ -9,7 +9,7 @@ import {
 	validateAuthorizationCode,
 	validateClientCredentials,
 	validateCodeVerifier,
-} from "../../statements";
+} from "../../../statements";
 
 export type AuthorizationCodeHandlerConfig = {
 	logger: Logger;

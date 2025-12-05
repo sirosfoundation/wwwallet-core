@@ -1,13 +1,13 @@
 import type { Request } from "express";
-import type { Logger } from "../../config";
-import { OauthError } from "../../errors";
+import type { Logger } from "../../../config";
+import { OauthError } from "../../../errors";
 import {
 	type GenerateAccessTokenConfig,
 	generateAccessToken,
 	type ValidateClientCredentialsConfig,
 	validateClientCredentials,
 	validateScope,
-} from "../../statements";
+} from "../../../statements";
 
 export type ClientCredentialsHandlerConfig = {
 	logger: Logger;
