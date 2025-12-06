@@ -148,13 +148,27 @@ describe("storage - store events", () => {
 		}
 	});
 
-	it("returns unauthorized", async () => {
+	it("returns an error", async () => {
 		const eventHash = "a";
 		const response = await request(app).put(`/event-store/events/${eventHash}`);
 
-		expect(response.status).to.eq(401);
+		expect(response.status).to.eq(400);
 		expect(response.body).to.deep.eq({
-			error: "authorization bearer is required",
+			error: "invalid_request",
+			error_description: "application/jose body is required",
+		});
+	});
+
+	it("returns unauthorized with an application/jose content type", async () => {
+		const eventHash = "a";
+		const response = await request(app)
+			.put(`/event-store/events/${eventHash}`)
+			.set("Content-Type", "application/jose");
+
+		expect(response.status).to.eq(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "invalid token or protected header formatting",
 		});
 	});
 
@@ -174,32 +188,7 @@ describe("storage - store events", () => {
 				.sign(secret);
 		});
 
-		it("returns an error", async () => {
-			const eventHash = "a";
-			const response = await request(app)
-				.put(`/event-store/events/${eventHash}`)
-				.set("Authorization", `Bearer ${access_token}`);
-
-			expect(response.status).to.eq(400);
-			expect(response.body).to.deep.eq({
-				error: "application/jose body is required",
-			});
-		});
-
-		it("returns an error without body", async () => {
-			const eventHash = "a";
-			const response = await request(app)
-				.put(`/event-store/events/${eventHash}`)
-				.set("Content-Type", "application/jose")
-				.set("Authorization", `Bearer ${access_token}`);
-
-			expect(response.status).to.eq(400);
-			expect(response.body).to.deep.eq({
-				error: "invalid token or protected header formatting",
-			});
-		});
-
-		it("stores an event with jwe body", async () => {
+		it("returns an error with jwe body", async () => {
 			const eventHash = "a";
 			const { publicKey } = await generateKeyPair("ECDH-ES");
 			const event = await new EncryptJWT({})
@@ -211,18 +200,63 @@ describe("storage - store events", () => {
 				.set("Authorization", `Bearer ${access_token}`)
 				.send(event);
 
-			const storedEvent = fs.readFileSync(
-				path.join(
-					storage.config.events_path || "",
-					await calculateJwkThumbprint(accessTokenPublicKey),
-					eventHash,
-				),
-			);
-			expect(storedEvent.toString()).to.eq(event);
-
-			expect(response.status).to.eq(200);
+			expect(response.status).to.eq(400);
 			expect(response.body).to.deep.eq({
-				[eventHash]: event,
+				error: "invalid_request",
+				error_description: "request requires a dpop value",
+			});
+		});
+
+		describe("with a valid dpop header", () => {
+			const eventHash = "a";
+			let dpop: string;
+			beforeEach(async () => {
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const ath = crypto
+					.createHash("sha256")
+					.update(access_token)
+					.digest("base64url");
+				const claims = {
+					jti: "jti",
+					htm: "PUT",
+					htu: `http://localhost:5000/event-store/events/${eventHash}`,
+					iat: Math.floor(Date.now() / 1000),
+					ath,
+				};
+				dpop = await new SignJWT(claims)
+					.setProtectedHeader({
+						typ: "dpop+jwt",
+						alg: "ES256",
+						jwk: await exportJWK(publicKey),
+					})
+					.sign(privateKey);
+			});
+
+			it("stores an event with jwe body", async () => {
+				const { publicKey } = await generateKeyPair("ECDH-ES");
+				const event = await new EncryptJWT({})
+					.setProtectedHeader({ alg: "ECDH-ES", enc: "A256CBC-HS512" })
+					.encrypt(publicKey);
+				const response = await request(app)
+					.put(`/event-store/events/${eventHash}`)
+					.set("Content-Type", "application/jose")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send(event);
+
+				const storedEvent = fs.readFileSync(
+					path.join(
+						storage.config.events_path || "",
+						await calculateJwkThumbprint(accessTokenPublicKey),
+						eventHash,
+					),
+				);
+				expect(storedEvent.toString()).to.eq(event);
+
+				expect(response.status).to.eq(200);
+				expect(response.body).to.deep.eq({
+					[eventHash]: event,
+				});
 			});
 		});
 	});

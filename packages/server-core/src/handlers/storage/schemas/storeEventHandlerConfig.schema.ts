@@ -1,4 +1,4 @@
-export const getEventsHandlerConfigSchema = {
+export const storeEventHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		events_path: { type: "string" },

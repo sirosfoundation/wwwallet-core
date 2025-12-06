@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import express, { type Request, type Response, type Router } from "express";
-import { decodeProtectedHeader, jwtVerify } from "jose";
+import express from "express";
 import {
 	type AuthorizationServerState,
 	Protocols,
@@ -30,87 +29,7 @@ export function server({
 	app.use(express.urlencoded());
 
 	app.use(express.json({ type: ["application/jwk+json"] }));
-
-	app.get("/event-store/events", async (req, res) => {
-		const response = await storage.getEvents(req);
-
-		return res.status(response.status).send(response.body);
-	});
-
-	app.post("/key-auth/challenge", async (req, res) => {
-		const response = await storage.authorizationChallenge(req);
-
-		return res.status(response.status).send(response.body);
-	});
-
-	// ---
-
-	const eventStorage: Router = express.Router();
-
-	eventStorage.put("/events/:hash", storeEvent);
-
-	async function storeEvent(req: Request, res: Response) {
-		const hash = req.params.hash;
-		if (!hash) return res.status(404).send();
-
-		// authorize client to put the data associated to keyid
-		const secret = new TextEncoder().encode(config.secret_base);
-		let keyid: string;
-		try {
-			const authorizationCapture = /[B|b]earer (.+)/.exec(
-				req.headers.authorization || "",
-			);
-
-			if (!authorizationCapture || !authorizationCapture[1])
-				throw new Error("authorization bearer is required");
-
-			const { payload } = await jwtVerify(authorizationCapture[1], secret);
-			keyid = payload.keyid as string;
-		} catch (error) {
-			return res.status(401).send({ error: (error as Error).message });
-		}
-
-		// payload validation
-		if (req.headers["content-type"] !== "application/jose") {
-			return res
-				.status(400)
-				.send({ error: "application/jose body is required" });
-		}
-
-		const payload = req.body;
-		try {
-			const { alg, enc } = decodeProtectedHeader(payload);
-			if (!alg || !enc) throw new Error("jwe header parameters are missing");
-		} catch (error) {
-			return res
-				.status(400)
-				.send({ error: (error as Error).message.toLowerCase() });
-		}
-
-		// write payload within keyid folder
-		const eventDirPath = path.join(process.cwd(), config.events_path, keyid);
-		try {
-			if (!fs.existsSync(eventDirPath)) {
-				fs.mkdirSync(eventDirPath);
-			}
-			fs.writeFileSync(path.join(eventDirPath, hash), Buffer.from(payload));
-		} catch (error) {
-			return res
-				.status(500)
-				.send({ error: (error as Error).message.toLowerCase() });
-		}
-
-		res.status(200).send({ [hash]: payload });
-	}
-
 	app.use(express.text({ type: ["application/jose"] }));
-	app.use("/event-store", eventStorage);
-
-	// ---
-
-	app.get("/", (_req, res) => {
-		res.redirect("/offer/select-a-credential");
-	});
 
 	app.get("/healthz", (_req, res) => {
 		try {
@@ -129,6 +48,8 @@ export function server({
 			res.status(500).send((error as Error).message);
 		}
 	});
+
+	// --- Protocols
 
 	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
 		const response = await protocols.oauthAuthorizationServer(req);
@@ -256,6 +177,30 @@ export function server({
 			error: "invalid_request",
 			error_description: "accept header is missing from request",
 		});
+	});
+
+	// --- Storage
+
+	app.get("/event-store/events", async (req, res) => {
+		const response = await storage.getEvents(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.put("/event-store/events/:hash", async (req, res) => {
+		const response = await storage.storeEvent(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/key-auth/challenge", async (req, res) => {
+		const response = await storage.authorizationChallenge(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/", (_req, res) => {
+		res.redirect("/offer/select-a-credential");
 	});
 
 	return app;
