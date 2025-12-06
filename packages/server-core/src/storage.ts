@@ -1,8 +1,11 @@
 import { merge } from "ts-deepmerge";
 import type { Config } from "./config";
 import {
+	type AuthorizationChallengeConfig,
+	authorizationChallengeHandlerFactory,
 	type GetEventsHandlerConfig,
 	getEventsHandlerFactory,
+	validateAuthorizationChallengeConfig,
 	validateGetEventsHandlerConfig,
 } from "./handlers";
 
@@ -18,12 +21,33 @@ export class Storage {
 	}
 
 	/**
-	 * Handle well-known oauth-authorization-server requests
+	 * Handle get events requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateStorageToken | validateStorageToken}
+	 * - {@link "server-core/src/statements".validateDpop | validateDpop}
+	 * - {@link "server-core/src/statements".fetchEvents | fetchEvents}
 	 */
 	get getEvents() {
 		validateGetEventsHandlerConfig(this.config);
 
 		return getEventsHandlerFactory(this.config as GetEventsHandlerConfig);
+	}
+
+	/**
+	 * Handle authorization challenge requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".generateAuthorizationChallenge | generateAuthorizationChallenge}
+	 */
+	get authorizationChallenge() {
+		validateAuthorizationChallengeConfig(this.config);
+
+		return authorizationChallengeHandlerFactory(
+			this.config as AuthorizationChallengeConfig,
+		);
 	}
 }
 

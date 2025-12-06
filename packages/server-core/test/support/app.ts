@@ -1,14 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import express, { type Request, type Response, type Router } from "express";
-import {
-	calculateJwkThumbprint,
-	decodeProtectedHeader,
-	EncryptJWT,
-	importJWK,
-	jwtVerify,
-	SignJWT,
-} from "jose";
+import { decodeProtectedHeader, jwtVerify } from "jose";
 import {
 	type AuthorizationServerState,
 	Protocols,
@@ -36,11 +29,20 @@ export function server({
 	app.use(express.json());
 	app.use(express.urlencoded());
 
+	app.use(express.json({ type: ["application/jwk+json"] }));
+
 	app.get("/event-store/events", async (req, res) => {
 		const response = await storage.getEvents(req);
 
 		return res.status(response.status).send(response.body);
 	});
+
+	app.post("/key-auth/challenge", async (req, res) => {
+		const response = await storage.authorizationChallenge(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	// ---
 
 	const eventStorage: Router = express.Router();
@@ -105,56 +107,6 @@ export function server({
 	app.use("/event-store", eventStorage);
 
 	// ---
-
-	const keyAuthentication: Router = express.Router();
-
-	keyAuthentication.post("/challenge", challenge);
-
-	async function challenge(req: Request, res: Response) {
-		if (req.headers["content-type"] !== "application/jwk+json") {
-			return res
-				.status(400)
-				.send({ error: "application/jwk+json body is required" });
-		}
-
-		const jwk = req.body;
-
-		let publicKey: CryptoKey | Uint8Array;
-		try {
-			publicKey = await importJWK(jwk, "RSA-OAEP-256");
-		} catch (error) {
-			return res
-				.status(400)
-				.send({ error: (error as Error).message.toLowerCase() });
-		}
-
-		const now = Date.now() / 1000;
-		const secret = new TextEncoder().encode(config.secret_base);
-
-		let challenge: string;
-		try {
-			const appToken = await new SignJWT({
-				keyid: await calculateJwkThumbprint(jwk),
-			})
-				.setExpirationTime(now + 900)
-				.setProtectedHeader({ alg: "HS256" })
-				.sign(secret);
-
-			challenge = await new EncryptJWT({ appToken })
-				.setExpirationTime(now + 900)
-				.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
-				.encrypt(publicKey);
-		} catch (error) {
-			return res
-				.status(400)
-				.send({ error: (error as Error).message.toLowerCase() });
-		}
-
-		return res.send({ challenge });
-	}
-
-	app.use(express.json({ type: ["application/jwk+json"] }));
-	app.use("/key-auth", keyAuthentication);
 
 	app.get("/", (_req, res) => {
 		res.redirect("/offer/select-a-credential");

@@ -10,7 +10,7 @@ import {
 	validateDpop,
 	validateStorageToken,
 } from "../../statements";
-import { getEventsHandlerConfigSchema } from "./schemas/getEventsHandlerConfig.schema";
+import { getEventsHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
 

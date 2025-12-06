@@ -234,7 +234,8 @@ describe("storage - authentication", () => {
 
 		expect(response.status).to.eq(400);
 		expect(response.body).to.deep.eq({
-			error: "application/jwk+json body is required",
+			error: "invalid_request",
+			error_description: "application/jwk+json body is required",
 		});
 	});
 
@@ -245,7 +246,8 @@ describe("storage - authentication", () => {
 
 		expect(response.status).to.eq(400);
 		expect(response.body).to.deep.eq({
-			error: 'unsupported "kty" (key type) parameter value',
+			error: "invalid_request",
+			error_description: 'unsupported "kty" (key type) parameter value',
 		});
 	});
 
@@ -258,7 +260,9 @@ describe("storage - authentication", () => {
 
 		expect(response.status).to.eq(400);
 		expect(response.body).to.deep.eq({
-			error: 'invalid or unsupported jwk "alg" (algorithm) parameter value',
+			error: "invalid_request",
+			error_description:
+				'invalid or unsupported jwk "alg" (algorithm) parameter value',
 		});
 	});
 
