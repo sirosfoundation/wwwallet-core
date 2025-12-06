@@ -155,3 +155,10 @@ export type Grants = {
 		issuer_state?: string;
 	};
 };
+
+export type StorageToken = {
+	access_token: string;
+	payload: {
+		keyid: string;
+	};
+};

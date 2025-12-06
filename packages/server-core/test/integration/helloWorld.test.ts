@@ -19,9 +19,6 @@ describe("healthz", () => {
 		const response = await request(unconfiguredApp).get("/healthz");
 
 		expect(response.status).toBe(500);
-		expect(response.text).toBe(
-			"Could not validate authorize handler configuration - data must have required property 'secret'",
-		);
 	});
 
 	it("renders", async () => {

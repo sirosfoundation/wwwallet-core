@@ -82,4 +82,6 @@ export type Config = {
 	rotate_secret?: boolean;
 	trusted_root_certificates?: Array<string>;
 	trusted_root_certificate_paths?: Array<string>;
+	// TODO move in storage namespace
+	events_path?: string;
 };

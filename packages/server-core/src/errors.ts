@@ -1,4 +1,4 @@
-type OauthErrorStatus = 400 | 401 | 404;
+type OauthErrorStatus = 400 | 401 | 404 | 500;
 
 export type OauthErrorResponse = {
 	status: OauthErrorStatus;
