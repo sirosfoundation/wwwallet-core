@@ -9,3 +9,4 @@ export * from "./validateProofs";
 export * from "./validateRequestUri";
 export * from "./validateResourceOwner";
 export * from "./validateScope";
+export * from "./validateStorageToken";

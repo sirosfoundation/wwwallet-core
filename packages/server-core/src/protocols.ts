@@ -195,7 +195,7 @@ export class Protocols {
 	}
 }
 
-export const defaultConfig = {
+const defaultConfig = {
 	logger: {
 		business: (event: string, data: { [key: string]: string | undefined }) =>
 			console.info(`${event} - `, JSON.stringify(data)),

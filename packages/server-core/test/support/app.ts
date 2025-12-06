@@ -13,6 +13,7 @@ import {
 	type AuthorizationServerState,
 	Protocols,
 	type ResourceOwner,
+	Storage,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
@@ -23,63 +24,28 @@ import {
 	validateTokenHandlerConfig,
 } from "../../src";
 
-export function server(protocols: Protocols): express.Express {
+export function server({
+	protocols,
+	storage,
+}: {
+	protocols: Protocols;
+	storage: Storage;
+}): express.Express {
 	const app = express();
 
 	app.use(express.json());
 	app.use(express.urlencoded());
 
+	app.get("/event-store/events", async (req, res) => {
+		const response = await storage.getEvents(req);
+
+		return res.status(response.status).send(response.body);
+	});
 	// ---
 
 	const eventStorage: Router = express.Router();
 
-	eventStorage.get("/events/:keyid", getEvents);
 	eventStorage.put("/events/:hash", storeEvent);
-
-	async function getEvents(req: Request, res: Response) {
-		const keyid = req.params.keyid;
-		if (!keyid) return res.status(404).send();
-
-		const eventDirPath = path.join(process.cwd(), config.events_path, keyid);
-
-		// authorize client to access the data associated to keyid
-		const secret = new TextEncoder().encode(config.secret_base);
-		try {
-			const authorizationCapture = /[B|b]earer (.+)/.exec(
-				req.headers.authorization || "",
-			);
-
-			if (!authorizationCapture || !authorizationCapture[1])
-				throw new Error("authorization bearer is required");
-
-			const { payload } = await jwtVerify(authorizationCapture[1], secret);
-
-			if (payload.keyid !== keyid) return res.send({ events: {} });
-		} catch (error) {
-			return res
-				.status(401)
-				.send({ error: (error as Error).message.toLowerCase() });
-		}
-
-		// fetch event data
-		const events: Record<string, string> = {};
-		try {
-			const eventFiles = fs.readdirSync(eventDirPath);
-
-			await Promise.all(
-				eventFiles.map(async (eventFilename) => {
-					const eventPath = path.join(eventDirPath, eventFilename);
-
-					const event = await fs.promises.readFile(eventPath);
-					events[eventFilename] = event.toString();
-				}),
-			);
-		} catch (_error) {
-			res.send({ events: {} });
-		}
-
-		res.send({ events });
-	}
 
 	async function storeEvent(req: Request, res: Response) {
 		const hash = req.params.hash;
@@ -421,5 +387,6 @@ L3rT4w==
 };
 
 export const protocols = new Protocols(config);
+export const storage = new Storage(config);
 
-export const app = server(protocols);
+export const app = server({ protocols, storage });
