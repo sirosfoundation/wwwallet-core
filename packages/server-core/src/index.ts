@@ -22,3 +22,4 @@ export {
 } from "./handlers";
 export * from "./protocols";
 export * from "./resources";
+export * from "./storage";

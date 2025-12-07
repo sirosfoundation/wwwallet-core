@@ -1,0 +1,52 @@
+import {
+	calculateJwkThumbprint,
+	EncryptJWT,
+	importJWK,
+	type JWK,
+	type JWTPayload,
+	SignJWT,
+} from "jose";
+import { OauthError } from "../../errors";
+
+export type GenerateAuthorizationChallengeParams = {
+	jwk: JWK;
+	tokenPayload: JWTPayload;
+};
+
+export type GenerateAuthorizationChallengeConfig = {
+	secret_base: string;
+	authorization_challenge_ttl: number;
+	access_token_ttl: number;
+};
+
+export async function generateAuthorizationChallenge(
+	{ jwk, tokenPayload }: GenerateAuthorizationChallengeParams,
+	config: GenerateAuthorizationChallengeConfig,
+) {
+	const now = Date.now() / 1000;
+	const secret = new TextEncoder().encode(config.secret_base);
+
+	try {
+		const appToken = await new SignJWT({
+			keyid: await calculateJwkThumbprint(jwk),
+			...tokenPayload,
+		})
+			.setExpirationTime(now + config.access_token_ttl)
+			.setProtectedHeader({ alg: "HS256" })
+			.sign(secret);
+
+		const challenge = await new EncryptJWT({ appToken })
+			.setExpirationTime(now + config.authorization_challenge_ttl)
+			.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
+			.encrypt(await importJWK(jwk, "RSA-OAEP-256"));
+
+		return { challenge };
+	} catch (error) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			(error as Error).message.toLowerCase(),
+			{ error },
+		);
+	}
+}

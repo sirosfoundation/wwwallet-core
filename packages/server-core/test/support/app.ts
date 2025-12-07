@@ -5,6 +5,7 @@ import {
 	type AuthorizationServerState,
 	Protocols,
 	type ResourceOwner,
+	Storage,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
@@ -15,15 +16,20 @@ import {
 	validateTokenHandlerConfig,
 } from "../../src";
 
-export function server(protocols: Protocols): express.Express {
+export function server({
+	protocols,
+	storage,
+}: {
+	protocols: Protocols;
+	storage: Storage;
+}): express.Express {
 	const app = express();
 
 	app.use(express.json());
 	app.use(express.urlencoded());
 
-	app.get("/", (_req, res) => {
-		res.redirect("/offer/select-a-credential");
-	});
+	app.use(express.json({ type: ["application/jwk+json"] }));
+	app.use(express.text({ type: ["application/jose"] }));
 
 	app.get("/healthz", (_req, res) => {
 		try {
@@ -42,6 +48,8 @@ export function server(protocols: Protocols): express.Express {
 			res.status(500).send((error as Error).message);
 		}
 	});
+
+	// --- Protocols
 
 	app.get("/.well-known/oauth-authorization-server", async (req, res) => {
 		const response = await protocols.oauthAuthorizationServer(req);
@@ -171,10 +179,35 @@ export function server(protocols: Protocols): express.Express {
 		});
 	});
 
+	// --- Storage
+
+	app.get("/event-store/events", async (req, res) => {
+		const response = await storage.getEvents(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.put("/event-store/events/:hash", async (req, res) => {
+		const response = await storage.storeEvent(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/key-auth/challenge", async (req, res) => {
+		const response = await storage.authorizationChallenge(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/", (_req, res) => {
+		res.redirect("/offer/select-a-credential");
+	});
+
 	return app;
 }
 
 export const config = {
+	events_path: "./test/support/events",
 	logger: {
 		business: (
 			_event: string,
@@ -251,5 +284,6 @@ L3rT4w==
 };
 
 export const protocols = new Protocols(config);
+export const storage = new Storage(config);
 
-export const app = server(protocols);
+export const app = server({ protocols, storage });

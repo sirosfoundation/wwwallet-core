@@ -30,15 +30,15 @@ type CredentialRequest = {
 	credential_configuration_ids: Array<string>;
 	credentials: {
 		access_token?: string;
-		dpop?: string | string[];
+		dpop?: string | Array<string>;
+		dpopRequest: {
+			method: string;
+			uri: string;
+		};
 	};
 	proofs: {
 		jwt?: Array<string>;
 		attestation?: Array<string>;
-	};
-	dpopRequest: {
-		method: string;
-		uri: string;
 	};
 };
 
@@ -66,7 +66,7 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			await validateDpop(
 				{
 					access_token,
-					dpopRequest: request.dpopRequest,
+					dpopRequest: request.credentials.dpopRequest,
 					dpop: request.credentials.dpop,
 				},
 				config,
@@ -176,7 +176,14 @@ async function validateRequest(
 		);
 	}
 
-	const credentials: CredentialRequest["credentials"] = {};
+	const dpopRequest = {
+		method: expressRequest.method,
+		uri: expressRequest.originalUrl,
+	};
+
+	const credentials: CredentialRequest["credentials"] = {
+		dpopRequest,
+	};
 
 	const authorizationHeaderCapture = /(DPoP|[b|B]earer) (.+)/.exec(
 		expressRequest.headers.authorization || "",
@@ -188,15 +195,9 @@ async function validateRequest(
 
 	credentials.dpop = expressRequest.headers.dpop;
 
-	const dpopRequest = {
-		method: expressRequest.method,
-		uri: expressRequest.originalUrl,
-	};
-
 	return {
 		credential_configuration_ids,
 		proofs,
-		dpopRequest,
 		credentials,
 	};
 }
