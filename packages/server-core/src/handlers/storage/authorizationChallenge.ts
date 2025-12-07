@@ -1,6 +1,6 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import { importJWK, type JWK } from "jose";
+import { importJWK, type JWK, type JWTPayload } from "jose";
 import type { Config } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
 import {
@@ -30,6 +30,7 @@ export function authorizationChallengeHandlerFactory(
 ) {
 	return async function authorizationChallengeHandler(
 		expressRequest: Request,
+		tokenPayload: JWTPayload = {},
 	): Promise<AuthorizationChallengeResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
@@ -37,6 +38,7 @@ export function authorizationChallengeHandlerFactory(
 			const { challenge } = await generateAuthorizationChallenge(
 				{
 					jwk: request.jwk,
+					tokenPayload,
 				},
 				config,
 			);

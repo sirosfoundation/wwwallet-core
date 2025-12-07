@@ -3,12 +3,14 @@ import {
 	EncryptJWT,
 	importJWK,
 	type JWK,
+	type JWTPayload,
 	SignJWT,
 } from "jose";
 import { OauthError } from "../../errors";
 
 export type GenerateAuthorizationChallengeParams = {
 	jwk: JWK;
+	tokenPayload: JWTPayload;
 };
 
 export type GenerateAuthorizationChallengeConfig = {
@@ -18,7 +20,7 @@ export type GenerateAuthorizationChallengeConfig = {
 };
 
 export async function generateAuthorizationChallenge(
-	{ jwk }: GenerateAuthorizationChallengeParams,
+	{ jwk, tokenPayload }: GenerateAuthorizationChallengeParams,
 	config: GenerateAuthorizationChallengeConfig,
 ) {
 	const now = Date.now() / 1000;
@@ -27,6 +29,7 @@ export async function generateAuthorizationChallenge(
 	try {
 		const appToken = await new SignJWT({
 			keyid: await calculateJwkThumbprint(jwk),
+			...tokenPayload,
 		})
 			.setExpirationTime(now + config.access_token_ttl)
 			.setProtectedHeader({ alg: "HS256" })
@@ -43,6 +46,7 @@ export async function generateAuthorizationChallenge(
 			400,
 			"invalid_request",
 			(error as Error).message.toLowerCase(),
+			{ error },
 		);
 	}
 }
