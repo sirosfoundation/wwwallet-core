@@ -13,6 +13,8 @@ export type GenerateAuthorizationChallengeParams = {
 
 export type GenerateAuthorizationChallengeConfig = {
 	secret_base: string;
+	authorization_challenge_ttl: number;
+	access_token_ttl: number;
 };
 
 export async function generateAuthorizationChallenge(
@@ -26,12 +28,12 @@ export async function generateAuthorizationChallenge(
 		const appToken = await new SignJWT({
 			keyid: await calculateJwkThumbprint(jwk),
 		})
-			.setExpirationTime(now + 900)
+			.setExpirationTime(now + config.access_token_ttl)
 			.setProtectedHeader({ alg: "HS256" })
 			.sign(secret);
 
 		const challenge = await new EncryptJWT({ appToken })
-			.setExpirationTime(now + 900)
+			.setExpirationTime(now + config.authorization_challenge_ttl)
 			.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
 			.encrypt(await importJWK(jwk, "RSA-OAEP-256"));
 
