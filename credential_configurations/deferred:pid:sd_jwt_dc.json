@@ -1,0 +1,23 @@
+{
+	"deferred": true,
+	"label": "[demo] Deferred PID ARF 1.8 (dc+sd-jwt)",
+	"credential_configuration_id": "urn:deferred:eudi:pid:1:dc",
+	"scope": "deferred:pid:sd_jwt_dc",
+	"format": "dc+sd-jwt",
+	"vct": "urn:deferred:eudi:pid:1:dc",
+	"display": [
+		{
+			"name": "PID ARF 1.8 (dc+sd-jwt)",
+			"description": "Person Identification Data",
+			"background_image": {
+				"uri": ""
+			},
+			"logo": {
+				"uri": "https://avatars.githubusercontent.com/u/179488767?s=200&v=4"
+			},
+			"background_color": "#1b263b",
+			"text_color": "#FFFFFF",
+			"locale": "en-US"
+		}
+	]
+}

@@ -2,6 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
+import type { BearerCredentials } from "../../resources";
 import {
 	type GenerateCredentialsConfig,
 	generateCredentials,
@@ -28,24 +29,18 @@ export type CredentialHandlerConfig = {
 
 type CredentialRequest = {
 	credential_configuration_ids: Array<string>;
-	credentials: {
-		access_token?: string;
-		dpop?: string | string[];
-	};
+	credentials: BearerCredentials;
 	proofs: {
 		jwt?: Array<string>;
 		attestation?: Array<string>;
-	};
-	dpopRequest: {
-		method: string;
-		uri: string;
 	};
 };
 
 export type CredentialResponse = {
 	status: 200;
 	body: {
-		credentials: Array<{ credential: string }>;
+		credentials?: Array<{ credential: string }>;
+		transaction_id?: string;
 	};
 };
 
@@ -66,13 +61,13 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 			await validateDpop(
 				{
 					access_token,
-					dpopRequest: request.dpopRequest,
+					dpopRequest: request.credentials.dpopRequest,
 					dpop: request.credentials.dpop,
 				},
 				config,
 			);
 
-			const { credential_configuration_ids } =
+			const { credential_configurations } =
 				await validateCredentialConfigurations(
 					request.credential_configuration_ids,
 					{ client, scope },
@@ -86,10 +81,10 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { credentials } = await generateCredentials(
+			const { credentials, transaction_id } = await generateCredentials(
 				{
 					sub,
-					credential_configuration_ids,
+					credential_configurations,
 					jwks,
 				},
 				config,
@@ -99,13 +94,16 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				access_token,
 				sub,
 				scope,
-				credential_configuration_ids: credential_configuration_ids.join(","),
+				credential_configuration_ids: credential_configurations
+					.map(({ credential_configuration_id }) => credential_configuration_id)
+					.join(","),
 			});
 
 			return {
 				status: 200,
 				body: {
 					credentials,
+					transaction_id,
 				},
 			};
 		} catch (error) {
@@ -188,7 +186,7 @@ async function validateRequest(
 
 	credentials.dpop = expressRequest.headers.dpop;
 
-	const dpopRequest = {
+	credentials.dpopRequest = {
 		method: expressRequest.method,
 		uri: expressRequest.originalUrl,
 	};
@@ -196,7 +194,6 @@ async function validateRequest(
 	return {
 		credential_configuration_ids,
 		proofs,
-		dpopRequest,
 		credentials,
 	};
 }

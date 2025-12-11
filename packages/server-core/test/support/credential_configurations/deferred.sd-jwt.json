@@ -1,0 +1,20 @@
+{
+	"deferred": true,
+	"label": "Deferred (dc+sd-jwt)",
+	"credential_configuration_id": "deferred",
+	"scope": "deferred:scope",
+	"format": "dc+sd-jwt",
+	"vct": "urn:test:deferred",
+	"display": [
+		{
+			"name": "Full",
+			"description": "A deferred credential for testing purposes",
+			"background_image": {
+				"uri": "http://background.uri"
+			},
+			"background_color": "#00246b",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
+}

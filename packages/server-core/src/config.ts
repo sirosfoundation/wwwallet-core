@@ -1,3 +1,12 @@
+import type { JWK } from "jose";
+import type { DecryptConfig, EncryptConfig } from "./crypto";
+import type {
+	DeferredCredential,
+	DeferredResourceOwnerData,
+	ResourceOwnerData,
+	SupportedCredentialConfiguration,
+} from "./resources";
+
 export type BusinessEvent =
 	| "authorize"
 	| "authenticate"
@@ -25,15 +34,28 @@ export interface Logger {
 	debug: (message: string) => void;
 }
 
-export interface DatabaseOperations {
-	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
+export interface DataOperations {
+	resourceOwnerData?: (
+		data: {
+			sub: string;
+			credential_configurations: Array<SupportedCredentialConfiguration>;
+			jwks: Array<JWK>;
+		},
+		config: EncryptConfig,
+	) => Promise<Array<ResourceOwnerData> | DeferredCredential>;
+	fetchDeferredResourceOwnerData?: (
+		defered_credential: DeferredCredential,
+		config: DecryptConfig,
+	) => Promise<{
+		defer_data: DeferredResourceOwnerData | null;
+	}>;
 }
 
 export type Config = {
 	issuer_url?: string;
 	wallet_url?: string;
 	logger?: Logger;
-	databaseOperations?: DatabaseOperations;
+	dataOperations?: DataOperations;
 	issuer_display?: Array<{
 		locale?: string;
 		logo?: {
@@ -52,24 +74,7 @@ export type Config = {
 		scopes: Array<string>;
 	};
 	supported_credential_configuration_paths?: Array<string>;
-	supported_credential_configurations?: Array<{
-		credential_configuration_id: string;
-		label?: string;
-		scope: string;
-		format: string;
-		vct?: string;
-		doctype?: string;
-		display: Array<{
-			name: string;
-			description?: string;
-			background_image?: {
-				uri: string;
-			};
-			background_color?: string;
-			text_color?: string;
-			locale: string;
-		}>;
-	}>;
+	supported_credential_configurations?: Array<SupportedCredentialConfiguration>;
 	access_token_ttl?: number;
 	pushed_authorization_request_ttl?: number;
 	authorization_code_ttl?: number;

@@ -110,7 +110,7 @@ describe("credential endpoint", () => {
 
 	describe("with a valid access token", () => {
 		const sub = "sub";
-		const scope = "full:scope";
+		const scope = "full:scope deferred:scope";
 		let access_token: string;
 		let c_nonce: string;
 		beforeEach(async () => {
@@ -450,43 +450,71 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 			});
 
-			it("returns empty credential list with unknown credential configuration id", async () => {
-				const credential_configuration_id = "unknwown:configuration:id";
+			it("returns an error with no proof", async () => {
+				const credential_configuration_id = "full";
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proofs: {} });
 
-				expect(response.status).toBe(404);
+				expect(response.status).toBe(400);
 				expect(response.body).to.deep.eq({
-					error: "invalid_credential",
-					error_description: "credential not found",
+					error: "invalid_request",
+					error_description: "holder ownership proof is required",
+				});
+			});
+
+			it("returns empty credential list with unknown credential configuration id", async () => {
+				const credential_configuration_id = "unknwown:configuration:id";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
+
+				expect(response.status).toBe(200);
+				expect(response.body).to.deep.eq({
+					credentials: [],
 				});
 			});
 
 			it("returns empty credential list with unknown credential configuration ids", async () => {
 				const credential_configuration_ids = ["unknwown:configuration:id"];
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_ids, proofs: {} });
+					.send({ credential_configuration_ids, proofs: { jwt: [proof] } });
 
-				expect(response.status).toBe(404);
+				expect(response.status).toBe(200);
 				expect(response.body).to.deep.eq({
-					error: "invalid_credential",
-					error_description: "credential not found",
+					credentials: [],
 				});
 			});
 
 			it("returns credentials with DPoP token type", async () => {
 				const credential_configuration_id = "full";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: {} });
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
 				expect(response.status).toBe(200);
 				assert(response.body.credentials[0].credential);
@@ -498,17 +526,22 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
-					cnf: {},
+					cnf: { jwk },
 				});
 			});
 
 			it("returns credentials with bearer token type", async () => {
 				const credential_configuration_id = "full";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: {} });
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
 				expect(response.status).toBe(200);
 				assert(response.body.credentials[0].credential);
@@ -520,17 +553,22 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
-					cnf: {},
+					cnf: { jwk },
 				});
 			});
 
 			it("returns credentials with Bearer token type", async () => {
 				const credential_configuration_id = "full";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `Bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: {} });
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
 				expect(response.status).toBe(200);
 				assert(response.body.credentials[0].credential);
@@ -542,7 +580,7 @@ describe("credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:full",
-					cnf: {},
+					cnf: { jwk },
 				});
 			});
 
@@ -599,6 +637,23 @@ describe("credential endpoint", () => {
 					cnf: { jwk },
 				});
 			});
+
+			it("returns deferred credentials", async () => {
+				const credential_configuration_id = "deferred";
+				const { publicKey, privateKey } = await generateKeyPair("ES256");
+				const jwk = await exportJWK(publicKey);
+				const proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proof: { jwt: proof } });
+
+				expect(response.status).toBe(200);
+				expect(response.body).to.deep.eq({ transaction_id: "transaction_id" });
+			});
 		});
 	});
 
@@ -625,7 +680,10 @@ describe("credential endpoint", () => {
 
 		describe("with a valid dpop header", () => {
 			let dpop: string;
+			let proof: string;
 			beforeEach(async () => {
+				const secret = new TextEncoder().encode(core.config.secret);
+				const now = Date.now() / 1000;
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
 				const ath = crypto
 					.createHash("sha256")
@@ -645,20 +703,34 @@ describe("credential endpoint", () => {
 						jwk: await exportJWK(publicKey),
 					})
 					.sign(privateKey);
+				const c_nonce = await new EncryptJWT({
+					token_type: "c_nonce",
+					sub: core.config.issuer_client?.id,
+				})
+					.setProtectedHeader({
+						alg: "dir",
+						enc: core.config.token_encryption || "",
+					})
+					.setIssuedAt()
+					.setExpirationTime(now + (core.config.access_token_ttl || 0))
+					.encrypt(secret);
+				const jwk = await exportJWK(publicKey);
+				proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 			});
 
-			it("returns a not found error", async () => {
+			it("returns an empty credential list", async () => {
 				const credential_configuration_id = "full";
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `Bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: {} });
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
-				expect(response.status).toBe(404);
+				expect(response.status).toBe(200);
 				expect(response.body).to.deep.eq({
-					error: "invalid_credential",
-					error_description: "credential not found",
+					credentials: [],
 				});
 			});
 		});
@@ -687,9 +759,12 @@ describe("credential endpoint", () => {
 				.encrypt(secret);
 		});
 
-		describe("with a valid dpop header", () => {
+		describe("with a valid proof, dpop header", () => {
 			let dpop: string;
+			let proof: string;
 			beforeEach(async () => {
+				const secret = new TextEncoder().encode(core.config.secret);
+				const now = Date.now() / 1000;
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
 				const ath = crypto
 					.createHash("sha256")
@@ -709,20 +784,34 @@ describe("credential endpoint", () => {
 						jwk: await exportJWK(publicKey),
 					})
 					.sign(privateKey);
+				const c_nonce = await new EncryptJWT({
+					token_type: "c_nonce",
+					sub: core.config.issuer_client?.id,
+				})
+					.setProtectedHeader({
+						alg: "dir",
+						enc: core.config.token_encryption || "",
+					})
+					.setIssuedAt()
+					.setExpirationTime(now + (core.config.access_token_ttl || 0))
+					.encrypt(secret);
+				const jwk = await exportJWK(publicKey);
+				proof = await new SignJWT({ nonce: c_nonce })
+					.setProtectedHeader({ alg: "ES256", jwk })
+					.sign(privateKey);
 			});
 
-			it("returns a not found error", async () => {
+			it("returns an empty credential list", async () => {
 				const credential_configuration_id = "full";
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `Bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: {} });
+					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
-				expect(response.status).toBe(404);
+				expect(response.status).toBe(200);
 				expect(response.body).to.deep.eq({
-					error: "invalid_credential",
-					error_description: "credential not found",
+					credentials: [],
 				});
 			});
 		});

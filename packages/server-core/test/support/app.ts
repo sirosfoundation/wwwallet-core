@@ -1,10 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import express from "express";
+import { exportJWK, generateKeyPair } from "jose";
+import type { DecryptConfig, EncryptConfig } from "../../src";
 import {
-	type AuthorizationServerState,
 	Protocols,
 	type ResourceOwner,
+	type SupportedCredentialConfiguration,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
@@ -142,6 +144,12 @@ export function server(protocols: Protocols): express.Express {
 		return res.status(response.status).send(response.body);
 	});
 
+	app.post("/deferred-credential", async (req, res) => {
+		const response = await protocols.deferredCredential(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
 	app.post("/credential", async (req, res) => {
 		const response = await protocols.credential(req);
 
@@ -174,6 +182,18 @@ export function server(protocols: Protocols): express.Express {
 	return app;
 }
 
+const supported_credential_configurations = [
+	"./credential_configurations/full.sd-jwt.json",
+	"./credential_configurations/deferred.sd-jwt.json",
+	"./credential_configurations/full.mso_mdoc.json",
+].map((credentialConfigurationPath) => {
+	const credential = fs
+		.readFileSync(path.join(__dirname, credentialConfigurationPath))
+		.toString();
+
+	return JSON.parse(credential);
+}) as Array<SupportedCredentialConfiguration>;
+
 export const config = {
 	logger: {
 		business: (
@@ -187,17 +207,62 @@ export const config = {
 	},
 	issuer_url: "http://localhost:5000",
 	wallet_url: "http://localhost:3000",
-	databaseOperations: {
-		async insertAuthorizationServerState(
-			authorizationServerState: AuthorizationServerState,
+	dataOperations: {
+		async resourceOwnerData(
+			{
+				sub,
+				credential_configurations,
+			}: {
+				sub: string;
+				credential_configurations: Array<SupportedCredentialConfiguration>;
+			},
+			_config: EncryptConfig,
 		) {
-			// @ts-ignore
-			this.__authorizationServerState = authorizationServerState;
-			return authorizationServerState;
+			if (
+				credential_configurations.some(({ scope }) => scope.match("deferred"))
+			) {
+				return { transaction_id: "transaction_id" };
+			}
+
+			return credential_configurations.map((credential_configuration) => {
+				return {
+					credential_configuration,
+					claims: { sub, vct: credential_configuration.vct },
+				};
+			});
 		},
-		__authorizationServerState: null,
-		async resourceOwnerData(sub: string, vct?: string) {
-			return { sub, vct };
+		async fetchDeferredResourceOwnerData(
+			{
+				transaction_id,
+			}: {
+				transaction_id: string;
+			},
+			_config: DecryptConfig,
+		) {
+			if (transaction_id !== "transaction_id") {
+				return { defer_data: null };
+			}
+
+			const { publicKey } = await generateKeyPair("ES256");
+
+			return {
+				defer_data: {
+					sub: "sub",
+					jwks: [await exportJWK(publicKey)],
+					data: [
+						{
+							credential_configuration:
+								supported_credential_configurations.find(
+									({ vct }) => vct === "urn:test:deferred",
+								) as SupportedCredentialConfiguration,
+							claims: {
+								sub: "sub",
+								vct: "urn:test:deferred",
+							},
+						},
+					],
+				},
+			};
 		},
 	},
 	clients: [
@@ -219,18 +284,14 @@ export const config = {
 	secret_base: "test",
 	rotate_secret: true,
 	issuer_client: {
-		scopes: ["not_found:scope", "full:scope", "full:scope:mso_mdoc"],
+		scopes: [
+			"not_found:scope",
+			"full:scope",
+			"deferred:scope",
+			"full:scope:mso_mdoc",
+		],
 	},
-	supported_credential_configurations: [
-		"./credential_configurations/full.sd-jwt.json",
-		"./credential_configurations/full.mso_mdoc.json",
-	].map((credentialConfigurationPath) => {
-		const credential = fs
-			.readFileSync(path.join(__dirname, credentialConfigurationPath))
-			.toString();
-
-		return JSON.parse(credential);
-	}),
+	supported_credential_configurations,
 	trusted_root_certificates: [
 		`-----BEGIN CERTIFICATE-----
 MIICQDCCAeegAwIBAgIUa5v+g+yHrVdDFEfRy8GyoGtcT4YwCgYIKoZIzj0EAwIw

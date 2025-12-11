@@ -22,6 +22,7 @@ export type OpenidCredentialIssuerHandlerConfig = {
 		};
 		name?: string;
 	}>;
+	deferred_credential_endpoint: string;
 	supported_credential_configurations: Array<{
 		credential_configuration_id: string;
 		label?: string;
@@ -55,6 +56,10 @@ export function openidCredentialIssuerHandlerFactory(
 		const nonce_endpoint = new URL("/nonce", config.issuer_url).toString();
 		const credential_endpoint = new URL(
 			"/credential",
+			config.issuer_url,
+		).toString();
+		const deferred_credential_endpoint = new URL(
+			"/deferred-credential",
 			config.issuer_url,
 		).toString();
 
@@ -100,6 +105,7 @@ export function openidCredentialIssuerHandlerFactory(
 			nonce_endpoint,
 			credential_endpoint,
 			credential_configurations_supported,
+			deferred_credential_endpoint,
 		};
 
 		well_known.signed_metadata = await generateSignedMetadata(well_known);

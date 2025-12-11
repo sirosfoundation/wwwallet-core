@@ -84,6 +84,9 @@ importers:
       inversify:
         specifier: ^7.6.1
         version: 7.9.0(reflect-metadata@0.2.2)
+      jose:
+        specifier: ^6.1.0
+        version: 6.1.0
       morgan:
         specifier: ^1.10.1
         version: 1.10.1

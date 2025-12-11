@@ -8,6 +8,8 @@ import {
 	type CredentialOfferHandlerConfig,
 	credentialHandlerFactory,
 	credentialOfferHandlerFactory,
+	type DeferredCredentialHandlerConfig,
+	deferredCredentialHandlerFactory,
 	type NonceHandlerConfig,
 	nonceHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
@@ -21,6 +23,7 @@ import {
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
+	validateDeferredCredentialHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
@@ -154,6 +157,23 @@ export class Protocols {
 	}
 
 	/**
+	 * Handle deferred credential requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateAccessToken | validateAccessToken}
+	 * - {@link "server-core/src/statements".validateDpop | validateDpop}
+	 * - {@link "server-core/src/statements".generateCredentials | generateCredentials}
+	 */
+	get deferredCredential() {
+		validateDeferredCredentialHandlerConfig(this.config);
+
+		return deferredCredentialHandlerFactory(
+			this.config as DeferredCredentialHandlerConfig,
+		);
+	}
+
+	/**
 	 * Handle credential offer requests
 	 *
 	 * #### Statements
@@ -210,7 +230,7 @@ export const defaultConfig = {
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,
 	token_encryption: "A128CBC-HS256", // see https://github.com/panva/jose/issues/210#jwe-enc
-	databaseOperations: {},
+	dataOperations: {},
 	issuer_client: {
 		id: "",
 		scopes: [],
