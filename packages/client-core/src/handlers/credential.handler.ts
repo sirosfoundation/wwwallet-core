@@ -1,7 +1,12 @@
 import Ajv from "ajv";
 import type { Config } from "../config";
 import { OauthError } from "../errors";
-import type { Proofs } from "../resources";
+import type {
+	ClientState,
+	DeferredCredential,
+	IssuerMetadata,
+	Proofs,
+} from "../resources";
 import {
 	type ClientStateConfig,
 	clientState,
@@ -9,8 +14,6 @@ import {
 	type FetchIssuerMetadataConfig,
 	fetchCredentials,
 	fetchIssuerMetadata,
-	type GenerateDpopConfig,
-	generateDpop,
 } from "../statements";
 import { credentialHandlerConfigSchema } from "./schemas";
 
@@ -25,7 +28,6 @@ export type CredentialHandlerParams = {
 
 export type CredentialHandlerConfig = ClientStateConfig &
 	FetchIssuerMetadataConfig &
-	GenerateDpopConfig &
 	FetchCredentialsConfig;
 
 type CredentialProtocol = "oid4vci";
@@ -36,7 +38,10 @@ export type CredentialResponse = {
 	protocol: CredentialProtocol;
 	nextStep?: CredentialNextStep;
 	data?: {
-		credentials: Array<{ credential: string; format: string }>;
+		issuer_metadata: IssuerMetadata;
+		client_state: ClientState;
+		credentials?: Array<{ credential: string; format?: string }>;
+		deferred_credential?: DeferredCredential;
 	};
 };
 
@@ -62,33 +67,39 @@ export function credentialHandlerFactory(config: CredentialHandlerConfig) {
 				config,
 			);
 
-			const { dpop: credentialsDpop } = await generateDpop(
+			const { credentials, transaction_id, interval } = await fetchCredentials(
 				{
 					client_state,
-					access_token,
-					htu: issuer_metadata.credential_endpoint,
-					htm: "POST",
-				},
-				config,
-			);
-
-			const { credentials } = await fetchCredentials(
-				{
 					issuer_metadata,
 					access_token,
-					dpop: credentialsDpop,
 					credential_configuration_id,
 					proofs,
 				},
 				config,
 			);
 
+			const data: CredentialResponse["data"] = {
+				issuer_metadata,
+				client_state,
+				credentials,
+			};
+
+			if (credentials) {
+				data.credentials = credentials;
+			}
+
+			if (transaction_id && interval) {
+				data.deferred_credential = {
+					client_state,
+					transaction_id,
+					interval,
+				};
+			}
+
 			return {
 				protocol,
 				nextStep,
-				data: {
-					credentials,
-				},
+				data,
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
