@@ -4,6 +4,7 @@ import type { ClientMetadata, PresentationRequest } from "../../resources";
 import {
 	type ValidatePresentationRequestConfig,
 	type ValidatePresentationRequestParams,
+	validateClientId,
 	validateClientMetadata,
 	validateDcqlQuery,
 	validatePresentationRequest,
@@ -64,6 +65,15 @@ async function doHandlePresentationRequest(
 		presentationRequestParams,
 		config,
 	);
+
+	// TODO validate client fetching request_uri presentation request
+	const { client_id: _client_id } = await validateClientId(
+		{
+			presentation_request,
+		},
+		config,
+	);
+
 	const { dcql_query } = await validateDcqlQuery(
 		{
 			dcql_query: presentation_request.dcql_query,
