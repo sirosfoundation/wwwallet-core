@@ -116,9 +116,13 @@ describe("storage - retrieving events", () => {
 				const keyid = await calculateJwkThumbprint(accessTokenPublicKey);
 				const eventHash = "a";
 				const event = "event";
-				fs.mkdirSync(path.join(storage.config.events_path || "", keyid));
+				const eventDirname = crypto
+					.createHash("sha256")
+					.update(keyid)
+					.digest("base64url");
+				fs.mkdirSync(path.join(storage.config.events_path || "", eventDirname));
 				fs.writeFileSync(
-					path.join(storage.config.events_path || "", keyid, eventHash),
+					path.join(storage.config.events_path || "", eventDirname, eventHash),
 					event,
 				);
 				const response = await request(app)
@@ -244,10 +248,12 @@ describe("storage - store events", () => {
 					.set("DPoP", dpop)
 					.send(event);
 
+				const eventDirname = crypto.createHash("sha256");
+				eventDirname.update(await calculateJwkThumbprint(accessTokenPublicKey));
 				const storedEvent = fs.readFileSync(
 					path.join(
 						storage.config.events_path || "",
-						await calculateJwkThumbprint(accessTokenPublicKey),
+						eventDirname.digest("base64url"),
 						eventHash,
 					),
 				);

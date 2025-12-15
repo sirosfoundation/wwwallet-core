@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { OauthError } from "../../errors";
@@ -17,10 +18,12 @@ export async function storeEvent(
 	{ storage_token, hash, payload }: StoreEventParams,
 	config: StoreEventConfig,
 ) {
+	const eventDirname = crypto.createHash("sha256");
+	eventDirname.update(storage_token.payload.keyid);
 	const eventDirPath = path.join(
 		process.cwd(),
 		config.events_path,
-		storage_token.payload.keyid,
+		eventDirname.digest("base64url"),
 	);
 
 	try {
