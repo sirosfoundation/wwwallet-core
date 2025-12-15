@@ -159,7 +159,7 @@ export function server(protocols: Protocols): Express {
 	});
 
 	app.post("/deferred-credential", async (req, res) => {
-		const response = await core.deferredCredential(req);
+		const response = await protocols.deferredCredential(req);
 
 		return res.status(response.status).send(response.body);
 	});
