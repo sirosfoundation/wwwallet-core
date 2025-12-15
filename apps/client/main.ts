@@ -1,8 +1,8 @@
 import expressListRoutes from "express-list-routes";
 import { server } from "./app";
-import { protocols } from "./container";
+import { protocols, storage } from "./container";
 
-const app = server(protocols);
+const app = server({ protocols, storage });
 const port = process.env.PORT || 5000;
 
 // starts the server

@@ -2,6 +2,7 @@ import path from "node:path";
 import {
 	type Protocols,
 	type ResourceOwner,
+	type Storage,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
@@ -16,7 +17,13 @@ import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
 
-export function server(protocols: Protocols): Express {
+export function server({
+	protocols,
+	storage,
+}: {
+	protocols: Protocols;
+	storage: Storage;
+}): Express {
 	const app = express();
 
 	app.use(morgan("combined"));
@@ -24,12 +31,17 @@ export function server(protocols: Protocols): Express {
 	app.use(express.json());
 	app.use(express.urlencoded());
 
+	app.use(express.json({ type: ["application/jwk+json"] }));
+	app.use(express.text({ type: ["application/jose"] }));
+
 	Handlebars.registerHelper("equals", (a: unknown, b: unknown) => a === b);
 	app.engine("handlebars", engine());
 	app.set("view engine", "handlebars");
 	app.set("views", path.join(__dirname, "views"));
 
 	app.use(express.static(path.join(__dirname, "public")));
+
+	// --- Protocols
 
 	app.get("/", (_req, res) => {
 		res.redirect("/offer/select-a-credential");
@@ -181,5 +193,24 @@ export function server(protocols: Protocols): Express {
 		});
 	});
 
+	// --- Storage
+
+	app.get("/event-store/events", async (req, res) => {
+		const response = await storage.getEvents(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.put("/event-store/events/:hash", async (req, res) => {
+		const response = await storage.storeEvent(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.post("/authorization-challenge", async (req, res) => {
+		const response = await storage.authorizationChallenge(req);
+
+		return res.status(response.status).send(response.body);
+	});
 	return app;
 }
