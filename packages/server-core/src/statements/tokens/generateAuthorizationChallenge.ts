@@ -27,7 +27,7 @@ export async function generateAuthorizationChallenge(
 	const secret = new TextEncoder().encode(config.secret_base);
 
 	try {
-		const appToken = await new SignJWT({
+		const access_token = await new SignJWT({
 			keyid: await calculateJwkThumbprint(jwk),
 			...tokenPayload,
 		})
@@ -35,7 +35,7 @@ export async function generateAuthorizationChallenge(
 			.setProtectedHeader({ alg: "HS256" })
 			.sign(secret);
 
-		const challenge = await new EncryptJWT({ appToken })
+		const challenge = await new EncryptJWT({ access_token })
 			.setExpirationTime(now + config.authorization_challenge_ttl)
 			.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
 			.encrypt(await importJWK(jwk, "RSA-OAEP-256"));

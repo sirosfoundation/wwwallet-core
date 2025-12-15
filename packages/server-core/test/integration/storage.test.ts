@@ -319,15 +319,15 @@ describe("storage - authentication", () => {
 		assert(response.body.challenge);
 
 		const {
-			payload: { appToken },
+			payload: { access_token },
 		} = await jwtDecrypt(response.body.challenge, privateKey);
 
-		assert(appToken);
+		assert(access_token);
 
 		const secret = new TextEncoder().encode(storage.config.secret_base);
 		const {
 			payload: { keyid },
-		} = await jwtVerify(appToken as string, secret);
+		} = await jwtVerify(access_token as string, secret);
 
 		expect(keyid).to.eq(await calculateJwkThumbprint(publicKey));
 	});
