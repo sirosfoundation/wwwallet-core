@@ -37,8 +37,8 @@ export async function generateAuthorizationChallenge(
 
 		const challenge = await new EncryptJWT({ access_token })
 			.setExpirationTime(now + config.authorization_challenge_ttl)
-			.setProtectedHeader({ enc: "A256GCM", alg: "RSA-OAEP-256" })
-			.encrypt(await importJWK(jwk, "RSA-OAEP-256"));
+			.setProtectedHeader({ enc: "A256GCM", alg: "ECDH-ES" })
+			.encrypt(await importJWK(jwk, "ECDH-ES"));
 
 		return { challenge };
 	} catch (error) {

@@ -41,7 +41,7 @@ describe("storage - retrieving events", () => {
 		let access_token: string;
 		beforeEach(async () => {
 			const now = Date.now() / 1000;
-			const { publicKey } = await generateKeyPair("RSA-OAEP-256");
+			const { publicKey } = await generateKeyPair("ECDH-ES");
 			const secret = new TextEncoder().encode(storage.config.secret_base);
 			accessTokenPublicKey = publicKey;
 			access_token = await new SignJWT({
@@ -181,7 +181,7 @@ describe("storage - store events", () => {
 		let access_token: string;
 		beforeEach(async () => {
 			const now = Date.now() / 1000;
-			const { publicKey } = await generateKeyPair("RSA-OAEP-256");
+			const { publicKey } = await generateKeyPair("ECDH-ES");
 			const secret = new TextEncoder().encode(storage.config.secret_base);
 			accessTokenPublicKey = publicKey;
 			access_token = await new SignJWT({
@@ -291,8 +291,10 @@ describe("storage - authentication", () => {
 		});
 	});
 
-	it("returns an error with and EC key", async () => {
-		const { publicKey } = await generateKeyPair("ES256", { extractable: true });
+	it("returns an error with and RSA key", async () => {
+		const { publicKey } = await generateKeyPair("RSA-OAEP-256", {
+			extractable: true,
+		});
 		const response = await request(app)
 			.post(`/key-auth/challenge`)
 			.set("Content-Type", "application/jwk+json")
@@ -306,8 +308,8 @@ describe("storage - authentication", () => {
 		});
 	});
 
-	it("returns a challenge with and RSA-OAEP-256 key", async () => {
-		const { publicKey, privateKey } = await generateKeyPair("RSA-OAEP-256", {
+	it("returns a challenge with and ECDH-ES key", async () => {
+		const { publicKey, privateKey } = await generateKeyPair("ECDH-ES", {
 			extractable: true,
 		});
 		const response = await request(app)

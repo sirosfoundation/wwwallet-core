@@ -84,7 +84,7 @@ async function validateRequest(
 	const jwk = expressRequest.body;
 
 	try {
-		await importJWK(jwk, "RSA-OAEP-256");
+		await importJWK(jwk, "ECDH-ES");
 	} catch (error) {
 		throw new OauthError(
 			400,
