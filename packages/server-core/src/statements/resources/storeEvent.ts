@@ -40,6 +40,7 @@ export async function storeEvent(
 
 	// TODO make a transaction
 	try {
+		let i = 0;
 		for (const { hash, payload } of events) {
 			const addressing_record = addressing_table.find(
 				({ hash: address }) => address === hash,
@@ -48,11 +49,18 @@ export async function storeEvent(
 				throw new Error("addressing record could not be found");
 			}
 
-			fs.writeFileSync(path.join(eventDirPath, hash), Buffer.from(payload));
+			const eventPath = path.join(eventDirPath, hash);
+			if (fs.existsSync(eventPath)) {
+				throw new Error(`#/events/${i}/hash already exists`);
+			}
+
+			fs.writeFileSync(eventPath, Buffer.from(payload));
 			fs.appendFileSync(
 				eventTablePath,
 				Buffer.from(`${addressing_record.jwt}\n`),
 			);
+
+			i++;
 		}
 	} catch (error) {
 		throw new OauthError(

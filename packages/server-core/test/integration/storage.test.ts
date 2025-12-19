@@ -543,6 +543,39 @@ describe("storage - store events", () => {
 				);
 				expect(storedTable.toString()).to.eq(`${addressing_record}\n`);
 			});
+
+			it("return an error with already existing event", async () => {
+				fs.writeFileSync(
+					path.join(storage.config.events_path || "", eventHash),
+					"existing",
+				);
+
+				const { publicKey } = await generateKeyPair("ECDH-ES");
+				const event = await new EncryptJWT({})
+					.setProtectedHeader({ alg: "ECDH-ES", enc: "A256CBC-HS512" })
+					.encrypt(publicKey);
+				const addressing_record = await new SignJWT({
+					hash: eventHash,
+					encryption_key: {},
+				})
+					.setProtectedHeader({ alg: "HS256" })
+					.sign(new TextEncoder().encode("secret"));
+
+				const response = await request(app)
+					.put(`/event-store/events/${eventHash}`)
+					.set("Authorization", `Bearer ${access_token}`)
+					.set("DPoP", dpop)
+					.send({
+						addressing_table: [addressing_record],
+						events: [{ hash: eventHash, payload: event }],
+					});
+
+				expect(response.status).to.eq(400);
+				expect(response.body).to.deep.eq({
+					error: "invalid_request",
+					error_description: "#/events/0/hash already exists",
+				});
+			});
 		});
 	});
 });
