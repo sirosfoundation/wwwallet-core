@@ -541,7 +541,7 @@ describe("storage - store events", () => {
 						`${eventTableName}.table`,
 					),
 				);
-				expect(storedTable.toString()).to.eq(addressing_record);
+				expect(storedTable.toString()).to.eq(`${addressing_record}\n`);
 			});
 		});
 	});

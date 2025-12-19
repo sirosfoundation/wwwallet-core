@@ -37,7 +37,8 @@ export async function fetchEvents(
 		const addressing_table = fs
 			.readFileSync(eventTablePath)
 			.toString()
-			.split("\n");
+			.split("\n")
+			.filter((addressing_record) => addressing_record);
 
 		const events = await Promise.all(
 			addressing_table

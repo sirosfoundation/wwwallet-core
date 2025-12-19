@@ -49,7 +49,10 @@ export async function storeEvent(
 			}
 
 			fs.writeFileSync(path.join(eventDirPath, hash), Buffer.from(payload));
-			fs.appendFileSync(eventTablePath, Buffer.from(addressing_record.jwt));
+			fs.appendFileSync(
+				eventTablePath,
+				Buffer.from(`${addressing_record.jwt}\n`),
+			);
 		}
 	} catch (error) {
 		throw new OauthError(
