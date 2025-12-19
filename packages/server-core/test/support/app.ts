@@ -208,6 +208,7 @@ export function server({
 
 export const config = {
 	events_path: "./test/support/events",
+	event_tables_path: "./test/support/events",
 	logger: {
 		business: (
 			_event: string,

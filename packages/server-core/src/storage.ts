@@ -75,4 +75,5 @@ const defaultConfig = {
 	access_token_ttl: 60,
 	authorization_challenge_ttl: 60,
 	events_path: "./events",
+	event_tables_path: "./events",
 };

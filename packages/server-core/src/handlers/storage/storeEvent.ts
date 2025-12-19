@@ -1,8 +1,13 @@
 import Ajv from "ajv";
 import type { Request } from "express";
-import { decodeProtectedHeader } from "jose";
+import { decodeJwt, decodeProtectedHeader } from "jose";
 import type { Config } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
+import type {
+	EventAddressingRecord,
+	EventAddressingTable,
+	WalletEvent,
+} from "../../resources";
 import {
 	type StoreEventConfig,
 	storeEvent,
@@ -11,6 +16,7 @@ import {
 	validateDpop,
 	validateStorageToken,
 } from "../../statements";
+import { validateWalletEvents } from "../../statements/validations/validateWalletEvents";
 import { storeEventHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
@@ -20,8 +26,6 @@ export type StoreEventHandlerConfig = ValidateStorageTokenConfig &
 	ValidateDpopConfig;
 
 type StoreEventRequest = {
-	hash: string;
-	payload: string;
 	credentials: {
 		access_token?: string;
 		dpop?: string | Array<string>;
@@ -30,12 +34,16 @@ type StoreEventRequest = {
 			uri: string;
 		};
 	};
+	addressing_table: EventAddressingTable;
+	events: Array<WalletEvent>;
 };
 
 type StoreEventResponse = {
 	status: 200;
 	data: {};
-	body: {};
+	body: {
+		events: Array<WalletEvent>;
+	};
 };
 
 export function storeEventHandlerFactory(config: StoreEventHandlerConfig) {
@@ -61,11 +69,19 @@ export function storeEventHandlerFactory(config: StoreEventHandlerConfig) {
 				config,
 			);
 
-			const { event } = await storeEvent(
+			const { events, addressing_table } = await validateWalletEvents(
+				{
+					addressing_table: request.addressing_table,
+					events: request.events,
+				},
+				config,
+			);
+
+			const { events: storedEvents } = await storeEvent(
 				{
 					storage_token,
-					hash: request.hash,
-					payload: request.payload,
+					events,
+					addressing_table,
 				},
 				config,
 			);
@@ -73,7 +89,9 @@ export function storeEventHandlerFactory(config: StoreEventHandlerConfig) {
 			return {
 				status: 200,
 				data: {},
-				body: event,
+				body: {
+					events: storedEvents,
+				},
 			};
 		} catch (error) {
 			if (error instanceof OauthError) {
@@ -100,15 +118,6 @@ export function validateStoreEventHandlerConfig(config: Config) {
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<StoreEventRequest> {
-	const hash = expressRequest.params.hash;
-	if (!hash) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"hash path parameter is required",
-		);
-	}
-
 	const dpopRequest = {
 		method: expressRequest.method,
 		uri: expressRequest.originalUrl,
@@ -128,28 +137,134 @@ async function validateRequest(
 
 	credentials.dpop = expressRequest.headers.dpop;
 
-	if (expressRequest.headers["content-type"] !== "application/jose") {
+	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
 			"invalid_request",
-			"application/jose body is required",
+			"store event requests require a body",
 		);
 	}
 
-	const payload = expressRequest.body;
+	const raw_addressing_table = expressRequest.body.addressing_table;
 
-	try {
-		const { alg, enc } = decodeProtectedHeader(payload);
-		if (!alg || !enc) throw new Error("jwe header parameters are missing");
-	} catch (error) {
+	if (!raw_addressing_table) {
 		throw new OauthError(
 			400,
 			"invalid_request",
-			(error as Error).message.toLowerCase(),
+			"addressing table parameter is required",
 		);
 	}
 
-	return { hash, credentials, payload };
+	if (!Array.isArray(raw_addressing_table)) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"addressing table must be an array",
+		);
+	}
+
+	const addressing_table: EventAddressingTable = [];
+	let i = 0;
+	for (const jwt of raw_addressing_table) {
+		try {
+			const { hash, encryption_key } = decodeJwt<EventAddressingRecord>(jwt);
+
+			const addressing_record = { hash, encryption_key };
+
+			if (!hash) {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					`hash parameter is is missing at #/addressing_table/${i}`,
+				);
+			}
+
+			if (!encryption_key) {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					`encryption key parameter is is missing at #/addressing_table/${i}`,
+				);
+			}
+
+			addressing_table.push({
+				jwt,
+				...addressing_record,
+			});
+		} catch (error) {
+			if (error instanceof OauthError) {
+				throw error;
+			}
+
+			throw new OauthError(
+				400,
+				"invalid_request",
+				`#/addressing_table/${i} must be a valid jwt`,
+				{ error },
+			);
+		}
+
+		i++;
+	}
+
+	const events = expressRequest.body.events;
+
+	if (!events) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"events parameter is required",
+		);
+	}
+
+	if (!Array.isArray(events)) {
+		throw new OauthError(400, "invalid_request", "events must be an array");
+	}
+
+	let j = 0;
+	for (const event of events) {
+		if (!event || !(typeof event === "object")) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				`#/event/${j} must be an object`,
+			);
+		}
+
+		const hash = event.hash;
+		if (!hash) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				`hash parameter is is missing at #/events/${j}`,
+			);
+		}
+
+		const payload = event.payload;
+		if (!payload) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				`payload parameter is is missing at #/events/${j}`,
+			);
+		}
+
+		// TODO move in validation
+		try {
+			const { alg, enc } = decodeProtectedHeader(payload);
+			if (!alg || !enc) throw new Error("jwe header parameters are missing");
+		} catch (error) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				(error as Error).message.toLowerCase(),
+			);
+		}
+
+		j++;
+	}
+
+	return { credentials, addressing_table, events };
 }
 
 function errorData(expressRequest: Request) {

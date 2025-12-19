@@ -2,6 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
+import type { WalletEvent } from "../../resources";
 import {
 	type FetchEventsConfig,
 	fetchEvents,
@@ -33,7 +34,7 @@ type GetEventsResponse = {
 	status: 200;
 	data: {};
 	body: {
-		events: Record<string, string>;
+		events: Array<WalletEvent>;
 	};
 };
 

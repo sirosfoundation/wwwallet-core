@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { decodeJwt } from "jose";
 import { OauthError } from "../../errors";
-import type { StorageToken } from "../../resources";
+import type { EventAddressingRecord, StorageToken } from "../../resources";
 
 export type FetchEventsParams = {
 	storage_token: StorageToken;
@@ -10,36 +11,55 @@ export type FetchEventsParams = {
 
 export type FetchEventsConfig = {
 	events_path: string;
+	event_tables_path: string;
 };
 
 export async function fetchEvents(
 	{ storage_token }: FetchEventsParams,
 	config: FetchEventsConfig,
-): Promise<{ events: Record<string, string> }> {
-	const eventDirname = crypto.createHash("sha256");
-	eventDirname.update(storage_token.payload.keyid);
-	const eventDirPath = path.join(
+) {
+	const eventTableName = crypto
+		.createHash("sha256")
+		.update(storage_token.payload.keyid)
+		.digest("base64url");
+	const eventDirPath = path.join(process.cwd(), config.events_path);
+	const eventTablePath = path.join(
 		process.cwd(),
-		config.events_path,
-		eventDirname.digest("base64url"),
+		config.event_tables_path,
+		`${eventTableName}.table`,
 	);
 
-	if (!fs.existsSync(eventDirPath)) {
-		return { events: {} };
+	if (!fs.existsSync(eventTablePath)) {
+		return { events: [] };
 	}
 
-	const events: Record<string, string> = {};
 	try {
-		const eventFiles = fs.readdirSync(eventDirPath);
+		const addressing_table = fs
+			.readFileSync(eventTablePath)
+			.toString()
+			.split("\n");
 
-		await Promise.all(
-			eventFiles.map(async (eventFilename) => {
-				const eventPath = path.join(eventDirPath, eventFilename);
+		const events = await Promise.all(
+			addressing_table
+				.map((jwt) => {
+					const { hash, encryption_key } =
+						decodeJwt<EventAddressingRecord>(jwt);
 
-				const event = await fs.promises.readFile(eventPath);
-				events[eventFilename] = event.toString();
-			}),
+					return { hash, encryption_key };
+				})
+				.map(async ({ hash, encryption_key }) => {
+					const eventPath = path.join(eventDirPath, hash);
+
+					const event = await fs.promises.readFile(eventPath);
+					return {
+						hash,
+						payload: event.toString(),
+						encryption_key,
+					};
+				}),
 		);
+
+		return { events };
 	} catch (error) {
 		throw new OauthError(
 			500,
@@ -47,6 +67,4 @@ export async function fetchEvents(
 			(error as Error).message.toLowerCase(),
 		);
 	}
-
-	return { events };
 }

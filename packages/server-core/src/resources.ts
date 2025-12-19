@@ -1,3 +1,5 @@
+import type { JWK } from "jose";
+
 export type IssuerClient = {
 	id: string;
 	scopes: Array<string>;
@@ -161,4 +163,18 @@ export type StorageToken = {
 	payload: {
 		keyid: string;
 	};
+};
+
+export type EventAddressingRecord = {
+	jwt: string;
+	hash: string;
+	encryption_key: JWK;
+};
+
+export type EventAddressingTable = Array<EventAddressingRecord>;
+
+export type WalletEvent = {
+	hash: string;
+	payload: string;
+	encryption_key?: JWK;
 };
