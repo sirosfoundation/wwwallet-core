@@ -52,6 +52,9 @@ export async function storeEvent(
 			const eventPath = path.join(eventDirPath, hash);
 			if (fs.existsSync(eventPath)) {
 				throw new Error(`#/events/${i}/hash already exists`);
+			} else {
+				// TODO find better file locking
+				fs.writeFileSync(eventPath, "");
 			}
 
 			fs.writeFileSync(eventPath, Buffer.from(payload));
