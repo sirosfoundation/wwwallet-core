@@ -25,11 +25,12 @@ type DeferredCredentialRequest = {
 };
 
 type DefferedCredentialResponse = {
-	status: 200;
+	status: 200 | 202;
 	data: {};
 	body: {
 		credentials?: Array<{ credential: string }>;
 		transaction_id?: string;
+		interval?: number;
 	};
 };
 
@@ -58,18 +59,21 @@ export function deferredCredentialHandlerFactory(
 				config,
 			);
 
-			const { credentials } = await generateCredentials(
-				{
-					transaction_id: request.transaction_id,
-				},
-				config,
-			);
+			const { credentials, transaction_id, interval } =
+				await generateCredentials(
+					{
+						transaction_id: request.transaction_id,
+					},
+					config,
+				);
 
 			return {
-				status: 200,
+				status: credentials ? 200 : 202,
 				data: {},
 				body: {
 					credentials,
+					transaction_id,
+					interval,
 				},
 			};
 		} catch (error) {

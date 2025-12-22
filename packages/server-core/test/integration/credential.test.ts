@@ -652,7 +652,10 @@ describe("credential endpoint", () => {
 					.send({ credential_configuration_id, proof: { jwt: proof } });
 
 				expect(response.status).toBe(200);
-				expect(response.body).to.deep.eq({ transaction_id: "transaction_id" });
+				expect(response.body).to.deep.eq({
+					transaction_id: "transaction_id",
+					interval: 3600,
+				});
 			});
 		});
 	});
