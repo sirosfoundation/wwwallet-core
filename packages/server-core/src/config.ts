@@ -85,4 +85,5 @@ export type Config = {
 	trusted_root_certificate_paths?: Array<string>;
 	// TODO move in storage namespace
 	events_path?: string;
+	event_tables_path?: string;
 };
