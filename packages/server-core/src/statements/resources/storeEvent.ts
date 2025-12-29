@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { OauthError } from "../../errors";
@@ -27,15 +26,11 @@ export async function storeEvent(
 		return { events };
 	}
 
-	const eventTableName = crypto
-		.createHash("sha256")
-		.update(storage_token.payload.keyid)
-		.digest("base64url");
 	const eventDirPath = path.join(process.cwd(), config.events_path);
 	const eventTablePath = path.join(
 		process.cwd(),
 		config.event_tables_path,
-		`${eventTableName}.table`,
+		`${storage_token.payload.keyid}.table`,
 	);
 
 	// TODO make a transaction

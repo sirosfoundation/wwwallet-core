@@ -45,8 +45,12 @@ describe("storage - retrieving events", () => {
 			const { publicKey } = await generateKeyPair("ECDH-ES");
 			const secret = new TextEncoder().encode(storage.config.secret_base);
 			accessTokenPublicKey = publicKey;
+			const keyid = crypto
+				.createHash("sha256")
+				.update(await calculateJwkThumbprint(publicKey))
+				.digest("base64url");
 			access_token = await new SignJWT({
-				keyid: await calculateJwkThumbprint(await exportJWK(publicKey)),
+				keyid,
 			})
 				.setExpirationTime(now + 10)
 				.setProtectedHeader({ alg: "HS256" })
@@ -114,7 +118,10 @@ describe("storage - retrieving events", () => {
 			});
 
 			it("returns an event list with events stored", async () => {
-				const keyid = await calculateJwkThumbprint(accessTokenPublicKey);
+				const keyid = crypto
+					.createHash("sha256")
+					.update(await calculateJwkThumbprint(accessTokenPublicKey))
+					.digest("base64url");
 				const eventHash = "a";
 				const event = "event";
 				const encryption_key = {};
@@ -124,19 +131,12 @@ describe("storage - retrieving events", () => {
 				})
 					.setProtectedHeader({ alg: "HS256" })
 					.sign(new TextEncoder().encode("secret"));
-				const eventTableName = crypto
-					.createHash("sha256")
-					.update(keyid)
-					.digest("base64url");
 				fs.writeFileSync(
 					path.join(storage.config.events_path || "", eventHash),
 					event,
 				);
 				fs.appendFileSync(
-					path.join(
-						storage.config.events_path || "",
-						`${eventTableName}.table`,
-					),
+					path.join(storage.config.events_path || "", `${keyid}.table`),
 					addressing_record,
 				);
 				const response = await request(app)
@@ -182,15 +182,18 @@ describe("storage - store events", () => {
 	});
 
 	describe("with a valid bearer", () => {
-		let accessTokenPublicKey: KeyObject;
 		let access_token: string;
+		let keyid: string;
 		beforeEach(async () => {
 			const now = Date.now() / 1000;
 			const { publicKey } = await generateKeyPair("ECDH-ES");
 			const secret = new TextEncoder().encode(storage.config.secret_base);
-			accessTokenPublicKey = publicKey;
+			keyid = crypto
+				.createHash("sha256")
+				.update(await calculateJwkThumbprint(publicKey))
+				.digest("base64url");
 			access_token = await new SignJWT({
-				keyid: await calculateJwkThumbprint(await exportJWK(publicKey)),
+				keyid,
 			})
 				.setExpirationTime(now + 10)
 				.setProtectedHeader({ alg: "HS256" })
@@ -527,19 +530,12 @@ describe("storage - store events", () => {
 					],
 				});
 
-				const eventTableName = crypto
-					.createHash("sha256")
-					.update(await calculateJwkThumbprint(accessTokenPublicKey))
-					.digest("base64url");
 				const storedEvent = fs.readFileSync(
 					path.join(storage.config.events_path || "", eventHash),
 				);
 				expect(storedEvent.toString()).to.eq(event);
 				const storedTable = fs.readFileSync(
-					path.join(
-						storage.config.events_path || "",
-						`${eventTableName}.table`,
-					),
+					path.join(storage.config.event_tables_path || "", `${keyid}.table`),
 				);
 				expect(storedTable.toString()).to.eq(`${addressing_record}\n`);
 			});
@@ -643,7 +639,12 @@ describe("storage - authentication", () => {
 			payload: { keyid },
 		} = await jwtVerify(access_token as string, secret);
 
-		expect(keyid).to.eq(await calculateJwkThumbprint(publicKey));
+		expect(keyid).to.eq(
+			crypto
+				.createHash("sha256")
+				.update(await calculateJwkThumbprint(publicKey))
+				.digest("base64url"),
+		);
 	});
 });
 

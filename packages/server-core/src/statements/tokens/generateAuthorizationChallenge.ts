@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import {
 	calculateJwkThumbprint,
 	EncryptJWT,
@@ -27,8 +28,12 @@ export async function generateAuthorizationChallenge(
 	const secret = new TextEncoder().encode(config.secret_base);
 
 	try {
+		const keyid = crypto
+			.createHash("sha256")
+			.update(await calculateJwkThumbprint(jwk))
+			.digest("base64url");
 		const access_token = await new SignJWT({
-			keyid: await calculateJwkThumbprint(jwk),
+			keyid,
 			...tokenPayload,
 		})
 			.setExpirationTime(now + config.access_token_ttl)

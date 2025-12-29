@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { decodeJwt } from "jose";
@@ -18,15 +17,11 @@ export async function fetchEvents(
 	{ storage_token }: FetchEventsParams,
 	config: FetchEventsConfig,
 ) {
-	const eventTableName = crypto
-		.createHash("sha256")
-		.update(storage_token.payload.keyid)
-		.digest("base64url");
 	const eventDirPath = path.join(process.cwd(), config.events_path);
 	const eventTablePath = path.join(
 		process.cwd(),
 		config.event_tables_path,
-		`${eventTableName}.table`,
+		`${storage_token.payload.keyid}.table`,
 	);
 
 	if (!fs.existsSync(eventTablePath)) {
