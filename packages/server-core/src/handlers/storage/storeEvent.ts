@@ -39,7 +39,7 @@ type StoreEventRequest = {
 };
 
 type StoreEventResponse = {
-	status: 200;
+	status: 201;
 	data: {};
 	body: {
 		events: Array<WalletEvent>;
@@ -87,7 +87,7 @@ export function storeEventHandlerFactory(config: StoreEventHandlerConfig) {
 			);
 
 			return {
-				status: 200,
+				status: 201,
 				data: {},
 				body: {
 					events: storedEvents,

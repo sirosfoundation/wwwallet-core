@@ -17,15 +17,27 @@ services:
       start_period: 60s
       start_interval: 5s
 
-  k6:
+  k6-od4vci:
     image: grafana/k6
-    container_name: k6
     profiles:
       - k6
     volumes:
       - ./scripts:/scripts
     network_mode: host
     command: run /scripts/loadtest.oid4vci.k6.js
+    depends_on:
+      wwwallet-issuer-poc:
+        condition: service_healthy
+        restart: true
+
+  k6-storage:
+    image: grafana/k6
+    profiles:
+      - k6
+    volumes:
+      - ./scripts:/scripts
+    network_mode: host
+    command: run /scripts/loadtest.storage.k6.js
     depends_on:
       wwwallet-issuer-poc:
         condition: service_healthy

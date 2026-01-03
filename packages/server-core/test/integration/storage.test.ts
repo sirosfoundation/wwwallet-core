@@ -520,7 +520,7 @@ describe("storage - store events", () => {
 						events: [{ hash: eventHash, payload: event }],
 					});
 
-				expect(response.status).to.eq(200);
+				expect(response.status).to.eq(201);
 				expect(response.body).to.deep.eq({
 					events: [
 						{
@@ -727,7 +727,7 @@ describe("storage", () => {
 				events: [{ hash: eventHash, payload: event }],
 			});
 
-		expect(store.status).to.eq(200);
+		expect(store.status).to.eq(201);
 		expect(store.body).to.deep.eq({
 			events: [
 				{

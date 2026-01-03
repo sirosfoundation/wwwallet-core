@@ -8,10 +8,10 @@
 		"dependency-tree": "madge --image ../../images/apps-client-dependency-tree.svg ./main.ts"
 	},
 	"devDependencies": {
-		"@types/express": "^5.0.3",
 		"madge": "^8.0.0"
 	},
 	"dependencies": {
+		"@types/express": "^5.0.3",
 		"@types/morgan": "^1.9.10",
 		"@wwwallet/server-core": "workspace:*",
 		"express": "^5.1.0",
