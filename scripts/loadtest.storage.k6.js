@@ -4,8 +4,8 @@ import encoding, { b64encode } from "k6/encoding";
 import http from "k6/http";
 
 export const options = {
-	vus: 5,
-	duration: "30s",
+	vus: 1,
+	iterations: 10,
 };
 
 function asciiToBytes(str) {
