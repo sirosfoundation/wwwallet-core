@@ -31,7 +31,9 @@ const baseConfig = {
 	trusted_root_certificates: [],
 };
 
-const config = merge(baseConfig, ymlConfig) as Config;
+const config = merge(baseConfig, ymlConfig) as Config & {
+	redis_url?: string;
+};
 
 config.supported_credential_configurations =
 	config.supported_credential_configurations?.concat(

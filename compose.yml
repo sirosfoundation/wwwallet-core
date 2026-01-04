@@ -8,7 +8,7 @@ services:
     ports:
       - 127.0.0.1:5000:5000
     volumes:
-      - "./config.yml:/app/config.yml"
+      - "./config.docker.yml:/app/config.yml"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
       interval: 30s
@@ -16,6 +16,11 @@ services:
       retries: 3
       start_period: 60s
       start_interval: 5s
+    depends_on:
+      - redis
+
+  redis:
+    image: "redis:latest"
 
   k6-od4vci:
     image: grafana/k6

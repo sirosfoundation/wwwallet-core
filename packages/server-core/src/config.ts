@@ -1,3 +1,9 @@
+import type {
+	EventAddressingTable,
+	StorageToken,
+	WalletEvent,
+} from "./resources";
+
 export type BusinessEvent =
 	| "authorize"
 	| "authenticate"
@@ -29,11 +35,21 @@ export interface DatabaseOperations {
 	resourceOwnerData?: (sub: string, vct?: string) => Promise<unknown>;
 }
 
+export interface EventStore {
+	get(storage_token: StorageToken): Promise<{ events: Array<WalletEvent> }>;
+	write(
+		storage_token: StorageToken,
+		addressing_table: EventAddressingTable,
+		events: Array<WalletEvent>,
+	): Promise<void>;
+}
+
 export type Config = {
 	issuer_url?: string;
 	wallet_url?: string;
 	logger?: Logger;
 	databaseOperations?: DatabaseOperations;
+	eventStore?: EventStore;
 	issuer_display?: Array<{
 		locale?: string;
 		logo?: {

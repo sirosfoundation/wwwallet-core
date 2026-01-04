@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
+import type { EventStore } from "../../config";
 import { OauthError } from "../../errors";
 import type {
 	EventAddressingTable,
@@ -14,8 +13,7 @@ export type StoreEventParams = {
 };
 
 export type StoreEventConfig = {
-	events_path: string;
-	event_tables_path: string;
+	eventStore: EventStore;
 };
 
 export async function storeEvent(
@@ -26,40 +24,9 @@ export async function storeEvent(
 		return { events };
 	}
 
-	const eventDirPath = path.join(process.cwd(), config.events_path);
-	const eventTablePath = path.join(
-		process.cwd(),
-		config.event_tables_path,
-		`${storage_token.payload.keyid}.table`,
-	);
-
 	// TODO make a transaction
 	try {
-		let i = 0;
-		for (const { hash, payload } of events) {
-			const addressing_record = addressing_table.find(
-				({ hash: address }) => address === hash,
-			);
-			if (!addressing_record) {
-				throw new Error("addressing record could not be found");
-			}
-
-			const eventPath = path.join(eventDirPath, hash);
-			if (fs.existsSync(eventPath)) {
-				throw new Error(`#/events/${i}/hash already exists`);
-			} else {
-				// TODO find better file locking
-				fs.writeFileSync(eventPath, "");
-			}
-
-			fs.writeFileSync(eventPath, Buffer.from(payload));
-			fs.appendFileSync(
-				eventTablePath,
-				Buffer.from(`${addressing_record.jwt}\n`),
-			);
-
-			i++;
-		}
+		await config.eventStore.write(storage_token, addressing_table, events);
 	} catch (error) {
 		throw new OauthError(
 			400,

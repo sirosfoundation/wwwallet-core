@@ -1,4 +1,8 @@
 import { merge } from "ts-deepmerge";
+import {
+	FileEventStore,
+	type FileEventStoreConfig,
+} from "./adapters/file-event-store";
 import type { Config } from "./config";
 import {
 	type AuthorizationChallengeConfig,
@@ -23,6 +27,11 @@ export class Storage {
 
 	constructor(config: Config) {
 		this.config = merge(defaultConfig, config);
+		if (this.config.events_path && this.config.event_tables_path) {
+			this.config.eventStore =
+				this.config.eventStore ||
+				new FileEventStore(this.config as FileEventStoreConfig);
+		}
 	}
 
 	/**
