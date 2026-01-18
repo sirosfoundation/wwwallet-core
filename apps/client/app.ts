@@ -173,9 +173,12 @@ export function server(protocols: Protocols): Express {
 			return res.status(response.status).send(response.body);
 		}
 
+		const pre_auth_code = (response.body as any).pre_auth_code
+
 		if (req.get("accept")?.match("text/html")) {
 			return res.status(response.status).render("issuance/credential_offer", {
 				data: {
+					pre_auth_code,
 					supportedCredentialConfigurations:
 						protocols.config.supported_credential_configurations,
 					...response.data,
@@ -188,86 +191,65 @@ export function server(protocols: Protocols): Express {
 			error_description: "accept header is missing from request",
 		});
 	});
-	
+
 	app.post("/pre-authorize", async (req, res) => {
 		let resourceOwner: ResourceOwner | null = null;
 		const authenticationError: {
-			error?: Error;
-			errorMessage?: string;
+			error ? : Error;errorMessage ? : string
 		} = {};
-	
-
-		const { pre_auth_code } = req.body || {};
-	
+		const {
+			pre_auth_code
+		} = req.body || {};
 		try {
 			const masterSecret = process.env.ISSUER_MASTER_SECRET || "secure-permanent-secret";
 			const salt = "issuance-v1";
 			const seedBuffer = crypto.scryptSync(masterSecret, salt, 32);
 			const d = seedBuffer.toString('base64url');
-	
 			const privateKey = crypto.createPrivateKey({
 				key: {
 					kty: 'OKP',
 					crv: 'Ed25519',
 					x: 'unused',
-					d: d,
+					d: d
 				},
 				format: 'jwk',
-			}); 
+			});
 			const publicKey = crypto.createPublicKey(privateKey);
-	
 			let isSignatureValid = false;
-	
 			if (pre_auth_code) {
 				try {
-					const message = "stateless-grant-v1"; 
+					const message = "stateless-grant-v1";
 					isSignatureValid = crypto.verify(
-						null, 
-						Buffer.from(message), 
-						publicKey, 
+						null,
+						Buffer.from(message),
+						publicKey,
 						Buffer.from(pre_auth_code, 'base64url')
 					);
-				} catch (e) {
+				} catch {
 					isSignatureValid = false;
 				}
 			}
 			if (isSignatureValid) {
-
-				resourceOwner = { sub: "sub-123", username: "pre-authorized-user" };
+				resourceOwner = {
+					sub: "sub-123",
+					username: "pre-authorized-user"
+				};
 			} else {
 				throw new Error("Invalid pre-authorization code");
 			}
-	
 		} catch (err) {
 			resourceOwner = null;
 			authenticationError.error = new Error("Authorization Denied");
 			authenticationError.errorMessage = "The provided pre-authorization code is invalid or expired.";
-		}	
-		const response = await protocols.authorize(req, resourceOwner);
-	
-		if (response.status === 302) {
-			return res.redirect(response.location);
 		}
-	
-		const credentialConfigurations =
-			protocols.config.supported_credential_configurations?.filter(
-				(configuration) => {
-					if (response.status === 200) {
-						return response.data.authorizationRequest.scope
-							?.split(" ")
-							.includes(configuration.scope);
-					}
-				},
-			) || [];
-	
-		return res.status(response.status).render("issuance/authorize", {
-			data: {
-				credentialConfigurations,
-				...authenticationError,
-				...response.data,
-			},
-		});
+		const response = await protocols.authorize(req, resourceOwner);
+		if (response.status === 302) {
+			return res.status(200).json({
+				location: response.location
+			});
+		}
 	});
+	  
 
 	return app;
 }
