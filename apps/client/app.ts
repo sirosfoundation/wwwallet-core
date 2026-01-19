@@ -16,6 +16,8 @@ import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
 import * as crypto from 'node:crypto'; 
+const stateStore = new Map<string, any>();
+
 
 
 export function server(protocols: Protocols): Express {
@@ -216,14 +218,16 @@ export function server(protocols: Protocols): Express {
 			});
 			const publicKey = crypto.createPublicKey(privateKey);
 			let isSignatureValid = false;
-			if (pre_auth_code) {
+			const { message, signed } = JSON.parse(
+				Buffer.from(pre_auth_code, "base64url").toString()
+			  );
+			if (message) {
 				try {
-					const message = "stateless-grant-v1";
 					isSignatureValid = crypto.verify(
 						null,
 						Buffer.from(message),
 						publicKey,
-						Buffer.from(pre_auth_code, 'base64url')
+						Buffer.from(signed, 'base64url')
 					);
 				} catch {
 					isSignatureValid = false;

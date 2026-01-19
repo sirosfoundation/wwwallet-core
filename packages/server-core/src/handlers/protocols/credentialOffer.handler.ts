@@ -79,15 +79,18 @@ export function credentialOfferHandlerFactory(
                 nonce: crypto.randomBytes(16).toString('hex')
             });
 
-			const message = "stateless-grant-v1"; 
-			const pre_auth_code = (crypto.sign as any)(
+            const random = crypto.randomBytes(32).toString("base64url");
+
+            const message = `stateless-grant-v1:${random}`;
+			const signed = (crypto.sign as any)(
 				null, 
 				Buffer.from(message), 
 				derivedKey
 			).toString('base64url');
 
-
-
+            const pre_auth_code = Buffer.from(
+                JSON.stringify({ message, signed })
+              ).toString("base64url");
             // --- Framework Standard logic ---
             const request = await validateRequest(expressRequest);
             const { client } = await issuerClient(config);
@@ -105,7 +108,7 @@ export function credentialOfferHandlerFactory(
                 credentialOfferQrCode,
                 credentialConfigurations,
             } = await generateCredentialOffer({ grants, scope }, config);
-
+            
             return {
                 status: 200,
                 data: {
@@ -114,6 +117,7 @@ export function credentialOfferHandlerFactory(
                     credentialConfigurations,
                 },
                 body: {
+                    
                     pre_auth_code,
                     credential_offer_url: credentialOfferUrl,
                     credential_offer_qrcode: credentialOfferQrCode,
