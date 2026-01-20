@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../../config";
@@ -10,7 +11,6 @@ import {
 	validateScope,
 } from "../../statements";
 import { credentialOfferHandlerConfigSchema } from "./schemas";
-import crypto from "node:crypto";
 
 const ajv = new Ajv();
 
@@ -74,16 +74,11 @@ export function credentialOfferHandlerFactory(
 				format: "jwk",
 			});
 
-			// 3. Prepare the payload to sign
-			const payload = JSON.stringify({
-				iat: Math.floor(Date.now() / 1000),
-				nonce: crypto.randomBytes(16).toString("hex"),
-			});
-
+			// 3. Prepare the message to sign
 			const random = crypto.randomBytes(32).toString("base64url");
 
 			const message = `stateless-grant-v1:${random}`;
-			const signed = (crypto.sign as any)(
+			const signed = (crypto.sign as unknown as Function)(
 				null,
 				Buffer.from(message),
 				derivedKey,
@@ -99,11 +94,12 @@ export function credentialOfferHandlerFactory(
 			const { grants } = await generateIssuerGrants({ client }, config);
 
 			// 5. Inject the Pre-Auth Grant
-			(grants as any)["urn:ietf:params:oauth:grant-type:pre-authorized_code"] =
-				{
-					"pre-authorized_code": pre_auth_code,
-					user_pin_required: false,
-				};
+			(grants as Record<string, unknown>)[
+				"urn:ietf:params:oauth:grant-type:pre-authorized_code"
+			] = {
+				"pre-authorized_code": pre_auth_code,
+				user_pin_required: false,
+			};
 
 			const {
 				credentialOfferUrl,
@@ -124,8 +120,8 @@ export function credentialOfferHandlerFactory(
 					credential_offer_qrcode: credentialOfferQrCode,
 				},
 			};
-		} catch (error: any) {
-			console.error("Handler Error:", error.message);
+		} catch (error: unknown) {
+			console.error("Handler Error:", (error as Error).message);
 			if (error instanceof OauthError) return error.toResponse();
 			throw error;
 		}

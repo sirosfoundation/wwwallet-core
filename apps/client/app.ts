@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import path from "node:path";
 import {
 	type Protocols,
@@ -15,8 +16,6 @@ import express, { type Express } from "express";
 import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
-import * as crypto from "node:crypto";
-const stateStore = new Map<string, any>();
 
 export function server(protocols: Protocols): Express {
 	const app = express();
@@ -173,7 +172,8 @@ export function server(protocols: Protocols): Express {
 			return res.status(response.status).send(response.body);
 		}
 
-		const pre_auth_code = (response.body as any).pre_auth_code;
+		const pre_auth_code = (response.body as Record<string, string>)
+			.pre_auth_code;
 
 		if (req.get("accept")?.match("text/html")) {
 			return res.status(response.status).render("issuance/credential_offer", {
@@ -242,8 +242,7 @@ export function server(protocols: Protocols): Express {
 		} catch (err) {
 			resourceOwner = null;
 			authenticationError.error = new Error("Authorization Denied");
-			authenticationError.errorMessage =
-				"The provided pre-authorization code is invalid or expired.";
+			authenticationError.errorMessage = (err as Error).message;
 		}
 		const response = await protocols.authorize(req, resourceOwner);
 		if (response.status === 302) {
