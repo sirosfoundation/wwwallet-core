@@ -15,10 +15,8 @@ import express, { type Express } from "express";
 import { engine } from "express-handlebars";
 import Handlebars from "handlebars";
 import morgan from "morgan";
-import * as crypto from 'node:crypto'; 
+import * as crypto from "node:crypto";
 const stateStore = new Map<string, any>();
-
-
 
 export function server(protocols: Protocols): Express {
 	const app = express();
@@ -175,7 +173,7 @@ export function server(protocols: Protocols): Express {
 			return res.status(response.status).send(response.body);
 		}
 
-		const pre_auth_code = (response.body as any).pre_auth_code
+		const pre_auth_code = (response.body as any).pre_auth_code;
 
 		if (req.get("accept")?.match("text/html")) {
 			return res.status(response.status).render("issuance/credential_offer", {
@@ -197,37 +195,37 @@ export function server(protocols: Protocols): Express {
 	app.post("/pre-authorize", async (req, res) => {
 		let resourceOwner: ResourceOwner | null = null;
 		const authenticationError: {
-			error ? : Error;errorMessage ? : string
+			error?: Error;
+			errorMessage?: string;
 		} = {};
-		const {
-			pre_auth_code
-		} = req.body || {};
+		const { pre_auth_code } = req.body || {};
 		try {
-			const masterSecret = process.env.ISSUER_MASTER_SECRET || "secure-permanent-secret";
+			const masterSecret =
+				process.env.ISSUER_MASTER_SECRET || "secure-permanent-secret";
 			const salt = "issuance-v1";
 			const seedBuffer = crypto.scryptSync(masterSecret, salt, 32);
-			const d = seedBuffer.toString('base64url');
+			const d = seedBuffer.toString("base64url");
 			const privateKey = crypto.createPrivateKey({
 				key: {
-					kty: 'OKP',
-					crv: 'Ed25519',
-					x: 'unused',
-					d: d
+					kty: "OKP",
+					crv: "Ed25519",
+					x: "unused",
+					d: d,
 				},
-				format: 'jwk',
+				format: "jwk",
 			});
 			const publicKey = crypto.createPublicKey(privateKey);
 			let isSignatureValid = false;
 			const { message, signed } = JSON.parse(
-				Buffer.from(pre_auth_code, "base64url").toString()
-			  );
+				Buffer.from(pre_auth_code, "base64url").toString(),
+			);
 			if (message) {
 				try {
 					isSignatureValid = crypto.verify(
 						null,
 						Buffer.from(message),
 						publicKey,
-						Buffer.from(signed, 'base64url')
+						Buffer.from(signed, "base64url"),
 					);
 				} catch {
 					isSignatureValid = false;
@@ -236,7 +234,7 @@ export function server(protocols: Protocols): Express {
 			if (isSignatureValid) {
 				resourceOwner = {
 					sub: "sub-123",
-					username: "pre-authorized-user"
+					username: "pre-authorized-user",
 				};
 			} else {
 				throw new Error("Invalid pre-authorization code");
@@ -244,16 +242,16 @@ export function server(protocols: Protocols): Express {
 		} catch (err) {
 			resourceOwner = null;
 			authenticationError.error = new Error("Authorization Denied");
-			authenticationError.errorMessage = "The provided pre-authorization code is invalid or expired.";
+			authenticationError.errorMessage =
+				"The provided pre-authorization code is invalid or expired.";
 		}
 		const response = await protocols.authorize(req, resourceOwner);
 		if (response.status === 302) {
 			return res.status(200).json({
-				location: response.location
+				location: response.location,
 			});
 		}
 	});
-	  
 
 	return app;
 }
