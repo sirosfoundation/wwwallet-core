@@ -23,8 +23,9 @@ export type PushedAuthorizationRequestHandlerConfig = {
 
 type PushedAuthorizationRequest = {
 	response_type: string;
-	client_id: string;
+	client_id?: string;
 	redirect_uri: string;
+	oauth_client_attestation?: string;
 	scope?: string;
 	state?: string;
 	code_challenge?: string;
@@ -53,6 +54,7 @@ export function pushedAuthorizationRequestHandlerFactory(
 				{
 					client_id: request.client_id,
 					redirect_uri: request.redirect_uri,
+					oauth_client_attestation: request.oauth_client_attestation,
 					confidential: false,
 				},
 				config,
@@ -133,14 +135,6 @@ async function validateRequest(
 		throw new OauthError(400, "invalid_request", "response_type is invalid");
 	}
 
-	if (!client_id) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client id is missing from body params",
-		);
-	}
-
 	if (!redirect_uri) {
 		throw new OauthError(
 			400,
@@ -149,10 +143,20 @@ async function validateRequest(
 		);
 	}
 
+	let oauth_client_attestation: string | undefined;
+	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"][0];
+	} else {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"];
+	}
+
 	return {
 		response_type,
 		client_id,
 		redirect_uri,
+		oauth_client_attestation,
 		scope,
 		state,
 		code_challenge,
