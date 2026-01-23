@@ -19,9 +19,10 @@ export type AuthorizationCodeHandlerConfig = {
 
 export type AuthorizationCodeRequest = {
 	grant_type: "authorization_code";
-	client_id: string;
-	client_secret: string;
-	redirect_uri: string;
+	client_id?: string;
+	client_secret?: string;
+	redirect_uri?: string;
+	oauth_client_attestation?: string;
 	code: string;
 	code_verifier: string | undefined;
 };
@@ -44,6 +45,7 @@ export async function handleAuthorizationCode(
 			client_id: request.client_id,
 			client_secret: request.client_secret,
 			redirect_uri: request.redirect_uri,
+			oauth_client_attestation: request.oauth_client_attestation,
 			confidential: false,
 		},
 		config,
@@ -111,20 +113,13 @@ export async function validateAuthorizationCodeRequest(
 		grant_type,
 	} = expressRequest.body;
 
-	if (!client_id) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client id is missing from body parameters",
-		);
-	}
-
-	if (!redirect_uri) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"redirect uri is missing from body parameters",
-		);
+	let oauth_client_attestation: string | undefined;
+	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"][0];
+	} else {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"];
 	}
 
 	if (!code) {
@@ -139,6 +134,7 @@ export async function validateAuthorizationCodeRequest(
 		client_id,
 		client_secret,
 		redirect_uri,
+		oauth_client_attestation,
 		code,
 		code_verifier,
 		grant_type,
