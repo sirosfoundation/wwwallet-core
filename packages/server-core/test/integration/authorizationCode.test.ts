@@ -371,6 +371,23 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with an invalid redirect uri", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://invalid.uri";
+		const code = "code";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_client",
+			error_description: "invalid client credentials",
+		});
+	});
+
 	it("returns an error without code challenge", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";

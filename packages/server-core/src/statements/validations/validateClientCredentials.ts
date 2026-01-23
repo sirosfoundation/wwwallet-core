@@ -55,11 +55,15 @@ export async function validateClientCredentials(
 	}
 
 	if (!confidential && redirect_uri) {
-		client = config.clients.find((client: OauthClient) => {
-			return (
-				client.id === client_id && client.redirect_uris?.includes(redirect_uri)
-			);
-		});
+		client =
+			client ||
+			config.clients.find((current: OauthClient) => {
+				return current.id === client_id;
+			});
+
+		if (!client?.redirect_uris?.includes(redirect_uri)) {
+			throw new OauthError(401, "invalid_client", "invalid client credentials");
+		}
 	}
 
 	if (!confidential && authorization_request) {
