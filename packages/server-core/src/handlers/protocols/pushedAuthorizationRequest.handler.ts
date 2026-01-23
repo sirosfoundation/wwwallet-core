@@ -33,7 +33,7 @@ type PushedAuthorizationRequest = {
 };
 
 export type PushedAuthorizationRequestResponse = {
-	status: 200;
+	status: 201;
 	body: {
 		request_uri: string;
 		expires_in: number;
@@ -79,7 +79,7 @@ export function pushedAuthorizationRequestHandlerFactory(
 			config.logger.business("pushed_authorization", { request_uri });
 
 			return {
-				status: 200,
+				status: 201,
 				body: { request_uri, expires_in },
 			};
 		} catch (error) {

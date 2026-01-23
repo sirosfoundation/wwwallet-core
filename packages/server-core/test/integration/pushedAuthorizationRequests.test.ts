@@ -139,7 +139,7 @@ describe("pushshed authorization request endpoint", () => {
 			.post("/pushed-authorization-request")
 			.send({ response_type, client_id, redirect_uri, issuer_state });
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
 			protocols.config.pushed_authorization_request_ttl,
 		);
@@ -170,7 +170,7 @@ describe("pushshed authorization request endpoint", () => {
 			.post("/pushed-authorization-request")
 			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
 			protocols.config.pushed_authorization_request_ttl,
 		);
