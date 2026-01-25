@@ -12,37 +12,6 @@ describe("preauthorized code - token", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client id is missing from body parameters",
-		});
-	});
-
-	it("returns an error with a client id", async () => {
-		const grant_type = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
-		const client_id = "id";
-
-		const response = await request(app)
-			.post("/token")
-			.send({ grant_type, client_id });
-
-		expect(response.status).toBe(400);
-		expect(response.body).to.deep.eq({
-			error: "invalid_request",
-			error_description: "redirect uri is missing from body parameters",
-		});
-	});
-
-	it("returns an error with a redirect uri", async () => {
-		const grant_type = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
-		const client_id = "id";
-		const redirect_uri = "http://redirect.uri";
-
-		const response = await request(app)
-			.post("/token")
-			.send({ grant_type, client_id, redirect_uri });
-
-		expect(response.status).toBe(400);
-		expect(response.body).to.deep.eq({
-			error: "invalid_request",
 			error_description: "pre-authorized_code is missing from body parameters",
 		});
 	});
@@ -64,6 +33,41 @@ describe("preauthorized code - token", () => {
 		expect(response.body).to.deep.eq({
 			error: "invalid_client",
 			error_description: "invalid client credentials",
+		});
+	});
+
+	it("returns an error with invalid oauth client attestation", async () => {
+		const grant_type = "urn:ietf:params:oauth:grant-type:pre-authorized_code";
+		const oauth_client_attestation = "invalid";
+		const sub = "sub";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const preauthorized_code = await new EncryptJWT({
+			token_type: "preauthorized_code",
+			sub,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({
+				grant_type,
+				"pre-authorized_code": preauthorized_code,
+			});
+
+		expect(response.status).toBe(401);
+		expect(response.body).deep.eq({
+			error: "invalid_client",
+			error_description:
+				"oauth client attestation does not match any known client",
 		});
 	});
 
@@ -163,6 +167,8 @@ describe("preauthorized code - token", () => {
 		);
 		expect(payload.sub).to.eq(sub);
 	});
+
+	it.skip("returns a token with a valid oauth client attestation");
 
 	it("returns a token with a scope", async () => {
 		const scope = "scope";

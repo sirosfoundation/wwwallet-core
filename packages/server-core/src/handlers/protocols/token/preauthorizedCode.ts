@@ -17,9 +17,10 @@ export type PreauthorizedCodeHandlerConfig = {
 
 export type PreauthorizedCodeRequest = {
 	grant_type: "urn:ietf:params:oauth:grant-type:pre-authorized_code";
-	client_id: string;
-	client_secret: string;
-	redirect_uri: string;
+	client_id?: string;
+	client_secret?: string;
+	redirect_uri?: string;
+	oauth_client_attestation?: string;
 	preauthorized_code: string;
 };
 
@@ -41,6 +42,7 @@ export async function handlePreauthorizedCode(
 			client_id: request.client_id,
 			client_secret: request.client_secret,
 			redirect_uri: request.redirect_uri,
+			oauth_client_attestation: request.oauth_client_attestation,
 			confidential: false,
 		},
 		config,
@@ -97,20 +99,13 @@ export async function validatePreauthorizedCodeRequest(
 	const { client_id, client_secret, redirect_uri, grant_type } =
 		expressRequest.body;
 
-	if (!client_id) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"client id is missing from body parameters",
-		);
-	}
-
-	if (!redirect_uri) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"redirect uri is missing from body parameters",
-		);
+	let oauth_client_attestation: string | undefined;
+	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"][0];
+	} else {
+		oauth_client_attestation =
+			expressRequest.headers["oauth-client-attestation"];
 	}
 
 	const preauthorized_code = expressRequest.body["pre-authorized_code"];
@@ -126,6 +121,7 @@ export async function validatePreauthorizedCodeRequest(
 		client_id,
 		client_secret,
 		redirect_uri,
+		oauth_client_attestation,
 		preauthorized_code,
 		grant_type,
 	};
