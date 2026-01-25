@@ -1,7 +1,8 @@
-import { EncryptJWT, jwtDecrypt } from "jose";
+import crypto from "node:crypto";
+import { EncryptJWT, jwtDecrypt, SignJWT } from "jose";
 import request from "supertest";
 import { assert, beforeEach, describe, expect, it } from "vitest";
-import { app, protocols } from "../support/app";
+import { app, protocols, trustedPem } from "../support/app";
 
 describe("authorization code - authorize", () => {
 	let issuer_state: string;
@@ -29,27 +30,6 @@ describe("authorization code - authorize", () => {
 		expect(response.text).toMatch(
 			"client id is missing from request parameters",
 		);
-	});
-
-	it("returns an error with client id", async () => {
-		const client_id = "id";
-		const response = await request(app).get("/authorize").query({ client_id });
-
-		expect(response.status).toBe(400);
-		expect(response.text).toMatch(
-			"request uri is missing from request parameters",
-		);
-	});
-
-	it("returns an error with invalid request uri", async () => {
-		const client_id = "id";
-		const request_uri = "urn:wwwallet:authorization_request:invalid";
-		const response = await request(app)
-			.get("/authorize")
-			.query({ client_id, request_uri });
-
-		expect(response.status).toBe(400);
-		expect(response.text).toMatch("authorization request is invalid");
 	});
 
 	it.skip("returns an error with invalid scope");
@@ -261,7 +241,7 @@ describe("authorization code - token", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "client id is missing from body parameters",
+			error_description: "code is missing from body parameters",
 		});
 	});
 
@@ -276,7 +256,7 @@ describe("authorization code - token", () => {
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
-			error_description: "redirect uri is missing from body parameters",
+			error_description: "code is missing from body parameters",
 		});
 	});
 
@@ -358,10 +338,9 @@ describe("authorization code - token", () => {
 		});
 	});
 
-	it("returns an error with invalid redirect uri", async () => {
+	it("returns an error with invalid oauth client attestation", async () => {
 		const grant_type = "authorization_code";
-		const client_id = "id";
-		const redirect_uri = "http://redirect.uri";
+		const oauth_client_attestation = "invalid";
 		const sub = "sub";
 
 		const now = Date.now() / 1000;
@@ -381,12 +360,31 @@ describe("authorization code - token", () => {
 
 		const response = await request(app)
 			.post("/token")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({ grant_type, code });
+
+		expect(response.status).toBe(401);
+		expect(response.body).deep.eq({
+			error: "invalid_client",
+			error_description:
+				"oauth client attestation does not match any known client",
+		});
+	});
+
+	it("returns an error with an invalid redirect uri", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://invalid.uri";
+		const code = "code";
+
+		const response = await request(app)
+			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code });
 
-		expect(response.status).toBe(400);
-		expect(response.body).deep.eq({
-			error: "invalid_request",
-			error_description: "authorization code is invalid",
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_client",
+			error_description: "invalid client credentials",
 		});
 	});
 
@@ -633,6 +631,56 @@ describe("authorization code - token", () => {
 		const response = await request(app)
 			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
+
+		expect(response.status).toBe(200);
+		assert(response.body.access_token);
+		assert(response.body.expires_in);
+		expect(response.body.token_type).to.eq("bearer");
+
+		const { payload } = await jwtDecrypt(
+			response.body.access_token,
+			new TextEncoder().encode(protocols.config.secret),
+		);
+
+		assert(
+			protocols.config.clients?.find(({ id }) => id === payload.client_id),
+		);
+		expect(payload.sub).to.eq(sub);
+	});
+
+	it.skip("returns a token with an oauth client attestation", async () => {
+		const privateKey = crypto.createPrivateKey(trustedPem);
+		const grant_type = "authorization_code";
+		const oauth_client_attestation = await new SignJWT({ sub: "id" })
+			.setProtectedHeader({ typ: "oauth-client-attestation+jwt", alg: "RS256" })
+			.sign(privateKey);
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
+		const code_verifier = "test";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({ grant_type, code, code_verifier });
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);

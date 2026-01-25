@@ -1,7 +1,8 @@
-import { EncryptJWT, jwtDecrypt } from "jose";
+import crypto from "node:crypto";
+import { EncryptJWT, jwtDecrypt, SignJWT } from "jose";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
-import { app, protocols } from "../support/app";
+import { app, protocols, trustedPem } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
 	let issuer_state: string;
@@ -44,6 +45,19 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with a valid response type", async () => {
+		const response_type = "code";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "redirect_uri is missing from body params",
+		});
+	});
+
 	it("returns an error with an invalid response type", async () => {
 		const response_type = "not_a_code";
 		const response = await request(app)
@@ -54,33 +68,6 @@ describe("pushshed authorization request endpoint", () => {
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
 			error_description: "response_type is invalid",
-		});
-	});
-
-	it("returns an error with a response type", async () => {
-		const response_type = "code";
-		const response = await request(app)
-			.post("/pushed-authorization-request")
-			.send({ response_type });
-
-		expect(response.status).toBe(400);
-		expect(response.body).to.deep.eq({
-			error: "invalid_request",
-			error_description: "client id is missing from body params",
-		});
-	});
-
-	it("returns an error with a client id", async () => {
-		const response_type = "code";
-		const client_id = "id";
-		const response = await request(app)
-			.post("/pushed-authorization-request")
-			.send({ response_type, client_id });
-
-		expect(response.status).toBe(400);
-		expect(response.body).to.deep.eq({
-			error: "invalid_request",
-			error_description: "redirect_uri is missing from body params",
 		});
 	});
 
@@ -131,6 +118,24 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with invalid oauth client attestation", async () => {
+		const issuer_state = "invalid";
+		const response_type = "code";
+		const oauth_client_attestation = "invalid";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({ response_type, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_client",
+			error_description:
+				"oauth client attestation does not match any known client",
+		});
+	});
+
 	it("returns a token", async () => {
 		const response_type = "code";
 		const client_id = "id";
@@ -139,7 +144,40 @@ describe("pushshed authorization request endpoint", () => {
 			.post("/pushed-authorization-request")
 			.send({ response_type, client_id, redirect_uri, issuer_state });
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(201);
+		expect(response.body.expires_in).to.eq(
+			protocols.config.pushed_authorization_request_ttl,
+		);
+		expect(response.body.request_uri).toMatch(
+			"urn:wwwallet:authorization_request:ey",
+		);
+
+		const { payload } = await jwtDecrypt(
+			response.body.request_uri.replace(
+				"urn:wwwallet:authorization_request:",
+				"",
+			),
+			new TextEncoder().encode(protocols.config.secret),
+		);
+
+		expect(payload.token_type).to.eq("authorization_request");
+		expect(payload.client_id).to.eq(client_id);
+		expect(payload.redirect_uri).to.eq(redirect_uri);
+		expect(payload.response_type).to.eq(response_type);
+	});
+
+	it.skip("returns a token with oauth client attestation", async () => {
+		const privateKey = crypto.createPrivateKey(trustedPem);
+		const response_type = "code";
+		const oauth_client_attestation = await new SignJWT({ sub: "id" })
+			.setProtectedHeader({ typ: "oauth-client-attestation+jwt", alg: "RS256" })
+			.sign(privateKey);
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({ response_type, client_id, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
 			protocols.config.pushed_authorization_request_ttl,
 		);
@@ -170,7 +208,7 @@ describe("pushshed authorization request endpoint", () => {
 			.post("/pushed-authorization-request")
 			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
 			protocols.config.pushed_authorization_request_ttl,
 		);

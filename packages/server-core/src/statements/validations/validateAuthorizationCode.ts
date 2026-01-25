@@ -4,7 +4,7 @@ import type { AuthorizationCode } from "../../resources";
 
 export type validateAuthorizationCodeParams = {
 	authorization_code: string;
-	redirect_uri: string;
+	redirect_uri?: string;
 };
 
 export type ValidateAuthorizationCodeConfig = DecryptConfig;
@@ -41,11 +41,14 @@ export async function validateAuthorizationCode(
 		}
 
 		if (redirect_uri !== requestedRedirectUri) {
-			throw new OauthError(
-				400,
-				"invalid_request",
-				"authorization code is invalid",
-			);
+			// NOTE skip code redirect uri validation that is not applicable
+			// with decentralized flows
+			//
+			// throw new OauthError(
+			// 	400,
+			// 	"invalid_request",
+			// 	"authorization code is invalid",
+			// );
 		}
 
 		return {

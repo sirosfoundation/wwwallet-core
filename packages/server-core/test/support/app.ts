@@ -311,6 +311,14 @@ L3rT4w==
 	],
 };
 
+export const trustedPem = `
+-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgtfEWwPl5+13fqLPw
+j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
+7xvm/X6v3xyjPjRk/mt7J14j8FO1+46zhVscMo2Xnmp+NPr8ehstOlX6
+-----END PRIVATE KEY-----
+`;
+
 export const protocols = new Protocols(config);
 
 export const app = server(protocols);

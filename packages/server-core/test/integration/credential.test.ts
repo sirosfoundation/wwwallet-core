@@ -682,7 +682,7 @@ describe("credential endpoint", () => {
 			let dpop: string;
 			let proof: string;
 			beforeEach(async () => {
-				const secret = new TextEncoder().encode(core.config.secret);
+				const secret = new TextEncoder().encode(protocols.config.secret);
 				const now = Date.now() / 1000;
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
 				const ath = crypto
@@ -705,14 +705,14 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 				const c_nonce = await new EncryptJWT({
 					token_type: "c_nonce",
-					sub: core.config.issuer_client?.id,
+					sub: protocols.config.issuer_client?.id,
 				})
 					.setProtectedHeader({
 						alg: "dir",
-						enc: core.config.token_encryption || "",
+						enc: protocols.config.token_encryption || "",
 					})
 					.setIssuedAt()
-					.setExpirationTime(now + (core.config.access_token_ttl || 0))
+					.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 					.encrypt(secret);
 				const jwk = await exportJWK(publicKey);
 				proof = await new SignJWT({ nonce: c_nonce })
@@ -763,7 +763,7 @@ describe("credential endpoint", () => {
 			let dpop: string;
 			let proof: string;
 			beforeEach(async () => {
-				const secret = new TextEncoder().encode(core.config.secret);
+				const secret = new TextEncoder().encode(protocols.config.secret);
 				const now = Date.now() / 1000;
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
 				const ath = crypto
@@ -786,14 +786,14 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 				const c_nonce = await new EncryptJWT({
 					token_type: "c_nonce",
-					sub: core.config.issuer_client?.id,
+					sub: protocols.config.issuer_client?.id,
 				})
 					.setProtectedHeader({
 						alg: "dir",
-						enc: core.config.token_encryption || "",
+						enc: protocols.config.token_encryption || "",
 					})
 					.setIssuedAt()
-					.setExpirationTime(now + (core.config.access_token_ttl || 0))
+					.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
 					.encrypt(secret);
 				const jwk = await exportJWK(publicKey);
 				proof = await new SignJWT({ nonce: c_nonce })
