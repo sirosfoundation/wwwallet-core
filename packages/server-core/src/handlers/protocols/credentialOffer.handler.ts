@@ -57,7 +57,7 @@ export function credentialOfferHandlerFactory(
 
 			const { scope } = await validateScope(request.scope, { client }, config);
 
-			const { grants } = await generateIssuerGrants({ client }, config);
+			const { grants } = await generateIssuerGrants({ client, scope }, config);
 
 			const {
 				credentialOfferUrl,
