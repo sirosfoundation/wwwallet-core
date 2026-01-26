@@ -6,7 +6,8 @@ export type FetchAccessTokenParams = {
 	client: OauthClient;
 	client_state: ClientState;
 	issuer_metadata: IssuerMetadata;
-	code: string;
+	code?: string;
+	preauthorized_code?: string;
 	dpop: string;
 };
 
@@ -23,7 +24,14 @@ type TokenResponse = {
 };
 
 export async function fetchAccessToken(
-	{ client, client_state, issuer_metadata, code, dpop }: FetchAccessTokenParams,
+	{
+		client,
+		client_state,
+		issuer_metadata,
+		code,
+		preauthorized_code,
+		dpop,
+	}: FetchAccessTokenParams,
 	config: FetchAccessTokenConfig,
 ) {
 	try {
@@ -34,24 +42,45 @@ export async function fetchAccessToken(
 			);
 		}
 
+		const tokenRequestBody: {
+			grant_type?: string;
+			client_id: string;
+			client_secret: string;
+			redirect_uri: string;
+			code_verifier: string;
+			code?: string;
+			"pre-authorized_code"?: string;
+		} = {
+			client_id: client.client_id,
+			client_secret: client.client_secret,
+			redirect_uri: config.wallet_callback_url,
+			code_verifier: client_state.code_verifier,
+		};
+
+		if (code) {
+			tokenRequestBody.grant_type = "authorization_code";
+			tokenRequestBody.code = code;
+		}
+
+		if (preauthorized_code) {
+			tokenRequestBody.grant_type =
+				"urn:ietf:params:oauth:grant-type:pre-authorized_code";
+			tokenRequestBody["pre-authorized_code"] = preauthorized_code;
+		}
+
+		if (!tokenRequestBody.grant_type) {
+			throw new OauthError("invalid_request", "grant type not supported", {
+				request: tokenRequestBody,
+			});
+		}
+
 		const { token_type, access_token, expires_in, refresh_token } =
 			await config.httpClient
-				.post<TokenResponse>(
-					issuer_metadata.token_endpoint,
-					{
-						grant_type: "authorization_code",
-						code,
-						client_id: client.client_id,
-						client_secret: client.client_secret,
-						redirect_uri: config.wallet_callback_url,
-						code_verifier: client_state.code_verifier,
+				.post<TokenResponse>(issuer_metadata.token_endpoint, tokenRequestBody, {
+					headers: {
+						DPoP: dpop,
 					},
-					{
-						headers: {
-							DPoP: dpop,
-						},
-					},
-				)
+				})
 				.then(({ data }) => data);
 
 		return {
