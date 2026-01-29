@@ -70,6 +70,36 @@ describe("credential offer endpoint", () => {
 		expect(payload.sub).to.eq(protocols.config.issuer_client?.id);
 	});
 
+	it("returns a credential offer (preauthorized)", async () => {
+		const scope = "preauthorized:scope";
+		const response = await request(app)
+			.get(`/offer/${scope}`)
+			.set("Accept", "application/json");
+
+		expect(response.status).toBe(200);
+		expect(response.body.credential_offer_qrcode).toMatch(
+			"data:image/png;base64",
+		);
+		expect(response.body.credential_offer_url).toMatch(
+			protocols.config.wallet_url || "",
+		);
+		expect(response.body.credential_offer_url).toMatch(
+			encodeURIComponent(protocols.config.issuer_url || ""),
+		);
+		expect(response.body.credential_offer_url).toMatch("preauthorized"); // credential_configuration_id
+		expect(response.body.credential_offer_url).toMatch("pre-authorized_code"); // credential_configuration_id
+		const [_all, preauthorized_code] =
+			/pre-authorized_code%22%3A%22([^%]+)%22/.exec(
+				response.body.credential_offer_url,
+			) || [""];
+
+		const { payload } = await jwtDecrypt(
+			preauthorized_code,
+			new TextEncoder().encode(protocols.config.secret),
+		);
+		expect(payload.token_type).to.eq("preauthorized_code");
+	});
+
 	it("returns a credential offer (mso_mdoc)", async () => {
 		const scope = "full:scope:mso_mdoc";
 		const response = await request(app)

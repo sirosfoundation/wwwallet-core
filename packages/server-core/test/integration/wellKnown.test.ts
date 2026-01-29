@@ -25,6 +25,7 @@ describe("well-known endpoints", () => {
 			scopes_supported: [
 				"not_found:scope",
 				"full:scope",
+				"preauthorized:scope",
 				"deferred:scope",
 				"full:scope:mso_mdoc",
 				"client:scope",
@@ -68,6 +69,34 @@ describe("well-known endpoints", () => {
 								uri: "http://background.uri",
 							},
 							description: "A full credential for testing purposes",
+							locale: "en-US",
+							name: "Full",
+							text_color: "#ffffff",
+						},
+					],
+					credential_signing_alg_values_supported: ["ES256"],
+					cryptographic_binding_methods_supported: ["jwk"],
+					proof_types_supported: {
+						attestation: {
+							key_attestations_required: {},
+							proof_signing_alg_values_supported: ["ES256"],
+						},
+						jwt: {
+							proof_signing_alg_values_supported: ["ES256"],
+						},
+					},
+				},
+				preauthorized: {
+					format: "dc+sd-jwt",
+					vct: "urn:test:preauthorized",
+					scope: "preauthorized:scope",
+					display: [
+						{
+							background_color: "#00246b",
+							background_image: {
+								uri: "http://background.uri",
+							},
+							description: "A preauthorized credential for testing purposes",
 							locale: "en-US",
 							name: "Full",
 							text_color: "#ffffff",
