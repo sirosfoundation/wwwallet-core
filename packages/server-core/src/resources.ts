@@ -23,6 +23,7 @@ export type OauthClient = {
 
 export type SupportedCredentialConfiguration = {
 	deferred?: boolean;
+	preauthorized?: boolean;
 	credential_configuration_id: string;
 	label?: string;
 	scope: string;
@@ -61,12 +62,6 @@ export type CredentialConfiguration = {
 
 export type OauthScope = string;
 
-export type IssuerGrants = {
-	authorization_code: {
-		issuer_state: string;
-	};
-};
-
 export type ResourceOwner = {
 	sub: string | null;
 	username?: string;
@@ -80,7 +75,7 @@ export type ResourceOwnerData = {
 export type CredentialOffer = {
 	credential_issuer: string;
 	credential_configuration_ids: Array<string>;
-	grants: IssuerGrants;
+	grants: Grants;
 };
 
 export type Claims = {
@@ -196,5 +191,8 @@ export type IssuerMetadata = OpenidCredentialIssuer & OauthAuthorizationServer;
 export type Grants = {
 	authorization_code?: {
 		issuer_state?: string;
+	};
+	"urn:ietf:params:oauth:grant-type:pre-authorized_code"?: {
+		"pre-authorized_code": string;
 	};
 };
