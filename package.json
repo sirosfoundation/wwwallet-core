@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@tsconfig/node22": "^22.0.2",
 		"@types/qrcode": "^1.5.5",
+		"js-yaml": "3.14.2",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.8.3"
 	},
