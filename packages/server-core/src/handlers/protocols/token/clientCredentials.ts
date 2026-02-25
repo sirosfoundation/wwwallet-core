@@ -51,7 +51,7 @@ export async function handleClientCredentials(
 	);
 
 	const { access_token, expires_in } = await generateAccessToken(
-		{ client, scope },
+		{ client, scope, grant_type: request.grant_type },
 		config,
 	);
 

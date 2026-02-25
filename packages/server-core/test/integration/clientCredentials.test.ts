@@ -147,6 +147,7 @@ describe("client credentials flow", () => {
 			new TextEncoder().encode(protocols.config.secret),
 		);
 
+		expect(payload.grant_type).to.eq("client_credentials");
 		expect(payload.scope).to.eq(scope);
 		assert(
 			protocols.config.clients?.find(({ id }) => id === payload.client_id),

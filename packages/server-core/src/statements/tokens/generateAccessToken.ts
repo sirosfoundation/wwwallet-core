@@ -6,6 +6,7 @@ export type GenerateAccessTokenParams = {
 	client: OauthClient;
 	scope: OauthScope;
 	sub?: string;
+	grant_type: string;
 };
 
 export type GenerateAccessTokenConfig = {
@@ -20,6 +21,7 @@ export async function generateAccessToken(
 		client,
 		sub: requestedSub,
 		scope,
+		grant_type,
 	}: GenerateAccessTokenParams,
 	config: GenerateAccessTokenConfig,
 ) {
@@ -30,6 +32,7 @@ export async function generateAccessToken(
 
 	const access_token = await new EncryptJWT({
 		previous_code: authorization_code,
+		grant_type,
 		token_type: "access_token",
 		client_id: client.id,
 		sub,

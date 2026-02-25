@@ -80,6 +80,7 @@ export async function handleAuthorizationCode(
 			client,
 			scope,
 			sub,
+			grant_type: request.grant_type,
 		},
 		config,
 	);
