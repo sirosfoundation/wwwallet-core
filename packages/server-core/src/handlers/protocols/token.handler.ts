@@ -29,6 +29,7 @@ export type TokenResponse = {
 		access_token: string;
 		expires_in: number;
 		token_type: "bearer";
+		id_token?: string;
 	};
 };
 

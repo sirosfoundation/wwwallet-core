@@ -21,6 +21,8 @@ export const authorizeHandlerConfigSchema = {
 			},
 		},
 		authorization_code_ttl: { type: "number" },
+		id_token_ttl: { type: "number" },
+		issuer_url: { type: "string" },
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },
 		token_encryption: { type: "string" },
 	},

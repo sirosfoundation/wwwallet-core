@@ -22,6 +22,7 @@ export async function validateAuthorizationCode(
 			payload: {
 				token_type,
 				redirect_uri,
+				nonce,
 				code_challenge,
 				code_challenge_method,
 				sub,
@@ -53,6 +54,7 @@ export async function validateAuthorizationCode(
 
 		return {
 			authorization_code,
+			nonce,
 			code_challenge,
 			code_challenge_method,
 			sub,

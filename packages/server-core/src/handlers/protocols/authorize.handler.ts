@@ -8,8 +8,10 @@ import {
 	authorizationCodeRedirection,
 	type GenerateAccessTokenConfig,
 	type GenerateAuthorizationCodeConfig,
+	type GenerateIdTokenConfig,
 	generateAccessToken,
 	generateAuthorizationCode,
+	generateIdToken,
 	type HybridGrantRedirectionConfig,
 	hybridGrantRedirection,
 	type ImplicitGrantRedirectionConfig,
@@ -41,6 +43,7 @@ export type AuthorizeHandlerConfig = {
 	ValidateResourceOwnerConfig &
 	GenerateAccessTokenConfig &
 	GenerateAuthorizationCodeConfig &
+	GenerateIdTokenConfig &
 	AuthorizationCodeRedirectionConfig &
 	HybridGrantRedirectionConfig &
 	ImplicitGrantRedirectionConfig;
@@ -100,6 +103,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				{ client },
 				config,
 			);
+			const isOpenidScopeRequested = scope.split(" ").includes("openid");
 
 			const { issuer_state: _issuer_state } = await validateIssuerState(
 				{
@@ -165,12 +169,24 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 					},
 					config,
 				);
+				const { id_token } = isOpenidScopeRequested
+					? await generateIdToken(
+							{
+								client_id: client.id,
+								sub: resource_owner.sub || "",
+								nonce: authorization_request.nonce,
+								access_token,
+							},
+							config,
+						)
+					: { id_token: undefined };
 
 				const { location } = await implicitGrantRedirection(
 					{
 						authorization_request,
 						access_token,
 						expires_in,
+						id_token,
 					},
 					config,
 				);
@@ -205,6 +221,18 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 					},
 					config,
 				);
+				const { id_token } = isOpenidScopeRequested
+					? await generateIdToken(
+							{
+								client_id: client.id,
+								sub: resource_owner.sub || "",
+								nonce: authorization_request.nonce,
+								access_token,
+								authorization_code,
+							},
+							config,
+						)
+					: { id_token: undefined };
 
 				const { location } = await hybridGrantRedirection(
 					{
@@ -212,6 +240,7 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 						authorization_code,
 						access_token,
 						expires_in,
+						id_token,
 					},
 					config,
 				);

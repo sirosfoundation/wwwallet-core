@@ -13,21 +13,27 @@ import {
 	type NonceHandlerConfig,
 	nonceHandlerFactory,
 	type OauthAuthorizationServerHandlerConfig,
+	type OpenidConfigurationHandlerConfig,
 	type OpenidCredentialIssuerHandlerConfig,
 	oauthAuthorizationServerHandlerFactory,
+	openidConfigurationHandlerFactory,
 	openidCredentialIssuerHandlerFactory,
 	type PushedAuthorizationRequestHandlerConfig,
 	pushedAuthorizationRequestHandlerFactory,
 	type TokenHandlerConfig,
 	tokenHandlerFactory,
+	type UserinfoHandlerConfig,
+	userinfoHandlerFactory,
 	validateAuthorizeHandlerConfig,
 	validateCredentialHandlerConfig,
 	validateCredentialOfferHandlerConfig,
 	validateDeferredCredentialHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidConfigurationHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
+	validateUserinfoHandlerConfig,
 } from "./handlers";
 
 const SECRET_MEMORY = 10;
@@ -66,6 +72,17 @@ export class Protocols {
 
 		return openidCredentialIssuerHandlerFactory(
 			this.config as OpenidCredentialIssuerHandlerConfig,
+		);
+	}
+
+	/**
+	 * Handle well-known openid-configuration requests
+	 */
+	get openidConfiguration() {
+		validateOpenidConfigurationHandlerConfig(this.config);
+
+		return openidConfigurationHandlerFactory(
+			this.config as OpenidConfigurationHandlerConfig,
 		);
 	}
 
@@ -114,6 +131,7 @@ export class Protocols {
 	 * - {@link "server-core/src/statements".generateAuthorizationCode | generateAuthorizationCode}
 	 * - {@link "server-core/src/statements".authorizationCodeRedirection | authorizationCodeRedirection}
 	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 * - {@link "server-core/src/statements".generateIdToken | generateIdToken}
 	 * - {@link "server-core/src/statements".implicitGrantRedirection | implicitGrantRedirection}
 	 * - {@link "server-core/src/statements".hybridGrantRedirection | hybridGrantRedirection}
 	 */
@@ -138,11 +156,25 @@ export class Protocols {
 	 * - {@link "server-core/src/statements".validateAuthorizationCode | validateAuthorizationCode}
 	 * - {@link "server-core/src/statements".validateCodeVerifier | validateCodeVerifier}
 	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 * - {@link "server-core/src/statements".generateIdToken | generateIdToken}
 	 */
 	get token() {
 		validateTokenHandlerConfig(this.config);
 
 		return tokenHandlerFactory(this.config as TokenHandlerConfig);
+	}
+
+	/**
+	 * Handle userinfo requests
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "server-core/src/statements".validateAccessToken | validateAccessToken}
+	 */
+	get userinfo() {
+		validateUserinfoHandlerConfig(this.config);
+
+		return userinfoHandlerFactory(this.config as UserinfoHandlerConfig);
 	}
 
 	/**
@@ -231,6 +263,7 @@ export const defaultConfig = {
 	},
 	clients: [],
 	access_token_ttl: 60,
+	id_token_ttl: 60,
 	pushed_authorization_request_ttl: 300,
 	authorization_code_ttl: 60,
 	issuer_state_ttl: 300,

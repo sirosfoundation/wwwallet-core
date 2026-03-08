@@ -31,6 +31,7 @@ type PushedAuthorizationRequest = {
 	oauth_client_attestation?: string;
 	scope?: string;
 	state?: string;
+	nonce?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
 	issuer_state: string;
@@ -129,6 +130,7 @@ async function validateRequest(
 		redirect_uri,
 		scope,
 		state,
+		nonce,
 		code_challenge,
 		code_challenge_method,
 		issuer_state,
@@ -163,6 +165,7 @@ async function validateRequest(
 		oauth_client_attestation,
 		scope,
 		state,
+		nonce,
 		code_challenge,
 		code_challenge_method,
 		issuer_state,

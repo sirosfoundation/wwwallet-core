@@ -3,7 +3,9 @@ import type { Logger } from "../../../config";
 import { OauthError } from "../../../errors";
 import {
 	type GenerateAccessTokenConfig,
+	type GenerateIdTokenConfig,
 	generateAccessToken,
+	generateIdToken,
 	type ValidateAuthorizationCodeConfig,
 	type ValidateClientCredentialsConfig,
 	validateAuthorizationCode,
@@ -15,7 +17,8 @@ export type AuthorizationCodeHandlerConfig = {
 	logger: Logger;
 } & ValidateClientCredentialsConfig &
 	ValidateAuthorizationCodeConfig &
-	GenerateAccessTokenConfig;
+	GenerateAccessTokenConfig &
+	GenerateIdTokenConfig;
 
 export type AuthorizationCodeRequest = {
 	grant_type: "authorization_code";
@@ -33,6 +36,7 @@ export type AuthorizationCodeResponse = {
 		access_token: string;
 		expires_in: number;
 		token_type: "bearer";
+		id_token?: string;
 	};
 };
 
@@ -53,6 +57,7 @@ export async function handleAuthorizationCode(
 
 	const {
 		authorization_code,
+		nonce,
 		code_challenge,
 		code_challenge_method,
 		sub,
@@ -78,11 +83,23 @@ export async function handleAuthorizationCode(
 		{
 			authorization_code,
 			client,
-			scope,
+			scope: scope || "",
 			sub,
 		},
 		config,
 	);
+	const isOpenidScopeRequested = (scope || "").split(" ").includes("openid");
+	const { id_token } = isOpenidScopeRequested
+		? await generateIdToken(
+				{
+					client_id: client.id,
+					sub,
+					nonce,
+					access_token,
+				},
+				config,
+			)
+		: { id_token: undefined };
 
 	config.logger.business("authorization_code", {
 		client_id: client.id,
@@ -97,6 +114,7 @@ export async function handleAuthorizationCode(
 			access_token,
 			expires_in,
 			token_type: "bearer",
+			id_token,
 		},
 	};
 }

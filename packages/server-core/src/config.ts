@@ -21,7 +21,9 @@ export type BusinessEvent =
 	| "pushed_authorization_error"
 	| "client_credentials"
 	| "authorization_code"
-	| "token_error";
+	| "token_error"
+	| "userinfo"
+	| "userinfo_error";
 
 export interface Logger {
 	business: (
@@ -79,6 +81,7 @@ export type Config = {
 	pushed_authorization_request_ttl?: number;
 	authorization_code_ttl?: number;
 	issuer_state_ttl?: number;
+	id_token_ttl?: number;
 	secret_ttl?: number;
 	token_encryption?: string;
 	secret?: string;

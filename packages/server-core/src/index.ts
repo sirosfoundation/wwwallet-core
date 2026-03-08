@@ -7,9 +7,11 @@ export type {
 	CredentialResponse,
 	NonceResponse,
 	OauthAuthorizationServerResponse,
+	OpenidConfigurationResponse,
 	OpenidCredentialIssuerResponse,
 	PushedAuthorizationRequestResponse,
 	TokenResponse,
+	UserinfoResponse,
 } from "./handlers";
 export {
 	validateAuthorizeHandlerConfig,
@@ -17,9 +19,11 @@ export {
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidConfigurationHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
+	validateUserinfoHandlerConfig,
 } from "./handlers";
 export * from "./protocols";
 export * from "./resources";

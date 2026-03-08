@@ -37,6 +37,7 @@ export async function generateAuthorizationCode(
 	const authorization_code = await new EncryptJWT({
 		token_type: "authorization_code",
 		redirect_uri: authorization_request.redirect_uri,
+		nonce: authorization_request.nonce,
 		code_challenge: authorization_request.code_challenge,
 		code_challenge_method: authorization_request.code_challenge_method,
 		sub: resource_owner.sub,
