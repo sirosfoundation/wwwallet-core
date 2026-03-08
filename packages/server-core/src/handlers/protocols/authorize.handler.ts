@@ -6,17 +6,23 @@ import type { AuthorizationRequest, ResourceOwner } from "../../resources";
 import {
 	type AuthorizationCodeRedirectionConfig,
 	authorizationCodeRedirection,
+	type GenerateAccessTokenConfig,
 	type GenerateAuthorizationCodeConfig,
+	generateAccessToken,
 	generateAuthorizationCode,
+	type ImplicitGrantRedirectionConfig,
+	implicitGrantRedirection,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
 	type ValidateRequestUriConfig,
 	type ValidateResourceOwnerConfig,
+	type ValidateResponseTypesConfig,
 	type ValidateScopeConfig,
 	validateClientCredentials,
 	validateIssuerState,
 	validateRequestUri,
 	validateResourceOwner,
+	validateResponseTypes,
 	validateScope,
 } from "../../statements";
 import { authorizeHandlerConfigSchema } from "./schemas";
@@ -29,9 +35,12 @@ export type AuthorizeHandlerConfig = {
 	ValidateClientCredentialsConfig &
 	ValidateScopeConfig &
 	ValidateIssuerStateConfig &
+	ValidateResponseTypesConfig &
 	ValidateResourceOwnerConfig &
+	GenerateAccessTokenConfig &
 	GenerateAuthorizationCodeConfig &
-	AuthorizationCodeRedirectionConfig;
+	AuthorizationCodeRedirectionConfig &
+	ImplicitGrantRedirectionConfig;
 
 type AuthorizeRequest = {
 	client_id: string;
@@ -67,6 +76,13 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				config,
 			);
 
+			const { response_type } = await validateResponseTypes(
+				{
+					response_type: authorization_request.response_type,
+				},
+				config,
+			);
+
 			const { client } = await validateClientCredentials(
 				{
 					client_id: request.client_id,
@@ -89,14 +105,27 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				config,
 			);
 
-			if (resourceOwner) {
-				const { resource_owner } = await validateResourceOwner(
-					{
-						resource_owner: resourceOwner,
-					},
-					config,
-				);
+			config.logger.business("authorize", { request_uri });
 
+			if (!resourceOwner) {
+				return {
+					status: 200,
+					data: {
+						requestUri: request.request_uri,
+						clientId: client.id,
+						authorizationRequest: authorization_request,
+					},
+				};
+			}
+
+			const { resource_owner } = await validateResourceOwner(
+				{
+					resource_owner: resourceOwner,
+				},
+				config,
+			);
+
+			if (response_type === "code") {
 				const { authorization_code } = await generateAuthorizationCode(
 					{
 						authorization_request: authorization_request,
@@ -124,16 +153,42 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				};
 			}
 
-			config.logger.business("authorize", { request_uri });
+			if (response_type === "token") {
+				const { access_token, expires_in } = await generateAccessToken(
+					{
+						client,
+						scope,
+						sub: resource_owner.sub || undefined,
+					},
+					config,
+				);
 
-			return {
-				status: 200,
-				data: {
-					requestUri: request.request_uri,
-					clientId: client.id,
-					authorizationRequest: authorization_request,
-				},
-			};
+				const { location } = await implicitGrantRedirection(
+					{
+						authorization_request,
+						access_token,
+						expires_in,
+					},
+					config,
+				);
+
+				config.logger.business("authenticate", {
+					request_uri,
+					access_token,
+					sub: resource_owner.sub || "",
+				});
+
+				return {
+					status: 302,
+					location,
+				};
+			}
+
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"response type is not supported",
+			);
 		} catch (error) {
 			if (error instanceof OauthError) {
 				const data = authorizeErrorData(expressRequest);

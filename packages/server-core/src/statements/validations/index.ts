@@ -8,4 +8,5 @@ export * from "./validateIssuerState";
 export * from "./validateProofs";
 export * from "./validateRequestUri";
 export * from "./validateResourceOwner";
+export * from "./validateResponseTypes";
 export * from "./validateScope";

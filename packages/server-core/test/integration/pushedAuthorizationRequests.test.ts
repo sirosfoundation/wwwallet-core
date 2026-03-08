@@ -166,6 +166,30 @@ describe("pushshed authorization request endpoint", () => {
 		expect(payload.response_type).to.eq(response_type);
 	});
 
+	it("returns a token for implicit grant response type", async () => {
+		const response_type = "token";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type, client_id, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(201);
+		expect(response.body.request_uri).toMatch(
+			"urn:wwwallet:authorization_request:ey",
+		);
+
+		const { payload } = await jwtDecrypt(
+			response.body.request_uri.replace(
+				"urn:wwwallet:authorization_request:",
+				"",
+			),
+			new TextEncoder().encode(protocols.config.secret),
+		);
+
+		expect(payload.response_type).to.eq(response_type);
+	});
+
 	it.skip("returns a token with oauth client attestation", async () => {
 		const privateKey = crypto.createPrivateKey(trustedPem);
 		const response_type = "code";

@@ -87,6 +87,7 @@ export class Protocols {
 	 *
 	 * #### Statements
 	 *
+	 * - {@link "server-core/src/statements".validateResponseTypes | validateResponseTypes}
 	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
 	 * - {@link "server-core/src/statements".validateScope | validateScope}
 	 * - {@link "server-core/src/statements".validateIssuerState | validateIssuerState}
@@ -106,11 +107,14 @@ export class Protocols {
 	 * #### Statements
 	 *
 	 * - {@link "server-core/src/statements".validateRequestUri | validateRequestUri}
+	 * - {@link "server-core/src/statements".validateResponseTypes | validateResponseTypes}
 	 * - {@link "server-core/src/statements".validateScope | validateScope}
 	 * - {@link "server-core/src/statements".validateIssuerState | validateIssuerState}
 	 * - {@link "server-core/src/statements".validateResourceOwner | validateResourceOwner}
 	 * - {@link "server-core/src/statements".generateAuthorizationCode | generateAuthorizationCode}
 	 * - {@link "server-core/src/statements".authorizationCodeRedirection | authorizationCodeRedirection}
+	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 * - {@link "server-core/src/statements".implicitGrantRedirection | implicitGrantRedirection}
 	 */
 	get authorize() {
 		validateAuthorizeHandlerConfig(this.config);

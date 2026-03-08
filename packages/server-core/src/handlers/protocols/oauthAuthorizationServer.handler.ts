@@ -54,10 +54,14 @@ export function oauthAuthorizationServerHandlerFactory(
 			require_pushed_authorization_requests: true,
 			jwks_uri,
 			token_endpoint_auth_methods_supported: ["none"],
-			response_types_supported: ["code"],
+			response_types_supported: ["code", "token"],
 			code_challenge_methods_supported: ["S256"],
 			dpop_signing_alg_values_supported: ["ES256"],
-			grant_types_supported: ["authorization_code", "refresh_token"],
+			grant_types_supported: [
+				"authorization_code",
+				"implicit",
+				"refresh_token",
+			],
 			scopes_supported,
 		};
 

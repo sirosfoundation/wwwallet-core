@@ -21,6 +21,8 @@ export type OauthClient = {
 	scopes: Array<string>;
 };
 
+export type ResponseType = "code" | "token";
+
 export type SupportedCredentialConfiguration = {
 	deferred?: boolean;
 	credential_configuration_id: string;

@@ -7,8 +7,10 @@ import {
 	generateAuthorizationRequestUri,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
+	type ValidateResponseTypesConfig,
 	validateClientCredentials,
 	validateIssuerState,
+	validateResponseTypes,
 	validateScope,
 } from "../../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas";
@@ -19,6 +21,7 @@ export type PushedAuthorizationRequestHandlerConfig = {
 	logger: Logger;
 } & ValidateClientCredentialsConfig &
 	ValidateIssuerStateConfig &
+	ValidateResponseTypesConfig &
 	GenerateAuthorizationRequestUriConfig;
 
 type PushedAuthorizationRequest = {
@@ -131,9 +134,9 @@ async function validateRequest(
 		issuer_state,
 	} = expressRequest.body;
 
-	if (response_type !== "code") {
-		throw new OauthError(400, "invalid_request", "response_type is invalid");
-	}
+	await validateResponseTypes({
+		response_type,
+	});
 
 	if (!redirect_uri) {
 		throw new OauthError(
