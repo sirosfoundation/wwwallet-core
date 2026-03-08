@@ -11,13 +11,18 @@ export type ValidateResponseTypesConfig = unknown;
 export async function validateResponseTypes(
 	{
 		response_type,
-		response_types_supported = ["code", "token"],
+		response_types_supported = ["code", "token", "code token"],
 	}: ValidateResponseTypesParams,
 	_config?: ValidateResponseTypesConfig,
 ) {
-	if (!response_type || !response_types_supported.includes(response_type)) {
+	if (!response_type) {
 		throw new OauthError(400, "invalid_request", "response_type is invalid");
 	}
 
-	return { response_type: response_type as ResponseType };
+	const normalized_response_type = response_type.trim().split(/\s+/).join(" ");
+	if (!response_types_supported.includes(normalized_response_type)) {
+		throw new OauthError(400, "invalid_request", "response_type is invalid");
+	}
+
+	return { response_type: normalized_response_type as ResponseType };
 }

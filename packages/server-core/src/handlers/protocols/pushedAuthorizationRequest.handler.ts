@@ -134,9 +134,10 @@ async function validateRequest(
 		issuer_state,
 	} = expressRequest.body;
 
-	await validateResponseTypes({
-		response_type,
-	});
+	const { response_type: validated_response_type } =
+		await validateResponseTypes({
+			response_type,
+		});
 
 	if (!redirect_uri) {
 		throw new OauthError(
@@ -156,7 +157,7 @@ async function validateRequest(
 	}
 
 	return {
-		response_type,
+		response_type: validated_response_type,
 		client_id,
 		redirect_uri,
 		oauth_client_attestation,

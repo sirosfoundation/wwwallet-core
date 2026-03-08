@@ -10,6 +10,8 @@ import {
 	type GenerateAuthorizationCodeConfig,
 	generateAccessToken,
 	generateAuthorizationCode,
+	type HybridGrantRedirectionConfig,
+	hybridGrantRedirection,
 	type ImplicitGrantRedirectionConfig,
 	implicitGrantRedirection,
 	type ValidateClientCredentialsConfig,
@@ -40,6 +42,7 @@ export type AuthorizeHandlerConfig = {
 	GenerateAccessTokenConfig &
 	GenerateAuthorizationCodeConfig &
 	AuthorizationCodeRedirectionConfig &
+	HybridGrantRedirectionConfig &
 	ImplicitGrantRedirectionConfig;
 
 type AuthorizeRequest = {
@@ -174,6 +177,48 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 
 				config.logger.business("authenticate", {
 					request_uri,
+					access_token,
+					sub: resource_owner.sub || "",
+				});
+
+				return {
+					status: 302,
+					location,
+				};
+			}
+
+			if (response_type === "code token") {
+				const { authorization_code } = await generateAuthorizationCode(
+					{
+						authorization_request,
+						resource_owner,
+						scope,
+					},
+					config,
+				);
+
+				const { access_token, expires_in } = await generateAccessToken(
+					{
+						client,
+						scope,
+						sub: resource_owner.sub || undefined,
+					},
+					config,
+				);
+
+				const { location } = await hybridGrantRedirection(
+					{
+						authorization_request,
+						authorization_code,
+						access_token,
+						expires_in,
+					},
+					config,
+				);
+
+				config.logger.business("authenticate", {
+					request_uri,
+					authorization_code,
 					access_token,
 					sub: resource_owner.sub || "",
 				});

@@ -115,6 +115,7 @@ export class Protocols {
 	 * - {@link "server-core/src/statements".authorizationCodeRedirection | authorizationCodeRedirection}
 	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
 	 * - {@link "server-core/src/statements".implicitGrantRedirection | implicitGrantRedirection}
+	 * - {@link "server-core/src/statements".hybridGrantRedirection | hybridGrantRedirection}
 	 */
 	get authorize() {
 		validateAuthorizeHandlerConfig(this.config);

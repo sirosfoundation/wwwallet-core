@@ -25,7 +25,7 @@ describe("well-known endpoints", () => {
 			pushed_authorization_request_endpoint:
 				"http://localhost:5000/pushed-authorization-request",
 			require_pushed_authorization_requests: true,
-			response_types_supported: ["code", "token"],
+			response_types_supported: ["code", "token", "code token"],
 			scopes_supported: [
 				"not_found:scope",
 				"full:scope",

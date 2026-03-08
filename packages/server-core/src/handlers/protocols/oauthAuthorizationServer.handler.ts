@@ -54,7 +54,7 @@ export function oauthAuthorizationServerHandlerFactory(
 			require_pushed_authorization_requests: true,
 			jwks_uri,
 			token_endpoint_auth_methods_supported: ["none"],
-			response_types_supported: ["code", "token"],
+			response_types_supported: ["code", "token", "code token"],
 			code_challenge_methods_supported: ["S256"],
 			dpop_signing_alg_values_supported: ["ES256"],
 			grant_types_supported: [
