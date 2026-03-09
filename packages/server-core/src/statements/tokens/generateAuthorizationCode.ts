@@ -15,15 +15,14 @@ export type GenerateAuthorizationCodeConfig = {
 };
 
 /**
- * What:
- * - Creates an encrypted authorization code containing redirect URI, PKCE
+ * Creates an encrypted authorization code containing redirect URI, PKCE
  *   binding, subject, scope, and optional OIDC nonce.
  *
- * Why:
- * - The token endpoint must verify that the code being exchanged matches the
+ * ## Why
+ * The token endpoint must verify that the code being exchanged matches the
  *   original authorization context and proof-key requirements.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 4.1.
  * - PKCE (RFC 7636) code challenge binding.
  * - OpenID Connect Core 1.0 nonce propagation.

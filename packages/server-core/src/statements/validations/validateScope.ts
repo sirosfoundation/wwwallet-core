@@ -8,14 +8,13 @@ export type validateScopeParams = {
 export type ValidateScopeConfig = unknown;
 
 /**
- * What:
- * - Validates each requested scope token against scopes assigned to the client.
+ * Validates each requested scope token against scopes assigned to the client.
  *
- * Why:
- * - Prevents privilege escalation by ensuring clients can request only scopes
+ * ## Why
+ * Prevents privilege escalation by ensuring clients can request only scopes
  *   that were explicitly configured/authorized for them.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 scope parameter processing (RFC 6749 section 3.3).
  */
 export async function validateScope(

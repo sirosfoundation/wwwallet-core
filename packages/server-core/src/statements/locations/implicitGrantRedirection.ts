@@ -10,15 +10,14 @@ export type ImplicitGrantRedirectionParams = {
 export type ImplicitGrantRedirectionConfig = unknown;
 
 /**
- * What:
- * - Builds redirect URI fragment response containing `access_token`,
+ * Builds redirect URI fragment response containing `access_token`,
  *   `token_type`, `expires_in`, optional `id_token`, and optional `state`.
  *
- * Why:
- * - Implicit/hybrid front-channel responses require fragment-based token
+ * ## Why
+ * Implicit/hybrid front-channel responses require fragment-based token
  *   delivery to avoid token leakage through query logging/intermediaries.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 4.2.2.
  * - OpenID Connect Core 1.0 when `id_token` is included.
  */

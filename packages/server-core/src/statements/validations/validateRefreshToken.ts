@@ -9,15 +9,14 @@ export type ValidateRefreshTokenParams = {
 export type ValidateRefreshTokenConfig = DecryptConfig;
 
 /**
- * What:
- * - Decrypts refresh token, validates token type, and returns bound
+ * Decrypts refresh token, validates token type, and returns bound
  *   client/subject/scope claims for token rotation.
  *
- * Why:
- * - Refresh exchange must only proceed for server-issued refresh tokens tied to
+ * ## Why
+ * Refresh exchange must only proceed for server-issued refresh tokens tied to
  *   the requesting client and constrained scope.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 6.
  */
 export async function validateRefreshToken(

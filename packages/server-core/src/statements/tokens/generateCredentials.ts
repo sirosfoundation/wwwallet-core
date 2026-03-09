@@ -42,15 +42,14 @@ export type GenerateCredentialsConfig = {
 	DecryptConfig;
 
 /**
- * What:
- * - Resolves issuance data for the subject (immediate or deferred) and emits
+ * Resolves issuance data for the subject (immediate or deferred) and emits
  *   verifiable credential payloads in configured format.
  *
- * Why:
- * - Issuers need one deterministic pipeline that supports both synchronous
+ * ## Why
+ * Issuers need one deterministic pipeline that supports both synchronous
  *   issuance and deferred retrieval while enforcing proof-bound key material.
  *
- * Specification:
+ * ## Specification
  * - OID4VCI credential endpoint and deferred issuance behavior.
  * - SD-JWT VC profile for selective-disclosure credential encoding.
  */

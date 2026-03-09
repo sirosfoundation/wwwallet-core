@@ -11,15 +11,14 @@ export type ValidateAuthorizationCodeConfig = DecryptConfig;
 
 // TODO validate code redirect uri according to request
 /**
- * What:
- * - Decrypts authorization code, validates token type, and returns bound claims
+ * Decrypts authorization code, validates token type, and returns bound claims
  *   (redirect URI, PKCE data, subject, scope, nonce).
  *
- * Why:
- * - Token exchange must only succeed for codes issued by this server and for
+ * ## Why
+ * Token exchange must only succeed for codes issued by this server and for
  *   the exact authorization context they were minted for.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 4.1.3.
  * - OpenID Connect Core 1.0 nonce handling for code flow.
  */

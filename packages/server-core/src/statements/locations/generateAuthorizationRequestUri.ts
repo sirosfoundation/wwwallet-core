@@ -12,15 +12,14 @@ export type GenerateAuthorizationRequestUriConfig = {
 
 // TODO split authorization_request token generation from request_uri urn
 /**
- * What:
- * - Encodes authorization request parameters into a signed/encrypted request
+ * Encodes authorization request parameters into a signed/encrypted request
  *   object and returns a `request_uri` plus `expires_in`.
  *
- * Why:
- * - PAR moves sensitive/large parameters off the front-channel and ensures the
+ * ## Why
+ * PAR moves sensitive/large parameters off the front-channel and ensures the
  *   authorization endpoint consumes issuer-authenticated request content.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 Pushed Authorization Requests (RFC 9126).
  */
 export async function generateAuthorizationRequestUri(

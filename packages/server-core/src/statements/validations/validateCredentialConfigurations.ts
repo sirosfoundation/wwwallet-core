@@ -16,11 +16,11 @@ export type ValidateCredentialConfigurationsConfig = {
  * Filters requested credential configurations by issuer support, client scopes,
  * and requested scope.
  *
- * Why:
- * - Issuers must ensure requested credential types are both issuer-supported
+ * ## Why
+ * Issuers must ensure requested credential types are both issuer-supported
  *   and authorized for the calling client + granted scope set.
  *
- * Specification:
+ * ## Specification
  * - OID4VCI credential authorization and scope-based access model.
  */
 export async function validateCredentialConfigurations(

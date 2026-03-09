@@ -12,15 +12,14 @@ export type GenerateIssuerGrantsConfig = {
 };
 
 /**
- * What:
- * - Builds the grant object returned in credential offers and issues a signed
+ * Builds the grant object returned in credential offers and issues a signed
  *   `issuer_state` token for the authorization step.
  *
- * Why:
- * - `issuer_state` binds wallet authorization to issuer context and lets the
+ * ## Why
+ * `issuer_state` binds wallet authorization to issuer context and lets the
  *   issuer reject replayed or foreign authorization requests.
  *
- * Specification:
+ * ## Specification
  * - OID4VCI: `issuer_state` in authorization_code grant.
  */
 export async function generateIssuerGrants(

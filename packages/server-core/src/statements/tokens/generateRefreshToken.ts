@@ -14,14 +14,13 @@ export type GenerateRefreshTokenConfig = {
 };
 
 /**
- * What:
- * - Creates an encrypted refresh token carrying client, subject and scope state.
+ * Creates an encrypted refresh token carrying client, subject and scope state.
  *
- * Why:
- * - Long-lived sessions should mint new access tokens without forcing repeated
+ * ## Why
+ * Long-lived sessions should mint new access tokens without forcing repeated
  *   end-user interaction while retaining scope boundaries.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 1.5 and section 6.
  */
 export async function generateRefreshToken(

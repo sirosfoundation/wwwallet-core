@@ -8,15 +8,14 @@ export type ValidateGrantTypeParams = {
 export type ValidateGrantTypeConfig = unknown;
 
 /**
- * What:
- * - Validates incoming token request `grant_type` against the configured list
+ * Validates incoming token request `grant_type` against the configured list
  *   of supported grant values.
  *
- * Why:
- * - Centralizing grant-type validation avoids drift between handler branches and
+ * ## Why
+ * Centralizing grant-type validation avoids drift between handler branches and
  *   keeps error behavior consistent across token flows.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 (RFC 6749) section 3.2 and grant-type specific sections.
  */
 export async function validateGrantType(

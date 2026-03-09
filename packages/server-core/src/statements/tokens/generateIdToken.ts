@@ -21,15 +21,14 @@ function tokenHash(value: string) {
 }
 
 /**
- * What:
- * - Creates an OIDC ID Token with issuer, audience, subject and optional
+ * Creates an OIDC ID Token with issuer, audience, subject and optional
  *   nonce/hash claims tied to front-channel artifacts.
  *
- * Why:
- * - OIDC clients require verifiable authentication context in addition to OAuth
+ * ## Why
+ * OIDC clients require verifiable authentication context in addition to OAuth
  *   access delegation, especially for session establishment.
  *
- * Specification:
+ * ## Specification
  * - OpenID Connect Core 1.0 ID Token requirements.
  */
 export async function generateIdToken(

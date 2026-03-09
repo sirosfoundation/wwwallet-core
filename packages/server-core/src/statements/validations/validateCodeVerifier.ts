@@ -10,15 +10,14 @@ export type ValidateCodeVerifierParams = {
 export type ValidateCodeVerifierConfig = {};
 
 /**
- * What:
- * - Validates presence and correctness of PKCE inputs, then checks verifier hash
+ * Validates presence and correctness of PKCE inputs, then checks verifier hash
  *   against stored authorization challenge.
  *
- * Why:
- * - PKCE prevents intercepted authorization codes from being redeemed by an
+ * ## Why
+ * PKCE prevents intercepted authorization codes from being redeemed by an
  *   attacker who does not control the original verifier.
  *
- * Specification:
+ * ## Specification
  * - PKCE (RFC 7636), `S256` transformation and verification.
  */
 export async function validateCodeVerifier(
