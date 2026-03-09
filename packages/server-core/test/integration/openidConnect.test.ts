@@ -89,6 +89,7 @@ describe("openid connect", () => {
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const scope = "openid client:scope";
+		const nonce = "implicit-flow-nonce";
 		const username = "wwwallet";
 		const password = "tellawww";
 
@@ -100,6 +101,7 @@ describe("openid connect", () => {
 			redirect_uri,
 			scope,
 			issuer_state,
+			nonce,
 		});
 
 		const authorizeResponse = await request(app)
@@ -111,8 +113,13 @@ describe("openid connect", () => {
 		const location = new URL(authorizeResponse.headers.location);
 		const fragment = new URLSearchParams(location.hash.replace("#", ""));
 		const access_token = fragment.get("access_token");
+		const id_token = fragment.get("id_token");
 		assert(access_token);
-		assert(fragment.get("id_token"));
+		assert(id_token);
+
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const { payload } = await jwtVerify(id_token, secret);
+		expect(payload.nonce).to.eq(nonce);
 
 		const userinfoResponse = await request(app)
 			.get("/userinfo")
