@@ -120,6 +120,13 @@ export type AccessToken = {
 	scope: string;
 };
 
+export type RefreshToken = {
+	token_type: "refresh_token";
+	client_id: string;
+	sub: string;
+	scope: string;
+};
+
 export type AuthorizationCode = {
 	token_type: "authorization_code";
 	authorization_code?: string;
@@ -195,6 +202,7 @@ export type OauthAuthorizationServer = {
 	jwks_uri: string;
 	scopes_supported: Array<string>;
 };
+
 export type IssuerMetadata = OpenidCredentialIssuer & OauthAuthorizationServer;
 
 export type OpenidConfiguration = {

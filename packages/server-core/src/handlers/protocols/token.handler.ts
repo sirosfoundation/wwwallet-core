@@ -2,6 +2,7 @@ import Ajv from "ajv";
 import type { Request } from "express";
 import type { Config, Logger } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
+import { validateGrantType } from "../../statements";
 import { tokenHandlerConfigSchema } from "./schemas";
 import {
 	type AuthorizationCodeHandlerConfig,
@@ -15,13 +16,20 @@ import {
 	handleClientCredentials,
 	validateClientCredentialsRequest,
 } from "./token/clientCredentials";
+import {
+	handleRefreshToken,
+	type RefreshTokenHandlerConfig,
+	type RefreshTokenRequest,
+	validateRefreshTokenRequest,
+} from "./token/refreshToken";
 
 const ajv = new Ajv();
 
 export type TokenHandlerConfig = {
 	logger: Logger;
 } & ClientCredentialsHandlerConfig &
-	AuthorizationCodeHandlerConfig;
+	AuthorizationCodeHandlerConfig &
+	RefreshTokenHandlerConfig;
 
 export type TokenResponse = {
 	status: 200;
@@ -30,6 +38,7 @@ export type TokenResponse = {
 		expires_in: number;
 		token_type: "bearer";
 		id_token?: string;
+		refresh_token?: string;
 	};
 };
 
@@ -46,6 +55,10 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 
 			if (request.grant_type === "authorization_code") {
 				return await handleAuthorizationCode(request, config);
+			}
+
+			if (request.grant_type === "refresh_token") {
+				return await handleRefreshToken(request, config);
 			}
 
 			throw new OauthError(
@@ -78,7 +91,9 @@ export function validateTokenHandlerConfig(config: Config) {
 
 async function validateRequest(
 	expressRequest: Request,
-): Promise<ClientCredentialsRequest | AuthorizationCodeRequest> {
+): Promise<
+	ClientCredentialsRequest | AuthorizationCodeRequest | RefreshTokenRequest
+> {
 	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
@@ -87,13 +102,20 @@ async function validateRequest(
 		);
 	}
 
-	if (expressRequest.body.grant_type === "client_credentials") {
+	const { grant_type } = await validateGrantType({
+		grant_type: expressRequest.body.grant_type,
+	});
+
+	if (grant_type === "client_credentials") {
 		return validateClientCredentialsRequest(expressRequest);
 	}
 
-	if (expressRequest.body.grant_type === "authorization_code") {
+	if (grant_type === "authorization_code") {
 		return validateAuthorizationCodeRequest(expressRequest);
 	}
 
+	if (grant_type === "refresh_token") {
+		return validateRefreshTokenRequest(expressRequest);
+	}
 	throw new OauthError(400, "invalid_request", "grant_type is not supported");
 }

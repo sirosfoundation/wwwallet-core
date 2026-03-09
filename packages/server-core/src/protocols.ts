@@ -147,16 +147,26 @@ export class Protocols {
 	 * #### Statements
 	 *
 	 * 1. client credentials
+	 * - {@link "server-core/src/statements".validateGrantType | validateGrantType}
 	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
 	 * - {@link "server-core/src/statements".validateScope | validateScope}
 	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
 	 *
 	 * 2. authorization code
+	 * - {@link "server-core/src/statements".validateGrantType | validateGrantType}
 	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
 	 * - {@link "server-core/src/statements".validateAuthorizationCode | validateAuthorizationCode}
 	 * - {@link "server-core/src/statements".validateCodeVerifier | validateCodeVerifier}
 	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
 	 * - {@link "server-core/src/statements".generateIdToken | generateIdToken}
+	 *
+	 * 3. refresh token
+	 * - {@link "server-core/src/statements".validateGrantType | validateGrantType}
+	 * - {@link "server-core/src/statements".validateClientCredentials | validateClientCredentials}
+	 * - {@link "server-core/src/statements".validateRefreshToken | validateRefreshToken}
+	 * - {@link "server-core/src/statements".validateScope | validateScope}
+	 * - {@link "server-core/src/statements".generateAccessToken | generateAccessToken}
+	 * - {@link "server-core/src/statements".generateRefreshToken | generateRefreshToken}
 	 */
 	get token() {
 		validateTokenHandlerConfig(this.config);
@@ -263,6 +273,7 @@ export const defaultConfig = {
 	},
 	clients: [],
 	access_token_ttl: 60,
+	refresh_token_ttl: 86400,
 	id_token_ttl: 60,
 	pushed_authorization_request_ttl: 300,
 	authorization_code_ttl: 60,

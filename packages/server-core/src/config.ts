@@ -21,6 +21,7 @@ export type BusinessEvent =
 	| "pushed_authorization_error"
 	| "client_credentials"
 	| "authorization_code"
+	| "refresh_token"
 	| "token_error"
 	| "userinfo"
 	| "userinfo_error";
@@ -78,6 +79,7 @@ export type Config = {
 	supported_credential_configuration_paths?: Array<string>;
 	supported_credential_configurations?: Array<SupportedCredentialConfiguration>;
 	access_token_ttl?: number;
+	refresh_token_ttl?: number;
 	pushed_authorization_request_ttl?: number;
 	authorization_code_ttl?: number;
 	issuer_state_ttl?: number;

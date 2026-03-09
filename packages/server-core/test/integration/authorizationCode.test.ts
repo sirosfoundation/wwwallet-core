@@ -634,6 +634,7 @@ describe("authorization code - token", () => {
 
 		expect(response.status).toBe(200);
 		assert(response.body.access_token);
+		assert(response.body.refresh_token);
 		assert(response.body.expires_in);
 		expect(response.body.token_type).to.eq("bearer");
 
@@ -646,6 +647,14 @@ describe("authorization code - token", () => {
 			protocols.config.clients?.find(({ id }) => id === payload.client_id),
 		);
 		expect(payload.sub).to.eq(sub);
+
+		const { payload: refreshPayload } = await jwtDecrypt(
+			response.body.refresh_token,
+			new TextEncoder().encode(protocols.config.secret),
+		);
+		expect(refreshPayload.token_type).to.eq("refresh_token");
+		expect(refreshPayload.client_id).to.eq(client_id);
+		expect(refreshPayload.sub).to.eq(sub);
 	});
 
 	it.skip("returns a token with an oauth client attestation", async () => {
