@@ -217,6 +217,8 @@ describe("pushshed authorization request endpoint", () => {
 	it.skip("returns a token with oauth client attestation", async () => {
 		const privateKey = crypto.createPrivateKey(trustedPem);
 		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
 		const oauth_client_attestation = await new SignJWT({ sub: "id" })
 			.setProtectedHeader({ typ: "oauth-client-attestation+jwt", alg: "RS256" })
 			.sign(privateKey);
