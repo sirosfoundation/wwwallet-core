@@ -14,6 +14,19 @@ export type GenerateAccessTokenConfig = {
 	secret: string;
 };
 
+/**
+ * What:
+ * - Creates an encrypted access token carrying client, subject, scope, and
+ *   optional linkage to a previous authorization artifact.
+ *
+ * Why:
+ * - Resource endpoints need a compact bearer artifact that represents delegated
+ *   authorization state without repeated database lookups.
+ *
+ * Specification:
+ * - OAuth 2.0 (RFC 6749) token response semantics.
+ * - OAuth 2.0 Bearer Token Usage (RFC 6750).
+ */
 export async function generateAccessToken(
 	{
 		authorization_code,

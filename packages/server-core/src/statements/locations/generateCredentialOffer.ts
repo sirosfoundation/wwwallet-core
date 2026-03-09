@@ -17,6 +17,18 @@ export type GenerateCredentialOfferConfig = {
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
+/**
+ * What:
+ * - Resolves scope-authorized credential configurations and generates:
+ *   1) a credential offer object, 2) wallet URL, and 3) QR code payload.
+ *
+ * Why:
+ * - Wallet bootstrap requires a transport-friendly offer representation that can
+ *   be shared by deep-link and QR while staying aligned with issuer capabilities.
+ *
+ * Specification:
+ * - OID4VCI credential offer object and URI scheme (`openid-credential-offer://`).
+ */
 export async function generateCredentialOffer(
 	{ grants, scope }: GenerateCredentialOfferParams,
 	config: GenerateCredentialOfferConfig,

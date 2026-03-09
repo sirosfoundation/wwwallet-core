@@ -12,6 +12,18 @@ export type ValidateAccessTokenConfig = {
 } & DecryptConfig;
 
 // TODO validate code redirect uri according to request
+/**
+ * What:
+ * - Decrypts access token, checks token type, and resolves issuing client.
+ *
+ * Why:
+ * - Protected endpoints must reject malformed/foreign tokens before authorizing
+ *   any resource access.
+ *
+ * Specification:
+ * - OAuth 2.0 Bearer Token Usage (RFC 6750).
+ * - OAuth 2.0 token processing rules (RFC 6749).
+ */
 export async function validateAccessToken(
 	{ access_token }: validateAccessTokenParams,
 	config: ValidateAccessTokenConfig,

@@ -10,6 +10,18 @@ export type HybridGrantRedirectionParams = {
 
 export type HybridGrantRedirectionConfig = unknown;
 
+/**
+ * What:
+ * - Builds hybrid redirect fragment with `code`, `access_token`, token metadata,
+ *   optional `id_token`, and optional `state`.
+ *
+ * Why:
+ * - Hybrid clients need immediate front-channel token material while retaining
+ *   authorization code exchange semantics for backend validation/continuation.
+ *
+ * Specification:
+ * - OpenID Connect Core 1.0 hybrid flow response handling.
+ */
 export async function hybridGrantRedirection(
 	{
 		authorization_request,

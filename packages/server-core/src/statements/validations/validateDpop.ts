@@ -19,6 +19,18 @@ export type ValidateDpopConfig = {
 	issuer_url: string;
 };
 
+/**
+ * What:
+ * - Validates DPoP JWT header, signature, required claims, and request/access
+ *   token binding (`htm`, `htu`, `ath`).
+ *
+ * Why:
+ * - DPoP converts bearer-style access into sender-constrained usage to reduce
+ *   replay and token theft impact.
+ *
+ * Specification:
+ * - OAuth 2.0 Demonstrating Proof-of-Possession (DPoP), RFC 9449.
+ */
 export async function validateDpop(
 	{ dpop, dpopRequest, access_token }: ValidateDpopParams,
 	config: ValidateDpopConfig,

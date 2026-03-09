@@ -20,6 +20,18 @@ function tokenHash(value: string) {
 	return digest.subarray(0, digest.length / 2).toString("base64url");
 }
 
+/**
+ * What:
+ * - Creates an OIDC ID Token with issuer, audience, subject and optional
+ *   nonce/hash claims tied to front-channel artifacts.
+ *
+ * Why:
+ * - OIDC clients require verifiable authentication context in addition to OAuth
+ *   access delegation, especially for session establishment.
+ *
+ * Specification:
+ * - OpenID Connect Core 1.0 ID Token requirements.
+ */
 export async function generateIdToken(
 	{
 		client_id,

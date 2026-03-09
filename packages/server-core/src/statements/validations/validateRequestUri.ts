@@ -9,6 +9,18 @@ export type validateRequestUriParams = {
 
 export type ValidateRequestUriConfig = DecryptConfig;
 
+/**
+ * What:
+ * - Validates request URI format/prefix, decrypts request object, and returns
+ *   normalized authorization request parameters.
+ *
+ * Why:
+ * - Authorization endpoint decisions must rely on authenticated PAR content
+ *   rather than mutable front-channel query parameters.
+ *
+ * Specification:
+ * - OAuth 2.0 Pushed Authorization Requests (RFC 9126).
+ */
 export async function validateRequestUri(
 	{ request_uri }: validateRequestUriParams,
 	config: ValidateRequestUriConfig,

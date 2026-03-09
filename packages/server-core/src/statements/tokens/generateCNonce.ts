@@ -11,6 +11,17 @@ export type GenerateCNonceConfig = {
 	secret: string;
 };
 
+/**
+ * What:
+ * - Creates a signed/encrypted `c_nonce` challenge token bound to the issuer.
+ *
+ * Why:
+ * - Proof submissions need freshness and issuer binding to reduce replay risk
+ *   and tie holder proof generation to current issuance sessions.
+ *
+ * Specification:
+ * - OID4VCI `c_nonce` handling.
+ */
 export async function generateCNonce(
 	{ issuer_client: client }: GenerateCNonceParams,
 	config: GenerateCNonceConfig,

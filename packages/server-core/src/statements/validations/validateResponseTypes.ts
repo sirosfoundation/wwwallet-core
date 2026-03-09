@@ -8,6 +8,19 @@ export type ValidateResponseTypesParams = {
 
 export type ValidateResponseTypesConfig = unknown;
 
+/**
+ * What:
+ * - Normalizes and validates `response_type` values (including hybrid
+ *   combinations) against supported response types.
+ *
+ * Why:
+ * - Authorization response construction depends on response type semantics and
+ *   must fail fast for unsupported combinations.
+ *
+ * Specification:
+ * - OAuth 2.0 authorization endpoint response types (RFC 6749).
+ * - OpenID Connect Core 1.0 hybrid response type combinations.
+ */
 export async function validateResponseTypes(
 	{
 		response_type,
