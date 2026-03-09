@@ -38,86 +38,89 @@ export type RefreshTokenResponse = {
 	};
 };
 
-export async function handleRefreshToken(
-	request: RefreshTokenRequest,
-	config: RefreshTokenHandlerConfig,
-): Promise<RefreshTokenResponse> {
-	const { client } = await validateClientCredentials(
-		{
-			client_id: request.client_id,
-			client_secret: request.client_secret,
-		},
-		config,
-	);
-
-	const {
-		client_id,
-		sub,
-		scope: previousScope,
-	} = await validateRefreshToken(
-		{
-			refresh_token: request.refresh_token,
-		},
-		config,
-	);
-
-	if (client.id !== client_id) {
-		throw new OauthError(400, "invalid_request", "refresh token is invalid");
-	}
-
-	let scope = previousScope;
-	if (request.scope) {
-		const { scope: requestedScope } = await validateScope(
+export function refreshTokenHandlerFactory(config: RefreshTokenHandlerConfig) {
+	return async function handleRefreshToken(
+		request: RefreshTokenRequest,
+	): Promise<RefreshTokenResponse> {
+		const { client } = await validateClientCredentials(
 			{
-				scope: request.scope,
-				client,
+				client_id: request.client_id,
+				client_secret: request.client_secret,
 			},
 			config,
 		);
-		const previousScopes = previousScope.split(" ");
-		const requestedScopes = requestedScope.split(" ");
-		if (
-			requestedScopes.some((tokenScope) => !previousScopes.includes(tokenScope))
-		) {
-			throw new OauthError(400, "invalid_request", "invalid scope");
+
+		const {
+			client_id,
+			sub,
+			scope: previousScope,
+		} = await validateRefreshToken(
+			{
+				refresh_token: request.refresh_token,
+			},
+			config,
+		);
+
+		if (client.id !== client_id) {
+			throw new OauthError(400, "invalid_request", "refresh token is invalid");
 		}
-		scope = requestedScope;
-	}
 
-	const { access_token, expires_in } = await generateAccessToken(
-		{
-			client,
-			scope,
+		let scope = previousScope;
+		if (request.scope) {
+			const { scope: requestedScope } = await validateScope(
+				{
+					scope: request.scope,
+					client,
+				},
+				config,
+			);
+			const previousScopes = previousScope.split(" ");
+			const requestedScopes = requestedScope.split(" ");
+			if (
+				requestedScopes.some(
+					(tokenScope) => !previousScopes.includes(tokenScope),
+				)
+			) {
+				throw new OauthError(400, "invalid_request", "invalid scope");
+			}
+			scope = requestedScope;
+		}
+
+		const { access_token, expires_in } = await generateAccessToken(
+			{
+				client,
+				scope,
+				sub,
+			},
+			config,
+		);
+
+		const { refresh_token } = await generateRefreshToken(
+			{
+				client,
+				scope,
+				sub,
+			},
+			config,
+		);
+
+		config.logger.business("refresh_token", {
+			client_id: client.id,
 			sub,
-		},
-		config,
-	);
-
-	const { refresh_token } = await generateRefreshToken(
-		{
-			client,
-			scope,
-			sub,
-		},
-		config,
-	);
-
-	config.logger.business("refresh_token", {
-		client_id: client.id,
-		sub,
-		access_token,
-		refresh_token,
-		expires_in: expires_in.toString(),
-	});
-
-	return {
-		status: 200,
-		body: {
 			access_token,
 			refresh_token,
-			expires_in,
-			token_type: "bearer",
-		},
+			expires_in: expires_in.toString(),
+		});
+
+		return {
+			status: 200,
+			body: {
+				access_token,
+				refresh_token,
+				expires_in,
+				token_type: "bearer",
+			},
+		};
 	};
 }
 

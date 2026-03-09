@@ -17,9 +17,9 @@ import {
 	validateClientCredentialsRequest,
 } from "./token/clientCredentials";
 import {
-	handleRefreshToken,
 	type RefreshTokenHandlerConfig,
 	type RefreshTokenRequest,
+	refreshTokenHandlerFactory,
 	validateRefreshTokenRequest,
 } from "./token/refreshToken";
 
@@ -43,6 +43,8 @@ export type TokenResponse = {
 };
 
 export function tokenHandlerFactory(config: TokenHandlerConfig) {
+	const handleRefreshToken = refreshTokenHandlerFactory(config);
+
 	return async function tokenHandler(
 		expressRequest: Request,
 	): Promise<TokenResponse | OauthErrorResponse> {
@@ -58,7 +60,7 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 			}
 
 			if (request.grant_type === "refresh_token") {
-				return await handleRefreshToken(request, config);
+				return await handleRefreshToken(request);
 			}
 
 			throw new OauthError(
