@@ -29,6 +29,7 @@ export function userinfoHandlerFactory(config: UserinfoHandlerConfig) {
 			const request = await validateRequest(expressRequest);
 			const { sub, scope } = await validateAccessToken(
 				{
+					token_type: request.token_type,
 					access_token: request.access_token,
 				},
 				config,
@@ -80,6 +81,7 @@ async function validateRequest(expressRequest: Request) {
 	);
 
 	return {
+		token_type: authorizationHeaderCapture?.[1],
 		access_token: authorizationHeaderCapture?.[2],
 	};
 }

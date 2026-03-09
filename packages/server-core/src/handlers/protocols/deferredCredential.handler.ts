@@ -44,6 +44,7 @@ export function deferredCredentialHandlerFactory(
 
 			const { access_token } = await validateAccessToken(
 				{
+					token_type: request.credentials.token_type,
 					access_token: request.credentials.access_token,
 				},
 				config,
@@ -51,6 +52,7 @@ export function deferredCredentialHandlerFactory(
 
 			await validateDpop(
 				{
+					token_type: request.credentials.token_type,
 					access_token,
 					dpopRequest: request.credentials.dpopRequest,
 					dpop: request.credentials.dpop,
@@ -117,11 +119,12 @@ async function validateRequest(
 
 	const credentials: DeferredCredentialRequest["credentials"] = {};
 
-	const authorizationHeaderCapture = /(DPoP|[b|B]earer) (.+)/.exec(
+	const authorizationHeaderCapture = /(\S+) (.+)/.exec(
 		expressRequest.headers.authorization || "",
 	);
 
 	if (authorizationHeaderCapture) {
+		credentials.token_type = authorizationHeaderCapture[1];
 		credentials.access_token = authorizationHeaderCapture[2];
 	}
 

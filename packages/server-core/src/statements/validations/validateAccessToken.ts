@@ -3,6 +3,7 @@ import { OauthError } from "../../errors";
 import type { AccessToken, OauthClient } from "../../resources";
 
 export type validateAccessTokenParams = {
+	token_type?: string;
 	access_token: string | undefined;
 };
 
@@ -13,21 +14,30 @@ export type ValidateAccessTokenConfig = {
 
 // TODO validate code redirect uri according to request
 /**
- * What:
- * - Decrypts access token, checks token type, and resolves issuing client.
+ * Decrypts access token, validates authorization token type (`DPoP`/`Bearer`)
+ * when provided, checks JWT token type claim, and resolves issuing client.
  *
- * Why:
- * - Protected endpoints must reject malformed/foreign tokens before authorizing
+ * ## Why
+ * Protected endpoints must reject malformed/foreign tokens before authorizing
  *   any resource access.
  *
- * Specification:
+ * ## Specification
  * - OAuth 2.0 Bearer Token Usage (RFC 6750).
  * - OAuth 2.0 token processing rules (RFC 6749).
+ * - OAuth 2.0 Demonstrating Proof-of-Possession (DPoP), RFC 9449.
  */
 export async function validateAccessToken(
-	{ access_token }: validateAccessTokenParams,
+	{ token_type, access_token }: validateAccessTokenParams,
 	config: ValidateAccessTokenConfig,
 ) {
+	if (token_type && !token_type.match(/^(DPoP|[b|B]earer)$/)) {
+		throw new OauthError(
+			401,
+			"invalid_request",
+			"access token type is invalid",
+		);
+	}
+
 	if (!access_token) {
 		throw new OauthError(401, "invalid_request", "access token must be set");
 	}

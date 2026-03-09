@@ -1,6 +1,7 @@
 import type { JWK } from "jose";
 
 export type BearerCredentials = {
+	token_type?: string;
 	access_token?: string;
 	dpop?: string | string[];
 	dpopRequest?: {
