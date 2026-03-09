@@ -99,8 +99,10 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			);
 
 			const { scope } = await validateScope(
-				authorization_request.scope,
-				{ client },
+				{
+					scope: authorization_request.scope,
+					client,
+				},
 				config,
 			);
 			const isOpenidScopeRequested = scope.split(" ").includes("openid");

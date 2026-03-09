@@ -65,8 +65,10 @@ export function pushedAuthorizationRequestHandlerFactory(
 			);
 
 			const { scope: _scope } = await validateScope(
-				request.scope,
-				{ client },
+				{
+					scope: request.scope,
+					client,
+				},
 				config,
 			);
 

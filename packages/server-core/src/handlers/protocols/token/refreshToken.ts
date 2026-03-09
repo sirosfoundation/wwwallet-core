@@ -68,8 +68,10 @@ export async function handleRefreshToken(
 	let scope = previousScope;
 	if (request.scope) {
 		const { scope: requestedScope } = await validateScope(
-			request.scope,
-			{ client },
+			{
+				scope: request.scope,
+				client,
+			},
 			config,
 		);
 		const previousScopes = previousScope.split(" ");
