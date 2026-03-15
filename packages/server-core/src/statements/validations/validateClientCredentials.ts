@@ -84,6 +84,10 @@ export async function validateClientCredentials(
 				client.id === client_id && client.id === authorization_request.client_id
 			);
 		});
+
+		if (!client?.redirect_uris?.includes(authorization_request.redirect_uri)) {
+			throw new OauthError(401, "invalid_client", "invalid client credentials");
+		}
 	}
 
 	if (confidential && client_secret) {

@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { EncryptJWT, jwtDecrypt, SignJWT } from "jose";
 import request from "supertest";
 import { assert, beforeEach, describe, expect, it } from "vitest";
+import { AUTHORIZATION_REQUEST_URI_PREFIX } from "../../src/constants";
 import { app, protocols, trustedPem } from "../support/app";
 
 describe("authorization code - authorize", () => {
@@ -54,6 +55,37 @@ describe("authorization code - authorize", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.text).toMatch(request_uri);
+	});
+
+	it("rejects request_uri when redirect_uri is not registered for client", async () => {
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const client_id = "id";
+		const request_token = await new EncryptJWT({
+			token_type: "authorization_request",
+			response_type: "code",
+			client_id,
+			redirect_uri: "http://invalid.uri",
+			scope: "client:scope",
+			issuer_state,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(
+				now + (protocols.config.pushed_authorization_request_ttl || 0),
+			)
+			.encrypt(secret);
+		const request_uri = `${AUTHORIZATION_REQUEST_URI_PREFIX}${request_token}`;
+
+		const response = await request(app)
+			.get("/authorize")
+			.query({ client_id, request_uri });
+
+		expect(response.status).toBe(401);
+		expect(response.text).toMatch("invalid client credentials");
 	});
 });
 
