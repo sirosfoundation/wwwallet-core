@@ -31,7 +31,7 @@ export async function validateRefreshToken(
 		if (token_type !== "refresh_token") {
 			throw new OauthError(400, "invalid_request", "refresh token is invalid");
 		}
-		if (!client_id || !sub) {
+		if (!client_id || !sub || typeof scope !== "string") {
 			throw new OauthError(400, "invalid_request", "refresh token is invalid");
 		}
 
