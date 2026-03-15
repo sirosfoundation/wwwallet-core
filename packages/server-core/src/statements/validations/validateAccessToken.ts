@@ -58,6 +58,7 @@ export async function validateAccessToken(
 			typeof sub !== "string" ||
 			sub.trim().length === 0 ||
 			typeof scope !== "string" ||
+			scope.trim().length === 0 ||
 			!Number.isInteger(issuedAt) ||
 			issuedAt <= 0 ||
 			issuedAt > now
