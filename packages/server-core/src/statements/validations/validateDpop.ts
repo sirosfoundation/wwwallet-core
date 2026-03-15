@@ -99,6 +99,14 @@ export async function validateDpop(
 				"dpop jwt payload claims are invalid",
 			);
 		}
+		const now = Math.floor(Date.now() / 1000);
+		if (payload.iat > now) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"dpop jwt payload claims are invalid",
+			);
+		}
 
 		const { htm, htu, ath } = payload;
 
