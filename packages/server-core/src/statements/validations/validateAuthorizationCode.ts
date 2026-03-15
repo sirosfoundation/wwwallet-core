@@ -66,6 +66,13 @@ export async function validateAuthorizationCode(
 				"authorization code is invalid",
 			);
 		}
+		if (!sub) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
 
 		if (redirect_uri !== requestedRedirectUri) {
 			throw new OauthError(
