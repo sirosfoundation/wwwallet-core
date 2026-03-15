@@ -155,7 +155,7 @@ export async function validateAuthorizationCodeRequest(
 			expressRequest.headers["oauth-client-attestation"];
 	}
 
-	if (!code) {
+	if (typeof code !== "string" || code.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -163,7 +163,7 @@ export async function validateAuthorizationCodeRequest(
 		);
 	}
 
-	if (!redirect_uri) {
+	if (typeof redirect_uri !== "string" || redirect_uri.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",

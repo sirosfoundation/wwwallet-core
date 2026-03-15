@@ -130,7 +130,7 @@ export async function validateRefreshTokenRequest(
 	const { client_id, client_secret, refresh_token, scope, grant_type } =
 		expressRequest.body;
 
-	if (!client_id) {
+	if (typeof client_id !== "string" || client_id.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -138,7 +138,7 @@ export async function validateRefreshTokenRequest(
 		);
 	}
 
-	if (!client_secret) {
+	if (typeof client_secret !== "string" || client_secret.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -146,7 +146,7 @@ export async function validateRefreshTokenRequest(
 		);
 	}
 
-	if (!refresh_token) {
+	if (typeof refresh_token !== "string" || refresh_token.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",

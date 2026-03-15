@@ -388,6 +388,19 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with non-string code", async () => {
+		const grant_type = "authorization_code";
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, code: {} });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code is missing from body parameters",
+		});
+	});
+
 	it("returns an error with a client id", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";

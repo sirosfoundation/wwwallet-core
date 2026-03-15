@@ -18,6 +18,21 @@ describe("refresh token - token endpoint", () => {
 		});
 	});
 
+	it("returns an error with non-string refresh_token", async () => {
+		const response = await request(app).post("/token").send({
+			grant_type: "refresh_token",
+			client_id: "id",
+			client_secret: "secret",
+			refresh_token: {},
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "refresh_token is missing from body parameters",
+		});
+	});
+
 	it("returns an error with an invalid refresh token", async () => {
 		const response = await request(app).post("/token").send({
 			grant_type: "refresh_token",
