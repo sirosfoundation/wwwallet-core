@@ -402,6 +402,24 @@ describe("credential endpoint", () => {
 			});
 		});
 
+		it("returns an error with a non-string dpop jwt header alg", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const dpop =
+				"eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6MSwiandrIjp7fX0.eyJqdGkiOiJqdGkiLCJodG0iOiJQT1NUIiwiaHR1IjoiaHR0cDovL2xvY2FsaG9zdDo1MDAwL2NyZWRlbnRpYWwiLCJpYXQiOjEsImF0aCI6ImF0aCJ9.invalid";
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id, proofs: {} });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "dpop jwt must be signed with an asymetric key",
+			});
+		});
+
 		it("returns an error with an invalid dpop jwt signature", async () => {
 			const credential_configuration_id = "unknwown:configuration:id";
 			const { publicKey: otherPublicKey } = await generateKeyPair("ES256");

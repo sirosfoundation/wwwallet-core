@@ -167,6 +167,13 @@ async function validateDpopHeader(dpop: string) {
 			"alg is missing from dpop jwt header",
 		);
 	}
+	if (typeof dpopHeader.alg !== "string") {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"dpop jwt must be signed with an asymetric key",
+		);
+	}
 
 	if (!dpopHeader.jwk) {
 		throw new OauthError(
