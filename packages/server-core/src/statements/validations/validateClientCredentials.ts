@@ -68,6 +68,17 @@ export async function validateClientCredentials(
 				"oauth client attestation does not match any known client",
 			);
 		}
+
+		if (client_id && client && client.id !== client_id) {
+			throw new OauthError(401, "invalid_client", "invalid client credentials");
+		}
+		if (
+			authorization_request &&
+			client &&
+			client.id !== authorization_request.client_id
+		) {
+			throw new OauthError(401, "invalid_client", "invalid client credentials");
+		}
 	}
 
 	if (!confidential && redirect_uri) {
