@@ -72,6 +72,20 @@ export async function validateRequestUri(
 				"authorization request is invalid",
 			);
 		}
+		if (
+			typeof response_type !== "string" ||
+			response_type.length === 0 ||
+			typeof client_id !== "string" ||
+			client_id.length === 0 ||
+			typeof redirect_uri !== "string" ||
+			redirect_uri.length === 0
+		) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
 
 		return {
 			request_uri,
