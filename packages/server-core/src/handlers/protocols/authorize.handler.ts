@@ -5,17 +5,11 @@ import { OauthError, type OauthErrorResponse } from "../../errors";
 import type { AuthorizationRequest, ResourceOwner } from "../../resources";
 import {
 	type AuthorizationCodeRedirectionConfig,
-	authorizationCodeRedirection,
 	type GenerateAccessTokenConfig,
 	type GenerateAuthorizationCodeConfig,
 	type GenerateIdTokenConfig,
-	generateAccessToken,
-	generateAuthorizationCode,
-	generateIdToken,
 	type HybridGrantRedirectionConfig,
-	hybridGrantRedirection,
 	type ImplicitGrantRedirectionConfig,
-	implicitGrantRedirection,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
 	type ValidateRequestUriConfig,
@@ -29,6 +23,9 @@ import {
 	validateResponseTypes,
 	validateScope,
 } from "../../statements";
+import { handleAuthorizationCodeResponse } from "./authorize/authorizationCode";
+import { handleHybridGrantResponse } from "./authorize/hybridGrant";
+import { handleImplicitGrantResponse } from "./authorize/implicitGrant";
 import { authorizeHandlerConfigSchema } from "./schemas";
 
 const ajv = new Ajv();
@@ -105,7 +102,6 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 				},
 				config,
 			);
-			const isOpenidScopeRequested = scope.split(" ").includes("openid");
 
 			const { issuer_state: _issuer_state } = await validateIssuerState(
 				{
@@ -135,129 +131,41 @@ export function authorizeHandlerFactory(config: AuthorizeHandlerConfig) {
 			);
 
 			if (response_type === "code") {
-				const { authorization_code } = await generateAuthorizationCode(
+				return await handleAuthorizationCodeResponse(
 					{
-						authorization_request: authorization_request,
+						request_uri,
+						authorization_request,
 						resource_owner,
 						scope,
 					},
 					config,
 				);
-
-				// TODO add state parameter
-				const { location } = await authorizationCodeRedirection(
-					{ authorization_request, authorization_code },
-					config,
-				);
-
-				config.logger.business("authenticate", {
-					request_uri,
-					authorization_code,
-					sub: resource_owner.sub || "",
-				});
-
-				return {
-					status: 302,
-					location,
-				};
 			}
 
 			if (response_type === "token") {
-				const { access_token, expires_in } = await generateAccessToken(
+				return await handleImplicitGrantResponse(
 					{
+						request_uri,
+						authorization_request,
 						client,
-						scope,
-						sub: resource_owner.sub || undefined,
-					},
-					config,
-				);
-				const { id_token } = isOpenidScopeRequested
-					? await generateIdToken(
-							{
-								client_id: client.id,
-								sub: resource_owner.sub || "",
-								nonce: authorization_request.nonce,
-								access_token,
-							},
-							config,
-						)
-					: { id_token: undefined };
-
-				const { location } = await implicitGrantRedirection(
-					{
-						authorization_request,
-						access_token,
-						expires_in,
-						id_token,
-					},
-					config,
-				);
-
-				config.logger.business("authenticate", {
-					request_uri,
-					access_token,
-					sub: resource_owner.sub || "",
-				});
-
-				return {
-					status: 302,
-					location,
-				};
-			}
-
-			if (response_type === "code token") {
-				const { authorization_code } = await generateAuthorizationCode(
-					{
-						authorization_request,
 						resource_owner,
 						scope,
 					},
 					config,
 				);
+			}
 
-				const { access_token, expires_in } = await generateAccessToken(
+			if (response_type === "code token") {
+				return await handleHybridGrantResponse(
 					{
-						client,
-						scope,
-						sub: resource_owner.sub || undefined,
-					},
-					config,
-				);
-				const { id_token } = isOpenidScopeRequested
-					? await generateIdToken(
-							{
-								client_id: client.id,
-								sub: resource_owner.sub || "",
-								nonce: authorization_request.nonce,
-								access_token,
-								authorization_code,
-							},
-							config,
-						)
-					: { id_token: undefined };
-
-				const { location } = await hybridGrantRedirection(
-					{
+						request_uri,
 						authorization_request,
-						authorization_code,
-						access_token,
-						expires_in,
-						id_token,
+						client,
+						resource_owner,
+						scope,
 					},
 					config,
 				);
-
-				config.logger.business("authenticate", {
-					request_uri,
-					authorization_code,
-					access_token,
-					sub: resource_owner.sub || "",
-				});
-
-				return {
-					status: 302,
-					location,
-				};
 			}
 
 			throw new OauthError(
