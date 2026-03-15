@@ -17,6 +17,9 @@ export type ValidateCodeVerifierConfig = {};
  * PKCE prevents intercepted authorization codes from being redeemed by an
  *   attacker who does not control the original verifier.
  *
+ * Hardening references:
+ * - `38ba7d0` harden PKCE verifier validation (`S256`, format checks).
+ *
  * ## Specification
  * - PKCE (RFC 7636), `S256` transformation and verification.
  */
@@ -70,7 +73,13 @@ export async function validateCodeVerifier(
 		.update(code_verifier)
 		.digest("base64url");
 
-	if (challenge !== code_challenge) {
+	const expectedChallenge = Buffer.from(code_challenge);
+	const providedChallenge = Buffer.from(challenge);
+	const matches =
+		expectedChallenge.length === providedChallenge.length &&
+		crypto.timingSafeEqual(expectedChallenge, providedChallenge);
+
+	if (!matches) {
 		throw new OauthError(400, "invalid_request", "code verifier is invalid");
 	}
 
