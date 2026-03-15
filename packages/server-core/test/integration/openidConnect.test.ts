@@ -128,4 +128,33 @@ describe("openid connect", () => {
 		expect(userinfoResponse.status).toBe(200);
 		expect(userinfoResponse.body).to.deep.eq({ sub: "sub" });
 	});
+
+	it("rejects implicit openid requests without nonce", async () => {
+		const response_type = "token";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const scope = "openid client:scope";
+		const username = "wwwallet";
+		const password = "tellawww";
+
+		const {
+			body: { request_uri },
+		} = await request(app).post("/pushed-authorization-request").send({
+			response_type,
+			client_id,
+			redirect_uri,
+			scope,
+			issuer_state,
+		});
+
+		const authorizeResponse = await request(app)
+			.post("/authorize")
+			.send({ username, password })
+			.query({ client_id, request_uri });
+
+		expect(authorizeResponse.status).toBe(400);
+		expect(authorizeResponse.text).toMatch(
+			"nonce is missing from authorization request",
+		);
+	});
 });

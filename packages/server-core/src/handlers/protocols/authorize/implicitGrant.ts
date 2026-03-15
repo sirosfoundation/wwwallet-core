@@ -3,6 +3,7 @@ import type {
 	OauthClient,
 	ResourceOwner,
 } from "../../../resources";
+import { OauthError } from "../../../errors";
 import {
 	generateAccessToken,
 	generateIdToken,
@@ -28,6 +29,13 @@ export async function handleImplicitGrantResponse(
 	const { request_uri, authorization_request, client, resource_owner, scope } =
 		params;
 	const isOpenidScopeRequested = scope.split(" ").includes("openid");
+	if (isOpenidScopeRequested && !authorization_request.nonce) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"nonce is missing from authorization request",
+		);
+	}
 
 	const { access_token, expires_in } = await generateAccessToken(
 		{

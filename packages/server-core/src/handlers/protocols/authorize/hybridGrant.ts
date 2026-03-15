@@ -3,6 +3,7 @@ import type {
 	OauthClient,
 	ResourceOwner,
 } from "../../../resources";
+import { OauthError } from "../../../errors";
 import {
 	generateAccessToken,
 	generateAuthorizationCode,
@@ -29,6 +30,13 @@ export async function handleHybridGrantResponse(
 	const { request_uri, authorization_request, client, resource_owner, scope } =
 		params;
 	const isOpenidScopeRequested = scope.split(" ").includes("openid");
+	if (isOpenidScopeRequested && !authorization_request.nonce) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"nonce is missing from authorization request",
+		);
+	}
 
 	const { authorization_code } = await generateAuthorizationCode(
 		{
