@@ -150,7 +150,7 @@ async function validateDpopHeader(dpop: string) {
 		);
 	}
 
-	if (!dpopHeader.alg.match(/ES|RS|EdDSA/)) {
+	if (!dpopHeader.alg.match(/^(ES\d+|RS\d+|EdDSA)$/)) {
 		throw new OauthError(
 			400,
 			"invalid_request",
