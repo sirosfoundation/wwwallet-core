@@ -60,14 +60,14 @@ export async function validateAuthorizationCode(
 				"authorization code is invalid",
 			);
 		}
-		if (!client_id) {
+		if (typeof client_id !== "string" || client_id.trim().length === 0) {
 			throw new OauthError(
 				400,
 				"invalid_request",
 				"authorization code is invalid",
 			);
 		}
-		if (!sub) {
+		if (typeof sub !== "string" || sub.trim().length === 0) {
 			throw new OauthError(
 				400,
 				"invalid_request",

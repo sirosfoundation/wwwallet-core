@@ -604,6 +604,38 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error when authorization code subject claim type is invalid", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub: {},
+			token_type: "authorization_code",
+			client_id,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
 	it("returns an error when authorization code iat is missing", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
