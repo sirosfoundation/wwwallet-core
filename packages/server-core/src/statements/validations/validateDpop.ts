@@ -73,7 +73,7 @@ export async function validateDpop(
 		}>(dpop, jwk);
 
 		for (const claim of ["jti", "htm", "htu", "iat", "ath"]) {
-			if (!payload[claim]) {
+			if (payload[claim] === undefined || payload[claim] === null) {
 				throw new OauthError(
 					400,
 					"invalid_request",
@@ -83,9 +83,13 @@ export async function validateDpop(
 		}
 		if (
 			typeof payload.jti !== "string" ||
+			payload.jti.trim().length === 0 ||
 			typeof payload.htm !== "string" ||
+			payload.htm.trim().length === 0 ||
 			typeof payload.htu !== "string" ||
+			payload.htu.trim().length === 0 ||
 			typeof payload.ath !== "string" ||
+			payload.ath.trim().length === 0 ||
 			!Number.isInteger(payload.iat) ||
 			payload.iat <= 0
 		) {

@@ -483,6 +483,37 @@ describe("credential endpoint", () => {
 			});
 		});
 
+		it("returns an error with empty dpop jwt payload claims", async () => {
+			const credential_configuration_id = "unknwown:configuration:id";
+			const { publicKey, privateKey } = await generateKeyPair("ES256");
+			const claims = {
+				jti: "jti",
+				htm: "",
+				htu: "http://localhost:5000/credential",
+				iat: 1,
+				ath: "ath",
+			};
+			const dpop = await new SignJWT(claims)
+				.setProtectedHeader({
+					typ: "dpop+jwt",
+					alg: "ES256",
+					jwk: await exportJWK(publicKey),
+				})
+				.sign(privateKey);
+
+			const response = await request(app)
+				.post("/credential")
+				.set("Authorization", `DPoP ${access_token}`)
+				.set("DPoP", dpop)
+				.send({ credential_configuration_id, proofs: {} });
+
+			expect(response.status).toBe(400);
+			expect(response.body).to.deep.eq({
+				error: "invalid_request",
+				error_description: "dpop jwt payload claims are invalid",
+			});
+		});
+
 		it("returns an error with an invalid dpop htm value", async () => {
 			const credential_configuration_id = "unknwown:configuration:id";
 			const { publicKey, privateKey } = await generateKeyPair("ES256");
