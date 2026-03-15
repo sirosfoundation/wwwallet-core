@@ -27,7 +27,7 @@ export async function validateCodeVerifier(
 		code_challenge_method,
 	}: ValidateCodeVerifierParams,
 	_config: ValidateCodeVerifierConfig,
-): Promise<unknown> {
+) {
 	if (!code_challenge) {
 		throw new OauthError(
 			400,
