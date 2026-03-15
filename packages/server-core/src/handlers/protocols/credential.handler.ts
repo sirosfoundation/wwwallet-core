@@ -7,10 +7,12 @@ import {
 	type GenerateCredentialsConfig,
 	generateCredentials,
 	type ValidateAccessTokenConfig,
+	type ValidateCredentialConfigurationIdsConfig,
 	type ValidateCredentialConfigurationsConfig,
 	type ValidateDpopConfig,
 	type ValidateProofsConfig,
 	validateAccessToken,
+	validateCredentialConfigurationIds,
 	validateCredentialConfigurations,
 	validateDpop,
 	validateProofs,
@@ -23,6 +25,7 @@ export type CredentialHandlerConfig = {
 	logger: Logger;
 } & ValidateAccessTokenConfig &
 	ValidateDpopConfig &
+	ValidateCredentialConfigurationIdsConfig &
 	ValidateCredentialConfigurationsConfig &
 	ValidateProofsConfig &
 	GenerateCredentialsConfig;
@@ -142,18 +145,12 @@ async function validateRequest(
 	}
 
 	const { credential_configuration_id, proof } = expressRequest.body;
-
-	const credential_configuration_ids =
-		expressRequest.body.credential_configuration_ids ||
-		(credential_configuration_id && [credential_configuration_id]);
-
-	if (!credential_configuration_ids?.length) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"credential configuration ids are missing from body parameters",
-		);
-	}
+	const { credential_configuration_ids } =
+		await validateCredentialConfigurationIds({
+			credential_configuration_id,
+			credential_configuration_ids:
+				expressRequest.body.credential_configuration_ids,
+		});
 
 	let proofs = expressRequest.body.proofs || (proof && {});
 

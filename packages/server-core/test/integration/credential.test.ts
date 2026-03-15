@@ -28,6 +28,34 @@ describe("credential endpoint", () => {
 		});
 	});
 
+	it("returns an error with non-array credential configuration ids", async () => {
+		const response = await request(app).post("/credential").send({
+			credential_configuration_ids: "full",
+			proofs: {},
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "credential configuration ids are invalid",
+		});
+	});
+
+	it("returns an error with invalid credential configuration id item type", async () => {
+		const response = await request(app)
+			.post("/credential")
+			.send({
+				credential_configuration_ids: ["full", {}],
+				proofs: {},
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "credential configuration ids are invalid",
+		});
+	});
+
 	it("returns an error with malformed json proofs", async () => {
 		const credential_configuration_id = "unknwown:configuration:id";
 		const response = await request(app).post("/credential").send({
