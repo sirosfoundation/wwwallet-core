@@ -73,6 +73,18 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with a non-string response type", async () => {
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type: {} });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "response_type is invalid",
+		});
+	});
+
 	it("returns an error with an invalid redirect uri", async () => {
 		const response_type = "code";
 		const client_id = "id";

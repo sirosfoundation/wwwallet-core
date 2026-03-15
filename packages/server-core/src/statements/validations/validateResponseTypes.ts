@@ -27,11 +27,14 @@ export async function validateResponseTypes(
 	}: ValidateResponseTypesParams,
 	_config?: ValidateResponseTypesConfig,
 ) {
-	if (!response_type) {
+	if (!response_type || typeof response_type !== "string") {
 		throw new OauthError(400, "invalid_request", "response_type is invalid");
 	}
 
 	const normalized_response_type = response_type.trim().split(/\s+/).join(" ");
+	if (!normalized_response_type) {
+		throw new OauthError(400, "invalid_request", "response_type is invalid");
+	}
 	if (!response_types_supported.includes(normalized_response_type)) {
 		throw new OauthError(400, "invalid_request", "response_type is invalid");
 	}
