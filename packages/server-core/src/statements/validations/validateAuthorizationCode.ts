@@ -98,6 +98,37 @@ export async function validateAuthorizationCode(
 				"authorization code is invalid",
 			);
 		}
+		if (scope !== undefined && typeof scope !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
+		if (nonce !== undefined && typeof nonce !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
+		if (code_challenge !== undefined && typeof code_challenge !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
+		if (
+			code_challenge_method !== undefined &&
+			typeof code_challenge_method !== "string"
+		) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
 
 		return {
 			authorization_code,
