@@ -129,6 +129,48 @@ describe("openid connect", () => {
 		expect(userinfoResponse.body).to.deep.eq({ sub: "sub" });
 	});
 
+	it("rejects userinfo authorization header with malformed bearer prefix", async () => {
+		const response_type = "token";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const scope = "openid client:scope";
+		const nonce = "implicit-flow-nonce";
+		const username = "wwwallet";
+		const password = "tellawww";
+
+		const {
+			body: { request_uri },
+		} = await request(app).post("/pushed-authorization-request").send({
+			response_type,
+			client_id,
+			redirect_uri,
+			scope,
+			issuer_state,
+			nonce,
+		});
+
+		const authorizeResponse = await request(app)
+			.post("/authorize")
+			.send({ username, password })
+			.query({ client_id, request_uri });
+		expect(authorizeResponse.status).toBe(302);
+
+		const location = new URL(authorizeResponse.headers.location);
+		const fragment = new URLSearchParams(location.hash.replace("#", ""));
+		const access_token = fragment.get("access_token");
+		assert(access_token);
+
+		const userinfoResponse = await request(app)
+			.get("/userinfo")
+			.set("Authorization", `foo Bearer ${access_token}`);
+
+		expect(userinfoResponse.status).toBe(401);
+		expect(userinfoResponse.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "access token must be set",
+		});
+	});
+
 	it("rejects implicit openid requests without nonce", async () => {
 		const response_type = "token";
 		const client_id = "id";

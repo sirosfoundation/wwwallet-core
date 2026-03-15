@@ -76,7 +76,7 @@ export function validateUserinfoHandlerConfig(config: Config) {
 }
 
 async function validateRequest(expressRequest: Request) {
-	const authorizationHeaderCapture = /(DPoP|[Bb]earer) (.+)/.exec(
+	const authorizationHeaderCapture = /^(DPoP|[Bb]earer) (.+)$/.exec(
 		expressRequest.headers.authorization || "",
 	);
 
