@@ -34,8 +34,10 @@ export async function validateRefreshToken(
 		const now = Math.floor(Date.now() / 1000);
 		const issuedAt = Number(iat);
 		if (
-			!client_id ||
-			!sub ||
+			typeof client_id !== "string" ||
+			client_id.trim().length === 0 ||
+			typeof sub !== "string" ||
+			sub.trim().length === 0 ||
 			typeof scope !== "string" ||
 			!Number.isInteger(issuedAt) ||
 			issuedAt <= 0 ||
