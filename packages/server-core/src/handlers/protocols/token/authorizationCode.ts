@@ -70,6 +70,7 @@ export async function handleAuthorizationCode(
 		{
 			authorization_code: request.code,
 			redirect_uri: request.redirect_uri,
+			client: client,
 		},
 		config,
 	);

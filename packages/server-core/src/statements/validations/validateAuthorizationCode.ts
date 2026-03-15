@@ -1,10 +1,11 @@
 import { type DecryptConfig, jwtDecryptWithConfigKeys } from "../../crypto";
 import { OauthError } from "../../errors";
-import type { AuthorizationCode } from "../../resources";
+import type { AuthorizationCode, OauthClient } from "../../resources";
 
 export type validateAuthorizationCodeParams = {
 	authorization_code: string;
 	redirect_uri: string;
+	client: OauthClient;
 };
 
 export type ValidateAuthorizationCodeConfig = DecryptConfig;
@@ -25,6 +26,7 @@ export async function validateAuthorizationCode(
 	{
 		authorization_code,
 		redirect_uri: requestedRedirectUri,
+		client: requestedClient,
 	}: validateAuthorizationCodeParams,
 	config: ValidateAuthorizationCodeConfig,
 ) {
@@ -32,6 +34,7 @@ export async function validateAuthorizationCode(
 		const {
 			payload: {
 				token_type,
+				client_id,
 				redirect_uri,
 				nonce,
 				code_challenge,
@@ -51,8 +54,22 @@ export async function validateAuthorizationCode(
 				"authorization code is invalid",
 			);
 		}
+		if (!client_id) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
 
 		if (redirect_uri !== requestedRedirectUri) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
+		if (client_id !== requestedClient.id) {
 			throw new OauthError(
 				400,
 				"invalid_request",
@@ -62,6 +79,7 @@ export async function validateAuthorizationCode(
 
 		return {
 			authorization_code,
+			client_id,
 			nonce,
 			code_challenge,
 			code_challenge_method,

@@ -42,6 +42,13 @@ export async function generateAuthorizationCode(
 			"authorization code requires a subject",
 		);
 	}
+	if (!authorization_request.client_id) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"authorization code requires a client id",
+		);
+	}
 
 	const now = Date.now() / 1000;
 
@@ -49,6 +56,7 @@ export async function generateAuthorizationCode(
 
 	const authorization_code = await new EncryptJWT({
 		token_type: "authorization_code",
+		client_id: authorization_request.client_id,
 		redirect_uri: authorization_request.redirect_uri,
 		nonce: authorization_request.nonce,
 		code_challenge: authorization_request.code_challenge,

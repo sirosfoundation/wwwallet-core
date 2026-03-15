@@ -376,7 +376,46 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			redirect_uri: "http://other.uri",
+			code_challenge,
+			code_challenge_method,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
+	it("returns an error when authorization code client id does not match request client_id", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
+		const code_challenge_method = "S256";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			client_id: "other-client-id",
+			redirect_uri,
 			code_challenge,
 			code_challenge_method,
 		})
@@ -445,6 +484,7 @@ describe("authorization code - token", () => {
 
 	it("returns an error with invalid oauth client attestation", async () => {
 		const grant_type = "authorization_code";
+		const client_id = "id";
 		const oauth_client_attestation = "invalid";
 		const redirect_uri = "http://invalid.uri";
 		const sub = "sub";
@@ -454,6 +494,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			redirect_uri: "http://invalid.uri",
 		})
 			.setProtectedHeader({
@@ -505,6 +546,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			redirect_uri,
 		})
 			.setProtectedHeader({
@@ -538,6 +580,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			redirect_uri,
 		})
@@ -574,6 +617,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -610,6 +654,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -648,6 +693,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -685,6 +731,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -725,6 +772,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -762,6 +810,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -806,6 +855,7 @@ describe("authorization code - token", () => {
 	it.skip("returns a token with an oauth client attestation", async () => {
 		const privateKey = crypto.createPrivateKey(trustedPem);
 		const grant_type = "authorization_code";
+		const client_id = "id";
 		const oauth_client_attestation = await new SignJWT({ sub: "id" })
 			.setProtectedHeader({ typ: "oauth-client-attestation+jwt", alg: "RS256" })
 			.sign(privateKey);
@@ -820,6 +870,7 @@ describe("authorization code - token", () => {
 		const code = await new EncryptJWT({
 			sub,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,
@@ -869,6 +920,7 @@ describe("authorization code - token", () => {
 			sub,
 			scope,
 			token_type: "authorization_code",
+			client_id,
 			code_challenge,
 			code_challenge_method,
 			redirect_uri,

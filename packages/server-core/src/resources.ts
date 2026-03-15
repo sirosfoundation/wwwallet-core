@@ -131,6 +131,7 @@ export type RefreshToken = {
 export type AuthorizationCode = {
 	token_type: "authorization_code";
 	authorization_code?: string;
+	client_id: string;
 	redirect_uri: string;
 	sub: string;
 	scope: string;
