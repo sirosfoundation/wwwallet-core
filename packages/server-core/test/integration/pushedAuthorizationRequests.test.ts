@@ -352,6 +352,21 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error for code token response_type without code_challenge", async () => {
+		const response_type = "code token";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type, client_id, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code_challenge is missing from body params",
+		});
+	});
+
 	it("returns an error for code response_type with non-S256 code_challenge_method", async () => {
 		const response_type = "code";
 		const client_id = "id";
