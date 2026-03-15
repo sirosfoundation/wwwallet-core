@@ -106,6 +106,26 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with non-string redirect uri", async () => {
+		const response_type = "code";
+		const client_id = "id";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({
+				response_type,
+				client_id,
+				redirect_uri: {},
+				code_challenge,
+				code_challenge_method,
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "redirect_uri is missing from body params",
+		});
+	});
+
 	it("returns an error with an invalid scope", async () => {
 		const response_type = "code";
 		const client_id = "id";

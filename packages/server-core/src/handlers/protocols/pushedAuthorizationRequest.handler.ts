@@ -144,7 +144,7 @@ async function validateRequest(
 			response_type,
 		});
 
-	if (!redirect_uri) {
+	if (typeof redirect_uri !== "string" || redirect_uri.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
