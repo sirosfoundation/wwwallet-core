@@ -27,7 +27,7 @@ export type AuthorizationCodeRequest = {
 	grant_type: "authorization_code";
 	client_id?: string;
 	client_secret?: string;
-	redirect_uri?: string;
+	redirect_uri: string;
 	oauth_client_attestation?: string;
 	code: string;
 	code_verifier: string | undefined;

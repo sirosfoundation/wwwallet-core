@@ -5,11 +5,11 @@ import { OauthError, type OauthErrorResponse } from "../../errors";
 import {
 	type GenerateAuthorizationRequestUriConfig,
 	generateAuthorizationRequestUri,
-	validateCodeChallenge,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
 	type ValidateResponseTypesConfig,
 	validateClientCredentials,
+	validateCodeChallenge,
 	validateIssuerState,
 	validateResponseTypes,
 	validateScope,

@@ -47,17 +47,15 @@ describe("authorization code - authorize", () => {
 
 		const {
 			body: { request_uri },
-		} = await request(app)
-			.post("/pushed-authorization-request")
-			.send({
-				response_type,
-				client_id,
-				redirect_uri,
-				scope,
-				issuer_state,
-				code_challenge,
-				code_challenge_method,
-			});
+		} = await request(app).post("/pushed-authorization-request").send({
+			response_type,
+			client_id,
+			redirect_uri,
+			scope,
+			issuer_state,
+			code_challenge,
+			code_challenge_method,
+		});
 
 		const response = await request(app)
 			.get("/authorize")
@@ -264,17 +262,15 @@ describe("authorization code - authenticate", () => {
 
 			const {
 				body: { request_uri },
-			} = await request(app)
-				.post("/pushed-authorization-request")
-				.send({
-					response_type,
-					client_id,
-					redirect_uri,
-					scope,
-					issuer_state,
-					code_challenge,
-					code_challenge_method,
-				});
+			} = await request(app).post("/pushed-authorization-request").send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 			const response = await request(app)
 				.post("/authorize")
@@ -358,6 +354,43 @@ describe("authorization code - token", () => {
 		const response = await request(app)
 			.post("/token")
 			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
+	it("returns an error when authorization code redirect uri does not match request redirect_uri", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
+		const code_verifier = "test";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			redirect_uri: "http://other.uri",
+			code_challenge,
+			code_challenge_method,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
