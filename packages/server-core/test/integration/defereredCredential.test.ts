@@ -37,6 +37,18 @@ describe("deferred credential endpoint", () => {
 		});
 	});
 
+	it("returns an error with non-string transaction id", async () => {
+		const response = await request(app)
+			.post("/deferred-credential")
+			.send({ transaction_id: {} });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "transaction id is missing from body parameters",
+		});
+	});
+
 	it("returns an error without authorization header", async () => {
 		const transaction_id = "transaction_id";
 		const response = await request(app)

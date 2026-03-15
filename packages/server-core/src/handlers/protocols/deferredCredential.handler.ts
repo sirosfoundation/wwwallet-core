@@ -109,7 +109,10 @@ async function validateRequest(
 
 	const { transaction_id } = expressRequest.body;
 
-	if (!transaction_id) {
+	if (
+		typeof transaction_id !== "string" ||
+		transaction_id.trim().length === 0
+	) {
 		throw new OauthError(
 			400,
 			"invalid_request",
