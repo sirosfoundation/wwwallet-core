@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { jwtVerify } from "jose";
+import { decodeProtectedHeader, jwtVerify } from "jose";
 import { OauthError } from "../../errors";
 import type { AuthorizationRequest, OauthClient } from "../../resources";
 
@@ -50,6 +50,15 @@ export async function validateClientCredentials(
 		let found = false;
 		for (const certificate of config.trusted_root_certificates) {
 			try {
+				const { typ } = decodeProtectedHeader(oauth_client_attestation);
+				if (typ !== "oauth-client-attestation+jwt") {
+					throw new OauthError(
+						401,
+						"invalid_client",
+						"invalid client credentials",
+					);
+				}
+
 				const { publicKey } = new crypto.X509Certificate(certificate);
 				const { payload } = await jwtVerify(
 					oauth_client_attestation,
@@ -58,7 +67,11 @@ export async function validateClientCredentials(
 
 				client = config.clients.find(({ id }) => id === payload.sub);
 				found = !!client;
-			} catch (_error) {}
+			} catch (error) {
+				if (error instanceof OauthError) {
+					throw error;
+				}
+			}
 		}
 
 		if (!found) {
