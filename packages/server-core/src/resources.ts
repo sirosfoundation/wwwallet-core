@@ -102,6 +102,7 @@ export type DeferredResourceOwnerData = {
 
 export type AuthorizationRequest = {
 	response_type: string;
+	iat?: number;
 	client_id?: string;
 	redirect_uri: string;
 	scope?: string;

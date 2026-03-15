@@ -40,6 +40,7 @@ export async function validateRequestUri(
 		const {
 			payload: {
 				token_type,
+				iat,
 				response_type,
 				client_id,
 				redirect_uri,
@@ -59,6 +60,15 @@ export async function validateRequestUri(
 			throw new OauthError(
 				401,
 				"invalid_client",
+				"authorization request is invalid",
+			);
+		}
+		const now = Math.floor(Date.now() / 1000);
+		const issuedAt = Number(iat);
+		if (!Number.isInteger(issuedAt) || issuedAt <= 0 || issuedAt > now) {
+			throw new OauthError(
+				400,
+				"invalid_request",
 				"authorization request is invalid",
 			);
 		}
