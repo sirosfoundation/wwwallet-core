@@ -81,6 +81,20 @@ export async function validateDpop(
 				);
 			}
 		}
+		if (
+			typeof payload.jti !== "string" ||
+			typeof payload.htm !== "string" ||
+			typeof payload.htu !== "string" ||
+			typeof payload.ath !== "string" ||
+			!Number.isInteger(payload.iat) ||
+			payload.iat <= 0
+		) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"dpop jwt payload claims are invalid",
+			);
+		}
 
 		const { htm, htu, ath } = payload;
 
