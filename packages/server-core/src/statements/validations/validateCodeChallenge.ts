@@ -50,5 +50,14 @@ export async function validateCodeChallenge(
 		);
 	}
 
+	// S256 code_challenge is base64url(SHA256(code_verifier)) => 43 chars.
+	if (!/^[A-Za-z0-9_-]{43}$/.test(code_challenge)) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"code_challenge is invalid",
+		);
+	}
+
 	return { code_challenge, code_challenge_method };
 }

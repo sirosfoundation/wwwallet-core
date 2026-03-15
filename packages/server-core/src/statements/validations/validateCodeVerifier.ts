@@ -60,6 +60,11 @@ export async function validateCodeVerifier(
 		);
 	}
 
+	// RFC 7636 code verifier: 43-128 chars from unreserved URI set.
+	if (!/^[A-Za-z0-9\-._~]{43,128}$/.test(code_verifier)) {
+		throw new OauthError(400, "invalid_request", "code verifier is invalid");
+	}
+
 	const challenge = crypto
 		.createHash("sha256")
 		.update(code_verifier)

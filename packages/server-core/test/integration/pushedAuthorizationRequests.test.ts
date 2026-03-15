@@ -6,7 +6,7 @@ import { app, protocols, trustedPem } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
 	let issuer_state: string;
-	const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+	const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 	const code_challenge_method = "S256";
 	beforeEach(async () => {
 		const now = Date.now() / 1000;
@@ -371,6 +371,50 @@ describe("pushshed authorization request endpoint", () => {
 		expect(response.body).to.deep.eq({
 			error: "invalid_request",
 			error_description: "code_challenge_method must be S256",
+		});
+	});
+
+	it("returns an error for code response_type with invalid code_challenge chars", async () => {
+		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa+",
+				code_challenge_method,
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code_challenge is invalid",
+		});
+	});
+
+	it("returns an error for code response_type with invalid code_challenge length", async () => {
+		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge: "too-short",
+				code_challenge_method,
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code_challenge is invalid",
 		});
 	});
 });

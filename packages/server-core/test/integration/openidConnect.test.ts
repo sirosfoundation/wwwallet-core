@@ -33,9 +33,9 @@ describe("openid connect", () => {
 		const redirect_uri = "http://redirect.uri";
 		const scope = "openid client:scope";
 		const nonce = "oidc-nonce";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 		const username = "wwwallet";
 		const password = "tellawww";
 

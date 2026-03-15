@@ -20,7 +20,7 @@ describe("issuance flow", () => {
 		const response_type = "code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
 		const pushedAuthorizationRequest = await request(app)
 			.post("/pushed-authorization-request")
@@ -54,7 +54,7 @@ describe("issuance flow", () => {
 
 		// ----------
 		const grant_type = "authorization_code";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 		const token = await request(app)
 			.post("/token")
@@ -146,7 +146,7 @@ describe("issuance flow", () => {
 			const response_type = "code";
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
-			const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+			const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 			const code_challenge_method = "S256";
 			const pushedAuthorizationRequest = await request(app)
 				.post("/pushed-authorization-request")
@@ -200,7 +200,7 @@ describe("issuance flow", () => {
 				protocols.config.secret = crypto.randomBytes(32).toString("hex");
 			}
 			const grant_type = "authorization_code";
-			const code_verifier = "test";
+			const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 			const token = await request(app)
 				.post("/token")

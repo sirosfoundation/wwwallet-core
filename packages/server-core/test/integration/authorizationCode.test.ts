@@ -42,7 +42,7 @@ describe("authorization code - authorize", () => {
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const scope = "client:scope";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
 
 		const {
@@ -166,7 +166,7 @@ describe("authorization code - authenticate", () => {
 			const redirect_uri = "http://redirect.uri";
 			const scope = "client:scope";
 			const state = "state";
-			const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+			const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 			const code_challenge_method = "S256";
 
 			const {
@@ -257,7 +257,7 @@ describe("authorization code - authenticate", () => {
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
 			const scope = "client:scope";
-			const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+			const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 			const code_challenge_method = "S256";
 
 			const {
@@ -367,9 +367,9 @@ describe("authorization code - token", () => {
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const sub = "sub";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(protocols.config.secret);
@@ -708,14 +708,54 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with a short code verifier", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_verifier = "short-verifier";
+		const code_challenge = crypto
+			.createHash("sha256")
+			.update(code_verifier)
+			.digest("base64url");
+		const code_challenge_method = "S256";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			code_challenge,
+			code_challenge_method,
+			redirect_uri,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code, code_verifier });
+
+		expect(response.status).toBe(400);
+		expect(response.body).deep.eq({
+			error: "invalid_request",
+			error_description: "code verifier is invalid",
+		});
+	});
+
 	it("returns a token", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const sub = "sub";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(protocols.config.secret);
@@ -771,9 +811,9 @@ describe("authorization code - token", () => {
 			.sign(privateKey);
 		const redirect_uri = "http://redirect.uri";
 		const sub = "sub";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(protocols.config.secret);
@@ -819,9 +859,9 @@ describe("authorization code - token", () => {
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const sub = "sub";
-		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
 		const code_challenge_method = "S256";
-		const code_verifier = "test";
+		const code_verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
 
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(protocols.config.secret);
