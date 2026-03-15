@@ -1,6 +1,7 @@
 export * from "./validateAccessToken";
 export * from "./validateAuthorizationCode";
 export * from "./validateClientCredentials";
+export * from "./validateCodeChallenge";
 export * from "./validateCodeVerifier";
 export * from "./validateCredentialConfigurations";
 export * from "./validateDpop";

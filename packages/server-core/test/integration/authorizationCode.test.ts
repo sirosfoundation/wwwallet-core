@@ -42,12 +42,22 @@ describe("authorization code - authorize", () => {
 		const client_id = "id";
 		const redirect_uri = "http://redirect.uri";
 		const scope = "client:scope";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
 
 		const {
 			body: { request_uri },
 		} = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		const response = await request(app)
 			.get("/authorize")
@@ -158,6 +168,8 @@ describe("authorization code - authenticate", () => {
 			const redirect_uri = "http://redirect.uri";
 			const scope = "client:scope";
 			const state = "state";
+			const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+			const code_challenge_method = "S256";
 
 			const {
 				body: { request_uri },
@@ -168,6 +180,8 @@ describe("authorization code - authenticate", () => {
 				scope,
 				issuer_state,
 				state,
+				code_challenge,
+				code_challenge_method,
 			});
 
 			const response = await request(app)
@@ -245,12 +259,22 @@ describe("authorization code - authenticate", () => {
 			const client_id = "id";
 			const redirect_uri = "http://redirect.uri";
 			const scope = "client:scope";
+			const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+			const code_challenge_method = "S256";
 
 			const {
 				body: { request_uri },
 			} = await request(app)
 				.post("/pushed-authorization-request")
-				.send({ response_type, client_id, redirect_uri, scope, issuer_state });
+				.send({
+					response_type,
+					client_id,
+					redirect_uri,
+					scope,
+					issuer_state,
+					code_challenge,
+					code_challenge_method,
+				});
 
 			const response = await request(app)
 				.post("/authorize")

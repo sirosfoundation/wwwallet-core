@@ -6,6 +6,8 @@ import { app, protocols, trustedPem } from "../support/app";
 
 describe("pushshed authorization request endpoint", () => {
 	let issuer_state: string;
+	const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+	const code_challenge_method = "S256";
 	beforeEach(async () => {
 		const now = Date.now() / 1000;
 
@@ -77,7 +79,13 @@ describe("pushshed authorization request endpoint", () => {
 		const redirect_uri = "http://invalid.uri";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
@@ -93,7 +101,14 @@ describe("pushshed authorization request endpoint", () => {
 		const scope = "invalid:scope";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, scope });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
@@ -109,7 +124,14 @@ describe("pushshed authorization request endpoint", () => {
 		const redirect_uri = "http://redirect.uri";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({
@@ -126,7 +148,13 @@ describe("pushshed authorization request endpoint", () => {
 		const response = await request(app)
 			.post("/pushed-authorization-request")
 			.set("Oauth-Client-Attestation", oauth_client_attestation)
-			.send({ response_type, redirect_uri, issuer_state });
+			.send({
+				response_type,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(401);
 		expect(response.body).to.deep.eq({
@@ -142,7 +170,14 @@ describe("pushshed authorization request endpoint", () => {
 		const redirect_uri = "http://redirect.uri";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
@@ -196,7 +231,14 @@ describe("pushshed authorization request endpoint", () => {
 		const redirect_uri = "http://redirect.uri";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(201);
 		expect(response.body.request_uri).toMatch(
@@ -225,7 +267,14 @@ describe("pushshed authorization request endpoint", () => {
 		const response = await request(app)
 			.post("/pushed-authorization-request")
 			.set("Oauth-Client-Attestation", oauth_client_attestation)
-			.send({ response_type, client_id, redirect_uri, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
@@ -256,7 +305,15 @@ describe("pushshed authorization request endpoint", () => {
 		const scope = "client:scope";
 		const response = await request(app)
 			.post("/pushed-authorization-request")
-			.send({ response_type, client_id, redirect_uri, scope, issuer_state });
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				scope,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
 
 		expect(response.status).toBe(201);
 		expect(response.body.expires_in).to.eq(
@@ -278,5 +335,42 @@ describe("pushshed authorization request endpoint", () => {
 		expect(payload.client_id).to.eq(client_id);
 		expect(payload.redirect_uri).to.eq(redirect_uri);
 		expect(payload.response_type).to.eq(response_type);
+	});
+
+	it("returns an error for code response_type without code_challenge", async () => {
+		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({ response_type, client_id, redirect_uri, issuer_state });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code_challenge is missing from body params",
+		});
+	});
+
+	it("returns an error for code response_type with non-S256 code_challenge_method", async () => {
+		const response_type = "code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.send({
+				response_type,
+				client_id,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method: "plain",
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "code_challenge_method must be S256",
+		});
 	});
 });

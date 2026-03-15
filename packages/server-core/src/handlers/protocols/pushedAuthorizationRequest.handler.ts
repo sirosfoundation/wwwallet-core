@@ -5,6 +5,7 @@ import { OauthError, type OauthErrorResponse } from "../../errors";
 import {
 	type GenerateAuthorizationRequestUriConfig,
 	generateAuthorizationRequestUri,
+	validateCodeChallenge,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
 	type ValidateResponseTypesConfig,
@@ -150,6 +151,11 @@ async function validateRequest(
 			"redirect_uri is missing from body params",
 		);
 	}
+	await validateCodeChallenge({
+		response_type: validated_response_type,
+		code_challenge,
+		code_challenge_method,
+	});
 
 	let oauth_client_attestation: string | undefined;
 	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {

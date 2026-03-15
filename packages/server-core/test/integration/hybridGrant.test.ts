@@ -28,6 +28,8 @@ describe("hybrid grant - authorize", () => {
 		const redirect_uri = "http://redirect.uri";
 		const scope = "client:scope";
 		const state = "state";
+		const code_challenge = "n4bQgYhMfWWaL-qgxVrQFaO_TxsrC4Is0V1sFbDwCgg";
+		const code_challenge_method = "S256";
 		const username = "wwwallet";
 		const password = "tellawww";
 
@@ -40,6 +42,8 @@ describe("hybrid grant - authorize", () => {
 			scope,
 			issuer_state,
 			state,
+			code_challenge,
+			code_challenge_method,
 		});
 
 		const response = await request(app)
