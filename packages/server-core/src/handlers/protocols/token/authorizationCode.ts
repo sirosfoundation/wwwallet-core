@@ -162,6 +162,14 @@ export async function validateAuthorizationCodeRequest(
 		);
 	}
 
+	if (!redirect_uri) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"redirect_uri is missing from body parameters",
+		);
+	}
+
 	return {
 		client_id,
 		client_secret,

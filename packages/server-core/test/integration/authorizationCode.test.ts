@@ -342,6 +342,22 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error without redirect_uri", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const code = "code";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "redirect_uri is missing from body parameters",
+		});
+	});
+
 	it("returns an error with invalid token type", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
@@ -373,6 +389,7 @@ describe("authorization code - token", () => {
 	it("returns an error with invalid oauth client attestation", async () => {
 		const grant_type = "authorization_code";
 		const oauth_client_attestation = "invalid";
+		const redirect_uri = "http://invalid.uri";
 		const sub = "sub";
 
 		const now = Date.now() / 1000;
@@ -393,7 +410,7 @@ describe("authorization code - token", () => {
 		const response = await request(app)
 			.post("/token")
 			.set("Oauth-Client-Attestation", oauth_client_attestation)
-			.send({ grant_type, code });
+			.send({ grant_type, redirect_uri, code });
 
 		expect(response.status).toBe(401);
 		expect(response.body).deep.eq({

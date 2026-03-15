@@ -1,9 +1,9 @@
+import { OauthError } from "../../../errors";
 import type {
 	AuthorizationRequest,
 	OauthClient,
 	ResourceOwner,
 } from "../../../resources";
-import { OauthError } from "../../../errors";
 import {
 	generateAccessToken,
 	generateAuthorizationCode,
