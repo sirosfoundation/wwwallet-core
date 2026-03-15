@@ -50,6 +50,9 @@ export async function validateAccessToken(
 		if (token_type !== "access_token") {
 			throw new OauthError(401, "invalid_request", "access token is invalid");
 		}
+		if (!client_id || !sub || typeof scope !== "string") {
+			throw new OauthError(401, "invalid_request", "access token is invalid");
+		}
 
 		const client = config.clients
 			.concat([config.issuer_client])
