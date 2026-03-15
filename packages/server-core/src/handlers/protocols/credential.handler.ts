@@ -158,7 +158,11 @@ async function validateRequest(
 	let proofs = expressRequest.body.proofs || (proof && {});
 
 	if (typeof proofs === "string") {
-		proofs = JSON.parse(proofs);
+		try {
+			proofs = JSON.parse(proofs);
+		} catch (_error) {
+			throw new OauthError(400, "invalid_request", "proofs is invalid");
+		}
 	}
 
 	if (proof?.jwt) {
