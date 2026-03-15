@@ -155,6 +155,37 @@ describe("authorization code - authorize", () => {
 		expect(response.status).toBe(400);
 		expect(response.text).toMatch("authorization request is invalid");
 	});
+
+	it("returns an error when request_uri scope claim type is invalid", async () => {
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const client_id = "id";
+		const request_token = await new EncryptJWT({
+			token_type: "authorization_request",
+			response_type: "code",
+			client_id,
+			redirect_uri: "http://redirect.uri",
+			scope: {},
+			issuer_state,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setIssuedAt()
+			.setExpirationTime(
+				now + (protocols.config.pushed_authorization_request_ttl || 0),
+			)
+			.encrypt(secret);
+		const request_uri = `${AUTHORIZATION_REQUEST_URI_PREFIX}${request_token}`;
+
+		const response = await request(app)
+			.get("/authorize")
+			.query({ client_id, request_uri });
+
+		expect(response.status).toBe(400);
+		expect(response.text).toMatch("authorization request is invalid");
+	});
 });
 
 describe("authorization code - authenticate", () => {

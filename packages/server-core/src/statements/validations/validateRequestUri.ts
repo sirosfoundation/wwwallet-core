@@ -86,6 +86,51 @@ export async function validateRequestUri(
 				"authorization request is invalid",
 			);
 		}
+		if (scope !== undefined && typeof scope !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
+		if (state !== undefined && typeof state !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
+		if (nonce !== undefined && typeof nonce !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
+		if (code_challenge !== undefined && typeof code_challenge !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
+		if (
+			code_challenge_method !== undefined &&
+			typeof code_challenge_method !== "string"
+		) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
+		if (issuer_state !== undefined && typeof issuer_state !== "string") {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization request is invalid",
+			);
+		}
 
 		return {
 			request_uri,
