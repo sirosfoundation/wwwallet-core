@@ -513,6 +513,79 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error when authorization code iat is missing", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
+		const code_challenge_method = "S256";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			client_id,
+			redirect_uri,
+			code_challenge,
+			code_challenge_method,
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
+	it("returns an error when authorization code iat is in the future", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const sub = "sub";
+		const code_challenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
+		const code_challenge_method = "S256";
+
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const code = await new EncryptJWT({
+			sub,
+			token_type: "authorization_code",
+			client_id,
+			redirect_uri,
+			code_challenge,
+			code_challenge_method,
+			iat: Math.floor(now + 60),
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.issuer_state_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/token")
+			.send({ grant_type, client_id, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "authorization code is invalid",
+		});
+	});
+
 	it("returns an error with invalid oauth client attestation", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";

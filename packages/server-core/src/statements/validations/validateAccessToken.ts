@@ -44,13 +44,22 @@ export async function validateAccessToken(
 
 	try {
 		const {
-			payload: { token_type, client_id, sub, scope },
+			payload: { token_type, iat, client_id, sub, scope },
 		} = await jwtDecryptWithConfigKeys<AccessToken>(access_token, config);
 
 		if (token_type !== "access_token") {
 			throw new OauthError(401, "invalid_request", "access token is invalid");
 		}
-		if (!client_id || !sub || typeof scope !== "string") {
+		const now = Math.floor(Date.now() / 1000);
+		const issuedAt = Number(iat);
+		if (
+			!client_id ||
+			!sub ||
+			typeof scope !== "string" ||
+			!Number.isInteger(issuedAt) ||
+			issuedAt <= 0 ||
+			issuedAt > now
+		) {
 			throw new OauthError(401, "invalid_request", "access token is invalid");
 		}
 

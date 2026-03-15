@@ -25,13 +25,22 @@ export async function validateRefreshToken(
 ) {
 	try {
 		const {
-			payload: { token_type, client_id, sub, scope },
+			payload: { token_type, iat, client_id, sub, scope },
 		} = await jwtDecryptWithConfigKeys<RefreshToken>(refresh_token, config);
 
 		if (token_type !== "refresh_token") {
 			throw new OauthError(400, "invalid_request", "refresh token is invalid");
 		}
-		if (!client_id || !sub || typeof scope !== "string") {
+		const now = Math.floor(Date.now() / 1000);
+		const issuedAt = Number(iat);
+		if (
+			!client_id ||
+			!sub ||
+			typeof scope !== "string" ||
+			!Number.isInteger(issuedAt) ||
+			issuedAt <= 0 ||
+			issuedAt > now
+		) {
 			throw new OauthError(400, "invalid_request", "refresh token is invalid");
 		}
 

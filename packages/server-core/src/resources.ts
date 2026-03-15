@@ -114,6 +114,7 @@ export type AuthorizationRequest = {
 
 export type AccessToken = {
 	token_type: "access_token";
+	iat?: number;
 	previous_code?: string;
 	access_token?: string;
 	client_id: string;
@@ -123,6 +124,7 @@ export type AccessToken = {
 
 export type RefreshToken = {
 	token_type: "refresh_token";
+	iat?: number;
 	client_id: string;
 	sub: string;
 	scope: string;
@@ -130,6 +132,7 @@ export type RefreshToken = {
 
 export type AuthorizationCode = {
 	token_type: "authorization_code";
+	iat?: number;
 	authorization_code?: string;
 	client_id: string;
 	redirect_uri: string;

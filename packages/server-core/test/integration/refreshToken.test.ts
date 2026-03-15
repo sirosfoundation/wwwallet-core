@@ -140,6 +140,67 @@ describe("refresh token - token endpoint", () => {
 		});
 	});
 
+	it("returns an error with refresh token missing iat claim", async () => {
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const refresh_token = await new EncryptJWT({
+			token_type: "refresh_token",
+			client_id: "id",
+			sub: "sub",
+			scope: "client:scope",
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.refresh_token_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app).post("/token").send({
+			grant_type: "refresh_token",
+			client_id: "id",
+			client_secret: "secret",
+			refresh_token,
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "refresh token is invalid",
+		});
+	});
+
+	it("returns an error with refresh token iat in the future", async () => {
+		const now = Date.now() / 1000;
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const refresh_token = await new EncryptJWT({
+			token_type: "refresh_token",
+			client_id: "id",
+			sub: "sub",
+			scope: "client:scope",
+			iat: Math.floor(now + 60),
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.refresh_token_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app).post("/token").send({
+			grant_type: "refresh_token",
+			client_id: "id",
+			client_secret: "secret",
+			refresh_token,
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "refresh token is invalid",
+		});
+	});
+
 	it("returns an error if requested scope is not a subset of original scope", async () => {
 		const now = Date.now() / 1000;
 		const secret = new TextEncoder().encode(protocols.config.secret);

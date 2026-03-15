@@ -39,6 +39,7 @@ export async function validateAuthorizationCode(
 		const {
 			payload: {
 				token_type,
+				iat,
 				client_id,
 				redirect_uri,
 				nonce,
@@ -67,6 +68,15 @@ export async function validateAuthorizationCode(
 			);
 		}
 		if (!sub) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"authorization code is invalid",
+			);
+		}
+		const now = Math.floor(Date.now() / 1000);
+		const issuedAt = Number(iat);
+		if (!Number.isInteger(issuedAt) || issuedAt <= 0 || issuedAt > now) {
 			throw new OauthError(
 				400,
 				"invalid_request",

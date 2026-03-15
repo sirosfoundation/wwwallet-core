@@ -172,6 +172,67 @@ describe("credential endpoint", () => {
 		});
 	});
 
+	it("returns an error with an access token missing iat claim", async () => {
+		const credential_configuration_id = "unknwown:configuration:id";
+
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const now = Date.now() / 1000;
+		const access_token = await new EncryptJWT({
+			client_id: protocols.config.issuer_client?.id,
+			sub: "sub",
+			token_type: "access_token",
+			scope: "full:scope",
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/credential")
+			.set("Authorization", `DPoP ${access_token}`)
+			.send({ credential_configuration_id, proofs: {} });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "access token is invalid",
+		});
+	});
+
+	it("returns an error with an access token iat in the future", async () => {
+		const credential_configuration_id = "unknwown:configuration:id";
+
+		const secret = new TextEncoder().encode(protocols.config.secret);
+		const now = Date.now() / 1000;
+		const access_token = await new EncryptJWT({
+			client_id: protocols.config.issuer_client?.id,
+			sub: "sub",
+			token_type: "access_token",
+			scope: "full:scope",
+			iat: Math.floor(now + 60),
+		})
+			.setProtectedHeader({
+				alg: "dir",
+				enc: protocols.config.token_encryption || "",
+			})
+			.setExpirationTime(now + (protocols.config.access_token_ttl || 0))
+			.encrypt(secret);
+
+		const response = await request(app)
+			.post("/credential")
+			.set("Authorization", `DPoP ${access_token}`)
+			.send({ credential_configuration_id, proofs: {} });
+
+		expect(response.status).toBe(401);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "access token is invalid",
+		});
+	});
+
 	describe("with a valid access token", () => {
 		const sub = "sub";
 		const scope = "full:scope deferred:scope";
