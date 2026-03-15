@@ -94,7 +94,12 @@ export async function validateDpop(
 
 		const accessTokenHash = crypto.createHash("sha256");
 		accessTokenHash.update(access_token);
-		if (accessTokenHash.digest("base64url") !== ath) {
+		const expectedAth = Buffer.from(accessTokenHash.digest("base64url"));
+		const providedAth = Buffer.from(ath);
+		const matchesAth =
+			expectedAth.length === providedAth.length &&
+			crypto.timingSafeEqual(expectedAth, providedAth);
+		if (!matchesAth) {
 			throw new OauthError(400, "invalid_request", "invalid dpop ath value");
 		}
 
