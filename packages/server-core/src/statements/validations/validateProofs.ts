@@ -38,6 +38,13 @@ export async function validateProofs(
 
 	for (const proofType of Object.keys(proofs)) {
 		if (proofType === "jwt" && proofs.jwt) {
+			if (!Array.isArray(proofs.jwt)) {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					"jwt proofs must be an array",
+				);
+			}
 			const { proofs: _jwtProofs, jwks: jwtJwks } = await validateJwtProofs(
 				{ proofs: proofs.jwt },
 				config,
@@ -48,6 +55,13 @@ export async function validateProofs(
 		}
 
 		if (proofType === "attestation" && proofs.attestation) {
+			if (!Array.isArray(proofs.attestation)) {
+				throw new OauthError(
+					400,
+					"invalid_request",
+					"attestation proofs must be an array",
+				);
+			}
 			const { proofs: _attestationProofs, jwks: attestationJwks } =
 				await validateAttestationProofs({ proofs: proofs.attestation }, config);
 			jwks = jwks.concat(attestationJwks);

@@ -788,6 +788,36 @@ describe("credential endpoint", () => {
 				});
 			});
 
+			it("returns an error with non-array jwt proofs", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proofs: { jwt: {} } });
+
+				expect(response.status).toBe(400);
+				expect(response.body).to.deep.eq({
+					error: "invalid_request",
+					error_description: "jwt proofs must be an array",
+				});
+			});
+
+			it("returns an error with non-array attestation proofs", async () => {
+				const credential_configuration_id = "full";
+				const response = await request(app)
+					.post("/credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ credential_configuration_id, proofs: { attestation: {} } });
+
+				expect(response.status).toBe(400);
+				expect(response.body).to.deep.eq({
+					error: "invalid_request",
+					error_description: "attestation proofs must be an array",
+				});
+			});
+
 			it("returns empty credential list with unknown credential configuration id", async () => {
 				const credential_configuration_id = "unknwown:configuration:id";
 				const { publicKey, privateKey } = await generateKeyPair("ES256");
