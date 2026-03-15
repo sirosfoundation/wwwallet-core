@@ -23,8 +23,11 @@ export async function validateScope(
 	_config: ValidateScopeConfig,
 ) {
 	if (!scope) return { scope: "" };
+	if (typeof scope !== "string") {
+		throw new OauthError(400, "invalid_request", "invalid scope");
+	}
 
-	const scopes = scope.split(" ");
+	const scopes = scope.trim().split(/\s+/);
 
 	if (scopes.filter((scope) => !client.scopes.includes(scope)).length) {
 		throw new OauthError(400, "invalid_request", "invalid scope");
