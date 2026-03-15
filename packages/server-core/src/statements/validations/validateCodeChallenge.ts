@@ -19,6 +19,7 @@ export type ValidateCodeChallengeConfig = unknown;
  * Hardening references:
  * - `9ce4f78` validate PKCE challenge on pushed authorization requests.
  * - `38ba7d0` harden PKCE challenge validation (`S256`, format checks).
+ * - `a39f772` require PKCE for all response types containing `code`.
  *
  * ## Specification
  * - OAuth 2.0 Authorization Code flow (RFC 6749).

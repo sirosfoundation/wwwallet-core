@@ -16,7 +16,12 @@ export type ValidateAuthorizationCodeConfig = DecryptConfig;
  *
  * ## Why
  * Token exchange must only succeed for codes issued by this server and for
- *   the exact authorization context they were minted for.
+ *   the exact authorization context they were minted for, including
+ *   `redirect_uri` and authenticated `client_id` binding.
+ *
+ * Hardening references:
+ * - `a34e2f4` enforce authorization code `redirect_uri` binding.
+ * - `d6ff6e7` validate authorization code `client_id` binding.
  *
  * ## Specification
  * - OAuth 2.0 (RFC 6749) section 4.1.3.

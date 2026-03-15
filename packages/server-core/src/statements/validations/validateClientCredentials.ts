@@ -23,7 +23,11 @@ export type ValidateClientCredentialsConfig = {
  *
  * ## Why
  * Every OAuth/OIDC flow depends on trustworthy client identity before issuing
- *   tokens or accepting pushed authorization requests.
+ *   tokens or accepting pushed authorization requests, including strict
+ *   `redirect_uri` and `client_id` binding for authorization contexts.
+ *
+ * Hardening references:
+ * - `038cfa2` enforce authorize `redirect_uri` and client binding.
  *
  * ## Specification
  * - OAuth 2.0 (RFC 6749) sections 2.3 and 3.1.2.
