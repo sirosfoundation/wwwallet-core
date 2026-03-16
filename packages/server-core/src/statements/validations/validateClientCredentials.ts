@@ -45,6 +45,13 @@ export async function validateClientCredentials(
 	config: ValidateClientCredentialsConfig,
 ): Promise<{ client: OauthClient }> {
 	let client: OauthClient | undefined;
+	const clientAuthenticationMethodsCount = [
+		client_secret !== undefined,
+		oauth_client_attestation !== undefined,
+	].filter(Boolean).length;
+	if (clientAuthenticationMethodsCount > 1) {
+		throw new OauthError(401, "invalid_client", "invalid client credentials");
+	}
 
 	if (oauth_client_attestation) {
 		const normalizedAttestation = oauth_client_attestation.trim();

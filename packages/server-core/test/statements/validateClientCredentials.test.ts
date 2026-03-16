@@ -129,4 +129,31 @@ describe("validateClientCredentials", () => {
 			new OauthError(401, "invalid_client", "invalid client credentials"),
 		);
 	});
+
+	it("rejects mixed client authentication methods", async () => {
+		await expect(
+			validateClientCredentials(
+				{
+					client_id: "id",
+					client_secret: "secret",
+					oauth_client_attestation: "attestation",
+					redirect_uri: "http://redirect.uri",
+					confidential: false,
+				},
+				{
+					clients: [
+						{
+							id: "id",
+							secret: "secret",
+							redirect_uris: ["http://redirect.uri"],
+							scopes: [],
+						},
+					],
+					trusted_root_certificates: config.trusted_root_certificates,
+				},
+			),
+		).rejects.toEqual(
+			new OauthError(401, "invalid_client", "invalid client credentials"),
+		);
+	});
 });
