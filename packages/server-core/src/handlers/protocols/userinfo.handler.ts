@@ -4,7 +4,9 @@ import type { Config, Logger } from "../../config";
 import { OauthError, type OauthErrorResponse } from "../../errors";
 import {
 	type ValidateAccessTokenConfig,
+	type ValidateDpopConfig,
 	validateAccessToken,
+	validateDpop,
 } from "../../statements";
 import { userinfoHandlerConfigSchema } from "./schemas";
 
@@ -12,7 +14,8 @@ const ajv = new Ajv();
 
 export type UserinfoHandlerConfig = {
 	logger: Logger;
-} & ValidateAccessTokenConfig;
+} & ValidateAccessTokenConfig &
+	ValidateDpopConfig;
 
 export type UserinfoResponse = {
 	status: 200;
@@ -27,13 +30,27 @@ export function userinfoHandlerFactory(config: UserinfoHandlerConfig) {
 	): Promise<UserinfoResponse | OauthErrorResponse> {
 		try {
 			const request = await validateRequest(expressRequest);
-			const { sub, scope } = await validateAccessToken(
+			const { sub, scope, access_token } = await validateAccessToken(
 				{
 					token_type: request.token_type,
 					access_token: request.access_token,
 				},
 				config,
 			);
+			if (request.token_type?.toLowerCase() === "dpop") {
+				await validateDpop(
+					{
+						token_type: request.token_type,
+						access_token,
+						dpop: request.dpop,
+						dpopRequest: {
+							method: request.method,
+							uri: request.uri,
+						},
+					},
+					config,
+				);
+			}
 
 			if (!scope.split(" ").includes("openid")) {
 				throw new OauthError(
@@ -104,5 +121,8 @@ async function validateRequest(expressRequest: Request) {
 	return {
 		token_type: authorizationHeaderCapture?.[1],
 		access_token: authorizationHeaderCapture?.[2],
+		dpop: expressRequest.headers.dpop,
+		method: expressRequest.method,
+		uri: expressRequest.originalUrl,
 	};
 }

@@ -26,6 +26,13 @@ export const userinfoHandlerConfigSchema = {
 			pattern:
 				"A128GCM|A192GCM|A256GCM|A128CBC-HS256|A192CBC-HS384|A256CBC-HS512",
 		},
+		issuer_url: { type: "string" },
 	},
-	required: ["clients", "issuer_client", "secret", "token_encryption"],
+	required: [
+		"clients",
+		"issuer_client",
+		"secret",
+		"token_encryption",
+		"issuer_url",
+	],
 };
