@@ -925,57 +925,33 @@ describe("credential endpoint", () => {
 				});
 			});
 
-			it("returns credentials with bearer token type", async () => {
+			it("returns an error with bearer token type", async () => {
 				const credential_configuration_id = "full";
-				const { publicKey, privateKey } = await generateKeyPair("ES256");
-				const jwk = await exportJWK(publicKey);
-				const proof = await new SignJWT({ nonce: c_nonce })
-					.setProtectedHeader({ alg: "ES256", jwk })
-					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
+					.send({ credential_configuration_id, proofs: {} });
 
-				expect(response.status).toBe(200);
-				assert(response.body.credentials[0].credential);
-
-				const credential = response.body.credentials[0].credential;
-				const sdjwt = await SDJwt.fromEncode(credential, hasher);
-				const claims = await sdjwt.getClaims(hasher);
-				expect(claims).to.deep.eq({
-					iss: "http://localhost:5000",
-					sub: "sub",
-					vct: "urn:test:full",
-					cnf: { jwk },
+				expect(response.status).toBe(400);
+				expect(response.body).to.deep.eq({
+					error: "invalid_request",
+					error_description: "access token type is invalid",
 				});
 			});
 
-			it("returns credentials with Bearer token type", async () => {
+			it("returns an error with Bearer token type", async () => {
 				const credential_configuration_id = "full";
-				const { publicKey, privateKey } = await generateKeyPair("ES256");
-				const jwk = await exportJWK(publicKey);
-				const proof = await new SignJWT({ nonce: c_nonce })
-					.setProtectedHeader({ alg: "ES256", jwk })
-					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
 					.set("Authorization", `Bearer ${access_token}`)
 					.set("DPoP", dpop)
-					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
+					.send({ credential_configuration_id, proofs: {} });
 
-				expect(response.status).toBe(200);
-				assert(response.body.credentials[0].credential);
-
-				const credential = response.body.credentials[0].credential;
-				const sdjwt = await SDJwt.fromEncode(credential, hasher);
-				const claims = await sdjwt.getClaims(hasher);
-				expect(claims).to.deep.eq({
-					iss: "http://localhost:5000",
-					sub: "sub",
-					vct: "urn:test:full",
-					cnf: { jwk },
+				expect(response.status).toBe(400);
+				expect(response.body).to.deep.eq({
+					error: "invalid_request",
+					error_description: "access token type is invalid",
 				});
 			});
 
@@ -988,7 +964,7 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
-					.set("Authorization", `Bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
@@ -1015,7 +991,7 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
-					.set("Authorization", `Bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proof: { jwt: proof } });
 
@@ -1042,7 +1018,7 @@ describe("credential endpoint", () => {
 					.sign(privateKey);
 				const response = await request(app)
 					.post("/credential")
-					.set("Authorization", `Bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proof: { jwt: proof } });
 
@@ -1119,7 +1095,7 @@ describe("credential endpoint", () => {
 				const credential_configuration_id = "full";
 				const response = await request(app)
 					.post("/credential")
-					.set("Authorization", `Bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
@@ -1201,7 +1177,7 @@ describe("credential endpoint", () => {
 				const credential_configuration_id = "full";
 				const response = await request(app)
 					.post("/credential")
-					.set("Authorization", `Bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 

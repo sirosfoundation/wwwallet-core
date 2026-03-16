@@ -95,7 +95,7 @@ describe("issuance flow", () => {
 			.sign(privateKey);
 		const credential = await request(app)
 			.post("/credential")
-			.set("Authorization", `Bearer ${access_token}`)
+			.set("Authorization", `DPoP ${access_token}`)
 			.set("DPoP", dpop)
 			.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 
@@ -253,7 +253,7 @@ describe("issuance flow", () => {
 				.sign(privateKey);
 			const credential = await request(app)
 				.post("/credential")
-				.set("Authorization", `Bearer ${access_token}`)
+				.set("Authorization", `DPoP ${access_token}`)
 				.set("DPoP", dpop)
 				.send({ credential_configuration_id, proofs: { jwt: [proof] } });
 

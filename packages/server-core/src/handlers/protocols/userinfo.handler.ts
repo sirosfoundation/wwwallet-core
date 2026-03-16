@@ -37,7 +37,7 @@ export function userinfoHandlerFactory(config: UserinfoHandlerConfig) {
 				},
 				config,
 			);
-			if (request.token_type?.toLowerCase() === "dpop") {
+			if (request.token_type?.toLowerCase() === "dpop" || request.dpop) {
 				await validateDpop(
 					{
 						token_type: request.token_type,

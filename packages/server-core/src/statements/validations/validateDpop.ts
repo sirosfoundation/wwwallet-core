@@ -37,7 +37,7 @@ export async function validateDpop(
 	{ token_type, dpop, dpopRequest, access_token }: ValidateDpopParams,
 	config: ValidateDpopConfig,
 ): Promise<unknown> {
-	if (!token_type || !token_type.match(/^(DPoP|[Bb]earer)$/)) {
+	if (!token_type || !token_type.match(/^DPoP$/)) {
 		throw new OauthError(
 			400,
 			"invalid_request",

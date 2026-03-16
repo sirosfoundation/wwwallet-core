@@ -507,7 +507,7 @@ describe("deferred credential endpoint", () => {
 				const transaction_id = "full";
 				const response = await request(app)
 					.post("/deferred-credential")
-					.set("Authorization", `bearer ${access_token}`)
+					.set("Authorization", `DPoP ${access_token}`)
 					.set("DPoP", dpop)
 					.send({ transaction_id });
 
