@@ -148,6 +148,13 @@ export async function validateAuthorizationCodeRequest(
 
 	let oauth_client_attestation: string | undefined;
 	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {
+		if (expressRequest.headers["oauth-client-attestation"].length > 1) {
+			throw new OauthError(
+				400,
+				"invalid_request",
+				"oauth-client-attestation header is invalid",
+			);
+		}
 		oauth_client_attestation =
 			expressRequest.headers["oauth-client-attestation"][0];
 	} else {

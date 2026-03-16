@@ -76,15 +76,22 @@ export function validateUserinfoHandlerConfig(config: Config) {
 }
 
 async function validateRequest(expressRequest: Request) {
-	let authorizationHeader: string | undefined;
-	if (typeof expressRequest.headers.authorization === "string") {
-		authorizationHeader = expressRequest.headers.authorization;
-	} else if (Array.isArray(expressRequest.headers.authorization)) {
-		authorizationHeader = expressRequest.headers.authorization[0];
+	let authorizationHeaderCount = 0;
+	for (let i = 0; i < expressRequest.rawHeaders.length; i += 2) {
+		if (expressRequest.rawHeaders[i].toLowerCase() === "authorization") {
+			authorizationHeaderCount++;
+		}
+	}
+	if (authorizationHeaderCount > 1) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"authorization header is invalid",
+		);
 	}
 
 	const authorizationHeaderCapture = /^(DPoP|[Bb]earer) (.+)$/.exec(
-		authorizationHeader || "",
+		expressRequest.headers.authorization || "",
 	);
 
 	return {
