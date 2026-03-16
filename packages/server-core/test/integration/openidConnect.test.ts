@@ -225,6 +225,19 @@ describe("openid connect", () => {
 		});
 	});
 
+	it("rejects userinfo dpop header with multiple comma-separated values", async () => {
+		const userinfoResponse = await request(app)
+			.get("/userinfo")
+			.set("Authorization", "DPoP access-token")
+			.set("DPoP", "proof-1,proof-2");
+
+		expect(userinfoResponse.status).toBe(400);
+		expect(userinfoResponse.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "dpop header is invalid",
+		});
+	});
+
 	it("rejects implicit openid requests without nonce", async () => {
 		const response_type = "token";
 		const client_id = "id";

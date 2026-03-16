@@ -146,6 +146,15 @@ async function validateRequest(
 			"authorization header is invalid",
 		);
 	}
+	let dpopHeaderCount = 0;
+	for (let i = 0; i < expressRequest.rawHeaders.length; i += 2) {
+		if (expressRequest.rawHeaders[i].toLowerCase() === "dpop") {
+			dpopHeaderCount++;
+		}
+	}
+	if (dpopHeaderCount > 1 || expressRequest.headers.dpop?.includes(",")) {
+		throw new OauthError(400, "invalid_request", "dpop header is invalid");
+	}
 
 	const authorizationHeaderCapture = /(\S+) (.+)/.exec(
 		expressRequest.headers.authorization || "",
