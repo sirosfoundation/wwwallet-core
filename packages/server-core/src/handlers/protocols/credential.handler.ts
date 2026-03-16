@@ -136,7 +136,11 @@ export function validateCredentialHandlerConfig(config: Config) {
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<CredentialRequest> {
-	if (!expressRequest.body) {
+	if (
+		!expressRequest.body ||
+		typeof expressRequest.body !== "object" ||
+		Array.isArray(expressRequest.body)
+	) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -145,12 +149,56 @@ async function validateRequest(
 	}
 
 	const { credential_configuration_id, proof } = expressRequest.body;
+	if (
+		credential_configuration_id !== undefined &&
+		(typeof credential_configuration_id !== "string" ||
+			credential_configuration_id.trim().length === 0)
+	) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"credential configuration ids are invalid",
+		);
+	}
+	const credential_configuration_ids_input =
+		expressRequest.body.credential_configuration_ids;
+	if (
+		credential_configuration_ids_input !== undefined &&
+		(!Array.isArray(credential_configuration_ids_input) ||
+			credential_configuration_ids_input.some(
+				(configuration_id) =>
+					typeof configuration_id !== "string" ||
+					configuration_id.trim().length === 0,
+			))
+	) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"credential configuration ids are invalid",
+		);
+	}
+
 	const { credential_configuration_ids } =
 		await validateCredentialConfigurationIds({
 			credential_configuration_id,
-			credential_configuration_ids:
-				expressRequest.body.credential_configuration_ids,
+			credential_configuration_ids: credential_configuration_ids_input,
 		});
+
+	if (
+		proof !== undefined &&
+		(typeof proof !== "object" || proof === null || Array.isArray(proof))
+	) {
+		throw new OauthError(400, "invalid_request", "proofs is invalid");
+	}
+	if (proof?.jwt !== undefined && typeof proof.jwt !== "string") {
+		throw new OauthError(400, "invalid_request", "proofs is invalid");
+	}
+	if (
+		proof?.attestation !== undefined &&
+		typeof proof.attestation !== "string"
+	) {
+		throw new OauthError(400, "invalid_request", "proofs is invalid");
+	}
 
 	let proofs = expressRequest.body.proofs || (proof && {});
 
@@ -182,8 +230,15 @@ async function validateRequest(
 
 	const credentials: CredentialRequest["credentials"] = {};
 
+	let authorizationHeader: string | undefined;
+	if (typeof expressRequest.headers.authorization === "string") {
+		authorizationHeader = expressRequest.headers.authorization;
+	} else if (Array.isArray(expressRequest.headers.authorization)) {
+		authorizationHeader = expressRequest.headers.authorization[0];
+	}
+
 	const authorizationHeaderCapture = /(\S+) (.+)/.exec(
-		expressRequest.headers.authorization || "",
+		authorizationHeader || "",
 	);
 
 	if (authorizationHeaderCapture) {

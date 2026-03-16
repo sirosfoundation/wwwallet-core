@@ -1,8 +1,8 @@
 import { OauthError } from "../../errors";
 
 export type ValidateCredentialConfigurationIdsParams = {
-	credential_configuration_id?: unknown;
-	credential_configuration_ids?: unknown;
+	credential_configuration_id?: string;
+	credential_configuration_ids?: Array<string>;
 };
 
 export type ValidateCredentialConfigurationIdsConfig = unknown;
@@ -31,27 +31,12 @@ export async function validateCredentialConfigurationIds(
 
 	if (
 		!normalizedCredentialConfigurationIds ||
-		(Array.isArray(normalizedCredentialConfigurationIds) &&
-			normalizedCredentialConfigurationIds.length === 0)
+		normalizedCredentialConfigurationIds.length === 0
 	) {
 		throw new OauthError(
 			400,
 			"invalid_request",
 			"credential configuration ids are missing from body parameters",
-		);
-	}
-	if (
-		!Array.isArray(normalizedCredentialConfigurationIds) ||
-		normalizedCredentialConfigurationIds.some(
-			(configurationId) =>
-				typeof configurationId !== "string" ||
-				configurationId.trim().length === 0,
-		)
-	) {
-		throw new OauthError(
-			400,
-			"invalid_request",
-			"credential configuration ids are invalid",
 		);
 	}
 

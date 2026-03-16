@@ -449,6 +449,46 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with non-string client id", async () => {
+		const grant_type = "authorization_code";
+		const redirect_uri = "http://redirect.uri";
+		const code = "code";
+
+		const response = await request(app).post("/token").send({
+			grant_type,
+			client_id: {},
+			redirect_uri,
+			code,
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "client id is invalid",
+		});
+	});
+
+	it("returns an error with non-string client secret", async () => {
+		const grant_type = "authorization_code";
+		const client_id = "id";
+		const redirect_uri = "http://redirect.uri";
+		const code = "code";
+
+		const response = await request(app).post("/token").send({
+			grant_type,
+			client_id,
+			client_secret: {},
+			redirect_uri,
+			code,
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "client secret is invalid",
+		});
+	});
+
 	it("returns an error with an invalid authorization code", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";

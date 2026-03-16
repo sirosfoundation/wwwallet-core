@@ -96,12 +96,23 @@ async function validateRequest(
 ): Promise<
 	ClientCredentialsRequest | AuthorizationCodeRequest | RefreshTokenRequest
 > {
-	if (!expressRequest.body) {
+	if (
+		!expressRequest.body ||
+		typeof expressRequest.body !== "object" ||
+		Array.isArray(expressRequest.body)
+	) {
 		throw new OauthError(
 			400,
 			"invalid_request",
 			"client credentials requests require a body",
 		);
+	}
+
+	if (
+		typeof expressRequest.body.grant_type !== "string" ||
+		expressRequest.body.grant_type.trim().length === 0
+	) {
+		throw new OauthError(400, "invalid_request", "grant_type is not supported");
 	}
 
 	const { grant_type } = await validateGrantType({

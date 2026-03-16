@@ -99,7 +99,11 @@ export function validateDeferredCredentialHandlerConfig(config: Config) {
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<DeferredCredentialRequest> {
-	if (!expressRequest.body) {
+	if (
+		!expressRequest.body ||
+		typeof expressRequest.body !== "object" ||
+		Array.isArray(expressRequest.body)
+	) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -122,8 +126,15 @@ async function validateRequest(
 
 	const credentials: DeferredCredentialRequest["credentials"] = {};
 
+	let authorizationHeader: string | undefined;
+	if (typeof expressRequest.headers.authorization === "string") {
+		authorizationHeader = expressRequest.headers.authorization;
+	} else if (Array.isArray(expressRequest.headers.authorization)) {
+		authorizationHeader = expressRequest.headers.authorization[0];
+	}
+
 	const authorizationHeaderCapture = /(\S+) (.+)/.exec(
-		expressRequest.headers.authorization || "",
+		authorizationHeader || "",
 	);
 
 	if (authorizationHeaderCapture) {

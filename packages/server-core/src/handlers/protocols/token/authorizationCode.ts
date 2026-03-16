@@ -170,6 +170,15 @@ export async function validateAuthorizationCodeRequest(
 			"redirect_uri is missing from body parameters",
 		);
 	}
+	if (client_id !== undefined && typeof client_id !== "string") {
+		throw new OauthError(400, "invalid_request", "client id is invalid");
+	}
+	if (client_secret !== undefined && typeof client_secret !== "string") {
+		throw new OauthError(400, "invalid_request", "client secret is invalid");
+	}
+	if (code_verifier !== undefined && typeof code_verifier !== "string") {
+		throw new OauthError(400, "invalid_request", "code_verifier is invalid");
+	}
 
 	return {
 		client_id,

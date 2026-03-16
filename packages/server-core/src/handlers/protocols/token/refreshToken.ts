@@ -153,6 +153,9 @@ export async function validateRefreshTokenRequest(
 			"refresh_token is missing from body parameters",
 		);
 	}
+	if (scope !== undefined && typeof scope !== "string") {
+		throw new OauthError(400, "invalid_request", "invalid scope");
+	}
 
 	return {
 		client_id,

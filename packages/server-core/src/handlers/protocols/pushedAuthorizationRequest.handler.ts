@@ -120,7 +120,11 @@ export function validatePushedAuthorizationRequestHandlerConfig(
 async function validateRequest(
 	expressRequest: Request,
 ): Promise<PushedAuthorizationRequest> {
-	if (!expressRequest.body) {
+	if (
+		!expressRequest.body ||
+		typeof expressRequest.body !== "object" ||
+		Array.isArray(expressRequest.body)
+	) {
 		throw new OauthError(
 			400,
 			"invalid_request",

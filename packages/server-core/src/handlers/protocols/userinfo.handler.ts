@@ -76,8 +76,15 @@ export function validateUserinfoHandlerConfig(config: Config) {
 }
 
 async function validateRequest(expressRequest: Request) {
+	let authorizationHeader: string | undefined;
+	if (typeof expressRequest.headers.authorization === "string") {
+		authorizationHeader = expressRequest.headers.authorization;
+	} else if (Array.isArray(expressRequest.headers.authorization)) {
+		authorizationHeader = expressRequest.headers.authorization[0];
+	}
+
 	const authorizationHeaderCapture = /^(DPoP|[Bb]earer) (.+)$/.exec(
-		expressRequest.headers.authorization || "",
+		authorizationHeader || "",
 	);
 
 	return {

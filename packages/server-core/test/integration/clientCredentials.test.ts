@@ -115,6 +115,22 @@ describe("client credentials flow", () => {
 		});
 	});
 
+	it("returns an error with non-string scope", async () => {
+		const grant_type = "client_credentials";
+		const client_id = "id";
+		const client_secret = "secret";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ client_id, grant_type, client_secret, scope: {} });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "invalid scope",
+		});
+	});
+
 	it("returns a token with valid client", async () => {
 		const grant_type = "client_credentials";
 		const client_id = "id";
