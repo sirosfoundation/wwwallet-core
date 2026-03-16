@@ -243,6 +243,13 @@ async function validateRequest(
 			"authorization header is invalid",
 		);
 	}
+	if (expressRequest.headers.authorization?.includes(",")) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"authorization header is invalid",
+		);
+	}
 
 	const authorizationHeaderCapture = /(\S+) (.+)/.exec(
 		expressRequest.headers.authorization || "",

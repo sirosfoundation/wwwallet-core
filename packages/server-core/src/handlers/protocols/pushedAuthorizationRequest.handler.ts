@@ -191,6 +191,13 @@ async function validateRequest(
 		oauth_client_attestation =
 			expressRequest.headers["oauth-client-attestation"];
 	}
+	if (oauth_client_attestation?.includes(",")) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"oauth-client-attestation header is invalid",
+		);
+	}
 
 	return {
 		response_type: validated_response_type,

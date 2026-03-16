@@ -171,6 +171,18 @@ describe("openid connect", () => {
 		});
 	});
 
+	it("rejects userinfo authorization header with multiple comma-separated values", async () => {
+		const userinfoResponse = await request(app)
+			.get("/userinfo")
+			.set("Authorization", "Bearer one, Bearer two");
+
+		expect(userinfoResponse.status).toBe(400);
+		expect(userinfoResponse.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "authorization header is invalid",
+		});
+	});
+
 	it("rejects implicit openid requests without nonce", async () => {
 		const response_type = "token";
 		const client_id = "id";

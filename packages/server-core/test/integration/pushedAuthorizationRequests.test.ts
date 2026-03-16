@@ -196,6 +196,29 @@ describe("pushshed authorization request endpoint", () => {
 		});
 	});
 
+	it("returns an error with comma-separated oauth client attestation header values", async () => {
+		const response_type = "code";
+		const redirect_uri = "http://redirect.uri";
+		const oauth_client_attestation = "invalid,invalid2";
+
+		const response = await request(app)
+			.post("/pushed-authorization-request")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({
+				response_type,
+				redirect_uri,
+				issuer_state,
+				code_challenge,
+				code_challenge_method,
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "oauth-client-attestation header is invalid",
+		});
+	});
+
 	it("returns a token", async () => {
 		const response_type = "code";
 		const client_id = "id";

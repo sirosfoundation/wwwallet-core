@@ -89,6 +89,13 @@ async function validateRequest(expressRequest: Request) {
 			"authorization header is invalid",
 		);
 	}
+	if (expressRequest.headers.authorization?.includes(",")) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"authorization header is invalid",
+		);
+	}
 
 	const authorizationHeaderCapture = /^(DPoP|[Bb]earer) (.+)$/.exec(
 		expressRequest.headers.authorization || "",

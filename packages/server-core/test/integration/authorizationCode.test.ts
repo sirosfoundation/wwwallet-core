@@ -836,6 +836,24 @@ describe("authorization code - token", () => {
 		});
 	});
 
+	it("returns an error with comma-separated oauth client attestation header values", async () => {
+		const grant_type = "authorization_code";
+		const oauth_client_attestation = "invalid,invalid2";
+		const redirect_uri = "http://invalid.uri";
+		const code = "code";
+
+		const response = await request(app)
+			.post("/token")
+			.set("Oauth-Client-Attestation", oauth_client_attestation)
+			.send({ grant_type, redirect_uri, code });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "oauth-client-attestation header is invalid",
+		});
+	});
+
 	it("returns an error with an invalid redirect uri", async () => {
 		const grant_type = "authorization_code";
 		const client_id = "id";
