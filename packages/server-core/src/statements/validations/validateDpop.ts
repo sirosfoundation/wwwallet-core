@@ -7,6 +7,7 @@ import {
 import { OauthError } from "../../errors";
 
 export type ValidateDpopParams = {
+	token_type?: string;
 	access_token: string;
 	dpop?: string | string[] | undefined;
 	dpopRequest?: {
@@ -19,10 +20,31 @@ export type ValidateDpopConfig = {
 	issuer_url: string;
 };
 
+/**
+ * Validates authorization token type (`DPoP`/`Bearer`), then validates DPoP
+ * JWT header, signature, required claims, and request/access token binding
+ * (`htm`, `htu`, `ath`).
+ *
+ * ## Why
+ * Enforcing accepted authorization token types and DPoP proof validation keeps
+ * token usage aligned with sender-constrained expectations and reduces replay
+ * and token theft impact.
+ *
+ * ## Specification
+ * - OAuth 2.0 Demonstrating Proof-of-Possession (DPoP), RFC 9449.
+ */
 export async function validateDpop(
-	{ dpop, dpopRequest, access_token }: ValidateDpopParams,
+	{ token_type, dpop, dpopRequest, access_token }: ValidateDpopParams,
 	config: ValidateDpopConfig,
 ): Promise<unknown> {
+	if (!token_type || !token_type.match(/^(DPoP|[b|B]earer)$/)) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"access token type is invalid",
+		);
+	}
+
 	if (!dpop || !dpopRequest) {
 		throw new OauthError(
 			400,

@@ -10,6 +10,18 @@ export type validateAuthorizationCodeParams = {
 export type ValidateAuthorizationCodeConfig = DecryptConfig;
 
 // TODO validate code redirect uri according to request
+/**
+ * Decrypts authorization code, validates token type, and returns bound claims
+ *   (redirect URI, PKCE data, subject, scope, nonce).
+ *
+ * ## Why
+ * Token exchange must only succeed for codes issued by this server and for
+ *   the exact authorization context they were minted for.
+ *
+ * ## Specification
+ * - OAuth 2.0 (RFC 6749) section 4.1.3.
+ * - OpenID Connect Core 1.0 nonce handling for code flow.
+ */
 export async function validateAuthorizationCode(
 	{
 		authorization_code,
@@ -22,6 +34,7 @@ export async function validateAuthorizationCode(
 			payload: {
 				token_type,
 				redirect_uri,
+				nonce,
 				code_challenge,
 				code_challenge_method,
 				sub,
@@ -53,6 +66,7 @@ export async function validateAuthorizationCode(
 
 		return {
 			authorization_code,
+			nonce,
 			code_challenge,
 			code_challenge_method,
 			sub,

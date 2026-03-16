@@ -1,6 +1,7 @@
 import type { JWK } from "jose";
 
 export type BearerCredentials = {
+	token_type?: string;
 	access_token?: string;
 	dpop?: string | string[];
 	dpopRequest?: {
@@ -20,6 +21,8 @@ export type OauthClient = {
 	redirect_uris?: Array<string>;
 	scopes: Array<string>;
 };
+
+export type ResponseType = "code" | "token" | "code token";
 
 export type SupportedCredentialConfiguration = {
 	deferred?: boolean;
@@ -103,6 +106,7 @@ export type AuthorizationRequest = {
 	redirect_uri: string;
 	scope?: string;
 	state?: string;
+	nonce?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
 	issuer_state?: string;
@@ -117,12 +121,20 @@ export type AccessToken = {
 	scope: string;
 };
 
+export type RefreshToken = {
+	token_type: "refresh_token";
+	client_id: string;
+	sub: string;
+	scope: string;
+};
+
 export type AuthorizationCode = {
 	token_type: "authorization_code";
 	authorization_code?: string;
 	redirect_uri: string;
 	sub: string;
 	scope: string;
+	nonce?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
 };
@@ -191,7 +203,22 @@ export type OauthAuthorizationServer = {
 	jwks_uri: string;
 	scopes_supported: Array<string>;
 };
+
 export type IssuerMetadata = OpenidCredentialIssuer & OauthAuthorizationServer;
+
+export type OpenidConfiguration = {
+	issuer: string;
+	authorization_endpoint: string;
+	token_endpoint: string;
+	userinfo_endpoint: string;
+	jwks_uri: string;
+	response_types_supported: Array<string>;
+	subject_types_supported: Array<string>;
+	id_token_signing_alg_values_supported: Array<string>;
+	scopes_supported: Array<string>;
+	claims_supported: Array<string>;
+	grant_types_supported: Array<string>;
+};
 
 export type Grants = {
 	authorization_code?: {

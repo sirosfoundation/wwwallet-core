@@ -14,6 +14,19 @@ export type GenerateAuthorizationCodeConfig = {
 	secret: string;
 };
 
+/**
+ * Creates an encrypted authorization code containing redirect URI, PKCE
+ *   binding, subject, scope, and optional OIDC nonce.
+ *
+ * ## Why
+ * The token endpoint must verify that the code being exchanged matches the
+ *   original authorization context and proof-key requirements.
+ *
+ * ## Specification
+ * - OAuth 2.0 (RFC 6749) section 4.1.
+ * - PKCE (RFC 7636) code challenge binding.
+ * - OpenID Connect Core 1.0 nonce propagation.
+ */
 export async function generateAuthorizationCode(
 	{
 		authorization_request,
@@ -37,6 +50,7 @@ export async function generateAuthorizationCode(
 	const authorization_code = await new EncryptJWT({
 		token_type: "authorization_code",
 		redirect_uri: authorization_request.redirect_uri,
+		nonce: authorization_request.nonce,
 		code_challenge: authorization_request.code_challenge,
 		code_challenge_method: authorization_request.code_challenge_method,
 		sub: resource_owner.sub,

@@ -17,6 +17,19 @@ export type ValidateProofsConfig = {
 	issuer_client: IssuerClient;
 } & DecryptConfig;
 
+/**
+ * Validates holder proof objects (`jwt` and `attestation`), including nonce
+ *   checks, trust chain verification, and extraction of holder JWKs.
+ *
+ * ## Why
+ * Credential issuance must cryptographically bind credentials to holder keys
+ *   and reject stale/untrusted proof material.
+ *
+ * ## Specification
+ * - OID4VCI proof requirements.
+ * - JWT proof validation (RFC 7519 / JWS processing).
+ * - X.509 chain trust verification for attestation proofs.
+ */
 export async function validateProofs(
 	{ proofs }: ValidateProofsParams,
 	config: ValidateProofsConfig,

@@ -4,6 +4,8 @@ export * from "./credentialOffer.handler";
 export * from "./deferredCredential.handler";
 export * from "./nonce.handler";
 export * from "./oauthAuthorizationServer.handler";
+export * from "./openidConfiguration.handler";
 export * from "./openidCredentialIssuer.handler";
 export * from "./pushedAuthorizationRequest.handler";
 export * from "./token.handler";
+export * from "./userinfo.handler";

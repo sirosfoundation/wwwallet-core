@@ -12,9 +12,11 @@ import {
 	validateCredentialOfferHandlerConfig,
 	validateNonceHandlerConfig,
 	validateOauthAuthorizationServerHandlerConfig,
+	validateOpenidConfigurationHandlerConfig,
 	validateOpenidCredentialIssuerHandlerConfig,
 	validatePushedAuthorizationRequestHandlerConfig,
 	validateTokenHandlerConfig,
+	validateUserinfoHandlerConfig,
 } from "../../src";
 
 export function server(protocols: Protocols): express.Express {
@@ -34,10 +36,12 @@ export function server(protocols: Protocols): express.Express {
 			validateCredentialHandlerConfig(protocols.config);
 			validateCredentialOfferHandlerConfig(protocols.config);
 			validateNonceHandlerConfig(protocols.config);
+			validateOpenidConfigurationHandlerConfig(protocols.config);
 			validateOauthAuthorizationServerHandlerConfig(protocols.config);
 			validateOpenidCredentialIssuerHandlerConfig(protocols.config);
 			validatePushedAuthorizationRequestHandlerConfig(protocols.config);
 			validateTokenHandlerConfig(protocols.config);
+			validateUserinfoHandlerConfig(protocols.config);
 
 			res.status(200).send("ok");
 		} catch (error) {
@@ -53,6 +57,12 @@ export function server(protocols: Protocols): express.Express {
 
 	app.get("/.well-known/openid-credential-issuer", async (req, res) => {
 		const response = await protocols.openidCredentialIssuer(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/.well-known/openid-configuration", async (req, res) => {
+		const response = await protocols.openidConfiguration(req);
 
 		return res.status(response.status).send(response.body);
 	});
@@ -140,6 +150,12 @@ export function server(protocols: Protocols): express.Express {
 
 	app.post("/token", async (req, res) => {
 		const response = await protocols.token(req);
+
+		return res.status(response.status).send(response.body);
+	});
+
+	app.get("/userinfo", async (req, res) => {
+		const response = await protocols.userinfo(req);
 
 		return res.status(response.status).send(response.body);
 	});
@@ -269,7 +285,7 @@ export const config = {
 		{
 			id: "id",
 			secret: "secret",
-			scopes: ["full:scope", "client:scope"],
+			scopes: ["full:scope", "client:scope", "openid"],
 			redirect_uris: ["http://redirect.uri"],
 		},
 		{

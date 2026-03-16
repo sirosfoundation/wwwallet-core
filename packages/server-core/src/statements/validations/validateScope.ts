@@ -1,15 +1,25 @@
 import { OauthError } from "../../errors";
 import type { IssuerClient, OauthClient } from "../../resources";
 
-export type validateScopeParams = {
+export type ValidateScopeParams = {
+	scope: string | undefined;
 	client: OauthClient | IssuerClient;
 };
 
 export type ValidateScopeConfig = unknown;
 
+/**
+ * Validates each requested scope token against scopes assigned to the client.
+ *
+ * ## Why
+ * Prevents privilege escalation by ensuring clients can request only scopes
+ *   that were explicitly configured/authorized for them.
+ *
+ * ## Specification
+ * - OAuth 2.0 scope parameter processing (RFC 6749 section 3.3).
+ */
 export async function validateScope(
-	scope: string | undefined,
-	{ client }: validateScopeParams,
+	{ scope, client }: ValidateScopeParams,
 	_config: ValidateScopeConfig,
 ) {
 	if (!scope) return { scope: "" };

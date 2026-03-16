@@ -17,6 +17,18 @@ export type ValidateClientCredentialsConfig = {
 	trusted_root_certificates: Array<string>;
 };
 
+/**
+ * Validates client identity using secret, attestation, and/or redirect/client
+ *   binding depending on flow confidentiality requirements.
+ *
+ * ## Why
+ * Every OAuth/OIDC flow depends on trustworthy client identity before issuing
+ *   tokens or accepting pushed authorization requests.
+ *
+ * ## Specification
+ * - OAuth 2.0 (RFC 6749) sections 2.3 and 3.1.2.
+ * - OAuth 2.0 Mutual-TLS/attestation style client assertions (implementation-specific profile).
+ */
 export async function validateClientCredentials(
 	{
 		client_id,

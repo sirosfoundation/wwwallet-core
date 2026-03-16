@@ -43,8 +43,8 @@ export async function handleClientCredentials(
 	);
 
 	const { scope } = await validateScope(
-		request.scope,
 		{
+			scope: request.scope,
 			client,
 		},
 		config,

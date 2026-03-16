@@ -1,4 +1,4 @@
-export const tokenHandlerConfigSchema = {
+export const userinfoHandlerConfigSchema = {
 	type: "object",
 	properties: {
 		clients: {
@@ -7,22 +7,25 @@ export const tokenHandlerConfigSchema = {
 				type: "object",
 				properties: {
 					id: { type: "string" },
-					secret: { type: "string" },
 					scopes: { type: "array", items: { type: "string" } },
 				},
-				required: ["id", "secret", "scopes"],
+				required: ["id", "scopes"],
 			},
 		},
+		issuer_client: {
+			type: "object",
+			properties: {
+				id: { type: "string" },
+				scopes: { type: "array", items: { type: "string" } },
+			},
+			required: ["id", "scopes"],
+		},
 		secret: { type: "string", pattern: ".{16}|.{24}|.{32}|.{48}|.{64}|" },
-		issuer_url: { type: "string" },
-		id_token_ttl: { type: "number" },
 		token_encryption: {
 			type: "string",
 			pattern:
 				"A128GCM|A192GCM|A256GCM|A128CBC-HS256|A192CBC-HS384|A256CBC-HS512",
 		},
-		access_token_ttl: { type: "number" },
-		refresh_token_ttl: { type: "number" },
 	},
-	required: ["clients", "secret", "token_encryption", "access_token_ttl"],
+	required: ["clients", "issuer_client", "secret", "token_encryption"],
 };

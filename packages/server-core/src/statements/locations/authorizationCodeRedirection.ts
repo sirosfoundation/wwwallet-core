@@ -7,6 +7,17 @@ export type AuthorizationCodeRedirectionParams = {
 
 export type AuthorizationCodeRedirectionConfig = unknown;
 
+/**
+ * Builds the redirect URI for authorization code responses by appending
+ *   `code` (and optional `state`) in query parameters.
+ *
+ * ## Why
+ * Authorization code responses must be returned through redirection while
+ *   preserving client correlation (`state`) to prevent CSRF/mix-up issues.
+ *
+ * ## Specification
+ * - OAuth 2.0 (RFC 6749) section 4.1.2.
+ */
 export async function authorizationCodeRedirection(
 	{
 		authorization_request,

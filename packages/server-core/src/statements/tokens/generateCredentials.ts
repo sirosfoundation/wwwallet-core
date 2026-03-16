@@ -41,6 +41,18 @@ export type GenerateCredentialsConfig = {
 } & EncryptConfig &
 	DecryptConfig;
 
+/**
+ * Resolves issuance data for the subject (immediate or deferred) and emits
+ *   verifiable credential payloads in configured format.
+ *
+ * ## Why
+ * Issuers need one deterministic pipeline that supports both synchronous
+ *   issuance and deferred retrieval while enforcing proof-bound key material.
+ *
+ * ## Specification
+ * - OID4VCI credential endpoint and deferred issuance behavior.
+ * - SD-JWT VC profile for selective-disclosure credential encoding.
+ */
 export async function generateCredentials(
 	{
 		sub: inputSub,

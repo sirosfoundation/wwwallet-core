@@ -11,6 +11,16 @@ export type ValidateIssuerStateConfig = {
 	};
 } & DecryptConfig;
 
+/**
+ * Decrypts and validates `issuer_state` token, including issuer subject match.
+ *
+ * ## Why
+ * Issuer-bound state prevents wallet flows from being replayed or mixed with
+ *   requests from a different issuer/client context.
+ *
+ * ## Specification
+ * - OID4VCI authorization code grant with `issuer_state`.
+ */
 export async function validateIssuerState(
 	{ issuer_state }: validateIssuerStateParams,
 	config: ValidateIssuerStateConfig,

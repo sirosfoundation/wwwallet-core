@@ -7,8 +7,10 @@ import {
 	generateAuthorizationRequestUri,
 	type ValidateClientCredentialsConfig,
 	type ValidateIssuerStateConfig,
+	type ValidateResponseTypesConfig,
 	validateClientCredentials,
 	validateIssuerState,
+	validateResponseTypes,
 	validateScope,
 } from "../../statements";
 import { pushedAuthorizationRequestHandlerConfigSchema } from "./schemas";
@@ -19,6 +21,7 @@ export type PushedAuthorizationRequestHandlerConfig = {
 	logger: Logger;
 } & ValidateClientCredentialsConfig &
 	ValidateIssuerStateConfig &
+	ValidateResponseTypesConfig &
 	GenerateAuthorizationRequestUriConfig;
 
 type PushedAuthorizationRequest = {
@@ -28,6 +31,7 @@ type PushedAuthorizationRequest = {
 	oauth_client_attestation?: string;
 	scope?: string;
 	state?: string;
+	nonce?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
 	issuer_state: string;
@@ -61,8 +65,10 @@ export function pushedAuthorizationRequestHandlerFactory(
 			);
 
 			const { scope: _scope } = await validateScope(
-				request.scope,
-				{ client },
+				{
+					scope: request.scope,
+					client,
+				},
 				config,
 			);
 
@@ -126,14 +132,16 @@ async function validateRequest(
 		redirect_uri,
 		scope,
 		state,
+		nonce,
 		code_challenge,
 		code_challenge_method,
 		issuer_state,
 	} = expressRequest.body;
 
-	if (response_type !== "code") {
-		throw new OauthError(400, "invalid_request", "response_type is invalid");
-	}
+	const { response_type: validated_response_type } =
+		await validateResponseTypes({
+			response_type,
+		});
 
 	if (!redirect_uri) {
 		throw new OauthError(
@@ -153,12 +161,13 @@ async function validateRequest(
 	}
 
 	return {
-		response_type,
+		response_type: validated_response_type,
 		client_id,
 		redirect_uri,
 		oauth_client_attestation,
 		scope,
 		state,
+		nonce,
 		code_challenge,
 		code_challenge_method,
 		issuer_state,
