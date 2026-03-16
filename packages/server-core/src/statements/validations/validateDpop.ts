@@ -60,6 +60,13 @@ export async function validateDpop(
 			"no more than one dpop value is accepted",
 		);
 	}
+	if (dpop.includes(",")) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"no more than one dpop value is accepted",
+		);
+	}
 
 	const { jwk } = await validateDpopHeader(dpop);
 
