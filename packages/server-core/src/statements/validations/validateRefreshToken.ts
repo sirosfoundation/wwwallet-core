@@ -10,7 +10,7 @@ export type ValidateRefreshTokenConfig = DecryptConfig;
 
 /**
  * Decrypts refresh token, validates token type, and returns bound
- *   client/subject/scope claims for token rotation.
+ *   client/subject/scope claims plus issued-at validity for token rotation.
  *
  * ## Why
  * Refresh exchange must only proceed for server-issued refresh tokens tied to

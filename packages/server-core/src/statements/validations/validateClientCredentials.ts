@@ -18,16 +18,16 @@ export type ValidateClientCredentialsConfig = {
 };
 
 /**
- * Validates client identity using secret, attestation, and/or redirect/client
- *   binding depending on flow confidentiality requirements.
+ * Validates client identity using one authentication method per request
+ *   (`client_secret` or `oauth_client_attestation`) plus redirect/client
+ *   binding checks for public-code flows.
  *
  * ## Why
  * Every OAuth/OIDC flow depends on trustworthy client identity before issuing
  *   tokens or accepting pushed authorization requests, including strict
  *   `redirect_uri` and `client_id` binding for authorization contexts.
- *
- * Hardening references:
- * - `038cfa2` enforce authorize `redirect_uri` and client binding.
+ * Mixed authentication methods are rejected to avoid ambiguous or conflicting
+ *   credential evaluation paths.
  *
  * ## Specification
  * - OAuth 2.0 (RFC 6749) sections 2.3 and 3.1.2.

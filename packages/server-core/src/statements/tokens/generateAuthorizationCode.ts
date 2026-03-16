@@ -24,9 +24,6 @@ export type GenerateAuthorizationCodeConfig = {
  *   carries `client_id`, `redirect_uri`, nonce, and PKCE fields for downstream
  *   exchange-time validation.
  *
- * Hardening references:
- * - `7ab244d` require `redirect_uri` for authorization_code exchange.
- *
  * ## Specification
  * - OAuth 2.0 (RFC 6749) section 4.1.
  * - PKCE (RFC 7636) code challenge binding.

@@ -12,8 +12,8 @@ export type GenerateAuthorizationRequestUriConfig = {
 
 // TODO split authorization_request token generation from request_uri urn
 /**
- * Encodes authorization request parameters into a signed/encrypted request
- *   object and returns a `request_uri` plus `expires_in`.
+ * Encodes authorization request parameters into an encrypted request object
+ *   and returns a `request_uri` plus `expires_in`.
  *
  * ## Why
  * PAR moves sensitive/large parameters off the front-channel and ensures the

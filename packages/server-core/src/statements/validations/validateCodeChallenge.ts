@@ -16,11 +16,6 @@ export type ValidateCodeChallengeConfig = unknown;
  * Code-based OAuth/OIDC flows should require PKCE challenge material early to
  * prevent weakened authorization code exchanges later at the token endpoint.
  *
- * Hardening references:
- * - `9ce4f78` validate PKCE challenge on pushed authorization requests.
- * - `38ba7d0` harden PKCE challenge validation (`S256`, format checks).
- * - `a39f772` require PKCE for all response types containing `code`.
- *
  * ## Specification
  * - OAuth 2.0 Authorization Code flow (RFC 6749).
  * - PKCE (RFC 7636), `S256` challenge method.

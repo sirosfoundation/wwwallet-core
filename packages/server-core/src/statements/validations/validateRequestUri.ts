@@ -11,15 +11,12 @@ export type ValidateRequestUriConfig = DecryptConfig;
 
 /**
  * Validates request URI format/prefix, decrypts request object, and returns
- *   normalized authorization request parameters.
+ *   authorization request parameters after core claim/type checks.
  *
  * ## Why
  * Authorization endpoint decisions must rely on authenticated PAR content
  *   rather than mutable front-channel query parameters. OpenID front-channel
  *   requests also rely on nonce propagation from this validated request object.
- *
- * Hardening references:
- * - `580b472` require nonce for OpenID front-channel flows.
  *
  * ## Specification
  * - OAuth 2.0 Pushed Authorization Requests (RFC 9126).

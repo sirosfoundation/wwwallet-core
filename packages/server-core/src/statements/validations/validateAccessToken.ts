@@ -15,7 +15,8 @@ export type ValidateAccessTokenConfig = {
 // TODO validate code redirect uri according to request
 /**
  * Decrypts access token, validates authorization token type (`DPoP`/`Bearer`)
- * when provided, checks JWT token type claim, and resolves issuing client.
+ * when provided, checks core claims (`token_type`, `iat`, `client_id`, `sub`,
+ * `scope`), and resolves issuing client.
  *
  * ## Why
  * Protected endpoints must reject malformed/foreign tokens before authorizing

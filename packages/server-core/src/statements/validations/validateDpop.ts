@@ -21,14 +21,14 @@ export type ValidateDpopConfig = {
 };
 
 /**
- * Validates authorization token type (`DPoP`/`Bearer`), then validates DPoP
- * JWT header, signature, required claims, and request/access token binding
- * (`htm`, `htu`, `ath`).
+ * Requires `DPoP` authorization token type, then validates DPoP JWT header,
+ * signature, required claims, single-proof header semantics, and
+ * request/access token binding (`htm`, `htu`, `ath`).
  *
  * ## Why
- * Enforcing accepted authorization token types and DPoP proof validation keeps
- * token usage aligned with sender-constrained expectations and reduces replay
- * and token theft impact.
+ * Enforcing sender-constrained proof validation (including one DPoP proof per
+ * request) reduces replay risk and prevents bearer-style token usage in DPoP
+ * protected routes.
  *
  * ## Specification
  * - OAuth 2.0 Demonstrating Proof-of-Possession (DPoP), RFC 9449.

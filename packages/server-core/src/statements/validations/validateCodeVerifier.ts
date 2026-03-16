@@ -17,10 +17,6 @@ export type ValidateCodeVerifierConfig = {};
  * PKCE prevents intercepted authorization codes from being redeemed by an
  *   attacker who does not control the original verifier.
  *
- * Hardening references:
- * - `38ba7d0` harden PKCE verifier validation (`S256`, format checks).
- * - `71658d6` harden PKCE verifier comparison with constant-time equality.
- *
  * ## Specification
  * - PKCE (RFC 7636), `S256` transformation and verification.
  */
