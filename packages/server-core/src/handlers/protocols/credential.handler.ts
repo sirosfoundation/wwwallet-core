@@ -176,6 +176,9 @@ async function validateRequest(
 			"proofs is missing from body parameters",
 		);
 	}
+	if (typeof proofs !== "object" || Array.isArray(proofs)) {
+		throw new OauthError(400, "invalid_request", "proofs is invalid");
+	}
 
 	const credentials: CredentialRequest["credentials"] = {};
 

@@ -213,7 +213,7 @@ async function validateRequest(
 
 	const { client_id, request_uri } = expressRequest.query;
 
-	if (!client_id) {
+	if (typeof client_id !== "string" || client_id.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -221,7 +221,7 @@ async function validateRequest(
 		);
 	}
 
-	if (!request_uri) {
+	if (typeof request_uri !== "string" || request_uri.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -230,8 +230,8 @@ async function validateRequest(
 	}
 
 	return {
-		client_id: client_id.toString(),
-		request_uri: request_uri.toString(),
+		client_id,
+		request_uri,
 	};
 }
 

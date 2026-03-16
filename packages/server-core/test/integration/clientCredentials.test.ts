@@ -38,6 +38,20 @@ describe("client credentials flow", () => {
 		});
 	});
 
+	it("returns an error with non-string client id", async () => {
+		const grant_type = "client_credentials";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ client_id: {}, grant_type });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "client id is missing from body parameters",
+		});
+	});
+
 	it("returns an error with client id", async () => {
 		const grant_type = "client_credentials";
 		const client_id = "client_id";
@@ -45,6 +59,21 @@ describe("client credentials flow", () => {
 		const response = await request(app)
 			.post("/token")
 			.send({ client_id, grant_type });
+
+		expect(response.status).toBe(400);
+		expect(response.body).to.deep.eq({
+			error: "invalid_request",
+			error_description: "client secret is missing from body parameters",
+		});
+	});
+
+	it("returns an error with non-string client secret", async () => {
+		const grant_type = "client_credentials";
+		const client_id = "id";
+
+		const response = await request(app)
+			.post("/token")
+			.send({ client_id, grant_type, client_secret: {} });
 
 		expect(response.status).toBe(400);
 		expect(response.body).to.deep.eq({

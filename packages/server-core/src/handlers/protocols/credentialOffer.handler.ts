@@ -133,7 +133,7 @@ async function validateRequest(
 
 	const { scope } = expressRequest.params;
 
-	if (!scope) {
+	if (typeof scope !== "string" || scope.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",

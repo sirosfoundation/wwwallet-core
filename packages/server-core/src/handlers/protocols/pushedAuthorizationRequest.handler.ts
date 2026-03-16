@@ -151,6 +151,21 @@ async function validateRequest(
 			"redirect_uri is missing from body params",
 		);
 	}
+	if (client_id !== undefined && typeof client_id !== "string") {
+		throw new OauthError(400, "invalid_request", "client_id is invalid");
+	}
+	if (scope !== undefined && typeof scope !== "string") {
+		throw new OauthError(400, "invalid_request", "scope is invalid");
+	}
+	if (state !== undefined && typeof state !== "string") {
+		throw new OauthError(400, "invalid_request", "state is invalid");
+	}
+	if (nonce !== undefined && typeof nonce !== "string") {
+		throw new OauthError(400, "invalid_request", "nonce is invalid");
+	}
+	if (issuer_state !== undefined && typeof issuer_state !== "string") {
+		throw new OauthError(400, "invalid_request", "issuer_state is invalid");
+	}
 	await validateCodeChallenge({
 		response_type: validated_response_type,
 		code_challenge,

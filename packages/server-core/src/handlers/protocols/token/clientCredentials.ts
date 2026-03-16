@@ -76,7 +76,7 @@ export async function validateClientCredentialsRequest(
 ): Promise<ClientCredentialsRequest> {
 	const { client_id, client_secret, scope, grant_type } = expressRequest.body;
 
-	if (!client_id) {
+	if (typeof client_id !== "string" || client_id.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
@@ -84,7 +84,7 @@ export async function validateClientCredentialsRequest(
 		);
 	}
 
-	if (!client_secret) {
+	if (typeof client_secret !== "string" || client_secret.trim().length === 0) {
 		throw new OauthError(
 			400,
 			"invalid_request",
