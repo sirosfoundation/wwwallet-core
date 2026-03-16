@@ -30,7 +30,7 @@ export async function validateAccessToken(
 	{ token_type, access_token }: validateAccessTokenParams,
 	config: ValidateAccessTokenConfig,
 ) {
-	if (token_type && !token_type.match(/^(DPoP|[Bb]earer)$/)) {
+	if (token_type && !token_type.match(/^(dpop|bearer)$/i)) {
 		throw new OauthError(
 			401,
 			"invalid_request",

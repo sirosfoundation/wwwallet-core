@@ -123,7 +123,7 @@ async function validateRequest(expressRequest: Request) {
 		throw new OauthError(400, "invalid_request", "dpop header is invalid");
 	}
 
-	const authorizationHeaderCapture = /^(DPoP|[Bb]earer) (.+)$/.exec(
+	const authorizationHeaderCapture = /^(dpop|bearer) (.+)$/i.exec(
 		expressRequest.headers.authorization || "",
 	);
 
