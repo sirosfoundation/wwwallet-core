@@ -47,10 +47,18 @@ export async function validateClientCredentials(
 	let client: OauthClient | undefined;
 
 	if (oauth_client_attestation) {
+		const normalizedAttestation = oauth_client_attestation.trim();
+		if (
+			normalizedAttestation.length === 0 ||
+			normalizedAttestation.includes(",")
+		) {
+			throw new OauthError(401, "invalid_client", "invalid client credentials");
+		}
+
 		let found = false;
 		for (const certificate of config.trusted_root_certificates) {
 			try {
-				const { typ } = decodeProtectedHeader(oauth_client_attestation);
+				const { typ } = decodeProtectedHeader(normalizedAttestation);
 				if (typ !== "oauth-client-attestation+jwt") {
 					throw new OauthError(
 						401,
@@ -60,10 +68,7 @@ export async function validateClientCredentials(
 				}
 
 				const { publicKey } = new crypto.X509Certificate(certificate);
-				const { payload } = await jwtVerify(
-					oauth_client_attestation,
-					publicKey,
-				);
+				const { payload } = await jwtVerify(normalizedAttestation, publicKey);
 
 				client = config.clients.find(({ id }) => id === payload.sub);
 				found = !!client;

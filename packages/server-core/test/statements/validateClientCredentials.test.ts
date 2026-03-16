@@ -79,4 +79,54 @@ describe("validateClientCredentials", () => {
 			new OauthError(401, "invalid_client", "invalid client credentials"),
 		);
 	});
+
+	it("rejects comma-separated oauth client attestation values", async () => {
+		await expect(
+			validateClientCredentials(
+				{
+					client_id: "id",
+					redirect_uri: "http://redirect.uri",
+					oauth_client_attestation: "attestation-1,attestation-2",
+					confidential: false,
+				},
+				{
+					clients: [
+						{
+							id: "id",
+							redirect_uris: ["http://redirect.uri"],
+							scopes: [],
+						},
+					],
+					trusted_root_certificates: config.trusted_root_certificates,
+				},
+			),
+		).rejects.toEqual(
+			new OauthError(401, "invalid_client", "invalid client credentials"),
+		);
+	});
+
+	it("rejects whitespace-only oauth client attestation values", async () => {
+		await expect(
+			validateClientCredentials(
+				{
+					client_id: "id",
+					redirect_uri: "http://redirect.uri",
+					oauth_client_attestation: "   ",
+					confidential: false,
+				},
+				{
+					clients: [
+						{
+							id: "id",
+							redirect_uris: ["http://redirect.uri"],
+							scopes: [],
+						},
+					],
+					trusted_root_certificates: config.trusted_root_certificates,
+				},
+			),
+		).rejects.toEqual(
+			new OauthError(401, "invalid_client", "invalid client credentials"),
+		);
+	});
 });
