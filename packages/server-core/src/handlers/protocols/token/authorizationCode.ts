@@ -146,20 +146,35 @@ export async function validateAuthorizationCodeRequest(
 		grant_type,
 	} = expressRequest.body;
 
+	let oauthClientAttestationHeaderCount = 0;
+	for (let i = 0; i < expressRequest.rawHeaders.length; i += 2) {
+		if (
+			expressRequest.rawHeaders[i].toLowerCase() === "oauth-client-attestation"
+		) {
+			oauthClientAttestationHeaderCount++;
+		}
+	}
+	if (oauthClientAttestationHeaderCount > 1) {
+		throw new OauthError(
+			400,
+			"invalid_request",
+			"oauth-client-attestation header is invalid",
+		);
+	}
+	const rawOauthClientAttestationHeader =
+		expressRequest.headers["oauth-client-attestation"];
 	let oauth_client_attestation: string | undefined;
-	if (Array.isArray(expressRequest.headers["oauth-client-attestation"])) {
-		if (expressRequest.headers["oauth-client-attestation"].length > 1) {
+	if (typeof rawOauthClientAttestationHeader === "string") {
+		oauth_client_attestation = rawOauthClientAttestationHeader;
+	} else if (Array.isArray(rawOauthClientAttestationHeader)) {
+		if (rawOauthClientAttestationHeader.length > 1) {
 			throw new OauthError(
 				400,
 				"invalid_request",
 				"oauth-client-attestation header is invalid",
 			);
 		}
-		oauth_client_attestation =
-			expressRequest.headers["oauth-client-attestation"][0];
-	} else {
-		oauth_client_attestation =
-			expressRequest.headers["oauth-client-attestation"];
+		oauth_client_attestation = rawOauthClientAttestationHeader[0];
 	}
 	if (oauth_client_attestation?.includes(",")) {
 		throw new OauthError(
