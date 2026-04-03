@@ -17,6 +17,17 @@ export type ValidateClientCredentialsConfig = {
 	trusted_root_certificates: Array<string>;
 };
 
+/**
+ * Validates client credentials using confidential, public, or attested client modes.
+ *
+ * ### Why (Security)
+ * Strong client authentication blocks unauthorized token and authorization operations.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 2.3, client authentication
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 3.2.1, token endpoint client checks
+ * - OAuth client attestation draft profiles
+ */
 export async function validateClientCredentials(
 	{
 		client_id,

@@ -19,6 +19,17 @@ export type ValidateDpopConfig = {
 	issuer_url: string;
 };
 
+/**
+ * Validates DPoP JWT header, claims, signature, and request binding fields.
+ *
+ * ### Why (Security)
+ * Request-bound proof validation reduces bearer token replay and method or URI confusion.
+ *
+ * ### Specifications
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 4, DPoP proof validation
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 4.2, required proof claims
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 6, protected resource access with DPoP
+ */
 export async function validateDpop(
 	{ dpop, dpopRequest, access_token }: ValidateDpopParams,
 	config: ValidateDpopConfig,

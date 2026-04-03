@@ -22,6 +22,18 @@ type TokenResponse = {
 	refresh_token: string;
 };
 
+/**
+ * Exchanges an authorization code for access token data at the token endpoint.
+ *
+ * ### Why (Security)
+ * PKCE and DPoP binding reduce stolen code redemption and token replay.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.3, access token request
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 5.1, access token response
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.5, PKCE token request checks
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 7, DPoP at token endpoint
+ */
 export async function fetchAccessToken(
 	{ client, client_state, issuer_metadata, code, dpop }: FetchAccessTokenParams,
 	config: FetchAccessTokenConfig,

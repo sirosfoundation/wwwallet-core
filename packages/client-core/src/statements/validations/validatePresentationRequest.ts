@@ -13,6 +13,17 @@ export type ValidatePresentationRequestConfig = {
 	httpClient: HttpClient;
 };
 
+/**
+ * Validates a presentation request resolved from request_uri or inline request object.
+ *
+ * ### Why (Security)
+ * Required-field checks and request parsing reduce malformed challenge processing risks.
+ *
+ * ### Specifications
+ * - OpenID4VP, authorization request parameters
+ * - OpenID4VP, request and request_uri transport
+ * - OpenID request object validation model
+ */
 export async function validatePresentationRequest(
 	{ client_id, request_uri, request }: ValidatePresentationRequestParams,
 	config: ValidatePresentationRequestConfig,

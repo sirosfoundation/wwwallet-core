@@ -6,6 +6,17 @@ export type ValidateCredentialOfferParams = {
 
 export type ValidateCredentialOfferConfig = {};
 
+/**
+ * Parses and validates required credential offer fields.
+ *
+ * ### Why (Security)
+ * Strict input validation prevents malformed offers from steering issuance flow.
+ *
+ * ### Specifications
+ * - OpenID4VCI, credential offer object
+ * - OpenID4VCI, credential_issuer and credential_configuration_ids
+ * - OpenID4VCI, grants object structure
+ */
 export async function validateCredentialOffer(
 	{ credential_offer }: ValidateCredentialOfferParams,
 	_config: ValidateCredentialOfferConfig,

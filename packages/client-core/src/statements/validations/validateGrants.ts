@@ -12,6 +12,17 @@ export type ValidateGrantsConfig = {
 	clientStateStore: ClientStateStore;
 };
 
+/**
+ * Validates offered grant types and initializes client state for the selected grant path.
+ *
+ * ### Why (Security)
+ * Grant-type enforcement prevents unsupported flow execution and state confusion.
+ *
+ * ### Specifications
+ * - OpenID4VCI, grants processing from credential offer
+ * - OpenID4VCI, authorization_code grant usage
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1, authorization code grant
+ */
 export async function validateGrants(
 	{ issuer, grants, credential_configuration_ids }: ValidateGrantsParams,
 	config: ValidateGrantsConfig,

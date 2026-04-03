@@ -31,6 +31,17 @@ export type ValidateClientMetadataParams = {
 
 export type ValidateClientMetadataConfig = {};
 
+/**
+ * Validates client metadata structure and returns normalized metadata.
+ *
+ * ### Why (Security)
+ * Schema-level validation blocks malformed metadata from reaching security-sensitive logic.
+ *
+ * ### Specifications
+ * - OpenID4VP, client metadata in authorization requests
+ * - OpenID4VP, vp_formats_supported metadata
+ * - OpenID client metadata validation model
+ */
 export async function validateClientMetadata(
 	{ client_metadata }: ValidateClientMetadataParams,
 	_config: ValidateClientMetadataConfig,

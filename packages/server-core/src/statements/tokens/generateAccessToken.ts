@@ -14,6 +14,17 @@ export type GenerateAccessTokenConfig = {
 	secret: string;
 };
 
+/**
+ * Issues an encrypted access token with client, subject, and scope claims.
+ *
+ * ### Why (Security)
+ * Short-lived protected tokens and typed claims reduce token confusion and misuse.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 5.1, access token issuance
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 7.1, token type context
+ * - OpenID4VCI, access token requirements for credential endpoint
+ */
 export async function generateAccessToken(
 	{
 		authorization_code,

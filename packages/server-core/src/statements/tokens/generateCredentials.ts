@@ -41,6 +41,17 @@ export type GenerateCredentialsConfig = {
 } & EncryptConfig &
 	DecryptConfig;
 
+/**
+ * Builds and signs credential payloads from resolved subject data and holder keys.
+ *
+ * ### Why (Security)
+ * Holder key binding and signed disclosures protect integrity and subject possession semantics.
+ *
+ * ### Specifications
+ * - OpenID4VCI, credential endpoint response
+ * - SD-JWT VC draft, disclosure and holder binding
+ * - OpenID4VCI, deferred credential issuance path
+ */
 export async function generateCredentials(
 	{
 		sub: inputSub,

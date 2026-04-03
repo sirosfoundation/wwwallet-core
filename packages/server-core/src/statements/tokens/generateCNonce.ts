@@ -11,6 +11,17 @@ export type GenerateCNonceConfig = {
 	secret: string;
 };
 
+/**
+ * Issues a credential nonce token bound to the issuer client identity.
+ *
+ * ### Why (Security)
+ * Nonce freshness reduces replay of holder proof material.
+ *
+ * ### Specifications
+ * - OpenID4VCI, c_nonce issuance
+ * - OpenID4VCI, proof freshness enforcement
+ * - Credential endpoint anti-replay nonce model
+ */
 export async function generateCNonce(
 	{ issuer_client: client }: GenerateCNonceParams,
 	config: GenerateCNonceConfig,

@@ -14,6 +14,17 @@ export type FetchCredentialsConfig = {
 	httpClient: HttpClient;
 };
 
+/**
+ * Calls the credential endpoint to obtain issued credentials for the selected configuration.
+ *
+ * ### Why (Security)
+ * Proof-bound access and validated inputs reduce unauthorized or malformed issuance requests.
+ *
+ * ### Specifications
+ * - OpenID4VCI, credential endpoint request
+ * - OpenID4VCI, proof or proofs in credential requests
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)), DPoP protected credential endpoint access
+ */
 export async function fetchCredentials(
 	{
 		issuer_metadata,

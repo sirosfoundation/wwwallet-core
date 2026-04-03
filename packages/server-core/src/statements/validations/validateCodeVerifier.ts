@@ -9,6 +9,17 @@ export type ValidateCodeVerifierParams = {
 
 export type ValidateCodeVerifierConfig = {};
 
+/**
+ * Verifies the PKCE code_verifier against the stored S256 code_challenge.
+ *
+ * ### Why (Security)
+ * PKCE verifier matching prevents intercepted authorization code redemption.
+ *
+ * ### Specifications
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.6, verifier validation
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.2, S256 challenge method
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 7.2, verifier entropy guidance
+ */
 export async function validateCodeVerifier(
 	{
 		code_verifier,

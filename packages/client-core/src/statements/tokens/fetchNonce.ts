@@ -11,6 +11,17 @@ export type FetchNonceConfig = {
 	httpClient: HttpClient;
 };
 
+/**
+ * Fetches a c_nonce value for proof freshness before credential issuance.
+ *
+ * ### Why (Security)
+ * Nonce usage mitigates replay of holder proofs.
+ *
+ * ### Specifications
+ * - OpenID4VCI, nonce endpoint and c_nonce
+ * - OpenID4VCI, proof freshness requirements
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)), request binding for DPoP-protected calls
+ */
 export async function fetchNonce(
 	{ issuer_metadata, dpop }: FetchNonceParams,
 	config: FetchNonceConfig,

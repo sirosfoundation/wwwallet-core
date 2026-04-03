@@ -14,6 +14,17 @@ export type GenerateVpTokenConfig = {
 	vpTokenSigner: VpTokenSigner;
 };
 
+/**
+ * Builds and signs the vp_token payload from selected presentation credentials.
+ *
+ * ### Why (Security)
+ * Cryptographic signing provides authenticity and tamper detection for the presentation payload.
+ *
+ * ### Specifications
+ * - OpenID4VP, vp_token response parameter
+ * - OpenID4VP, presentation response construction
+ * - DIF Presentation Exchange, credential submission model
+ */
 export async function generateVpToken(
 	{ presentation_credentials, presentation_request }: GenerateVpTokenParams,
 	config: GenerateVpTokenConfig,

@@ -12,6 +12,17 @@ export type ValidateCredentialConfigurationsConfig = {
 	supported_credential_configurations: Array<SupportedCredentialConfiguration>;
 };
 
+/**
+ * Filters requested credential configuration identifiers by support, client scope, and request scope.
+ *
+ * ### Why (Security)
+ * Scope intersection enforces least privilege and prevents over-issuance.
+ *
+ * ### Specifications
+ * - OpenID4VCI, credential_configuration_id selection
+ * - OpenID4VCI, scope to configuration mapping
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 3.3, scope handling
+ */
 export async function validateCredentialConfigurations(
 	credential_configuration_ids: Array<string>,
 	{ client, scope: requestedScope }: ValidateCredentialConfigurationsParams,
