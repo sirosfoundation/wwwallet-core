@@ -12,6 +12,17 @@ export type PresentationResponseConfig = {
 	vpTokenSigner: VpTokenSigner;
 };
 
+/**
+ * Builds and sends the presentation response payload to the verifier response endpoint.
+ *
+ * ### Why (Security)
+ * Response encryption and controlled posting protect VP confidentiality and integrity.
+ *
+ * ### Specifications
+ * - OpenID4VP, verifiable presentation response processing
+ * - OpenID4VP, response_uri direct post response mode
+ * - OpenID request object and encrypted response profile concepts
+ */
 export async function presentationResponse(
 	{ presentation_request, vp_token }: PresentationResponseParams,
 	config: PresentationResponseConfig,

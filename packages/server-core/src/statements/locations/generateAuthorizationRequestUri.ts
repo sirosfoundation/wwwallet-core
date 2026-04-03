@@ -11,6 +11,17 @@ export type GenerateAuthorizationRequestUriConfig = {
 };
 
 // TODO split authorization_request token generation from request_uri urn
+/**
+ * Encodes authorization request parameters into a protected request_uri token.
+ *
+ * ### Why (Security)
+ * Protected request objects reduce front-channel parameter tampering.
+ *
+ * ### Specifications
+ * - RFC 9126 (OAuth 2.0 Pushed Authorization Requests), pushed authorization request and request_uri
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.1, authorization request fields
+ * - JWT-secured request object profile concepts
+ */
 export async function generateAuthorizationRequestUri(
 	{
 		response_type,

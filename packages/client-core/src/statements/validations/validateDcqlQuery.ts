@@ -7,6 +7,17 @@ export type ValidateDcqlQueryParams = {
 
 export type ValidateDcqlQueryConfig = {};
 
+/**
+ * Parses and validates an incoming DCQL query object.
+ *
+ * ### Why (Security)
+ * Strict query parsing reduces query-confusion and unexpected credential disclosure behavior.
+ *
+ * ### Specifications
+ * - DCQL, query grammar and semantics
+ * - OpenID4VP with DCQL integration profile
+ * - OpenID4VP query evaluation model
+ */
 export async function validateDcqlQuery(
 	{ dcql_query }: ValidateDcqlQueryParams,
 	_config: ValidateDcqlQueryConfig,

@@ -7,6 +7,17 @@ export type ValidateResourceOwnerParams = {
 
 export type ValidateResourceOwnerConfig = unknown;
 
+/**
+ * Validates resource owner subject presence before authorization or issuance actions.
+ *
+ * ### Why (Security)
+ * Subject checks prevent issuing artifacts without a stable principal identity.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 1.1, resource owner role
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1, authorization bound to resource owner
+ * - OpenID4VCI, subject binding during issuance
+ */
 export async function validateResourceOwner(
 	{ resource_owner }: ValidateResourceOwnerParams,
 	_config: ValidateResourceOwnerConfig,

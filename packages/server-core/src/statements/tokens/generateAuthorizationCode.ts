@@ -14,6 +14,17 @@ export type GenerateAuthorizationCodeConfig = {
 	secret: string;
 };
 
+/**
+ * Issues an encrypted authorization code containing redirect and PKCE binding data.
+ *
+ * ### Why (Security)
+ * Binding redirect URI and PKCE data to code mitigates interception and substitution attacks.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.2, authorization code issuance
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.3, PKCE challenge parameters
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 10.6, redirect URI protection
+ */
 export async function generateAuthorizationCode(
 	{
 		authorization_request,

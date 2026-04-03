@@ -7,6 +7,17 @@ export type validateScopeParams = {
 
 export type ValidateScopeConfig = unknown;
 
+/**
+ * Validates requested scope values against the client allowed scopes.
+ *
+ * ### Why (Security)
+ * Scope allow-listing prevents privilege escalation through overbroad scope requests.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 3.3, scope parameter
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 5.1, scope response semantics
+ * - OpenID4VCI, scope-constrained credential authorization
+ */
 export async function validateScope(
 	scope: string | undefined,
 	{ client }: validateScopeParams,

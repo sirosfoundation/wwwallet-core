@@ -26,6 +26,18 @@ type PushedAuthorizationRequestParams = {
 	response_type?: string;
 };
 
+/**
+ * Builds and submits a Pushed Authorization Request, then returns the authorization URL for the wallet redirect.
+ *
+ * ### Why (Security)
+ * PAR plus state and PKCE reduce front-channel tampering and request replay risks.
+ *
+ * ### Specifications
+ * - RFC 9126 (OAuth 2.0 Pushed Authorization Requests), PAR endpoint request and request_uri handling
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.1, authorization request parameters
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.2, PKCE challenge on authorization request
+ * - OpenID4VCI, authorization code flow from credential offer grants
+ */
 export async function fetchAuthorizationUrl(
 	{ client_state, client, issuer_state }: FetchAuthorizationUrlParams,
 	config: FetchAuthorizationUrlConfig,

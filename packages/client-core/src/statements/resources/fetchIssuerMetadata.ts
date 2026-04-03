@@ -16,6 +16,17 @@ export type FetchIssuerMetadataConfig = {
 	clientStateStore: ClientStateStore;
 };
 
+/**
+ * Fetches and merges OAuth authorization server metadata and credential issuer metadata.
+ *
+ * ### Why (Security)
+ * Using issuer-published metadata reduces endpoint spoofing and misrouting of sensitive requests.
+ *
+ * ### Specifications
+ * - RFC 8414 (OAuth 2.0 Authorization Server Metadata)
+ * - OpenID4VCI, openid-credential-issuer metadata document
+ * - OpenID Connect Discovery 1.0, provider metadata model
+ */
 export async function fetchIssuerMetadata(
 	{ client_state, issuer }: FetchIssuerMetadataParams,
 	config: FetchIssuerMetadataConfig,

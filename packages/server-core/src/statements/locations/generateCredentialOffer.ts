@@ -17,6 +17,17 @@ export type GenerateCredentialOfferConfig = {
 	supported_credential_configurations: Array<CredentialConfiguration>;
 };
 
+/**
+ * Creates a credential offer URL and QR code for supported credential configurations.
+ *
+ * ### Why (Security)
+ * Filtering by supported scope and configuration prevents over-offering credentials.
+ *
+ * ### Specifications
+ * - OpenID4VCI, credential offer generation
+ * - OpenID4VCI, credential configuration identifier selection
+ * - OpenID4VCI, wallet invocation URI usage
+ */
 export async function generateCredentialOffer(
 	{ grants, scope }: GenerateCredentialOfferParams,
 	config: GenerateCredentialOfferConfig,

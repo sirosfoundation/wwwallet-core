@@ -9,6 +9,17 @@ export type validateRequestUriParams = {
 
 export type ValidateRequestUriConfig = DecryptConfig;
 
+/**
+ * Validates request_uri format and decrypts authorization request object content.
+ *
+ * ### Why (Security)
+ * request_uri validation prevents unauthorized request object injection and mixups.
+ *
+ * ### Specifications
+ * - RFC 9126 (OAuth 2.0 Pushed Authorization Requests), request_uri lifecycle in PAR
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.1, authorization request parameter set
+ * - JWT-secured authorization request object validation
+ */
 export async function validateRequestUri(
 	{ request_uri }: validateRequestUriParams,
 	config: ValidateRequestUriConfig,

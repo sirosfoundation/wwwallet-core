@@ -10,6 +10,17 @@ export type validateAuthorizationCodeParams = {
 export type ValidateAuthorizationCodeConfig = DecryptConfig;
 
 // TODO validate code redirect uri according to request
+/**
+ * Decrypts and validates authorization code payload before token exchange.
+ *
+ * ### Why (Security)
+ * Strict code validation blocks forged or stale code exchange attempts.
+ *
+ * ### Specifications
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.3, token request with authorization code
+ * - RFC 6749 (OAuth 2.0 Authorization Framework) Section 4.1.2, code semantics
+ * - RFC 7636 (Proof Key for Code Exchange by OAuth Public Clients) Section 4.5, PKCE validation prerequisites
+ */
 export async function validateAuthorizationCode(
 	{
 		authorization_code,

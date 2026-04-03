@@ -21,6 +21,17 @@ type DpopPayload = {
 	ath?: string;
 };
 
+/**
+ * Generates a DPoP proof JWT bound to HTTP method, URL, and optional access token hash.
+ *
+ * ### Why (Security)
+ * Proof of possession constrains token use to the holder key and target request.
+ *
+ * ### Specifications
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 4, DPoP proof JWT
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 4.2, required claims and ath
+ * - RFC 9449 (OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)) Section 7, DPoP usage at token endpoint
+ */
 export async function generateDpop(
 	{ client_state, access_token, htm, htu }: GenerateDpopParams,
 	config: GenerateDpopConfig,

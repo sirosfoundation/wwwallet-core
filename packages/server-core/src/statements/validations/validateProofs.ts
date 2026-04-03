@@ -17,6 +17,18 @@ export type ValidateProofsConfig = {
 	issuer_client: IssuerClient;
 } & DecryptConfig;
 
+/**
+ * Validates holder proofs, nonce claims, and attestation certificate trust chains.
+ *
+ * ### Why (Security)
+ * Proof verification enforces holder possession, nonce freshness, and trust anchors before issuance.
+ *
+ * ### Specifications
+ * - OpenID4VCI, proof validation at credential endpoint
+ * - OpenID4VCI, c_nonce proof binding
+ * - JOSE or JWT signature validation model
+ * - X.509 certificate path trust validation concepts
+ */
 export async function validateProofs(
 	{ proofs }: ValidateProofsParams,
 	config: ValidateProofsConfig,

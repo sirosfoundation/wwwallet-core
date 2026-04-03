@@ -11,6 +11,17 @@ export type ValidateIssuerStateConfig = {
 	};
 } & DecryptConfig;
 
+/**
+ * Validates issuer_state token integrity and issuer binding.
+ *
+ * ### Why (Security)
+ * Issuer binding prevents cross-issuer state reuse and flow confusion.
+ *
+ * ### Specifications
+ * - OpenID4VCI, issuer_state in authorization code grant
+ * - OAuth state-style correlation semantics
+ * - JWT or JWE protected state validation
+ */
 export async function validateIssuerState(
 	{ issuer_state }: validateIssuerStateParams,
 	config: ValidateIssuerStateConfig,
