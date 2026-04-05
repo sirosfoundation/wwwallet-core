@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { decodeProtectedHeader, type JWK, jwtVerify, SignJWT } from "jose";
 import { assert, describe, expect, it } from "vitest";
 import { OauthError } from "../../src/errors";
@@ -783,60 +784,18 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("resolves a presentation request with request", async () => {
+	it("rejects with an invalid client id", async () => {
 		const client_id = "client_id";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
 		const response_mode = "response_mode";
 		const nonce = "nonce";
 		const state = "state";
-
-		const request = await new SignJWT({
-			client_id,
-			response_uri,
-			response_type,
-			response_mode,
-			nonce,
-			state,
-		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
-
-		const location = {
-			search: `?client_id=${client_id}&request=${request}`,
+		const client_metadata = {
+			jwks: { keys: [{}] },
+			encrypted_response_enc_values_supported: ["ECDH-ES"],
+			vp_formats_supported: { "vc+jpt": {} },
 		};
-
-		// @ts-ignore
-		const response = await locationHandler(location);
-
-		expect(response).to.deep.eq({
-			data: {
-				presentation_request: {
-					client_id: "client_id",
-					nonce: "nonce",
-					response_mode: "response_mode",
-					response_type: "response_type",
-					response_uri: "response_uri",
-					state: "state",
-					dcql_query: null,
-					client_metadata: null,
-				},
-				dcql_query: null,
-				client_metadata: null,
-			},
-			nextStep: "generate_presentation",
-			protocol: "oid4vp",
-		});
-	});
-
-	it.skip("rejects with invalid client metadata", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const client_metadata = {};
 
 		const request = await new SignJWT({
 			client_id,
@@ -847,8 +806,210 @@ describe("location handler - presentation request", () => {
 			state,
 			client_metadata,
 		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("client id prefix not supported");
+			expect(error.data).to.deep.eq({
+				currentStep: "parse_location",
+				location: undefined,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		}
+	});
+
+	it("rejects without a client", async () => {
+		const client_id = "x509_san_dns";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {
+			jwks: { keys: [{}] },
+			encrypted_response_enc_values_supported: ["ECDH-ES"],
+			vp_formats_supported: { "vc+jpt": {} },
+		};
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("invalid client id");
+			expect(error.data).to.deep.eq({
+				currentStep: "parse_location",
+				location: undefined,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		}
+	});
+
+	it("rejects with an invalid request", async () => {
+		const client_id = "x509_san_dns:invalid";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {
+			jwks: { keys: [{}] },
+			encrypted_response_enc_values_supported: ["ECDH-ES"],
+			vp_formats_supported: { "vc+jpt": {} },
+		};
+
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "ES256" })
+			.sign(testKey);
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq(
+				"presentation request must contain a x5c header",
+			);
+			expect(error.data).to.deep.eq({
+				currentStep: "parse_location",
+				location: undefined,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		}
+	});
+
+	it("rejects with an invalid client", async () => {
+		const client_id = "x509_san_dns:invalid";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {
+			jwks: { keys: [{}] },
+			encrypted_response_enc_values_supported: ["ECDH-ES"],
+			vp_formats_supported: { "vc+jpt": {} },
+		};
+
+		const rawCertificate = Buffer.from(
+			new crypto.X509Certificate(testCertificate).raw,
+		).toString("base64");
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "ES256", x5c: [rawCertificate] })
+			.sign(testKey);
+
+		const location = {
+			search: `?client_id=${client_id}&request=${request}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq(
+				"client host does not match presentation request",
+			);
+			expect(error.data).to.deep.eq({
+				currentStep: "parse_location",
+				location: undefined,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		}
+	});
+
+	it.skip("rejects with invalid client metadata", async () => {
+		const client_id = "x509_san_dns:local.wwwallet.org";
+		const response_uri = "response_uri";
+		const response_type = "response_type";
+		const response_mode = "response_mode";
+		const nonce = "nonce";
+		const state = "state";
+		const client_metadata = {};
+
+		const rawCertificate = Buffer.from(
+			new crypto.X509Certificate(testCertificate).raw,
+		).toString("base64");
+		const request = await new SignJWT({
+			client_id,
+			response_uri,
+			response_type,
+			response_mode,
+			nonce,
+			state,
+			client_metadata,
+		})
+			.setProtectedHeader({ alg: "ES256", x5c: [rawCertificate] })
+			.sign(testKey);
 
 		const location = {
 			search: `?client_id=${client_id}&request=${request}`,
@@ -887,8 +1048,8 @@ describe("location handler - presentation request", () => {
 		}
 	});
 
-	it("resolves with client metadata", async () => {
-		const client_id = "client_id";
+	it("rejects without a presentation request x5c", async () => {
+		const client_id = "x509_san_dns:local.wwwallet.org";
 		const response_uri = "response_uri";
 		const response_type = "response_type";
 		const response_mode = "response_mode";
@@ -916,18 +1077,83 @@ describe("location handler - presentation request", () => {
 			search: `?client_id=${client_id}&request=${request}`,
 		};
 
-		// @ts-ignore
-		const response = await locationHandler(location);
+		try {
+			// @ts-ignore
+			await locationHandler(location);
 
-		expect(response).to.deep.eq({
-			data: {
-				presentation_request: {
-					client_id: "client_id",
-					nonce: "nonce",
-					response_mode: "response_mode",
-					response_type: "response_type",
-					response_uri: "response_uri",
-					state: "state",
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq(
+				"presentation request must contain a x5c header",
+			);
+		}
+	});
+
+	describe("with a valid client id", () => {
+		const client_id = "x509_san_dns:local.wwwallet.org";
+		const x5c = [
+			Buffer.from(new crypto.X509Certificate(testCertificate).raw).toString(
+				"base64",
+			),
+		];
+
+		it("resolves with client metadata", async () => {
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
+			const client_metadata = {
+				jwks: { keys: [{}] },
+				encrypted_response_enc_values_supported: ["ECDH-ES"],
+				vp_formats_supported: { "vc+jpt": {} },
+			};
+
+			const request = await new SignJWT({
+				client_id,
+				response_uri,
+				response_type,
+				response_mode,
+				nonce,
+				state,
+				client_metadata,
+			})
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
+
+			const location = {
+				search: `?client_id=${client_id}&request=${request}`,
+			};
+
+			// @ts-ignore
+			const response = await locationHandler(location);
+
+			expect(response).to.deep.eq({
+				data: {
+					presentation_request: {
+						request,
+						client_id,
+						nonce: "nonce",
+						response_mode: "response_mode",
+						response_type: "response_type",
+						response_uri: "response_uri",
+						state: "state",
+						dcql_query: null,
+						client_metadata: {
+							encrypted_response_enc_values_supported: ["ECDH-ES"],
+							jwks: {
+								keys: [{}],
+							},
+							vp_formats_supported: {
+								"vc+jpt": {},
+							},
+						},
+					},
 					dcql_query: null,
 					client_metadata: {
 						encrypted_response_enc_values_supported: ["ECDH-ES"],
@@ -939,282 +1165,395 @@ describe("location handler - presentation request", () => {
 						},
 					},
 				},
-				dcql_query: null,
-				client_metadata: {
-					encrypted_response_enc_values_supported: ["ECDH-ES"],
-					jwks: {
-						keys: [{}],
-					},
-					vp_formats_supported: {
-						"vc+jpt": {},
-					},
-				},
-			},
-			nextStep: "generate_presentation",
-			protocol: "oid4vp",
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
 		});
-	});
 
-	it("rejects with an invalid dcql query", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const dcql_query = {};
+		it("resolves a presentation request with request", async () => {
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
 
-		const request = await new SignJWT({
-			client_id,
-			response_uri,
-			response_type,
-			response_mode,
-			nonce,
-			state,
-			dcql_query,
-		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
+			const request = await new SignJWT({
+				client_id,
+				response_uri,
+				response_type,
+				response_mode,
+				nonce,
+				state,
+			})
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
 
-		const location = {
-			search: `?client_id=${client_id}&request=${request}`,
-		};
+			const location = {
+				search: `?client_id=${client_id}&request=${request}`,
+			};
 
-		try {
 			// @ts-ignore
-			await locationHandler(location);
+			const response = await locationHandler(location);
 
-			assert(false);
-		} catch (error) {
-			if (!(error instanceof OauthError)) {
-				throw error;
+			expect(response).to.deep.eq({
+				data: {
+					presentation_request: {
+						request,
+						client_id,
+						nonce: "nonce",
+						response_mode: "response_mode",
+						response_type: "response_type",
+						response_uri: "response_uri",
+						state: "state",
+						dcql_query: null,
+						client_metadata: null,
+					},
+					dcql_query: null,
+					client_metadata: null,
+				},
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		});
+
+		it("rejects with an invalid dcql query", async () => {
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
+			const dcql_query = {};
+
+			const request = await new SignJWT({
+				client_id,
+				response_uri,
+				response_type,
+				response_mode,
+				nonce,
+				state,
+				dcql_query,
+			})
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
+
+			const location = {
+				search: `?client_id=${client_id}&request=${request}`,
+			};
+
+			try {
+				// @ts-ignore
+				await locationHandler(location);
+
+				assert(false);
+			} catch (error) {
+				if (!(error instanceof OauthError)) {
+					throw error;
+				}
+				expect(error.error).to.eq("invalid_query");
+				// @ts-ignore
+				expect(error.data.error?.message).to.eq(
+					"Expected input to be an array, but received 'undefined'",
+				);
+				// @ts-ignore
+				expect(error.data.error?.issues).to.deep.eq([
+					{
+						abortEarly: undefined,
+						abortPipeEarly: undefined,
+						expected: "Array",
+						input: undefined,
+						issues: undefined,
+						kind: "schema",
+						lang: undefined,
+						message: "Expected input to be an array, but received 'undefined'",
+						path: [
+							{
+								input: {},
+								key: "credentials",
+								origin: "value",
+								type: "object",
+								value: undefined,
+							},
+						],
+						received: "undefined",
+						requirement: undefined,
+						type: "array",
+					},
+				]);
+				expect(error.error_description).to.eq("could not parse dcql query");
 			}
-			expect(error.error).to.eq("invalid_query");
+		});
+
+		it("resolves with a valid dcql query", async () => {
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
+			const dcql_query = {
+				credentials: [
+					{
+						id: "credential_id",
+						format: "dc+sd-jwt",
+					},
+				],
+			};
+
+			const request = await new SignJWT({
+				client_id,
+				response_uri,
+				response_type,
+				response_mode,
+				nonce,
+				state,
+				dcql_query,
+			})
+				.setProtectedHeader({ alg: "ES256", x5c })
+				.sign(testKey);
+
+			const location = {
+				search: `?client_id=${client_id}&request=${request}`,
+			};
+
 			// @ts-ignore
-			expect(error.data.error?.message).to.eq(
-				"Expected input to be an array, but received 'undefined'",
-			);
-			// @ts-ignore
-			expect(error.data.error?.issues).to.deep.eq([
-				{
-					abortEarly: undefined,
-					abortPipeEarly: undefined,
-					expected: "Array",
-					input: undefined,
-					issues: undefined,
-					kind: "schema",
-					lang: undefined,
-					message: "Expected input to be an array, but received 'undefined'",
-					path: [
-						{
-							input: {},
-							key: "credentials",
-							origin: "value",
-							type: "object",
-							value: undefined,
+			const response = await locationHandler(location);
+
+			expect(response).to.deep.eq({
+				data: {
+					presentation_request: {
+						request,
+						client_id,
+						nonce: "nonce",
+						response_mode: "response_mode",
+						response_type: "response_type",
+						response_uri: "response_uri",
+						state: "state",
+						dcql_query: {
+							credentials: [
+								{
+									format: "dc+sd-jwt",
+									id: "credential_id",
+								},
+							],
 						},
-					],
-					received: "undefined",
-					requirement: undefined,
-					type: "array",
-				},
-			]);
-			expect(error.error_description).to.eq("could not parse dcql query");
-		}
-	});
-
-	it("resolves with a valid dcql query", async () => {
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const dcql_query = {
-			credentials: [
-				{
-					id: "credential_id",
-					format: "dc+sd-jwt",
-				},
-			],
-		};
-
-		const request = await new SignJWT({
-			client_id,
-			response_uri,
-			response_type,
-			response_mode,
-			nonce,
-			state,
-			dcql_query,
-		})
-			.setProtectedHeader({ alg: "HS256" })
-			.sign(new TextEncoder().encode("secret"));
-
-		const location = {
-			search: `?client_id=${client_id}&request=${request}`,
-		};
-
-		// @ts-ignore
-		const response = await locationHandler(location);
-
-		expect(response).to.deep.eq({
-			data: {
-				presentation_request: {
-					client_id: "client_id",
-					nonce: "nonce",
-					response_mode: "response_mode",
-					response_type: "response_type",
-					response_uri: "response_uri",
-					state: "state",
+						client_metadata: null,
+					},
 					dcql_query: {
 						credentials: [
 							{
 								format: "dc+sd-jwt",
 								id: "credential_id",
+								multiple: false,
+								require_cryptographic_holder_binding: true,
 							},
 						],
 					},
 					client_metadata: null,
 				},
-				dcql_query: {
-					credentials: [
-						{
-							format: "dc+sd-jwt",
-							id: "credential_id",
-							multiple: false,
-							require_cryptographic_holder_binding: true,
+				nextStep: "generate_presentation",
+				protocol: "oid4vp",
+			});
+		});
+
+		describe("with a raw presentation request uri", () => {
+			const request_uri = "https://local.wwwallet.org/request_uri";
+			const http_request_uri = "http://local.wwwallet.org/request_uri";
+			const invalid_request_uri = "https://invalid.host/request_uri";
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
+			const locationHandler = locationHandlerFactory({
+				// @ts-ignore
+				httpClient: {
+					get: async <T>(url: string) => {
+						if (
+							url === request_uri ||
+							url === invalid_request_uri ||
+							url === http_request_uri
+						) {
+							return {
+								data: {
+									client_id,
+									response_uri,
+									response_type,
+									response_mode,
+									nonce,
+									state,
+								} as T,
+							};
+						}
+						throw new Error("invalid request_uri");
+					},
+				},
+				clientStateStore: clientStateStoreMock(),
+				presentationCredentialsStore: presentationCredentialsStoreMock(),
+			});
+
+			it("rejects with an invalid request uri (http)", async () => {
+				const location = {
+					search: `?client_id=${client_id}&request_uri=${http_request_uri}`,
+				};
+
+				try {
+					// @ts-ignore
+					await locationHandler(location);
+
+					assert(false);
+				} catch (error) {
+					if (!(error instanceof OauthError)) {
+						throw error;
+					}
+
+					expect(error.error).to.eq("invalid_request");
+					expect(error.error_description).to.eq(
+						"request uri must have a https scheme",
+					);
+				}
+			});
+
+			it("rejects with an invalid request uri (host)", async () => {
+				const location = {
+					search: `?client_id=${client_id}&request_uri=${invalid_request_uri}`,
+				};
+
+				try {
+					// @ts-ignore
+					await locationHandler(location);
+
+					assert(false);
+				} catch (error) {
+					if (!(error instanceof OauthError)) {
+						throw error;
+					}
+
+					expect(error.error).to.eq("invalid_request");
+					expect(error.error_description).to.eq(
+						"request uri does not match client host",
+					);
+				}
+			});
+
+			it("resolves a presentation request with request", async () => {
+				const location = {
+					search: `?client_id=${client_id}&request_uri=${request_uri}`,
+				};
+
+				// @ts-ignore
+				const response = await locationHandler(location);
+
+				expect(response).to.deep.eq({
+					data: {
+						presentation_request: {
+							request_uri,
+							client_id,
+							nonce: "nonce",
+							response_mode: "response_mode",
+							response_type: "response_type",
+							response_uri: "response_uri",
+							state: "state",
+							dcql_query: null,
+							client_metadata: null,
 						},
-					],
-				},
-				client_metadata: null,
-			},
-			nextStep: "generate_presentation",
-			protocol: "oid4vp",
-		});
-	});
-
-	describe("with a presentation request uri", () => {
-		const request_uri = "http://request.uri";
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const locationHandler = locationHandlerFactory({
-			// @ts-ignore
-			httpClient: {
-				get: async <T>(url: string) => {
-					if (url !== request_uri) {
-						throw new Error("invalid request_uri");
-					}
-					return {
-						data: (await new SignJWT({
-							client_id,
-							response_uri,
-							response_type,
-							response_mode,
-							nonce,
-							state,
-						})
-							.setProtectedHeader({ alg: "HS256" })
-							.sign(new TextEncoder().encode("secret"))) as T,
-					};
-				},
-			},
-			clientStateStore: clientStateStoreMock(),
-			presentationCredentialsStore: presentationCredentialsStoreMock(),
-		});
-
-		it("returns a presentation request with request", async () => {
-			const location = {
-				search: `?client_id=${client_id}&request_uri=${request_uri}`,
-			};
-
-			// @ts-ignore
-			const response = await locationHandler(location);
-
-			expect(response).to.deep.eq({
-				data: {
-					presentation_request: {
-						client_id: "client_id",
-						nonce: "nonce",
-						response_mode: "response_mode",
-						response_type: "response_type",
-						response_uri: "response_uri",
-						state: "state",
 						dcql_query: null,
 						client_metadata: null,
 					},
-					dcql_query: null,
-					client_metadata: null,
-				},
-				nextStep: "generate_presentation",
-				protocol: "oid4vp",
+					nextStep: "generate_presentation",
+					protocol: "oid4vp",
+				});
 			});
 		});
-	});
 
-	describe("with a raw presentation request uri", () => {
-		const request_uri = "http://request.uri";
-		const client_id = "client_id";
-		const response_uri = "response_uri";
-		const response_type = "response_type";
-		const response_mode = "response_mode";
-		const nonce = "nonce";
-		const state = "state";
-		const locationHandler = locationHandlerFactory({
-			// @ts-ignore
-			httpClient: {
-				get: async <T>(url: string) => {
-					if (url !== request_uri) {
-						throw new Error("invalid request_uri");
-					}
-					return {
-						data: {
+		describe("with a presentation request uri", () => {
+			const request_uri = "http://request.uri";
+			const response_uri = "response_uri";
+			const response_type = "response_type";
+			const response_mode = "response_mode";
+			const nonce = "nonce";
+			const state = "state";
+
+			it.skip("rejects with an invalid x5c presentation request header");
+
+			it("resolves a presentation request with request", async () => {
+				const request = await new SignJWT({
+					client_id,
+					response_uri,
+					response_type,
+					response_mode,
+					nonce,
+					state,
+				})
+					.setProtectedHeader({ alg: "ES256", x5c })
+					.sign(testKey);
+				const locationHandler = locationHandlerFactory({
+					// @ts-ignore
+					httpClient: {
+						get: async <T>(url: string) => {
+							if (url !== request_uri) {
+								throw new Error("invalid request_uri");
+							}
+							return {
+								data: request as T,
+							};
+						},
+					},
+					clientStateStore: clientStateStoreMock(),
+					presentationCredentialsStore: presentationCredentialsStoreMock(),
+				});
+				const location = {
+					search: `?client_id=${client_id}&request_uri=${request_uri}`,
+				};
+
+				// @ts-ignore
+				const response = await locationHandler(location);
+
+				expect(response).to.deep.eq({
+					data: {
+						presentation_request: {
+							request_uri,
+							request,
 							client_id,
-							response_uri,
-							response_type,
-							response_mode,
-							nonce,
-							state,
-						} as T,
-					};
-				},
-			},
-			clientStateStore: clientStateStoreMock(),
-			presentationCredentialsStore: presentationCredentialsStoreMock(),
-		});
-
-		it("returns a presentation request with request", async () => {
-			const location = {
-				search: `?client_id=${client_id}&request_uri=${request_uri}`,
-			};
-
-			// @ts-ignore
-			const response = await locationHandler(location);
-
-			expect(response).to.deep.eq({
-				data: {
-					presentation_request: {
-						client_id: "client_id",
-						nonce: "nonce",
-						response_mode: "response_mode",
-						response_type: "response_type",
-						response_uri: "response_uri",
-						state: "state",
+							nonce: "nonce",
+							response_mode: "response_mode",
+							response_type: "response_type",
+							response_uri: "response_uri",
+							state: "state",
+							dcql_query: null,
+							client_metadata: null,
+						},
 						dcql_query: null,
 						client_metadata: null,
 					},
-					dcql_query: null,
-					client_metadata: null,
-				},
-				nextStep: "generate_presentation",
-				protocol: "oid4vp",
+					nextStep: "generate_presentation",
+					protocol: "oid4vp",
+				});
 			});
+
+			it.skip("resolves a presentation request with a request uri");
 		});
 	});
-
-	it.skip("returns a presentation request with a request uri");
 });
+
+const testCertificate = `-----BEGIN CERTIFICATE-----
+MIICyzCCAnGgAwIBAgIULnrxux9sI34oqbby3M4lSKOs8owwCgYIKoZIzj0EAwIw
+PzELMAkGA1UEBhMCRVUxFTATBgNVBAoMDHd3V2FsbGV0Lm9yZzEZMBcGA1UEAwwQ
+d3dXYWxsZXQgUm9vdCBDQTAeFw0yNTA0MjkxMDI5NTNaFw0yNjA0MjkxMDI5NTNa
+MEExCzAJBgNVBAYTAkVVMRUwEwYDVQQKDAx3d1dhbGxldC5vcmcxGzAZBgNVBAMM
+EmxvY2FsLnd3d2FsbGV0Lm9yZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFVi
+vGt53M4qEP06QT20BSlGiMIdzLLvG+b9fq/fHKM+NGT+a3snXiPwU7X7jrOFWxwy
+jZeean40+vx6Gy06VfqjggFHMIIBQzAdBgNVHQ4EFgQUM/A3FTQLjww5/9u01MX/
+SRyVqaUwHwYDVR0jBBgwFoAU0HGu3T+/Wqh3yNifz9sNd+HPBS4wDgYDVR0PAQH/
+BAQDAgeAMDIGA1UdEgQrMCmBEWluZm9Ad3d3YWxsZXQub3JnhhRodHRwczovL3d3
+d2FsbGV0Lm9yZzASBgNVHSUECzAJBgcogYxdBQECMAwGA1UdEwEB/wQCMAAwRAYD
+VR0fBD0wOzA5oDegNYYzaHR0cHM6Ly93d3dhbGxldC5vcmcvaWFjYS9jcmwvd3d3
+YWxsZXRfb3JnX2lhY2EuY3JsMFUGA1UdEQROMEyCEmxvY2FsLnd3d2FsbGV0Lm9y
+Z4IZbG9jYWwtaXNzdWVyLnd3d2FsbGV0Lm9yZ4IbbG9jYWwtdmVyaWZpZXIud3d3
+YWxsZXQub3JnMAoGCCqGSM49BAMCA0gAMEUCIQCQ8h+5krhO+f4woReDY1D7CaM6
+qCda3m814e6DLvOphAIgHQL+Wm7WFRwxgjzMLN37RojJGrZbF4OFChIkmm0uu5o=
+-----END CERTIFICATE-----`;
+
+const testKey = crypto.createPrivateKey(`-----BEGIN PRIVATE KEY-----
+MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgtfEWwPl5+13fqLPw
+j/22afeqn/BgARhgjbtoRKcUFLyhRANCAARVYrxredzOKhD9OkE9tAUpRojCHcyy
+7xvm/X6v3xyjPjRk/mt7J14j8FO1+46zhVscMo2Xnmp+NPr8ehstOlX6
+-----END PRIVATE KEY-----`);
