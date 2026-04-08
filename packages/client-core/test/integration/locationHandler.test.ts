@@ -434,15 +434,26 @@ describe("location handler - presentation success", () => {
 });
 
 describe("location handler - credential offer", () => {
+	const access_token = "access_token";
+	const token_type = "bearer";
+	const expires_in = 10;
+	const refresh_token = "refresh_token";
 	const config = {
 		httpClient: {
-			get: fetchIssuerMetadataMock({}),
-			post: httpClientPostMock(),
+			get: fetchIssuerMetadataMock({
+				token_endpoint: "https://issuer.url/token",
+			}),
+			post: httpClientPostMock({
+				access_token,
+				token_type,
+				refresh_token,
+				expires_in,
+			}),
 		},
 		clientStateStore: clientStateStoreMock(),
 		static_clients: [
 			{
-				issuer: "http://issuer.url",
+				issuer: "https://issuer.url/",
 				client_id: "client_id",
 				client_secret: "client_secret",
 			},
@@ -631,7 +642,7 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("rejects with an invalid authorization code grants", async () => {
+	it("rejects with an invalid authorization code grant", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: null };
@@ -660,7 +671,38 @@ describe("location handler - credential offer", () => {
 		}
 	});
 
-	it("returns with a valid authorization code grants", async () => {
+	it("rejects with an invalid preauthorized code grant", async () => {
+		const credential_issuer = "https://issuer.url/";
+		const credential_configuration_ids = ["credential_configuration_ids"];
+		const grants = {
+			"urn:ietf:params:oauth:grant-type:pre-authorized_code": null,
+		};
+		const credential_offer = {
+			credential_issuer,
+			credential_configuration_ids,
+			grants,
+		};
+		const location = {
+			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_location");
+			expect(error.error_description).to.eq(
+				"given authorization grants are not supported",
+			);
+		}
+	});
+
+	it("returns with a valid authorization code grant", async () => {
 		const credential_issuer = "https://issuer.url/";
 		const credential_configuration_ids = ["credential_configuration_ids"];
 		const grants = { authorization_code: {} };
@@ -729,6 +771,71 @@ describe("location handler - credential offer", () => {
 			credential_configuration_ids,
 		);
 		expect(response.data?.issuer_state).to.deep.eq(issuer_state);
+	});
+
+	it("rejects with an unknown preauthorized code issuer", async () => {
+		const credential_issuer = "https://unknown.url/";
+		const credential_configuration_ids = ["credential_configuration_ids"];
+		const grants = {
+			"urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+				"pre-authorized_code": "unkown",
+			},
+		};
+		const credential_offer = {
+			credential_issuer,
+			credential_configuration_ids,
+			grants,
+		};
+		const location = {
+			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
+		};
+
+		try {
+			// @ts-ignore
+			await locationHandler(location);
+
+			assert(false);
+		} catch (error) {
+			if (!(error instanceof OauthError)) {
+				throw error;
+			}
+			expect(error.error).to.eq("invalid_client");
+			expect(error.error_description).to.eq("could not find issuer client");
+		}
+	});
+
+	it("resolves with a preauthorized code", async () => {
+		const credential_issuer = "https://issuer.url/";
+		const credential_configuration_ids = ["credential_configuration_ids"];
+		const grants = {
+			"urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+				"pre-authorized_code": "unkown",
+			},
+		};
+		const credential_offer = {
+			credential_issuer,
+			credential_configuration_ids,
+			grants,
+		};
+		const location = {
+			search: `?credential_offer=${JSON.stringify(credential_offer)}`,
+		};
+
+		// @ts-ignore
+		const response = await locationHandler(location);
+
+		expect(response.protocol).to.eq("oid4vci");
+		if (response.protocol !== "oid4vci") {
+			assert(false);
+		}
+		expect(response.nextStep).to.eq("credential_request");
+		if (response.nextStep !== "credential_request") {
+			assert(false);
+		}
+		expect(response.data?.access_token).to.deep.eq(access_token);
+		expect(response.data?.expires_in).to.deep.eq(expires_in);
+		expect(response.data?.token_type).to.deep.eq(token_type);
+		expect(response.data?.refresh_token).to.deep.eq(refresh_token);
 	});
 });
 

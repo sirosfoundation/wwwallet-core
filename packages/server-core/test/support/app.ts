@@ -184,6 +184,7 @@ export function server(protocols: Protocols): express.Express {
 
 const supported_credential_configurations = [
 	"./credential_configurations/full.sd-jwt.json",
+	"./credential_configurations/preauthorized.json",
 	"./credential_configurations/deferred.sd-jwt.json",
 	"./credential_configurations/full.mso_mdoc.json",
 ].map((credentialConfigurationPath) => {
@@ -287,6 +288,7 @@ export const config = {
 		scopes: [
 			"not_found:scope",
 			"full:scope",
+			"preauthorized:scope",
 			"deferred:scope",
 			"full:scope:mso_mdoc",
 		],

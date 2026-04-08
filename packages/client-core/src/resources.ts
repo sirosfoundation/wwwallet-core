@@ -124,6 +124,9 @@ export type Grants = {
 	authorization_code?: {
 		issuer_state?: string;
 	};
+	"urn:ietf:params:oauth:grant-type:pre-authorized_code"?: {
+		"pre-authorized_code": string;
+	};
 };
 
 export type Proofs = {

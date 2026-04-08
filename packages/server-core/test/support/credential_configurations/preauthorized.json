@@ -1,0 +1,20 @@
+{
+	"label": "Preauthorized (dc+sd-jwt)",
+	"credential_configuration_id": "preauthorized",
+	"scope": "preauthorized:scope",
+	"format": "dc+sd-jwt",
+	"vct": "urn:test:preauthorized",
+	"preauthorized": true,
+	"display": [
+		{
+			"name": "Full",
+			"description": "A preauthorized credential for testing purposes",
+			"background_image": {
+				"uri": "http://background.uri"
+			},
+			"background_color": "#00246b",
+			"text_color": "#ffffff",
+			"locale": "en-US"
+		}
+	]
+}

@@ -15,6 +15,11 @@ import {
 	handleClientCredentials,
 	validateClientCredentialsRequest,
 } from "./token/clientCredentials";
+import {
+	handlePreauthorizedCode,
+	type PreauthorizedCodeRequest,
+	validatePreauthorizedCodeRequest,
+} from "./token/preauthorizedCode";
 
 const ajv = new Ajv();
 
@@ -47,6 +52,13 @@ export function tokenHandlerFactory(config: TokenHandlerConfig) {
 				return await handleAuthorizationCode(request, config);
 			}
 
+			if (
+				request.grant_type ===
+				"urn:ietf:params:oauth:grant-type:pre-authorized_code"
+			) {
+				return await handlePreauthorizedCode(request, config);
+			}
+
 			throw new OauthError(
 				400,
 				"invalid_request",
@@ -77,7 +89,9 @@ export function validateTokenHandlerConfig(config: Config) {
 
 async function validateRequest(
 	expressRequest: Request,
-): Promise<ClientCredentialsRequest | AuthorizationCodeRequest> {
+): Promise<
+	ClientCredentialsRequest | AuthorizationCodeRequest | PreauthorizedCodeRequest
+> {
 	if (!expressRequest.body) {
 		throw new OauthError(
 			400,
@@ -86,6 +100,12 @@ async function validateRequest(
 		);
 	}
 
+	if (
+		expressRequest.body.grant_type ===
+		"urn:ietf:params:oauth:grant-type:pre-authorized_code"
+	) {
+		return validatePreauthorizedCodeRequest(expressRequest);
+	}
 	if (expressRequest.body.grant_type === "client_credentials") {
 		return validateClientCredentialsRequest(expressRequest);
 	}

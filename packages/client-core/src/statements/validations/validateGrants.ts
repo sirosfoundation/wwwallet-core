@@ -31,12 +31,21 @@ export async function validateGrants(
 		throw new OauthError("invalid_location", "grants parameter is required");
 	}
 
-	const grant_types: Array<"authorization_code"> = [];
+	const grant_types: Array<"authorization_code" | "pre-authorized_code"> = [];
 	let issuer_state: string | undefined;
+	let preauthorized_code: string | undefined;
 
 	if (grants.authorization_code) {
 		grant_types.push("authorization_code");
 		issuer_state = grants.authorization_code.issuer_state;
+	}
+
+	if (grants["urn:ietf:params:oauth:grant-type:pre-authorized_code"]) {
+		grant_types.push("pre-authorized_code");
+		preauthorized_code =
+			grants["urn:ietf:params:oauth:grant-type:pre-authorized_code"][
+				"pre-authorized_code"
+			];
 	}
 
 	if (!grant_types.length) {
@@ -57,5 +66,5 @@ export async function validateGrants(
 		credential_configuration_ids,
 	);
 
-	return { grant_types, issuer_state, client_state };
+	return { grant_types, issuer_state, preauthorized_code, client_state };
 }

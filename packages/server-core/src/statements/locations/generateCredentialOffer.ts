@@ -3,11 +3,11 @@ import { OauthError } from "../../errors";
 import type {
 	CredentialConfiguration,
 	CredentialOffer,
-	IssuerGrants,
+	Grants,
 } from "../../resources";
 
 export type GenerateCredentialOfferParams = {
-	grants: IssuerGrants;
+	grants: Grants;
 	scope: string;
 };
 

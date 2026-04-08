@@ -12,7 +12,7 @@
 				"uri": ""
 			},
 			"logo": {
-				"uri": "https://avatars.githubusercontent.com/u/179488767?s=200&v=4"
+				"uri": "http://localhost:3000/logo_dark.svg?v=4f0597c7ba"
 			},
 			"background_color": "#4CC3DD",
 			"text_color": "#000000",
