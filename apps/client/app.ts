@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import path from "node:path";
 import {
 	type Protocols,
@@ -171,9 +172,13 @@ export function server(protocols: Protocols): Express {
 			return res.status(response.status).send(response.body);
 		}
 
+		const pre_auth_code = (response.body as Record<string, string>)
+			.pre_auth_code;
+
 		if (req.get("accept")?.match("text/html")) {
 			return res.status(response.status).render("issuance/credential_offer", {
 				data: {
+					pre_auth_code,
 					supportedCredentialConfigurations:
 						protocols.config.supported_credential_configurations,
 					...response.data,
@@ -185,6 +190,66 @@ export function server(protocols: Protocols): Express {
 			error: "invalid_request",
 			error_description: "accept header is missing from request",
 		});
+	});
+
+	app.post("/pre-authorize", async (req, res) => {
+		let resourceOwner: ResourceOwner | null = null;
+		const authenticationError: {
+			error?: Error;
+			errorMessage?: string;
+		} = {};
+		const { pre_auth_code } = req.body || {};
+		try {
+			const masterSecret =
+				process.env.ISSUER_MASTER_SECRET || "secure-permanent-secret";
+			const salt = "issuance-v1";
+			const seedBuffer = crypto.scryptSync(masterSecret, salt, 32);
+			const d = seedBuffer.toString("base64url");
+			const privateKey = crypto.createPrivateKey({
+				key: {
+					kty: "OKP",
+					crv: "Ed25519",
+					x: "unused",
+					d: d,
+				},
+				format: "jwk",
+			});
+			const publicKey = crypto.createPublicKey(privateKey);
+			let isSignatureValid = false;
+			const { message, signed } = JSON.parse(
+				Buffer.from(pre_auth_code, "base64url").toString(),
+			);
+			if (message) {
+				try {
+					isSignatureValid = crypto.verify(
+						null,
+						Buffer.from(message),
+						publicKey,
+						Buffer.from(signed, "base64url"),
+					);
+				} catch {
+					isSignatureValid = false;
+				}
+			}
+			if (isSignatureValid) {
+				resourceOwner = {
+					sub: "sub-123",
+					username: "pre-authorized-user",
+				};
+			} else {
+				throw new Error("Invalid pre-authorization code");
+			}
+		} catch (err) {
+			resourceOwner = null;
+			authenticationError.error = new Error("Authorization Denied");
+			authenticationError.errorMessage = (err as Error).message;
+		}
+		const response = await protocols.authorize(req, resourceOwner);
+		if (response.status === 302) {
+			return res.status(200).json({
+				location: response.location,
+			});
+		}
 	});
 
 	return app;
