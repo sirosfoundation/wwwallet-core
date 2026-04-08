@@ -646,6 +646,7 @@ describe("authorization code - token", () => {
 			protocols.config.clients?.find(({ id }) => id === payload.client_id),
 		);
 		expect(payload.sub).to.eq(sub);
+		expect(payload.grant_type).to.eq("authorization_code");
 	});
 
 	it.skip("returns a token with an oauth client attestation", async () => {
