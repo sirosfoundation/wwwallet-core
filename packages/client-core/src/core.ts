@@ -6,6 +6,8 @@ import {
 	authorizationHandlerFactory,
 	type CredentialHandlerConfig,
 	credentialHandlerFactory,
+	type DeferredCredentialHandlerConfig,
+	deferredCredentialHandlerFactory,
 	type GeneratePresentationConfig,
 	generatePresentationHandlerFactory,
 	type LocationHandlerConfig,
@@ -14,6 +16,7 @@ import {
 	sendPresentationHandlerFactory,
 	validateAuthorizationHandlerConfig,
 	validateCredentialHandlerConfig,
+	validateDeferredCredentialHandlerConfig,
 	validateGeneratePresentationHandlerConfig,
 	validateLocationHandlerConfig,
 	validateSendPresentationHandlerConfig,
@@ -100,6 +103,26 @@ export class Core {
 		validateCredentialHandlerConfig(this.config);
 
 		return credentialHandlerFactory(this.config as CredentialHandlerConfig);
+	}
+
+	/**
+	 * Handle deferred credential request step
+	 *
+	 * @throws {OauthError} An {@link OauthError} error
+	 *
+	 * #### Statements
+	 *
+	 * - {@link "client-core/src/statements".clientState | clientState}
+	 * - {@link "client-core/src/statements".fetchIssuerMetadata | fetchIssuerMetadata}
+	 * - {@link "client-core/src/statements".generateDpop | generateDpop}
+	 * - {@link "client-core/src/statements".fetchCredentials | fetchCredentials}
+	 */
+	get deferredCredential() {
+		validateDeferredCredentialHandlerConfig(this.config);
+
+		return deferredCredentialHandlerFactory(
+			this.config as DeferredCredentialHandlerConfig,
+		);
 	}
 
 	/**

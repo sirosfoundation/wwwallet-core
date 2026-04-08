@@ -7,7 +7,7 @@
 	"vct": "urn:deferred:eudi:pid:1:dc",
 	"display": [
 		{
-			"name": "PID ARF 1.8 (dc+sd-jwt)",
+			"name": "Deferred PID ARF 1.8 (dc+sd-jwt)",
 			"description": "Person Identification Data",
 			"background_image": {
 				"uri": ""

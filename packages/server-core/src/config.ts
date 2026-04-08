@@ -42,13 +42,17 @@ export interface DataOperations {
 			jwks: Array<JWK>;
 		},
 		config: EncryptConfig,
-	) => Promise<Array<ResourceOwnerData> | DeferredCredential>;
+	) => Promise<
+		Array<ResourceOwnerData> | { transaction_id: string; interval: number }
+	>;
 	fetchDeferredResourceOwnerData?: (
 		defered_credential: DeferredCredential,
 		config: DecryptConfig,
-	) => Promise<{
-		defer_data: DeferredResourceOwnerData | null;
-	}>;
+	) => Promise<
+		| DeferredResourceOwnerData
+		| { transaction_id: string; interval: number }
+		| null
+	>;
 }
 
 export type Config = {

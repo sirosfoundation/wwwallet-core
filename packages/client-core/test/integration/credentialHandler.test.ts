@@ -370,8 +370,27 @@ describe("credentialHandler", () => {
 			proofs,
 		});
 
-		expect(response).to.deep.eq({
+		expect(response).toMatchObject({
 			data: {
+				client_state: {
+					code_verifier: "code_verifier",
+					dpopKeyPair: {
+						privateKey: {},
+						publicKey: {},
+					},
+					issuer: "http://issuer.url",
+					issuer_state: "issuer_state",
+					state: "state",
+				},
+				issuer_metadata: {
+					credential_configurations_supported: {
+						credential_configuration_id: {
+							format: "format",
+						},
+					},
+					credential_endpoint: "http://issuer.url/credential",
+					issuer: "http://issuer.url",
+				},
 				credentials: [
 					{
 						credential: "credential",

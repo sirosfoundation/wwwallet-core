@@ -443,8 +443,8 @@ describe("deferred credential endpoint", () => {
 
 				expect(response.status).toBe(404);
 				expect(response.body).to.deep.eq({
-					error: "invalid_credential",
-					error_description: "credential not found",
+					error: "invalid_request",
+					error_description: "transaction not found",
 				});
 			});
 
@@ -466,6 +466,21 @@ describe("deferred credential endpoint", () => {
 					iss: "http://localhost:5000",
 					sub: "sub",
 					vct: "urn:test:deferred",
+				});
+			});
+
+			it("returns a trnsaction with pending transaction", async () => {
+				const transaction_id = "pending";
+				const response = await request(app)
+					.post("/deferred-credential")
+					.set("Authorization", `DPoP ${access_token}`)
+					.set("DPoP", dpop)
+					.send({ transaction_id });
+
+				expect(response.status).toBe(202);
+				expect(response.body).to.deep.eq({
+					transaction_id,
+					interval: 3600,
 				});
 			});
 

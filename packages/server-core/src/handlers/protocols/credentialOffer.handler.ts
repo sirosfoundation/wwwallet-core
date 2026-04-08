@@ -95,7 +95,7 @@ export function credentialOfferHandlerFactory(
 				config.logger.business("credential_offer_error", {
 					error: error.message,
 				});
-				return error.toResponse();
+				return error.toResponse({});
 			}
 
 			throw error;
